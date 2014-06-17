@@ -856,13 +856,10 @@ void WorldSession::SendPlayerNotFoundNotice(std::string const& name)
 {
     WorldPacket data(SMSG_CHAT_PLAYER_NOT_FOUND, 2 + name.size());
     data.WriteBit(0);
-
-    size_t bitPos = data.bitwpos();
-    data.WriteBits(0, 8); //name size placeholder
+    data.WriteBits(name.size(), 8);
 
     data.FlushBits();
     data << name;
-    data.PutBits(bitPos, name.size(), 8);
     SendPacket(&data);
 }
 
