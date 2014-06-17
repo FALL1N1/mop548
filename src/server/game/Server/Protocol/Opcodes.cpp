@@ -347,7 +347,7 @@ void OpcodeTable::InitializeClientTable()
     DEFINE_OPCODE_HANDLER(CMSG_MESSAGECHAT_ADDON_WHISPER,          0x0000, STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleAddonMessagechatOpcode       );
     DEFINE_OPCODE_HANDLER(CMSG_MESSAGECHAT_AFK,                    0xEAB,  STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleMessagechatOpcode            ); // 5.4.8 18291
     DEFINE_OPCODE_HANDLER(CMSG_MESSAGECHAT_BATTLEGROUND,           0x0000, STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleMessagechatOpcode            );
-    DEFINE_OPCODE_HANDLER(CMSG_MESSAGECHAT_CHANNEL,                0x0000, STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleMessagechatOpcode            );
+    DEFINE_OPCODE_HANDLER(CMSG_MESSAGECHAT_CHANNEL,                0x00BB, STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleMessagechatOpcode            ); // 5.4.8 18291
     DEFINE_OPCODE_HANDLER(CMSG_MESSAGECHAT_DND,                    0x2E,   STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleMessagechatOpcode            );
     DEFINE_OPCODE_HANDLER(CMSG_MESSAGECHAT_EMOTE,                  0x103E, STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleMessagechatOpcode            ); // 5.4.8 18291
     DEFINE_OPCODE_HANDLER(CMSG_MESSAGECHAT_GUILD,                  0x0CAE, STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleMessagechatOpcode            ); // 5.4.8 18291
