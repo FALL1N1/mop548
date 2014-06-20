@@ -204,67 +204,46 @@ void WorldSession::HandleWhoOpcode(WorldPacket& recvData)
     else timeLastWhoCommand = now;
 
     uint32 matchcount = 0;
-
     uint32 levelMin, levelMax, raceMask, classMask, zonesCount, patternsCount;
     uint32 zoneIds[10];                                     // 10 is client limit
-    bool bit724;
+    bool unkCheck;
     uint8 playerLen = 0, guildLen = 0;
     uint8 unkLen2, unkLen3;
     std::string playerName, guildName;
 
+    recvData >> classMask;                                  // class mask
     recvData >> raceMask;                                   // race mask
     recvData >> levelMax;                                   // minimal player level, default 100 (MAX_LEVEL)
     recvData >> levelMin;                                   // maximal player level, default 0
-    recvData >> classMask;                                  // class mask
+    
+    recvData.ReadBit(); // unk1
+    recvData.ReadBit(); // unk2
 
-    guildLen = recvData.ReadBits(7);
-    recvData.ReadBit();
-
-    patternsCount = recvData.ReadBits(3);
-    if (patternsCount > 4)
-        return;                                             // can't be received from real client or broken packet
-
-    recvData.ReadBit();
-
+    unkCheck = recvData.ReadBit();
+    unkLen2 = recvData.ReadBits(9);
+    recvData.ReadBit(); // unk3;
+    playerLen = recvData.ReadBits(6);
     zonesCount = recvData.ReadBits(4);                     // zones count, client limit = 10 (2.0.10)
+    
     if (zonesCount > 10)                                   // can't be received from real client or broken packet
         return;
 
-    unkLen2 = recvData.ReadBits(9);
-    playerLen = recvData.ReadBits(6);
-    recvData.ReadBit();
-    bit724 = recvData.ReadBit();
     unkLen3 = recvData.ReadBits(9);
-
+    guildLen = recvData.ReadBits(7);
+    patternsCount = recvData.ReadBits(3);
+    
     uint8* unkLens;
     unkLens = new uint8[patternsCount];
     std::string* unkStrings;
     unkStrings = new std::string[patternsCount];
 
+    if (patternsCount > 4)
+        return;                                             // can't be received from real client or broken packet
+
     for (uint8 i = 0; i < patternsCount; i++)
         unkLens[i] = recvData.ReadBits(7);
 
     recvData.FlushBits();
-
-    if (unkLen2 > 0)
-        std::string unkString = recvData.ReadString(unkLen2);
-
-    for (uint32 i = 0; i < zonesCount; ++i)
-    {
-        uint32 temp;
-        recvData >> temp;                                  // zone id, 0 if zone is unknown...
-        zoneIds[i] = temp;
-        TC_LOG_DEBUG("network", "Zone %u: %u", i, zoneIds[i]);
-    }
-
-    if (guildLen > 0)
-        guildName = recvData.ReadString(guildLen);         // guild name, case sensitive...
-
-    if (unkLen3 > 0)
-        std::string unkString = recvData.ReadString(unkLen3);
-
-    if (playerLen > 0)
-        playerName = recvData.ReadString(playerLen);       // player name, case sensitive...
 
     std::wstring str[4];                                    // 4 is client limit
     for (uint32 i = 0; i < patternsCount; ++i)
@@ -280,7 +259,25 @@ void WorldSession::HandleWhoOpcode(WorldPacket& recvData)
         TC_LOG_DEBUG("network", "String %u: %s", i, temp.c_str());
     }
 
-    if (bit724)
+    if (unkLen2 > 0)
+        std::string unkString = recvData.ReadString(unkLen2);
+
+    for (uint32 i = 0; i < zonesCount; ++i)
+    {
+        uint32 temp;
+        recvData >> temp;                                  // zone id, 0 if zone is unknown...
+        zoneIds[i] = temp;
+        TC_LOG_DEBUG("network", "Zone %u: %u", i, zoneIds[i]);
+    }
+
+    if (playerLen > 0)
+        playerName = recvData.ReadString(playerLen);       // player name, case sensitive...
+    if (unkLen3 > 0)
+        std::string unkString = recvData.ReadString(unkLen3);
+    if (guildLen > 0)
+        guildName = recvData.ReadString(guildLen);         // guild name, case sensitive...
+    
+    if (unkCheck)
     {
         uint32 unk1, unk2, unk3;
         recvData >> unk1 >> unk2 >> unk3;
