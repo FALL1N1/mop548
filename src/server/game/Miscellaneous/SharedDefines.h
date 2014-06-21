@@ -3569,31 +3569,31 @@ enum ChatMsg
 {
     CHAT_MSG_ADDON                  = 0xFFFFFFFF, // -1
     CHAT_MSG_SYSTEM                 = 0x00,
-    CHAT_MSG_SAY                    = 0x01,
-    CHAT_MSG_PARTY                  = 0x02,
-    CHAT_MSG_RAID                   = 0x03,
-    CHAT_MSG_GUILD                  = 0x04,
-    CHAT_MSG_OFFICER                = 0x05,
-    CHAT_MSG_YELL                   = 0x06,
-    CHAT_MSG_WHISPER                = 0x07,
+    CHAT_MSG_SAY                    = 0x01, // ok
+    CHAT_MSG_PARTY                  = 0x02, // ok
+    CHAT_MSG_RAID                   = 0x03, // ok
+    CHAT_MSG_GUILD                  = 0x04, // ok
+    CHAT_MSG_OFFICER                = 0x05, // ok
+    CHAT_MSG_YELL                   = 0x06, // ok
+    CHAT_MSG_WHISPER                = 0x07, // ok
     CHAT_MSG_WHISPER_FOREIGN        = 0x08,
-    CHAT_MSG_WHISPER_INFORM         = 0x09,
-    CHAT_MSG_EMOTE                  = 0x0A,
-    CHAT_MSG_TEXT_EMOTE             = 0x0B,
-    CHAT_MSG_MONSTER_SAY            = 0x0C,
+    CHAT_MSG_WHISPER_INFORM         = 0x09, // ok
+    CHAT_MSG_EMOTE                  = 0x0A, // ok
+    CHAT_MSG_TEXT_EMOTE             = 0x0B, // ok
+    CHAT_MSG_MONSTER_SAY            = 0x0C, // ok
     CHAT_MSG_MONSTER_PARTY          = 0x0D,
     CHAT_MSG_MONSTER_YELL           = 0x0E,
     CHAT_MSG_MONSTER_WHISPER        = 0x0F,
     CHAT_MSG_MONSTER_EMOTE          = 0x10,
-    CHAT_MSG_CHANNEL                = 0x11,
-    CHAT_MSG_CHANNEL_JOIN           = 0x12,
-    CHAT_MSG_CHANNEL_LEAVE          = 0x13,
+    CHAT_MSG_CHANNEL                = 0x11, // ok
+    CHAT_MSG_CHANNEL_JOIN           = 0x12, // ok
+    CHAT_MSG_CHANNEL_LEAVE          = 0x13, // ok
     CHAT_MSG_CHANNEL_LIST           = 0x14,
     CHAT_MSG_CHANNEL_NOTICE         = 0x15,
     CHAT_MSG_CHANNEL_NOTICE_USER    = 0x16,
     // CHAT_MSG_TARGETICONS
-    CHAT_MSG_AFK                    = 0x17,
-    CHAT_MSG_DND                    = 0x18,
+    CHAT_MSG_AFK                    = 0x17, // ok
+    CHAT_MSG_DND                    = 0x18, // ok
     CHAT_MSG_IGNORED                = 0x19,
     CHAT_MSG_SKILL                  = 0x1A,
     CHAT_MSG_LOOT                   = 0x1B,
@@ -3615,12 +3615,12 @@ enum ChatMsg
     CHAT_MSG_FILTERED               = 0x2B,
     CHAT_MSG_BATTLEGROUND           = 0x2C,
     CHAT_MSG_BATTLEGROUND_LEADER    = 0x2D,
-    CHAT_MSG_RESTRICTED             = 0x2E,
-    CHAT_MSG_BATTLENET              = 0x2F,
-    CHAT_MSG_ACHIEVEMENT            = 0x30,
-    CHAT_MSG_PARTY_LEADER           = 0x31,
+    CHAT_MSG_ACHIEVEMENT            = 0x2E, // ok
+    CHAT_MSG_GUILD_ACHIEVEMENT      = 0x2F, // ok
+    CHAT_MSG_RESTRICTED             = 0x30,
+    CHAT_MSG_PARTY_LEADER           = 0x31, // ok
     CHAT_MSG_ARENA_POINTS           = 0x32,
-    CHAT_MSG_GUILD_ACHIEVEMENT      = 0x33
+    CHAT_MSG_BATTLENET              = 0x33
     
 };
 
