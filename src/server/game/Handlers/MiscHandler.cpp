@@ -412,29 +412,34 @@ void WorldSession::HandleWhoOpcode(WorldPacket& recvData)
         ObjectGuid accountId = itr->second->GetSession()->GetAccountId();
         ObjectGuid guildGuid = itr->second->GetGuild() ? itr->second->GetGuild()->GetGUID() : NULL;
 
-        bitsData.WriteBit(playerGuid[1]);
+        bitsData.WriteBit(accountId[2]);
         bitsData.WriteBit(playerGuid[2]);
-        bitsData.WriteBit(guildGuid[3]);
+        bitsData.WriteBit(accountId[7]);
+        bitsData.WriteBit(guildGuid[5]);
 
         bitsData.WriteBits(gname.size(), 7);
 
-        bitsData.WriteBit(guildGuid[0]);
-        bitsData.WriteBit(accountId[6]);
-        bitsData.WriteBit(playerGuid[6]);
-        bitsData.WriteBit(playerGuid[4]);
-        bitsData.WriteBit(playerGuid[7]);
-        bitsData.WriteBit(accountId[4]);
+        bitsData.WriteBit(accountId[1]);
+        bitsData.WriteBit(accountId[5]);
+        bitsData.WriteBit(guildGuid[7]);
+        bitsData.WriteBit(playerGuid[5]);
+
+        bitsData.WriteBit(0); // unk bit
+
         bitsData.WriteBit(guildGuid[1]);
-        bitsData.WriteBit(accountId[0]);
+        bitsData.WriteBit(playerGuid[6]);
+        bitsData.WriteBit(guildGuid[2]);
+        bitsData.WriteBit(playerGuid[4]);
+        bitsData.WriteBit(guildGuid[0]);
+        bitsData.WriteBit(guildGuid[3]);
+        bitsData.WriteBit(accountId[6]);
+        
+        bitsData.WriteBit(0); // unk bit
+        
+        bitsData.WriteBit(playerGuid[1]);
         bitsData.WriteBit(guildGuid[4]);
-        bitsData.WriteBit(playerGuid[0]);
-        bitsData.WriteBit(guildGuid[5]);
-
-        bitsData.WriteBit(0); // unk bit
-        bitsData.WriteBit(0); // unk bit
-
-        bitsData.WriteBit(accountId[7]);
-
+        bitsData.WriteBit(accountId[0]);       
+        
         if (DeclinedName const* names = itr->second->GetDeclinedNames())
         {
             for (uint8 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
@@ -446,71 +451,67 @@ void WorldSession::HandleWhoOpcode(WorldPacket& recvData)
                 bitsData.WriteBits(0, 7);
         }
 
-        bitsData.WriteBit(guildGuid[7]);
-        bitsData.WriteBit(guildGuid[2]);
-        bitsData.WriteBit(accountId[2]);
-        bitsData.WriteBit(accountId[5]);
+        bitsData.WriteBit(playerGuid[3]);
+        bitsData.WriteBit(guildGuid[6]);
+        bitsData.WriteBit(playerGuid[0]);
+        bitsData.WriteBit(accountId[4]);
         bitsData.WriteBit(accountId[3]);
+        bitsData.WriteBit(playerGuid[7]);
 
         bitsData.WriteBits(pname.size(), 6);
 
-        bitsData.WriteBit(playerGuid[3]);
-        bitsData.WriteBit(accountId[1]);
-        bitsData.WriteBit(playerGuid[5]);
-        bitsData.WriteBit(guildGuid[6]);
-
-        bytesData.WriteByteSeq(accountId[7]);
-        bytesData << uint8(level);
-        bytesData.WriteByteSeq(playerGuid[3]);
+        bytesData.WriteByteSeq(playerGuid[1]);
         bytesData << int32(50462740); // RealmId
-        bytesData.WriteByteSeq(playerGuid[5]);
-        bytesData.WriteByteSeq(guildGuid[1]);
-        bytesData << uint8(gender);
         bytesData.WriteByteSeq(playerGuid[7]);
-
-        bytesData << int32(38297239); // Unk
-        bytesData << uint8(race);
-
-        bytesData.WriteByteSeq(guildGuid[0]);
-        bytesData.WriteByteSeq(guildGuid[4]);
-        bytesData.WriteByteSeq(accountId[0]);
+        bytesData << int32(50462740); // RealmId
         bytesData.WriteByteSeq(playerGuid[4]);
-        bytesData.WriteByteSeq(guildGuid[3]);
-        bytesData.WriteByteSeq(playerGuid[0]);
-
-        if (gname.size() > 0)
-            bytesData.append(gname.c_str(), gname.size());
-
-        bytesData.WriteByteSeq(accountId[2]);
-        bytesData.WriteByteSeq(playerGuid[2]);
-        bytesData.WriteByteSeq(playerGuid[6]);
-
-        bytesData << uint8(class_);
-
-        bytesData.WriteByteSeq(accountId[5]);
-        bytesData.WriteByteSeq(guildGuid[2]);
 
         if (pname.size() > 0)
             bytesData.append(pname.c_str(), pname.size());
 
-        bytesData << int32(50462740); // RealmId
-
-        bytesData.WriteByteSeq(playerGuid[1]);
-        bytesData.WriteByteSeq(accountId[1]);
-
-        bytesData << int32(zoneId);
-
-        bytesData.WriteByteSeq(guildGuid[7]);
+        bytesData.WriteByteSeq(guildGuid[1]);
+        bytesData.WriteByteSeq(playerGuid[0]);
+        bytesData.WriteByteSeq(guildGuid[2]);
+        bytesData.WriteByteSeq(guildGuid[0]);
+        bytesData.WriteByteSeq(guildGuid[4]);
+        bytesData.WriteByteSeq(playerGuid[3]);
         bytesData.WriteByteSeq(guildGuid[6]);
-        bytesData.WriteByteSeq(accountId[3]);
+
+        bytesData << int32(38297239); // Unk
+
+        if (gname.size() > 0)
+            bytesData.append(gname.c_str(), gname.size());
+
+        bytesData.WriteByteSeq(guildGuid[3]);
         bytesData.WriteByteSeq(accountId[4]);
-        bytesData.WriteByteSeq(accountId[6]);
-        bytesData.WriteByteSeq(guildGuid[5]);
+
+        bytesData << uint8(class_);
+
+        bytesData.WriteByteSeq(accountId[7]);
+        bytesData.WriteByteSeq(playerGuid[6]);
+        bytesData.WriteByteSeq(playerGuid[2]);
 
         if (DeclinedName const* names = itr->second->GetDeclinedNames())
-            for (uint8 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
-                if (names->name[i].size() > 0)
-                    bytesData.append(names->name[i].c_str(), names->name[i].size());
+        for (uint8 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
+        if (names->name[i].size() > 0)
+            bytesData.append(names->name[i].c_str(), names->name[i].size());
+
+        bytesData.WriteByteSeq(accountId[2]);
+        bytesData.WriteByteSeq(accountId[3]);
+
+        bytesData << uint8(race);
+
+        bytesData.WriteByteSeq(guildGuid[7]);
+        bytesData.WriteByteSeq(accountId[1]);
+        bytesData.WriteByteSeq(accountId[5]);
+        bytesData.WriteByteSeq(accountId[6]);
+        bytesData.WriteByteSeq(playerGuid[5]);
+        bytesData.WriteByteSeq(accountId[0]);
+
+        bytesData << uint8(gender);
+        bytesData.WriteByteSeq(guildGuid[5]);
+        bytesData << uint8(level);
+        bytesData << int32(zoneId);
 
         ++displaycount;
     }
