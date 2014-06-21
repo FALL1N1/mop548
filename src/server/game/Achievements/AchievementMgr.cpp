@@ -53,16 +53,117 @@ namespace Trinity
             void operator()(WorldPacket& data, LocaleConstant loc_idx)
             {
                 char const* text = sObjectMgr->GetTrinityString(i_textId, loc_idx);
+                std::string message = text ? text : "";
+                ObjectGuid groupGuid = 0;
+                ObjectGuid guildGuid = 0;
+                ObjectGuid playerGuid = i_player.GetGUID();
 
-                data << uint8(i_msgtype);
-                data << uint32(LANG_UNIVERSAL);
-                data << uint64(i_player.GetGUID());
-                data << uint32(5);
-                data << uint64(i_player.GetGUID());
-                data << uint32(strlen(text)+1);
-                data << text;
-                data << uint8(0);
-                data << uint32(i_achievementId);
+                if (Group const* group = i_player.GetGroup())
+                    groupGuid = group->GetGUID();
+
+                if (Guild const* guild = sGuildMgr->GetGuildById(i_player.GetGuildId()))
+                    guildGuid = guild->GetGUID();
+
+                data.WriteBit(1); // unk bool
+                data.WriteBit(0); // unk bit
+                data.WriteBit(1); // unk bit
+                data.WriteBit(1); // is not channel
+                data.WriteBit(0); // unk bool
+                data.WriteBit(1); // unk bit
+                data.WriteBit((i_msgtype == CHAT_MSG_ACHIEVEMENT) ? 0 : 1); // unk bool
+                data.WriteBit(0); // unk bool
+
+                if (i_msgtype == CHAT_MSG_ACHIEVEMENT)
+                    data.WriteBits(0, 9);
+
+                data.WriteBit(groupGuid[0]);
+                data.WriteBit(groupGuid[1]);
+                data.WriteBit(groupGuid[5]);
+                data.WriteBit(groupGuid[4]);
+                data.WriteBit(groupGuid[3]);
+                data.WriteBit(groupGuid[2]);
+                data.WriteBit(groupGuid[6]);
+                data.WriteBit(groupGuid[7]);
+
+                data.WriteBit(0); // unk bit
+                data.WriteBit(playerGuid[7]);
+                data.WriteBit(playerGuid[6]);
+                data.WriteBit(playerGuid[1]);
+                data.WriteBit(playerGuid[4]);
+                data.WriteBit(playerGuid[0]);
+                data.WriteBit(playerGuid[2]);
+                data.WriteBit(playerGuid[3]);
+                data.WriteBit(playerGuid[5]);
+
+                data.WriteBit(0); // unk bit
+                data.WriteBit(1); // Dont send language
+                data.WriteBit(1); // unk bool
+                data.WriteBit(playerGuid[0]);
+                data.WriteBit(playerGuid[3]);
+                data.WriteBit(playerGuid[7]);
+                data.WriteBit(playerGuid[2]);
+                data.WriteBit(playerGuid[1]);
+                data.WriteBit(playerGuid[5]);
+                data.WriteBit(playerGuid[4]);
+                data.WriteBit(playerGuid[6]);
+
+                data.WriteBit(0); // unk bool
+                data.WriteBit(0); // unk bool
+                data.WriteBits(message.size(), 12);
+                data.WriteBit(1); // unk bool
+                data.WriteBit(0); // unk bool
+                data.WriteBit(0); // fake bit
+                data.WriteBit(guildGuid[2]);
+                data.WriteBit(guildGuid[5]);
+                data.WriteBit(guildGuid[7]);
+                data.WriteBit(guildGuid[4]);
+                data.WriteBit(guildGuid[0]);
+                data.WriteBit(guildGuid[1]);
+                data.WriteBit(guildGuid[3]);
+                data.WriteBit(guildGuid[6]);
+
+                data.FlushBits();
+                data.WriteByteSeq(guildGuid[4]);
+                data.WriteByteSeq(guildGuid[5]);
+                data.WriteByteSeq(guildGuid[7]);
+                data.WriteByteSeq(guildGuid[3]);
+                data.WriteByteSeq(guildGuid[2]);
+                data.WriteByteSeq(guildGuid[6]);
+                data.WriteByteSeq(guildGuid[0]);
+                data.WriteByteSeq(guildGuid[1]);
+
+                data.WriteByteSeq(playerGuid[4]);
+                data.WriteByteSeq(playerGuid[7]);
+                data.WriteByteSeq(playerGuid[1]);
+                data.WriteByteSeq(playerGuid[5]);
+                data.WriteByteSeq(playerGuid[0]);
+                data.WriteByteSeq(playerGuid[6]);
+                data.WriteByteSeq(playerGuid[2]);
+                data.WriteByteSeq(playerGuid[3]);
+
+                data << (uint8)i_msgtype;
+                data << (uint32)i_achievementId;
+                data.WriteByteSeq(groupGuid[1]);
+                data.WriteByteSeq(groupGuid[3]);
+                data.WriteByteSeq(groupGuid[4]);
+                data.WriteByteSeq(groupGuid[6]);
+                data.WriteByteSeq(groupGuid[0]);
+                data.WriteByteSeq(groupGuid[2]);
+                data.WriteByteSeq(groupGuid[5]);
+                data.WriteByteSeq(groupGuid[7]);
+
+                data.WriteByteSeq(playerGuid[2]);
+                data.WriteByteSeq(playerGuid[5]);
+                data.WriteByteSeq(playerGuid[3]);
+                data.WriteByteSeq(playerGuid[6]);
+                data.WriteByteSeq(playerGuid[7]);
+                data.WriteByteSeq(playerGuid[4]);
+                data.WriteByteSeq(playerGuid[1]);
+                data.WriteByteSeq(playerGuid[0]);
+
+                data << (int32)0;
+                data.WriteString(message);
+                data << (int32)0;
             }
 
         private:
@@ -855,13 +956,6 @@ void AchievementMgr<T>::SendAchievementEarned(AchievementEntry const* achievemen
 
     TC_LOG_DEBUG("achievement", "AchievementMgr::SendAchievementEarned(%u)", achievement->ID);
 
-    if (Guild* guild = sGuildMgr->GetGuildById(GetOwner()->GetGuildId()))
-    {
-        Trinity::AchievementChatBuilder say_builder(*GetOwner(), CHAT_MSG_GUILD_ACHIEVEMENT, LANG_ACHIEVEMENT_EARNED, achievement->ID);
-        Trinity::LocalizedPacketDo<Trinity::AchievementChatBuilder> say_do(say_builder);
-        guild->BroadcastWorker(say_do);
-    }
-
     if (achievement->flags & (ACHIEVEMENT_FLAG_REALM_FIRST_KILL | ACHIEVEMENT_FLAG_REALM_FIRST_REACH))
     {
         // broadcast realm first reached
@@ -886,6 +980,13 @@ void AchievementMgr<T>::SendAchievementEarned(AchievementEntry const* achievemen
         Trinity::PlayerDistWorker<Trinity::LocalizedPacketDo<Trinity::AchievementChatBuilder> > say_worker(GetOwner(), sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_SAY), say_do);
         TypeContainerVisitor<Trinity::PlayerDistWorker<Trinity::LocalizedPacketDo<Trinity::AchievementChatBuilder> >, WorldTypeMapContainer > message(say_worker);
         cell.Visit(p, message, *GetOwner()->GetMap(), *GetOwner(), sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_SAY));
+    }
+
+    if (Guild* guild = sGuildMgr->GetGuildById(GetOwner()->GetGuildId()))
+    {
+        Trinity::AchievementChatBuilder say_builder(*GetOwner(), CHAT_MSG_GUILD_ACHIEVEMENT, LANG_ACHIEVEMENT_EARNED, achievement->ID);
+        Trinity::LocalizedPacketDo<Trinity::AchievementChatBuilder> say_do(say_builder);
+        guild->BroadcastWorker(say_do);
     }
 
     WorldPacket data(SMSG_ACHIEVEMENT_EARNED, 8+4+8);
