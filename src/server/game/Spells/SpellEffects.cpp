@@ -174,10 +174,10 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
     &Spell::EffectFeedPet,                                  //101 SPELL_EFFECT_FEED_PET
     &Spell::EffectDismissPet,                               //102 SPELL_EFFECT_DISMISS_PET
     &Spell::EffectReputation,                               //103 SPELL_EFFECT_REPUTATION
-    &Spell::EffectSummonObject,                             //104 SPELL_EFFECT_SUMMON_OBJECT_SLOT1
-    &Spell::EffectSummonObject,                             //105 SPELL_EFFECT_SUMMON_OBJECT_SLOT2
-    &Spell::EffectSummonObject,                             //106 SPELL_EFFECT_SUMMON_OBJECT_SLOT3
-    &Spell::EffectSummonObject,                             //107 SPELL_EFFECT_SUMMON_OBJECT_SLOT4
+    &Spell::EffectSummonObject,                             //104 SPELL_EFFECT_SUMMON_OBJECT_SLOT
+    &Spell::EffectSummonObject,                             //105 SPELL_EFFECT_SURVEY
+    &Spell::EffectSummonRaidMarker,                         //106 SPELL_EFFECT_SUMMON_RAID_MARKER
+    &Spell::EffectNULL,                                     //107 SPELL_EFFECT_LOOT_CORPSE
     &Spell::EffectDispelMechanic,                           //108 SPELL_EFFECT_DISPEL_MECHANIC
     &Spell::EffectSummonDeadPet,                            //109 SPELL_EFFECT_SUMMON_DEAD_PET
     &Spell::EffectDestroyAllTotems,                         //110 SPELL_EFFECT_DESTROY_ALL_TOTEMS
@@ -4379,7 +4379,12 @@ void Spell::EffectSummonObject(SpellEffIndex effIndex)
         return;
 
     uint32 go_id = m_spellInfo->Effects[effIndex].MiscValue;
-    uint8 slot = m_spellInfo->Effects[effIndex].Effect - SPELL_EFFECT_SUMMON_OBJECT_SLOT1;
+    uint8 slot = m_spellInfo->Effects[effIndex].MiscValueB;
+    if (m_spellInfo->Effects[effIndex].Effect == SPELL_EFFECT_SURVEY)
+        slot = 4;
+
+    if (slot >= MAX_GAMEOBJECT_SLOT)
+        return;
 
     if (uint64 guid = m_caster->m_ObjectSlot[slot])
     {
@@ -4395,17 +4400,18 @@ void Spell::EffectSummonObject(SpellEffIndex effIndex)
 
     GameObject* go = new GameObject();
 
+    float orientation = m_caster->GetOrientation();
     float x, y, z;
     // If dest location if present
     if (m_targets.HasDst())
-        destTarget->GetPosition(x, y, z);
+        destTarget->GetPosition(x, y, z, orientation);
     // Summon in random point all other units if location present
     else
         m_caster->GetClosePoint(x, y, z, DEFAULT_WORLD_OBJECT_SIZE);
 
     Map* map = m_caster->GetMap();
     if (!go->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_GAMEOBJECT), go_id, map,
-        m_caster->GetPhaseMask(), x, y, z, m_caster->GetOrientation(), 0.0f, 0.0f, 0.0f, 0.0f, 0, GO_STATE_READY))
+        m_caster->GetPhaseMask(), x, y, z, orientation, 0.0f, 0.0f, 0.0f, 0.0f, 0, GO_STATE_READY))
     {
         delete go;
         return;
@@ -4420,8 +4426,45 @@ void Spell::EffectSummonObject(SpellEffIndex effIndex)
     ExecuteLogEffectSummonObject(effIndex, go);
 
     map->AddToMap(go);
-
     m_caster->m_ObjectSlot[slot] = go->GetGUID();
+}
+
+void Spell::EffectSummonRaidMarker(SpellEffIndex effIndex)
+{
+    if (m_caster->GetTypeId() != TYPEID_PLAYER)
+        return;
+
+    Group* group = m_caster->ToPlayer()->GetGroup();
+    if (!group)
+        return;
+
+    bool isEligibleDueToRaid = group->IsAssistant(m_caster->GetGUID()) || group->IsLeader(m_caster->GetGUID());
+    if (!((group->isRaidGroup() && isEligibleDueToRaid) || (!group->isRaidGroup())))
+        return;
+
+    float radius = m_spellInfo->Effects[effIndex].CalcRadius();
+    uint8 slot = damage;
+
+    if (Player* modOwner = m_caster->GetSpellModOwner())
+        modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_RADIUS, radius);
+
+    Position pos;
+    if (m_targets.GetTargetMask() & TARGET_FLAG_DEST_LOCATION)
+        m_targets.GetDstPos()->GetPosition(&pos);
+    else if (Unit* target = m_targets.GetUnitTarget())
+        target->GetPosition(&pos);
+    else
+        m_caster->GetPosition(&pos);
+
+    DynamicObject* dynObj = new DynamicObject(false);
+    if (!dynObj->CreateDynamicObject(sObjectMgr->GenerateLowGuid(HIGHGUID_DYNAMICOBJECT), m_caster, m_spellInfo, pos, radius, DYNAMIC_OBJECT_RAID_MARKER))
+    {
+        delete dynObj;
+        return;
+    }
+
+    group->SetRaidMarker(slot, m_caster->ToPlayer(), dynObj->GetGUID());
+    m_caster->GetMap()->AddToMap<DynamicObject>(dynObj);
 }
 
 void Spell::EffectResurrect(SpellEffIndex effIndex)

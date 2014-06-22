@@ -30,7 +30,8 @@ enum DynamicObjectType
 {
     DYNAMIC_OBJECT_PORTAL           = 0x0,      // unused
     DYNAMIC_OBJECT_AREA_SPELL       = 0x1,
-    DYNAMIC_OBJECT_FARSIGHT_FOCUS   = 0x2
+    DYNAMIC_OBJECT_FARSIGHT_FOCUS   = 0x2,
+    DYNAMIC_OBJECT_RAID_MARKER      = 0x3
 };
 
 class DynamicObject : public WorldObject, public GridObject<DynamicObject>
@@ -54,10 +55,13 @@ class DynamicObject : public WorldObject, public GridObject<DynamicObject>
         void RemoveCasterViewpoint();
         Unit* GetCaster() const { return _caster; }
         void BindToCaster();
+        void BindToGroup();
         void UnbindFromCaster();
+        void UnbindFromGroup();
         uint32 GetSpellId() const {  return GetUInt32Value(DYNAMICOBJECT_FIELD_SPELL_ID); }
         uint64 GetCasterGUID() const { return GetUInt64Value(DYNAMICOBJECT_FIELD_CASTER); }
         float GetRadius() const { return GetFloatValue(DYNAMICOBJECT_FIELD_RADIUS); }
+        DynamicObjectType GetType() const { return DynamicObjectType(GetByteValue(DYNAMICOBJECT_FIELD_TYPE_AND_VISUAL_ID, 3) >> 4); }
 
         void Say(int32 textId, uint32 language, uint64 targetGuid) { MonsterSay(textId, language, targetGuid); }
         void Yell(int32 textId, uint32 language, uint64 targetGuid) { MonsterYell(textId, language, targetGuid); }
@@ -69,6 +73,7 @@ class DynamicObject : public WorldObject, public GridObject<DynamicObject>
         Aura* _aura;
         Aura* _removedAura;
         Unit* _caster;
+        Group* _group;
         int32 _duration; // for non-aura dynobjects
         bool _isViewpoint;
 };

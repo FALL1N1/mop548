@@ -260,12 +260,14 @@ class Group
         void SetTargetIcon(uint8 id, uint64 whoGuid, uint64 targetGuid);
         
         // Raid Markers
-        void SetRaidMarker(uint8 id, Player* who, uint64 targetGuid, bool update = true);
-        uint64 GetRaidMarker(uint8 id) const { return m_raidMarkers[id]; }
         uint8 GetRaidMarkersCount() const;
-        void SendRaidMarkerUpdate();
-        bool HasRaidMarker(ObjectGuid guid) const;
+        uint64 GetRaidMarker(uint8 id) const { return m_raidMarkers[id]; }
+        void SetRaidMarker(uint8 id, Player* who, uint64 targetGuid, bool update = true);
+        bool HasRaidMarker(uint8 id) const { return m_raidMarkers[id] != ObjectGuid(0); }
+        uint8 IsGroupRaidMarker(ObjectGuid guid) const;
+        
         void ClearRaidMarker(uint64 guid);
+        void SendRaidMarkerUpdate();
 
         void SetGroupMemberFlag(uint64 guid, bool apply, GroupMemberFlags flag);
         void RemoveUniqueGroupMemberFlag(GroupMemberFlags flag);

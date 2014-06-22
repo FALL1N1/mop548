@@ -1509,22 +1509,29 @@ void Group::SetRaidMarker(uint8 id, Player* who, uint64 targetGuid, bool update 
 
 void Group::SendRaidMarkerUpdate()
 {
-    uint32 mask = 0;
-    ObjectGuid guid = ObjectGuid();
     uint8 count = GetRaidMarkersCount();
 
-    WorldPacket data(SMSG_RAID_MARKERS_CHANGED, 1 + 1 + 4 + count*(2 + 16));
-    
-    for (uint8 i = 0; i < RAID_MARKER_COUNT; ++i)
-        if (m_raidMarkers[i])
-            mask |= 1 << i;
+    WorldPacket data(SMSG_RAID_MARKERS_CHANGED, count * 18 + 6);
 
-    data << uint8(0); // unk
+    uint32 mask = 0;
+    for (uint8 i = 0; i < RAID_MARKER_COUNT; ++i)
+        if (HasRaidMarker(i))
+            mask |= 1 << i;
+    
+    data << uint8(0); // unk - prob. always zero
     data << uint32(mask);
     data.WriteBits(3, count);
     
-    for (uint8 i = 0; i < count; ++i)
+    for (uint8 i = 0; i < RAID_MARKER_COUNT; ++i)
     {
+        if (!HasRaidMarker(i))
+            continue;
+
+        // Always sending guid 0
+        // ObjectGuid guid = GetRaidMarker(i);
+
+        ObjectGuid guid = ObjectGuid(0);
+
         data.WriteBit(guid[6]);
         data.WriteBit(guid[2]);
         data.WriteBit(guid[7]);
@@ -1535,20 +1542,28 @@ void Group::SendRaidMarkerUpdate()
         data.WriteBit(guid[0]);
     }
 
-    for (uint8 i = 0; i < count; ++i)
+    for (uint8 i = 0; i < RAID_MARKER_COUNT; ++i)
     {
+        ObjectGuid guid = GetRaidMarker(i);
+
+        if (!HasRaidMarker(i))
+            continue;
+
+        DynamicObject* marker;
+        ObjectAccessor::GetDynamicObject(*marker, guid);
+
         data.WriteByteSeq(guid[6]);
-        data << float(0); // x
+        data << float(marker->GetPositionX());
         data.WriteByteSeq(guid[2]);
-        data << float(0); // y
+        data << float(marker->GetPositionY());
         data.WriteByteSeq(guid[7]);
         data.WriteByteSeq(guid[5]);
         data.WriteByteSeq(guid[0]);
         data.WriteByteSeq(guid[4]);
-        data << float(0); // z
+        data << float(marker->GetPositionZ());
         data.WriteByteSeq(guid[3]);
         data.WriteByteSeq(guid[1]);
-        data << uint32(0); // unk uint32
+        data << uint32(marker->GetMapId());
     }
 
     BroadcastPacket(&data, false);
@@ -1556,31 +1571,27 @@ void Group::SendRaidMarkerUpdate()
 
 void Group::ClearRaidMarker(uint64 guid)
 {
-    for (uint8 i = 0; i < RAID_MARKER_COUNT; ++i)
+    if (uint8 id = IsGroupRaidMarker(guid))
     {
-        if (m_raidMarkers[i] == guid)
-        {
-            m_raidMarkers[i] = 0;
-            SendRaidMarkerUpdate();
-            break;
-        }
+        m_raidMarkers[id] = 0;
+        SendRaidMarkerUpdate();
     }
 }
 
-bool Group::HasRaidMarker(ObjectGuid guid) const
+uint8 Group::IsGroupRaidMarker(ObjectGuid guid) const
 {
     for (uint8 i = 0; i < RAID_MARKER_COUNT; ++i)
         if (m_raidMarkers[i] == guid)
-            return true;
-
-    return false;
+            return i;
+    
+    return 0;
 }
 
 uint8 Group::GetRaidMarkersCount() const
 {
     uint8 tempSum = 0;
     for (uint8 i = 0; i < RAID_MARKER_COUNT; ++i)
-        if (GetRaidMarker(i) != ObjectGuid(0))
+        if (HasRaidMarker(i))
             tempSum++;
 
     return tempSum;
