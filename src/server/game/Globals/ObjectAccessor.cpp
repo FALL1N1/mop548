@@ -208,6 +208,11 @@ Player* ObjectAccessor::FindPlayer(uint64 guid)
     return GetObjectInWorld(guid, (Player*)NULL);
 }
 
+DynamicObject* ObjectAccessor::FindDynamicObject(uint64 guid)
+{
+    return GetObjectInWorld(guid, (DynamicObject*)NULL);
+}
+
 Unit* ObjectAccessor::FindUnit(uint64 guid)
 {
     return GetObjectInWorld(guid, (Unit*)NULL);

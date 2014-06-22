@@ -1547,8 +1547,7 @@ void Group::SendRaidMarkerUpdate()
         if (!guid)
             return;
 
-        DynamicObject* marker;
-        ObjectAccessor::GetDynamicObject(*marker, guid);
+        DynamicObject* marker = ObjectAccessor::FindDynamicObject(guid);
 
         data.WriteByteSeq(guid[6]);
         data << float(marker->GetPositionX());

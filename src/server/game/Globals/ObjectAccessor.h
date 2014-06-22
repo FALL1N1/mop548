@@ -161,6 +161,7 @@ class ObjectAccessor
         static Pet* FindPet(uint64);
         static Player* FindPlayer(uint64);
         static Creature* FindCreature(uint64);
+        static DynamicObject* FindDynamicObject(uint64);
         static Unit* FindUnit(uint64);
         static Player* FindPlayerByName(std::string const& name);
 
