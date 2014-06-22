@@ -1528,11 +1528,9 @@ void WorldSession::HandleClearRaidMarkerOpcode(WorldPacket& recv_data)
     if (!group)
         return;
 
-    /* temp comment
     bool isEligibleDueToRaid = group->IsAssistant(_player->GetGUID()) || group->IsLeader(_player->GetGUID());
     if ((group->isRaidGroup() && isEligibleDueToRaid) || (!group->isRaidGroup()))
         group->SetRaidMarker(id, _player, ObjectGuid());
-    */
 }
 
 void WorldSession::HandleSetEveryoneIsAssistant(WorldPacket& recv_data)

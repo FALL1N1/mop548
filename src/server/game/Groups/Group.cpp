@@ -1486,6 +1486,110 @@ void Group::SendTargetIconList(WorldSession* session)
     session->SendPacket(&data);
 }
 
+// --------------------------------------------------------------------------------------
+// --------------------------------- RAID MARKERS ---------------------------------------
+// --------------------------------------------------------------------------------------
+void Group::SetRaidMarker(uint8 id, Player* who, uint64 targetGuid, bool update /*=true*/)
+{
+    if (!who)
+        return;
+
+    if (id >= RAID_MARKER_COUNT)
+    {
+        // remove all markers
+        for (uint8 i = 0; i < RAID_MARKER_COUNT; ++i)
+            m_raidMarkers[i] = 0;
+    }
+    else
+        m_raidMarkers[id] = targetGuid;
+
+    if (update)
+        SendRaidMarkerUpdate();
+}
+
+void Group::SendRaidMarkerUpdate()
+{
+    uint32 mask = 0;
+    ObjectGuid guid = ObjectGuid();
+    uint8 count = GetRaidMarkersCount();
+
+    WorldPacket data(SMSG_RAID_MARKERS_CHANGED, 1 + 1 + 4 + count*(2 + 16));
+    
+    for (uint8 i = 0; i < RAID_MARKER_COUNT; ++i)
+        if (m_raidMarkers[i])
+            mask |= 1 << i;
+
+    data << uint8(0); // unk
+    data << uint32(mask);
+    data.WriteBits(3, count);
+    
+    for (uint8 i = 0; i < count; ++i)
+    {
+        data.WriteBit(guid[6]);
+        data.WriteBit(guid[2]);
+        data.WriteBit(guid[7]);
+        data.WriteBit(guid[1]);
+        data.WriteBit(guid[4]);
+        data.WriteBit(guid[3]);
+        data.WriteBit(guid[5]);
+        data.WriteBit(guid[0]);
+    }
+
+    for (uint8 i = 0; i < count; ++i)
+    {
+        data.WriteByteSeq(guid[6]);
+        data << float(0); // x
+        data.WriteByteSeq(guid[2]);
+        data << float(0); // y
+        data.WriteByteSeq(guid[7]);
+        data.WriteByteSeq(guid[5]);
+        data.WriteByteSeq(guid[0]);
+        data.WriteByteSeq(guid[4]);
+        data << float(0); // z
+        data.WriteByteSeq(guid[3]);
+        data.WriteByteSeq(guid[1]);
+        data << uint32(0); // unk uint32
+    }
+
+    BroadcastPacket(&data, false);
+}
+
+void Group::ClearRaidMarker(uint64 guid)
+{
+    for (uint8 i = 0; i < RAID_MARKER_COUNT; ++i)
+    {
+        if (m_raidMarkers[i] == guid)
+        {
+            m_raidMarkers[i] = 0;
+            SendRaidMarkerUpdate();
+            break;
+        }
+    }
+}
+
+bool Group::HasRaidMarker(ObjectGuid guid) const
+{
+    for (uint8 i = 0; i < RAID_MARKER_COUNT; ++i)
+        if (m_raidMarkers[i] == guid)
+            return true;
+
+    return false;
+}
+
+uint8 Group::GetRaidMarkersCount() const
+{
+    uint8 tempSum = 0;
+    for (uint8 i = 0; i < RAID_MARKER_COUNT; ++i)
+        if (GetRaidMarker(i) != ObjectGuid(0))
+            tempSum++;
+
+    return tempSum;
+}
+// --------------------------------------------------------------------------------------
+// ------------------------------ END OF RAID MARKERS -----------------------------------
+// --------------------------------------------------------------------------------------
+
+
 void Group::SendUpdate()
 {
     for (member_witerator witr = m_memberSlots.begin(); witr != m_memberSlots.end(); ++witr)
