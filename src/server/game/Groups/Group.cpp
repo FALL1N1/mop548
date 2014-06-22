@@ -1523,17 +1523,13 @@ void Group::SendRaidMarkerUpdate()
     
     data << uint8(0); // unk - prob. always zero
     data << uint32(mask);
-    data.WriteBits(3, count);
+    data.WriteBits(count, 3);
     
     for (uint8 i = 0; i < RAID_MARKER_COUNT; ++i)
     {
-        if (!HasRaidMarker(i))
+        ObjectGuid guid = GetRaidMarker(i);        
+        if (!guid)
             continue;
-
-        // Always sending guid 0
-        // ObjectGuid guid = GetRaidMarker(i);
-
-        ObjectGuid guid = ObjectGuid(0);
 
         data.WriteBit(guid[6]);
         data.WriteBit(guid[2]);
@@ -1547,10 +1543,9 @@ void Group::SendRaidMarkerUpdate()
 
     for (uint8 i = 0; i < RAID_MARKER_COUNT; ++i)
     {
-        ObjectGuid guid = GetRaidMarker(i);
-
-        if (!HasRaidMarker(i))
-            continue;
+        ObjectGuid guid = GetRaidMarker(i);        
+        if (!guid)
+            return;
 
         DynamicObject* marker;
         ObjectAccessor::GetDynamicObject(*marker, guid);
