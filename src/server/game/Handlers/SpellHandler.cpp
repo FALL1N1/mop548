@@ -1063,11 +1063,15 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
         caster = _player;
     }
 
-    if (caster->GetTypeId() == TYPEID_PLAYER && !caster->ToPlayer()->HasActiveSpell(spellId))
+
+    if (!(spellInfo->AttributesEx8 & SPELL_ATTR8_RAID_MARKER))
     {
-        // not have spell in spellbook
-        recvPacket.rfinish(); // prevent spam at ignore packet
-        return;
+        if (caster->GetTypeId() == TYPEID_PLAYER && !caster->ToPlayer()->HasActiveSpell(spellId) && spellId != 67869 && !(castFlags & 0x8))
+        {
+            // not have spell in spellbook
+            recvPacket.rfinish(); // prevent spam at ignore packet
+            return;
+        }
     }
 
     if (sSpecializationOverrideSpellMap.find(spellId) != sSpecializationOverrideSpellMap.end())
