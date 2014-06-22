@@ -989,11 +989,66 @@ void AchievementMgr<T>::SendAchievementEarned(AchievementEntry const* achievemen
         guild->BroadcastWorker(say_do);
     }
 
-    WorldPacket data(SMSG_ACHIEVEMENT_EARNED, 8+4+8);
-    data.append(GetOwner()->GetPackGUID());
-    data << uint32(achievement->ID);
+    ObjectGuid playerGuid = GetOwner()->GetGUID();
+    WorldPacket data(SMSG_ACHIEVEMENT_EARNED, 29);
+    // guid 2
+    data.WriteBit(playerGuid[6]);
+    data.WriteBit(playerGuid[2]);
+    // guid 1
+    data.WriteBit(playerGuid[4]);
+    data.WriteBit(playerGuid[5]);
+    data.WriteBit(playerGuid[0]);
+    data.WriteBit(playerGuid[3]);
+    data.WriteBit(0); // unk bool
+    // guid 2
+    data.WriteBit(playerGuid[7]);
+    // guid 1
+    data.WriteBit(playerGuid[7]);
+    data.WriteBit(playerGuid[1]);
+    // guid 2
+    data.WriteBit(playerGuid[3]);
+    data.WriteBit(playerGuid[0]);
+    data.WriteBit(playerGuid[4]);
+    // guid 1
+    data.WriteBit(playerGuid[6]);
+    // guid 2
+    data.WriteBit(playerGuid[1]);
+    // guid 1
+    data.WriteBit(playerGuid[2]);
+    // guid 2
+    data.WriteBit(playerGuid[5]);
+    data.WriteByteSeq(playerGuid[5]);
+    // guid 1
+    data.WriteByteSeq(playerGuid[3]);
+    // guid 2
+    data.WriteByteSeq(playerGuid[6]);
+    // guid 1
+    data.WriteByteSeq(playerGuid[6]);
     data.AppendPackedTime(time(NULL));
-    data << uint32(0);  // does not notify player ingame
+    // guid 2
+    data.WriteByteSeq(playerGuid[1]);
+    // guid 1
+    data.WriteByteSeq(playerGuid[2]);
+    data.WriteByteSeq(playerGuid[0]);
+    data.WriteByteSeq(playerGuid[7]);
+    // guid 2
+    data.WriteByteSeq(playerGuid[3]);
+    // guid 1
+    data.WriteByteSeq(playerGuid[4]);
+    // guid 2
+    data.WriteByteSeq(playerGuid[7]);
+    data << uint32(achievement->ID);
+    data.WriteByteSeq(playerGuid[4]);
+    // guid 1
+    data.WriteByteSeq(playerGuid[1]);
+    // guid 2
+    data.WriteByteSeq(playerGuid[0]);
+    // guid 1
+    data.WriteByteSeq(playerGuid[5]);
+    data << uint32(0);  // unk int32
+    data << uint32(0);  // unk int32
+    // guid 2
+    data.WriteByteSeq(playerGuid[2]);
     GetOwner()->SendMessageToSetInRange(&data, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_SAY), true);
 }
 
