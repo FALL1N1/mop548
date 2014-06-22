@@ -61,6 +61,9 @@ m_subGroupsCounts(NULL), m_guid(0), m_counter(0), m_maxEnchantingLevel(0), m_dbS
 {
     for (uint8 i = 0; i < TARGETICONCOUNT; ++i)
         m_targetIcons[i] = 0;
+
+    for (uint8 i = 0; i < RAID_MARKER_COUNT; ++i)
+        m_raidMarkers[i] = 0;
 }
 
 Group::~Group()

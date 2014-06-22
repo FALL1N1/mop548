@@ -1986,6 +1986,39 @@ bool WorldObject::CanSeeOrDetect(WorldObject const* obj, bool ignoreStealth, boo
             return false;
     }
 
+    // Traps can only be detected within melee distance
+    if (const GameObject *thisGO = obj->ToGameObject())
+    {
+        if (thisGO->GetGoType() == GAMEOBJECT_TYPE_TRAP && thisGO->GetOwner() && thisGO->GetOwner()->getClass() == CLASS_HUNTER)
+        {
+            float DetectRange = ToPlayer()->GetCombatReach() + 4.5f; // Combat Reach + Melee attack Range
+
+            // Friendly units and Rogues see the traps
+            if (ToPlayer()->getClass() == CLASS_ROGUE || ToPlayer()->IsFriendlyTo(thisGO->GetOwner()))
+                return true;
+
+            if (thisGO->GetOwner() == ToPlayer() ||
+                obj->IsWithinDist(this, DetectRange, false)) // Detect Traps increases chance to detect traps
+                return true;
+
+            return false;
+        }
+    }
+
+    // Visibility of Raid Markers
+    if (const DynamicObject *thisDynObj = obj->ToDynObject())
+    {
+        if (thisDynObj->GetType() == DYNAMIC_OBJECT_RAID_MARKER)
+        {
+            if (Player const* thisPlayer = ToPlayer())
+            if (Group const* thisGroup = thisPlayer->GetGroup())
+            if (thisGroup->HasRaidMarker(thisDynObj->GetGUID()))
+                return true;
+
+            return false;
+        }
+    }
+
     if (obj->IsInvisibleDueToDespawn())
         return false;
 
