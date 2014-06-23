@@ -1545,22 +1545,23 @@ void Group::SendRaidMarkerUpdate()
     {
         ObjectGuid guid = GetRaidMarker(i);        
         if (!guid)
-            return;
+            continue;
 
-        DynamicObject* marker = ObjectAccessor::FindDynamicObject(guid);
-
-        data.WriteByteSeq(guid[6]);
-        data << float(marker->GetPositionX());
-        data.WriteByteSeq(guid[2]);
-        data << float(marker->GetPositionY());
-        data.WriteByteSeq(guid[7]);
-        data.WriteByteSeq(guid[5]);
-        data.WriteByteSeq(guid[0]);
-        data.WriteByteSeq(guid[4]);
-        data << float(marker->GetPositionZ());
-        data.WriteByteSeq(guid[3]);
-        data.WriteByteSeq(guid[1]);
-        data << uint32(marker->GetMapId());
+        if (DynamicObject* marker = ObjectAccessor::FindDynamicObject(guid))
+        {
+            data.WriteByteSeq(guid[6]);
+            data << float(marker->GetPositionX());
+            data.WriteByteSeq(guid[2]);
+            data << float(marker->GetPositionY());
+            data.WriteByteSeq(guid[7]);
+            data.WriteByteSeq(guid[5]);
+            data.WriteByteSeq(guid[0]);
+            data.WriteByteSeq(guid[4]);
+            data << float(marker->GetPositionZ());
+            data.WriteByteSeq(guid[3]);
+            data.WriteByteSeq(guid[1]);
+            data << uint32(marker->GetMapId());
+        }
     }
 
     BroadcastPacket(&data, false);
