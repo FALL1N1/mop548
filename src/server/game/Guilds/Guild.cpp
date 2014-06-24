@@ -1769,8 +1769,8 @@ void Guild::HandleBuyBankTab(WorldSession* session, uint8 tabId)
 
 void Guild::HandleInviteMember(WorldSession* session, std::string const& name)
 {
-    Player* pInvitee = sObjectAccessor->FindPlayerByName(name);
-    if (!pInvitee)
+    Player* pInvited = sObjectAccessor->FindPlayerByName(name);
+    if (!pInvited)
     {
         SendCommandResult(session, GUILD_COMMAND_INVITE, ERR_GUILD_PLAYER_NOT_FOUND_S, name);
         return;
@@ -1778,10 +1778,10 @@ void Guild::HandleInviteMember(WorldSession* session, std::string const& name)
 
     Player* player = session->GetPlayer();
     // Do not show invitations from ignored players
-    if (pInvitee->GetSocial()->HasIgnore(player->GetGUIDLow()))
+    if (pInvited->GetSocial()->HasIgnore(player->GetGUIDLow()))
         return;
 
-    if (!sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_GUILD) && pInvitee->GetTeam() != player->GetTeam())
+    if (!sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_GUILD) && pInvited->GetTeam() != player->GetTeam())
     {
         SendCommandResult(session, GUILD_COMMAND_INVITE, ERR_GUILD_NOT_ALLIED, name);
         return;
@@ -1795,7 +1795,7 @@ void Guild::HandleInviteMember(WorldSession* session, std::string const& name)
     }*/
 
     // Invited player cannot be invited
-    if (pInvitee->GetGuildIdInvited())
+    if (pInvited->GetGuildIdInvited())
     {
         SendCommandResult(session, GUILD_COMMAND_INVITE, ERR_ALREADY_INVITED_TO_GUILD_S, name);
         return;
@@ -1811,64 +1811,73 @@ void Guild::HandleInviteMember(WorldSession* session, std::string const& name)
 
     TC_LOG_DEBUG("guild", "Player %s invited %s to join his Guild", player->GetName().c_str(), name.c_str());
 
-    pInvitee->SetGuildIdInvited(m_id);
-    _LogEvent(GUILD_EVENT_LOG_INVITE_PLAYER, player->GetGUIDLow(), pInvitee->GetGUIDLow());
+    pInvited->SetGuildIdInvited(m_id);
+    _LogEvent(GUILD_EVENT_LOG_INVITE_PLAYER, player->GetGUIDLow(), pInvited->GetGUIDLow());
 
-    ObjectGuid oldGuildGuid = MAKE_NEW_GUID(pInvitee->GetGuildId(), 0, pInvitee->GetGuildId() ? uint32(HIGHGUID_GUILD) : 0);
+    ObjectGuid oldGuildGuid = GetGUID();
     ObjectGuid newGuildGuid = GetGUID();
 
-    WorldPacket data(SMSG_GUILD_INVITE, 100);
-    data.WriteBits(m_name.length(), 7);
-    data.WriteBit(oldGuildGuid[5]);
-    data.WriteBit(oldGuildGuid[7]);
-    data.WriteBit(newGuildGuid[6]);
-    data.WriteBit(oldGuildGuid[2]);
-    data.WriteBit(newGuildGuid[2]);
-    data.WriteBit(oldGuildGuid[1]);
-    data.WriteBits(pInvitee->GetGuildName().length(), 7);
-    data.WriteBit(newGuildGuid[3]);
-    data.WriteBit(oldGuildGuid[0]);
-    data.WriteBit(newGuildGuid[7]);
-    data.WriteBit(newGuildGuid[0]);
-    data.WriteBit(oldGuildGuid[3]);
-    data.WriteBit(newGuildGuid[1]);
-    data.WriteBits(player->GetName().size(), 6);
+    std::string oldGuildName = GetName();
+
+    if (Guild* guild = pInvited->GetGuild())
+    {
+        oldGuildGuid = guild->GetGUID();
+        oldGuildName = guild->GetName();
+    }
+
+    WorldPacket data(SMSG_GUILD_INVITE, 51 + player->GetName().length() + m_name.length() + oldGuildName.length());
     data.WriteBit(oldGuildGuid[4]);
+    data.WriteBits(m_name.length(), 7);
     data.WriteBit(newGuildGuid[4]);
     data.WriteBit(oldGuildGuid[6]);
+    data.WriteBit(newGuildGuid[2]);
+    data.WriteBit(newGuildGuid[1]);
     data.WriteBit(newGuildGuid[5]);
+    data.WriteBit(newGuildGuid[7]);
+    data.WriteBit(oldGuildGuid[0]);
+    data.WriteBit(newGuildGuid[3]);
+    data.WriteBit(oldGuildGuid[5]);
+    data.WriteBit(newGuildGuid[6]);
+    data.WriteBits(player->GetName().length(), 6);
+    data.WriteBit(oldGuildGuid[1]);
+    data.WriteBit(oldGuildGuid[3]);
+    data.WriteBit(newGuildGuid[0]);
+    data.WriteBit(oldGuildGuid[2]);
+    data.WriteBits(oldGuildName.length(), 7);
+    data.WriteBit(oldGuildGuid[7]);
 
-    data.FlushBits();
-    data.WriteByteSeq(newGuildGuid[2]);
-    data.WriteByteSeq(newGuildGuid[6]);
-    data.WriteByteSeq(newGuildGuid[1]);
-    data.WriteByteSeq(newGuildGuid[4]);
-    data.WriteByteSeq(newGuildGuid[7]);
-    data.WriteByteSeq(oldGuildGuid[5]);
-
-    data << uint32(0);
-    data.WriteString(pInvitee->GetGuildName());
-    data << uint32(realmID);
-    data << uint32(m_emblemInfo.GetBorderStyle());
+    //data.FlushBits();
     data.WriteByteSeq(oldGuildGuid[1]);
-    data.WriteByteSeq(oldGuildGuid[0]);
-    data << uint32(m_emblemInfo.GetColor());    data.WriteByteSeq(oldGuildGuid[6]);
-    data << uint32(realmID);
-    data.WriteByteSeq(newGuildGuid[0]);
-    data << uint32(m_emblemInfo.GetStyle());
-    data.WriteByteSeq(oldGuildGuid[3]);
-    data.WriteString(player->GetName());
-    data.WriteByteSeq(oldGuildGuid[7]);
-    data.WriteByteSeq(newGuildGuid[5]);
-    data.WriteString(m_name);
-    data.WriteByteSeq(newGuildGuid[3]);
-    data << uint32(m_emblemInfo.GetBackgroundColor());
+    data << (int32)0;
     data.WriteByteSeq(oldGuildGuid[4]);
-    data << uint32(GetLevel());
-    data << uint32(m_emblemInfo.GetBorderColor());
+    data.WriteString(player->GetName());
+    data << (int32)0;
+    data.WriteByteSeq(newGuildGuid[7]);
+    data.WriteByteSeq(oldGuildGuid[0]);
+    data.WriteByteSeq(oldGuildGuid[2]);
+    data << (int32)0;
+    data.WriteByteSeq(newGuildGuid[2]);
+    data.WriteByteSeq(newGuildGuid[5]);
+    data << (int32)_level;
+    data << uint32(0);
+    data.WriteByteSeq(oldGuildGuid[7]);
+    data.WriteByteSeq(oldGuildGuid[3]);
+    data.WriteByteSeq(newGuildGuid[4]);
+    data << uint32(0);
+    data.WriteString(m_name);
+    data << uint32(0);
+    data << uint32(0);
+    data.WriteByteSeq(newGuildGuid[0]);
+    data.WriteString(oldGuildName);
+    data.WriteByteSeq(oldGuildGuid[5]);
+    data << uint32(0);
+    data.WriteByteSeq(newGuildGuid[1]);
+    data.WriteByteSeq(oldGuildGuid[6]);
+    data.WriteByteSeq(newGuildGuid[3]);
+    data.WriteByteSeq(newGuildGuid[6]);
 
-    pInvitee->GetSession()->SendPacket(&data);
-    TC_LOG_DEBUG("guild", "SMSG_GUILD_INVITE [%s]", pInvitee->GetName().c_str());
+    pInvited->GetSession()->SendPacket(&data);
+    TC_LOG_DEBUG("guild", "SMSG_GUILD_INVITE [%s]", pInvited->GetName().c_str());
 }
 
 void Guild::HandleAcceptMember(WorldSession* session)
