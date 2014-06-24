@@ -1814,8 +1814,8 @@ void Guild::HandleInviteMember(WorldSession* session, std::string const& name)
     pInvited->SetGuildIdInvited(m_id);
     _LogEvent(GUILD_EVENT_LOG_INVITE_PLAYER, player->GetGUIDLow(), pInvited->GetGUIDLow());
 
-    ObjectGuid oldGuildGuid = GetGUID();
     ObjectGuid newGuildGuid = GetGUID();
+    ObjectGuid oldGuildGuid = GetGUID();
 
     std::string oldGuildName = GetName();
 
@@ -1826,55 +1826,55 @@ void Guild::HandleInviteMember(WorldSession* session, std::string const& name)
     }
 
     WorldPacket data(SMSG_GUILD_INVITE, 51 + player->GetName().length() + m_name.length() + oldGuildName.length());
-    data.WriteBit(oldGuildGuid[4]);
-    data.WriteBits(m_name.length(), 7);
     data.WriteBit(newGuildGuid[4]);
-    data.WriteBit(oldGuildGuid[6]);
-    data.WriteBit(newGuildGuid[2]);
-    data.WriteBit(newGuildGuid[1]);
-    data.WriteBit(newGuildGuid[5]);
-    data.WriteBit(newGuildGuid[7]);
-    data.WriteBit(oldGuildGuid[0]);
-    data.WriteBit(newGuildGuid[3]);
-    data.WriteBit(oldGuildGuid[5]);
+    data.WriteBits(m_name.length(), 7);
+    data.WriteBit(oldGuildGuid[4]);
     data.WriteBit(newGuildGuid[6]);
-    data.WriteBits(player->GetName().length(), 6);
-    data.WriteBit(oldGuildGuid[1]);
-    data.WriteBit(oldGuildGuid[3]);
-    data.WriteBit(newGuildGuid[0]);
     data.WriteBit(oldGuildGuid[2]);
-    data.WriteBits(oldGuildName.length(), 7);
+    data.WriteBit(oldGuildGuid[1]);
+    data.WriteBit(oldGuildGuid[5]);
     data.WriteBit(oldGuildGuid[7]);
+    data.WriteBit(newGuildGuid[0]);
+    data.WriteBit(oldGuildGuid[3]);
+    data.WriteBit(newGuildGuid[5]);
+    data.WriteBit(oldGuildGuid[6]);
+    data.WriteBits(player->GetName().length(), 6);
+    data.WriteBit(newGuildGuid[1]);
+    data.WriteBit(newGuildGuid[3]);
+    data.WriteBit(oldGuildGuid[0]);
+    data.WriteBit(newGuildGuid[2]);
+    data.WriteBits(oldGuildName.length(), 7);
+    data.WriteBit(newGuildGuid[7]);
 
     //data.FlushBits();
-    data.WriteByteSeq(oldGuildGuid[1]);
+    data.WriteByteSeq(newGuildGuid[1]);
     data << (int32)0;
-    data.WriteByteSeq(oldGuildGuid[4]);
+    data.WriteByteSeq(newGuildGuid[4]);
     data.WriteString(player->GetName());
     data << (int32)0;
-    data.WriteByteSeq(newGuildGuid[7]);
-    data.WriteByteSeq(oldGuildGuid[0]);
-    data.WriteByteSeq(oldGuildGuid[2]);
-    data << (int32)0;
+    data.WriteByteSeq(oldGuildGuid[7]);
+    data.WriteByteSeq(newGuildGuid[0]);
     data.WriteByteSeq(newGuildGuid[2]);
-    data.WriteByteSeq(newGuildGuid[5]);
+    data << (int32)0;
+    data.WriteByteSeq(oldGuildGuid[2]);
+    data.WriteByteSeq(oldGuildGuid[5]);
     data << (int32)_level;
     data << uint32(0);
-    data.WriteByteSeq(oldGuildGuid[7]);
-    data.WriteByteSeq(oldGuildGuid[3]);
-    data.WriteByteSeq(newGuildGuid[4]);
+    data.WriteByteSeq(newGuildGuid[7]);
+    data.WriteByteSeq(newGuildGuid[3]);
+    data.WriteByteSeq(oldGuildGuid[4]);
     data << uint32(0);
     data.WriteString(m_name);
     data << uint32(0);
     data << uint32(0);
-    data.WriteByteSeq(newGuildGuid[0]);
+    data.WriteByteSeq(oldGuildGuid[0]);
     data.WriteString(oldGuildName);
-    data.WriteByteSeq(oldGuildGuid[5]);
+    data.WriteByteSeq(newGuildGuid[5]);
     data << uint32(0);
-    data.WriteByteSeq(newGuildGuid[1]);
-    data.WriteByteSeq(oldGuildGuid[6]);
-    data.WriteByteSeq(newGuildGuid[3]);
+    data.WriteByteSeq(oldGuildGuid[1]);
     data.WriteByteSeq(newGuildGuid[6]);
+    data.WriteByteSeq(oldGuildGuid[3]);
+    data.WriteByteSeq(oldGuildGuid[6]);
 
     pInvited->GetSession()->SendPacket(&data);
     TC_LOG_DEBUG("guild", "SMSG_GUILD_INVITE [%s]", pInvited->GetName().c_str());
