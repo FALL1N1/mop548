@@ -1781,6 +1781,13 @@ void Guild::HandleInviteMember(WorldSession* session, std::string const& name)
     if (pInvited->GetSocial()->HasIgnore(player->GetGUIDLow()))
         return;
 
+    // Auto decline invite
+    if (pInvited->HasFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_AUTO_DECLINE_GUILD))
+    {
+        // send SMSG_GUILD_DECLINE..., I dont have opcode :-/
+        return;
+    }
+
     if (!sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_GUILD) && pInvited->GetTeam() != player->GetTeam())
     {
         SendCommandResult(session, GUILD_COMMAND_INVITE, ERR_GUILD_NOT_ALLIED, name);
@@ -1788,11 +1795,11 @@ void Guild::HandleInviteMember(WorldSession* session, std::string const& name)
     }
 
     // Invited player cannot be in another guild
-    /*if (pInvitee->GetGuildId())
+    if (pInvited->GetGuildId())
     {
         SendCommandResult(session, GUILD_COMMAND_INVITE, ERR_ALREADY_IN_GUILD_S, name);
         return;
-    }*/
+    }
 
     // Invited player cannot be invited
     if (pInvited->GetGuildIdInvited())
@@ -1800,6 +1807,7 @@ void Guild::HandleInviteMember(WorldSession* session, std::string const& name)
         SendCommandResult(session, GUILD_COMMAND_INVITE, ERR_ALREADY_INVITED_TO_GUILD_S, name);
         return;
     }
+
     // Inviting player must have rights to invite
     if (!_HasRankRight(player, GR_RIGHT_INVITE))
     {
