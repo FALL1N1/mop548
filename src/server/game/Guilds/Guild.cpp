@@ -1823,15 +1823,16 @@ void Guild::HandleInviteMember(WorldSession* session, std::string const& name)
     _LogEvent(GUILD_EVENT_LOG_INVITE_PLAYER, player->GetGUIDLow(), pInvited->GetGUIDLow());
 
     ObjectGuid newGuildGuid = GetGUID();
-    ObjectGuid oldGuildGuid = GetGUID();
+    ObjectGuid oldGuildGuid = 0;
 
-    std::string oldGuildName = GetName();
+    std::string oldGuildName = "";
 
-    if (Guild* guild = pInvited->GetGuild())
+    // previous guild
+    /*if (Guild* guild = pInvited->GetGuild())
     {
         oldGuildGuid = guild->GetGUID();
         oldGuildName = guild->GetName();
-    }
+    }*/
 
     WorldPacket data(SMSG_GUILD_INVITE, 51 + player->GetName().length() + m_name.length() + oldGuildName.length());
     data.WriteBit(newGuildGuid[4]);
@@ -1895,7 +1896,10 @@ void Guild::HandleAcceptMember(WorldSession* session)
         player->GetTeam() != sObjectMgr->GetPlayerTeamByGUID(GetLeaderGUID()))
         return;
 
-    AddMember(player->GetGUID());
+    if (AddMember(player->GetGUID()))
+    {
+
+    }
 }
 
 void Guild::HandleLeaveMember(WorldSession* session)
