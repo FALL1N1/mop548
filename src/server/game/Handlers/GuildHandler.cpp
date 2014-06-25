@@ -134,15 +134,7 @@ void WorldSession::HandleGuildDeclineOpcode(WorldPacket& /*recvPacket*/)
 
     uint64 inviterGuid = player->GetLastGuildInviterGUID();
     if (Player* inviter = ObjectAccessor::FindPlayer(inviterGuid))
-    {
-        WorldPacket data(SMSG_GUILD_DECLINE, 5 + player->GetName().length());
-        data.WriteBits(player->GetName().length(), 6);
-        data.WriteBit(0); // unk bit
-        data.WriteBit(0); // unk bool
-        data.WriteString(player->GetName());
-        data << (int32)0;
-        inviter->GetSession()->SendPacket(&data);
-    }
+        inviter->SendDeclineGuildInvitation(player->GetName());
 }
 
 void WorldSession::HandleGuildRosterOpcode(WorldPacket& recvPacket)

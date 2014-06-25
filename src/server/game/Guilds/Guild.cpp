@@ -1784,7 +1784,7 @@ void Guild::HandleInviteMember(WorldSession* session, std::string const& name)
     // Auto decline invite
     if (pInvited->HasFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_AUTO_DECLINE_GUILD))
     {
-        // send SMSG_GUILD_DECLINE..., I dont have opcode :-/
+        player->SendDeclineGuildInvitation(pInvited->GetName());
         return;
     }
 
