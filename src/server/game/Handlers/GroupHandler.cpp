@@ -753,7 +753,7 @@ void WorldSession::HandleRaidTargetUpdateOpcode(WorldPacket& recvData)
     recvData.ReadByteSeq(guid[4]);    
 
     if (group->IsLeader(GetPlayer()->GetGUID()) || group->IsAssistant(GetPlayer()->GetGUID()))
-        group->SetTargetIcon(x, _player->GetGUID(), guid);
+        group->SetTargetIcon(iconID, _player->GetGUID(), guid);
 }
 
 void WorldSession::HandleGroupRaidConvertOpcode(WorldPacket& recvData)
