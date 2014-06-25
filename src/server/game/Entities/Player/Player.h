@@ -1925,6 +1925,8 @@ class Player : public Unit, public GridObject<Player>
         static uint32 GetGuildIdFromDB(uint64 guid);
         static uint8 GetRankFromDB(uint64 guid);
         int GetGuildIdInvited() { return m_GuildIdInvited; }
+        void SetLastGuildInviterGUID(uint64 guid) { m_lastGuildInviterGUID = guid; }
+        uint64 GetLastGuildInviterGUID() { return m_lastGuildInviterGUID; }
         static void RemovePetitionsAndSigns(uint64 guid, uint32 type);
 
         // Arena Team
@@ -2849,6 +2851,9 @@ class Player : public Unit, public GridObject<Player>
         uint8 m_MirrorTimerFlags;
         uint8 m_MirrorTimerFlagsLast;
         bool m_isInWater;
+
+        // Guid of player who invited player to guild as last
+        uint64 m_lastGuildInviterGUID;
 
         // Current teleport data
         WorldLocation m_teleport_dest;

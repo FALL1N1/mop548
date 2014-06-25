@@ -128,8 +128,21 @@ void WorldSession::HandleGuildDeclineOpcode(WorldPacket& /*recvPacket*/)
 {
     TC_LOG_DEBUG("guild", "CMSG_GUILD_DECLINE [%s]", GetPlayerInfo().c_str());
 
-    GetPlayer()->SetGuildIdInvited(0);
-    GetPlayer()->SetInGuild(0);
+    Player* player = GetPlayer();
+    player->SetGuildIdInvited(0);
+    player->SetInGuild(0);
+
+    uint64 inviterGuid = player->GetLastGuildInviterGUID();
+    if (Player* inviter = ObjectAccessor::FindPlayer(inviterGuid))
+    {
+        WorldPacket data(SMSG_GUILD_DECLINE, 5 + player->GetName().length());
+        data.WriteBits(player->GetName().length(), 6);
+        data.WriteBit(0); // unk bit
+        data.WriteBit(0); // unk bool
+        data.WriteString(player->GetName());
+        data << (int32)0;
+        inviter->GetSession()->SendPacket(&data);
+    }
 }
 
 void WorldSession::HandleGuildRosterOpcode(WorldPacket& recvPacket)

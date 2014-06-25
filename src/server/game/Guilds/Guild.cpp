@@ -1820,6 +1820,8 @@ void Guild::HandleInviteMember(WorldSession* session, std::string const& name)
     TC_LOG_DEBUG("guild", "Player %s invited %s to join his Guild", player->GetName().c_str(), name.c_str());
 
     pInvited->SetGuildIdInvited(m_id);
+    pInvited->SetLastGuildInviterGUID(player->GetGUID());
+
     _LogEvent(GUILD_EVENT_LOG_INVITE_PLAYER, player->GetGUIDLow(), pInvited->GetGUIDLow());
 
     ObjectGuid newGuildGuid = GetGUID();
@@ -2678,58 +2680,57 @@ void Guild::MassInviteToEvent(WorldSession* session, uint32 minLevel, uint32 max
 
 void Guild::_SendPlayerJoinedGuild(ObjectGuid guid, std::string name)
 {
-    WorldPacket playerData(SMSG_GUILD_INVITE_ACCEPT, 11 + name.length());
-    playerData.WriteBit(guid[6]);
-    playerData.WriteBit(guid[1]);
-    playerData.WriteBit(guid[3]);
-    playerData.WriteBits(name.length(), 6);
-    playerData.WriteBit(guid[7]);
-    playerData.WriteBit(guid[4]);
-    playerData.WriteBit(guid[2]);
-    playerData.WriteBit(guid[5]);
-    playerData.WriteBit(guid[0]);
+    WorldPacket data(SMSG_GUILD_INVITE_ACCEPT, 11 + name.length());
+    data.WriteBit(guid[6]);
+    data.WriteBit(guid[1]);
+    data.WriteBit(guid[3]);
+    data.WriteBits(name.length(), 6);
+    data.WriteBit(guid[7]);
+    data.WriteBit(guid[4]);
+    data.WriteBit(guid[2]);
+    data.WriteBit(guid[5]);
+    data.WriteBit(guid[0]);
 
-    playerData.WriteByteSeq(guid[2]);
-    playerData.WriteByteSeq(guid[4]);
-    playerData.WriteByteSeq(guid[1]);
-    playerData.WriteByteSeq(guid[6]);
-    playerData.WriteByteSeq(guid[5]);
-    playerData << (int32)0; // unk int32
-    playerData.WriteByteSeq(guid[3]);
-    playerData.WriteByteSeq(guid[0]);
-    playerData.WriteString(name);
-    playerData.WriteByteSeq(guid[7]);
-    BroadcastPacket(&playerData);
+    data.WriteByteSeq(guid[2]);
+    data.WriteByteSeq(guid[4]);
+    data.WriteByteSeq(guid[1]);
+    data.WriteByteSeq(guid[6]);
+    data.WriteByteSeq(guid[5]);
+    data << (int32)0; // unk int32
+    data.WriteByteSeq(guid[3]);
+    data.WriteByteSeq(guid[0]);
+    data.WriteString(name);
+    data.WriteByteSeq(guid[7]);
+    BroadcastPacket(&data);
 }
 
 void Guild::_SendPlayerLogged(ObjectGuid guid, std::string name, bool online)
 {
-    WorldPacket guildData(SMSG_GUILD_MEMBER_LOGGED, 11 + name.length());
-    guildData.WriteBit(guid[0]);
-    guildData.WriteBit(guid[6]);
-    guildData.WriteBit(0); // unk bool
-    guildData.WriteBit(guid[2]);
-    guildData.WriteBit(guid[5]);
-    guildData.WriteBit(guid[3]);
-    guildData.WriteBits(name.length(), 6);
-    guildData.WriteBit(guid[1]);
-    guildData.WriteBit(guid[7]);
-    guildData.WriteBit(guid[4]);
-    guildData.WriteBit(online); // logged in
+    WorldPacket data(SMSG_GUILD_MEMBER_LOGGED, 11 + name.length());
+    data.WriteBit(guid[0]);
+    data.WriteBit(guid[6]);
+    data.WriteBit(0); // unk bool
+    data.WriteBit(guid[2]);
+    data.WriteBit(guid[5]);
+    data.WriteBit(guid[3]);
+    data.WriteBits(name.length(), 6);
+    data.WriteBit(guid[1]);
+    data.WriteBit(guid[7]);
+    data.WriteBit(guid[4]);
+    data.WriteBit(online); // logged in
 
-    guildData.WriteByteSeq(guid[3]);
-    guildData.WriteByteSeq(guid[2]);
-    guildData.WriteByteSeq(guid[0]);
-    guildData << (int32)0; // unk int32
-    guildData.WriteByteSeq(guid[6]);
-    guildData.WriteString(name);
-    guildData.WriteByteSeq(guid[4]);
-    guildData.WriteByteSeq(guid[5]);
-    guildData.WriteByteSeq(guid[7]);
-    guildData.WriteByteSeq(guid[1]);
+    data.WriteByteSeq(guid[3]);
+    data.WriteByteSeq(guid[2]);
+    data.WriteByteSeq(guid[0]);
+    data << (int32)0; // unk int32
+    data.WriteByteSeq(guid[6]);
+    data.WriteString(name);
+    data.WriteByteSeq(guid[4]);
+    data.WriteByteSeq(guid[5]);
+    data.WriteByteSeq(guid[7]);
+    data.WriteByteSeq(guid[1]);
 
-
-    BroadcastPacket(&guildData);
+    BroadcastPacket(&data);
 }
 
 // Members handling

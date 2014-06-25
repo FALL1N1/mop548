@@ -758,6 +758,7 @@ Player::Player(WorldSession* session): Unit(true), phaseMgr(this)
     m_MirrorTimerFlags = UNDERWATER_NONE;
     m_MirrorTimerFlagsLast = UNDERWATER_NONE;
     m_isInWater = false;
+    m_lastGuildInviterGUID = 0;
     m_drunkTimer = 0;
     m_restTime = 0;
     m_deathTimer = 0;
