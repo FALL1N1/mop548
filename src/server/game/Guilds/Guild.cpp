@@ -1896,10 +1896,7 @@ void Guild::HandleAcceptMember(WorldSession* session)
         player->GetTeam() != sObjectMgr->GetPlayerTeamByGUID(GetLeaderGUID()))
         return;
 
-    if (AddMember(player->GetGUID()))
-    {
-
-    }
+    AddMember(player->GetGUID());
 }
 
 void Guild::HandleLeaveMember(WorldSession* session)
@@ -2172,7 +2169,7 @@ void Guild::HandleMemberLogout(WorldSession* session)
         member->UpdateLogoutTime();
         member->ResetFlags();
     }
-    _BroadcastEvent(GE_SIGNED_OFF, player->GetGUID(), player->GetName().c_str());
+    _SendPlayerLogged(player->GetGUID(), player->GetName(), false);
 
     SaveToDB();
 }
@@ -2357,15 +2354,6 @@ void Guild::SendLoginInfo(WorldSession* session)
     TC_LOG_DEBUG("guild", "SMSG_GUILD_EVENT [%s] MOTD", session->GetPlayerInfo().c_str());
 
     SendGuildRankInfo(session);
-    _BroadcastEvent(GE_SIGNED_ON, player->GetGUID(), player->GetName().c_str());
-
-    // Send to self separately, player is not in world yet and is not found by _BroadcastEvent
-    data.Initialize(SMSG_GUILD_EVENT, 1 + 1 + player->GetName().size() + 8);
-    data << uint8(GE_SIGNED_ON);
-    data << uint8(1);
-    data << player->GetName();
-    data << uint64(player->GetGUID());
-    session->SendPacket(&data);
 
     data.Initialize(SMSG_GUILD_MEMBER_DAILY_RESET, 0);  // tells the client to request bank withdrawal limit
     session->SendPacket(&data);
@@ -2384,6 +2372,7 @@ void Guild::SendLoginInfo(WorldSession* session)
 
     member->SetStats(player);
     member->AddFlag(GUILDMEMBER_STATUS_ONLINE);
+    _SendPlayerLogged(player->GetGUID(), player->GetName(), true);
 }
 
 // Loading methods
@@ -2687,6 +2676,62 @@ void Guild::MassInviteToEvent(WorldSession* session, uint32 minLevel, uint32 max
     session->SendPacket(&data);
 }
 
+void Guild::_SendPlayerJoinedGuild(ObjectGuid guid, std::string name)
+{
+    WorldPacket playerData(SMSG_GUILD_INVITE_ACCEPT, 11 + name.length());
+    playerData.WriteBit(guid[6]);
+    playerData.WriteBit(guid[1]);
+    playerData.WriteBit(guid[3]);
+    playerData.WriteBits(name.length(), 6);
+    playerData.WriteBit(guid[7]);
+    playerData.WriteBit(guid[4]);
+    playerData.WriteBit(guid[2]);
+    playerData.WriteBit(guid[5]);
+    playerData.WriteBit(guid[0]);
+
+    playerData.WriteByteSeq(guid[2]);
+    playerData.WriteByteSeq(guid[4]);
+    playerData.WriteByteSeq(guid[1]);
+    playerData.WriteByteSeq(guid[6]);
+    playerData.WriteByteSeq(guid[5]);
+    playerData << (int32)0; // unk int32
+    playerData.WriteByteSeq(guid[3]);
+    playerData.WriteByteSeq(guid[0]);
+    playerData.WriteString(name);
+    playerData.WriteByteSeq(guid[7]);
+    BroadcastPacket(&playerData);
+}
+
+void Guild::_SendPlayerLogged(ObjectGuid guid, std::string name, bool online)
+{
+    WorldPacket guildData(SMSG_GUILD_MEMBER_LOGGED, 11 + name.length());
+    guildData.WriteBit(guid[0]);
+    guildData.WriteBit(guid[6]);
+    guildData.WriteBit(0); // unk bool
+    guildData.WriteBit(guid[2]);
+    guildData.WriteBit(guid[5]);
+    guildData.WriteBit(guid[3]);
+    guildData.WriteBits(name.length(), 6);
+    guildData.WriteBit(guid[1]);
+    guildData.WriteBit(guid[7]);
+    guildData.WriteBit(guid[4]);
+    guildData.WriteBit(online); // logged in
+
+    guildData.WriteByteSeq(guid[3]);
+    guildData.WriteByteSeq(guid[2]);
+    guildData.WriteByteSeq(guid[0]);
+    guildData << (int32)0; // unk int32
+    guildData.WriteByteSeq(guid[6]);
+    guildData.WriteString(name);
+    guildData.WriteByteSeq(guid[4]);
+    guildData.WriteByteSeq(guid[5]);
+    guildData.WriteByteSeq(guid[7]);
+    guildData.WriteByteSeq(guid[1]);
+
+
+    BroadcastPacket(&guildData);
+}
+
 // Members handling
 bool Guild::AddMember(uint64 guid, uint8 rankId)
 {
@@ -2719,8 +2764,9 @@ bool Guild::AddMember(uint64 guid, uint8 rankId)
         player->SetGuildIdInvited(0);
         player->SetRank(rankId);
         player->SetGuildLevel(GetLevel());
-        SendLoginInfo(player->GetSession());
         name = player->GetName();
+        _SendPlayerJoinedGuild(guid, name);
+        SendLoginInfo(player->GetSession());
     }
     else
     {
@@ -2751,6 +2797,9 @@ bool Guild::AddMember(uint64 guid, uint8 rankId)
             return false;
         }
         m_members[lowguid] = member;
+
+        _SendPlayerJoinedGuild(guid, name);
+        _SendPlayerLogged(guid, name, false);
     }
 
     SQLTransaction trans(NULL);
@@ -2758,7 +2807,6 @@ bool Guild::AddMember(uint64 guid, uint8 rankId)
 
     _UpdateAccountsNumber();
     _LogEvent(GUILD_EVENT_LOG_JOIN_GUILD, lowguid);
-    _BroadcastEvent(GE_JOINED, guid, name.c_str());
     sGuildFinderMgr->RemoveAllMembershipRequestsFromPlayer(lowguid);
 
     // Call scripts if member was succesfully added (and stored to database)
