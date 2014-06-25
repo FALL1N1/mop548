@@ -1448,45 +1448,57 @@ void Group::CountTheRoll(Rolls::iterator rollI)
     delete roll;
 }
 
-void Group::SetTargetIcon(uint8 id, uint64 whoGuid, uint64 targetGuid)
+void Group::SetTargetIcon(uint8 iconID, ObjectGuid whoGuid, ObjectGuid targetGuid)
 {
-    if (id >= TARGETICONCOUNT)
+    if (iconID >= TARGETICONCOUNT)
         return;
 
     // clean other icons
     if (targetGuid != 0)
-        for (int i=0; i<TARGETICONCOUNT; ++i)
+        for (int i = 0; i < TARGETICONCOUNT; ++i)
             if (m_targetIcons[i] == targetGuid)
-                SetTargetIcon(i, 0, 0);
+                SetTargetIcon(i, whoGuid, 0);
 
-    m_targetIcons[id] = targetGuid;
+    m_targetIcons[iconID] = targetGuid;
 
-    WorldPacket data(SMSG_RAID_TARGET_UPDATE, (1+8+1+8));
-    data << uint8(0);                                       // set targets
-    data << uint64(whoGuid);
-    data << uint8(id);
-    data << uint64(targetGuid);
+    WorldPacket data(SMSG_RAID_TARGET_UPDATE, (1 + 8 + 1 + 8));
+    
+    data.WriteBit(whoGuid[6]);
+    data.WriteBit(targetGuid[4]);
+    data.WriteBit(whoGuid[0]);
+    data.WriteBit(whoGuid[7]);
+    data.WriteBit(targetGuid[6]);
+    data.WriteBit(whoGuid[5]);
+    data.WriteBit(whoGuid[3]);
+    data.WriteBit(whoGuid[4]);
+    data.WriteBit(targetGuid[7]);
+    data.WriteBit(targetGuid[2]);
+    data.WriteBit(targetGuid[5]);
+    data.WriteBit(targetGuid[1]);
+    data.WriteBit(whoGuid[2]);
+    data.WriteBit(whoGuid[1]);
+    data.WriteBit(targetGuid[0]);
+    data.WriteBit(targetGuid[3]);
+
+    data.WriteByteSeq(targetGuid[1]);
+    data << uint8(1); // unk (found always 1)
+    data.WriteByteSeq(whoGuid[0]);
+    data.WriteByteSeq(whoGuid[5]);
+    data.WriteByteSeq(whoGuid[3]);
+    data.WriteByteSeq(targetGuid[7]);
+    data.WriteByteSeq(targetGuid[6]);
+    data.WriteByteSeq(whoGuid[1]);
+    data.WriteByteSeq(targetGuid[2]);
+    data.WriteByteSeq(targetGuid[4]);
+    data.WriteByteSeq(targetGuid[0]);
+    data.WriteByteSeq(targetGuid[3]);
+    data.WriteByteSeq(targetGuid[5]);
+    data.WriteByteSeq(whoGuid[6]);
+    data << uint8(iconID);
+    data.WriteByteSeq(whoGuid[4]);
+    data.WriteByteSeq(whoGuid[2]);
+    data.WriteByteSeq(whoGuid[7]);
     BroadcastPacket(&data, true);
-}
-
-void Group::SendTargetIconList(WorldSession* session)
-{
-    if (!session)
-        return;
-
-    WorldPacket data(SMSG_RAID_TARGET_UPDATE, (1+TARGETICONCOUNT*9));
-    data << uint8(1);                                       // list targets
-
-    for (uint8 i = 0; i < TARGETICONCOUNT; ++i)
-    {
-        if (m_targetIcons[i] == 0)
-            continue;
-
-        data << uint8(i);
-        data << uint64(m_targetIcons[i]);
-    }
-
-    session->SendPacket(&data);
 }
 
 // --------------------------------------------------------------------------------------

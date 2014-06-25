@@ -257,7 +257,7 @@ class Group
 
         void ChangeMembersGroup(uint64 guid, uint8 group);
         void ChangeMembersGroup(Player* player, uint8 group);
-        void SetTargetIcon(uint8 id, uint64 whoGuid, uint64 targetGuid);
+        void SetTargetIcon(uint8 iconID, ObjectGuid whoGuid, ObjectGuid targetGuid);
         
         // Raid Markers
         uint8 GetRaidMarkersCount() const;
