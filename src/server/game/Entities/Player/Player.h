@@ -1927,7 +1927,7 @@ class Player : public Unit, public GridObject<Player>
         int GetGuildIdInvited() { return m_GuildIdInvited; }
         void SetLastGuildInviterGUID(uint64 guid) { m_lastGuildInviterGUID = guid; }
         uint64 GetLastGuildInviterGUID() { return m_lastGuildInviterGUID; }
-        void SendDeclineGuildInvitation(std::string declinerName);
+        void SendDeclineGuildInvitation(std::string declinerName, bool autoDecline = false);
         static void RemovePetitionsAndSigns(uint64 guid, uint32 type);
 
         // Arena Team

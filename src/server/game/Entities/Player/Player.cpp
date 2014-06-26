@@ -27196,11 +27196,11 @@ std::string Player::GetGuildName()
     return GetGuildId() ? sGuildMgr->GetGuildById(GetGuildId())->GetName() : "";
 }
 
-void Player::SendDeclineGuildInvitation(std::string declinerName)
+void Player::SendDeclineGuildInvitation(std::string declinerName, bool autoDecline /*= false*/)
 {
     WorldPacket data(SMSG_GUILD_DECLINE, 5 + declinerName.length());
     data.WriteBits(declinerName.length(), 6);
-    data.WriteBit(0); // unk bit
+    data.WriteBit(autoDecline);
     data.WriteBit(0); // unk bool
     data.WriteString(declinerName);
     data << (int32)0;

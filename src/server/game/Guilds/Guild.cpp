@@ -1781,13 +1781,6 @@ void Guild::HandleInviteMember(WorldSession* session, std::string const& name)
     if (pInvited->GetSocial()->HasIgnore(player->GetGUIDLow()))
         return;
 
-    // Auto decline invite
-    if (pInvited->HasFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_AUTO_DECLINE_GUILD))
-    {
-        player->SendDeclineGuildInvitation(pInvited->GetName());
-        return;
-    }
-
     if (!sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_GUILD) && pInvited->GetTeam() != player->GetTeam())
     {
         SendCommandResult(session, GUILD_COMMAND_INVITE, ERR_GUILD_NOT_ALLIED, name);
@@ -1818,6 +1811,13 @@ void Guild::HandleInviteMember(WorldSession* session, std::string const& name)
     SendCommandResult(session, GUILD_COMMAND_INVITE, ERR_GUILD_COMMAND_SUCCESS, name);
 
     TC_LOG_DEBUG("guild", "Player %s invited %s to join his Guild", player->GetName().c_str(), name.c_str());
+
+    // Auto decline invite
+    if (pInvited->HasFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_AUTO_DECLINE_GUILD))
+    {
+        player->SendDeclineGuildInvitation(pInvited->GetName(), true);
+        return;
+    }
 
     pInvited->SetGuildIdInvited(m_id);
     pInvited->SetLastGuildInviterGUID(player->GetGUID());
