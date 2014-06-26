@@ -990,8 +990,9 @@ private:
     void _SendBankContentUpdate(uint8 tabId, SlotIds slots) const;
     void SendGuildReputationWeeklyCap(WorldSession* session, uint32 reputation) const;
     void SendGuildRanksUpdate(uint64 setterGuid, uint64 targetGuid, uint32 rank);
-    void _SendPlayerJoinedGuild(ObjectGuid guid, std::string name);
-    void _SendPlayerLogged(ObjectGuid guid, std::string name, bool online);
+    void _SendPlayerJoinedGuild(ObjectGuid guid, std::string name) const;
+    void _SendPlayerLogged(ObjectGuid guid, std::string name, bool online) const;
+    void _SendRemovePlayerFromGuild(ObjectGuid removedGuid, std::string removedName, ObjectGuid kickerGuid = 0, std::string kickerName = "") const;
 
     void _BroadcastEvent(GuildEvents guildEvent, uint64 guid, const char* param1 = NULL, const char* param2 = NULL, const char* param3 = NULL) const;
 };

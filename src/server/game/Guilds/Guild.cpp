@@ -1923,12 +1923,10 @@ void Guild::HandleLeaveMember(WorldSession* session)
     }
     else
     {
+        _SendRemovePlayerFromGuild(player->GetGUID(), player->GetName());
         DeleteMember(player->GetGUID(), false, false);
 
         _LogEvent(GUILD_EVENT_LOG_LEAVE_GUILD, player->GetGUIDLow());
-        _BroadcastEvent(GE_LEFT, player->GetGUID(), player->GetName().c_str());
-
-        SendCommandResult(session, GUILD_COMMAND_QUIT, ERR_GUILD_COMMAND_SUCCESS, m_name);
     }
 
     sCalendarMgr->RemovePlayerGuildEventsAndSignups(player->GetGUID(), GetId());
@@ -1959,11 +1957,10 @@ void Guild::HandleRemoveMember(WorldSession* session, uint64 guid)
                 SendCommandResult(session, GUILD_COMMAND_REMOVE, ERR_GUILD_RANK_TOO_HIGH_S, name);
             else
             {
+                _SendRemovePlayerFromGuild(guid, name, player->GetGUID(), player->GetName());
                 // After call to DeleteMember pointer to member becomes invalid
                 DeleteMember(guid, false, true);
                 _LogEvent(GUILD_EVENT_LOG_UNINVITE_PLAYER, player->GetGUIDLow(), GUID_LOPART(guid));
-                _BroadcastEvent(GE_REMOVED, 0, name.c_str(), player->GetName().c_str());
-                SendCommandResult(session, GUILD_COMMAND_REMOVE, ERR_GUILD_COMMAND_SUCCESS, name);
             }
         }
     }
@@ -2678,7 +2675,7 @@ void Guild::MassInviteToEvent(WorldSession* session, uint32 minLevel, uint32 max
     session->SendPacket(&data);
 }
 
-void Guild::_SendPlayerJoinedGuild(ObjectGuid guid, std::string name)
+void Guild::_SendPlayerJoinedGuild(ObjectGuid guid, std::string name) const
 {
     WorldPacket data(SMSG_GUILD_INVITE_ACCEPT, 11 + name.length());
     data.WriteBit(guid[6]);
@@ -2704,7 +2701,7 @@ void Guild::_SendPlayerJoinedGuild(ObjectGuid guid, std::string name)
     BroadcastPacket(&data);
 }
 
-void Guild::_SendPlayerLogged(ObjectGuid guid, std::string name, bool online)
+void Guild::_SendPlayerLogged(ObjectGuid guid, std::string name, bool online) const
 {
     WorldPacket data(SMSG_GUILD_MEMBER_LOGGED, 11 + name.length());
     data.WriteBit(guid[0]);
@@ -2729,6 +2726,69 @@ void Guild::_SendPlayerLogged(ObjectGuid guid, std::string name, bool online)
     data.WriteByteSeq(guid[5]);
     data.WriteByteSeq(guid[7]);
     data.WriteByteSeq(guid[1]);
+
+    BroadcastPacket(&data);
+}
+
+void Guild::_SendRemovePlayerFromGuild(ObjectGuid removedGuid, std::string removedName, ObjectGuid kickerGuid /*= 0*/, std::string kickerName /*= ""*/) const
+{
+    bool kicked = ((uint64)kickerGuid > (uint64)0);
+
+    WorldPacket data(SMSG_GUILD_LEAVE, 8 + 4 + 1 + 1 + removedName.length() + (kicked ? (8 + 4 + 1 + 1 + kickerName.length()) : 0));
+    data.WriteBit(removedGuid[2]);
+    data.WriteBits(removedName.length(), 6);
+    data.WriteBit(removedGuid[6]);
+    data.WriteBit(removedGuid[5]);
+    data.WriteBit(kicked);
+
+    if (kicked)
+    {
+        data.WriteBit(0); // unk bool
+        data.WriteBit(0); // unk bool
+        data.WriteBits(kickerName.length(), 6);
+        data.WriteBit(kickerGuid[1]);
+        data.WriteBit(kickerGuid[3]);
+        data.WriteBit(kickerGuid[4]);
+        data.WriteBit(kickerGuid[2]);
+        data.WriteBit(kickerGuid[5]);
+        data.WriteBit(kickerGuid[7]);
+        data.WriteBit(kickerGuid[6]);
+        data.WriteBit(kickerGuid[0]);
+
+        data.WriteBit(0);
+    }
+
+    data.WriteBit(removedGuid[1]);
+    data.WriteBit(removedGuid[0]);
+    data.WriteBit(removedGuid[3]);
+    data.WriteBit(removedGuid[4]);
+    data.WriteBit(removedGuid[7]);
+
+    data.FlushBits();
+    if (kicked)
+    {
+        data.WriteByteSeq(kickerGuid[1]);
+        data.WriteByteSeq(kickerGuid[3]);
+        data.WriteByteSeq(kickerGuid[5]);
+        data.WriteByteSeq(kickerGuid[2]);
+        data.WriteByteSeq(kickerGuid[0]);
+        data.WriteByteSeq(kickerGuid[4]);
+        data.WriteByteSeq(kickerGuid[6]);
+        data.WriteByteSeq(kickerGuid[7]);
+        data.WriteString(kickerName);
+        data << (int32)0;
+    }
+
+    data.WriteString(removedName);
+    data.WriteByteSeq(removedGuid[1]);
+    data << (int32)0;
+    data.WriteByteSeq(removedGuid[0]);
+    data.WriteByteSeq(removedGuid[4]);
+    data.WriteByteSeq(removedGuid[2]);
+    data.WriteByteSeq(removedGuid[3]);
+    data.WriteByteSeq(removedGuid[6]);
+    data.WriteByteSeq(removedGuid[5]);
+    data.WriteByteSeq(removedGuid[7]);
 
     BroadcastPacket(&data);
 }
