@@ -1507,7 +1507,7 @@ void Group::SendTargetIconList(WorldSession* session)
     if (!session)
         return;
 
-    WorldPacket data(SMSG_RAID_TARGET_UPDATE_ALL, (1 + TARGETICONCOUNT * 9));
+    WorldPacket data(SMSG_RAID_TARGET_UPDATE_ALL, (4 + 10 * TARGETICONCOUNT));
     
     size_t count_pos = data.bitwpos();
     data.WriteBits(0, 23);
