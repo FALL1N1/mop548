@@ -388,6 +388,7 @@ void Guild::RankInfo::SaveToDB(SQLTransaction& trans) const
     stmt->setUInt8 (1, m_rankId);
     stmt->setString(2, m_name);
     stmt->setUInt32(3, m_rights);
+    stmt->setUInt32(3, m_bankMoneyPerDay);
     CharacterDatabase.ExecuteOrAppend(trans, stmt);
 }
 
@@ -674,13 +675,16 @@ void Guild::Member::SetOfficerNote(std::string const& officerNote)
     CharacterDatabase.Execute(stmt);
 }
 
-void Guild::Member::ChangeRank(uint8 newRank)
+void Guild::Member::ChangeRank(uint8 newRank, bool UpdateDB)
 {
     m_rankId = newRank;
 
     // Update rank information in player's field, if he is online.
     if (Player* player = FindPlayer())
         player->SetRank(newRank);
+
+    if (!UpdateDB)
+        return;
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GUILD_MEMBER_RANK);
     stmt->setUInt8 (0, newRank);
@@ -2070,20 +2074,122 @@ void Guild::HandleRemoveRank(WorldSession* session, uint8 rankId)
     if (_GetRanksSize() <= GUILD_RANKS_MIN_COUNT || rankId >= _GetRanksSize() || !_IsLeader(session->GetPlayer()))
         return;
 
-    // Delete bank rights for rank
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GUILD_BANK_RIGHTS_FOR_RANK);
-    stmt->setUInt32(0, m_id);
-    stmt->setUInt8(1, rankId);
-    CharacterDatabase.Execute(stmt);
-    // Delete rank
-    stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GUILD_RANK);
-    stmt->setUInt32(0, m_id);
-    stmt->setUInt8(1, rankId);
-    CharacterDatabase.Execute(stmt);
-
+    // Delete desired rank by rankId
     m_ranks.erase(m_ranks.begin() + rankId);
 
+    for (Ranks::iterator itr = m_ranks.begin(); itr != m_ranks.end(); ++itr)
+        if (itr->GetId() > rankId)
+            itr->SetId(itr->GetId() - 1);
+
+    for (Members::iterator itr = m_members.begin(); itr != m_members.end(); ++itr)
+        if (itr->second->GetRankId() > rankId)
+            itr->second->ChangeRank(itr->second->GetRankId() - 1, false);
+
+    // Update DB
+    _UpdateAllGuildRightsOnRankDeleted(rankId);
+
     _BroadcastEvent(GE_RANK_DELETED, rankId);
+}
+
+void Guild::_UpdateGuildRanksDB() const
+{
+    // Delete all records
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GUILD_RANKS);
+    stmt->setUInt32(0, m_id);
+    CharacterDatabase.Execute(stmt);
+
+    for (Ranks::const_iterator itr = m_ranks.begin(); itr != m_ranks.end(); ++itr)
+    {
+        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_GUILD_RANK);
+        stmt->setUInt32(0, m_id);
+        stmt->setUInt8(1, itr->GetId());
+        stmt->setString(2, itr->GetName());
+        stmt->setUInt32(3, itr->GetRights());
+        stmt->setUInt32(4, itr->GetBankMoneyPerDay());
+        CharacterDatabase.Execute(stmt);
+    }
+}
+
+void Guild::_UpdateBankRightsDB() const
+{
+    // Delete all records
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GUILD_BANK_RIGHTS);
+    stmt->setUInt32(0, m_id);
+    CharacterDatabase.Execute(stmt);
+
+    for (uint8 tabId = 0; tabId < _GetPurchasedTabsSize(); ++tabId)
+    {
+        for (Ranks::const_iterator itr = m_ranks.begin(); itr != m_ranks.end(); ++itr)
+        {
+            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_GUILD_BANK_RIGHT);
+            stmt->setUInt32(0, m_id);
+            stmt->setUInt8(1, tabId);
+            stmt->setUInt8(2, itr->GetId());
+            stmt->setUInt8(3, itr->GetBankTabRights(tabId));
+            stmt->setUInt32(4, itr->GetBankTabSlotsPerDay(tabId));
+            CharacterDatabase.Execute(stmt);
+        }
+    }
+}
+
+void Guild::_UpdateAllGuildRightsOnRankDeleted(uint8 rankdId) const
+{
+    // Updates Guild Bank rights
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GUILD_BANK_RIGHTS_FOR_RANK);
+    stmt->setUInt32(0, m_id);
+    stmt->setUInt8(1, rankdId);
+    CharacterDatabase.Execute(stmt);
+
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GUILD_BANK_RANK_RIGHTS);
+    stmt->setUInt32(0, m_id);
+    stmt->setUInt8(1, rankdId);
+    CharacterDatabase.Execute(stmt);
+
+    // Updates Guild Ranks
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GUILD_RANK);
+    stmt->setUInt32(0, m_id);
+    stmt->setUInt8(1, rankdId);
+    CharacterDatabase.Execute(stmt);
+
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GUILD_RANKS);
+    stmt->setUInt32(0, m_id);
+    stmt->setUInt8(1, rankdId);
+    CharacterDatabase.Execute(stmt);
+
+    // Updates Guild Member Ranks
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GUILD_MEMBER_RANKS);
+    stmt->setUInt32(0, m_id);
+    stmt->setUInt8(1, rankdId);
+    CharacterDatabase.Execute(stmt);
+}
+
+void Guild::HandleSwitchRank(uint8 rankId, bool up)
+{
+    if (rankId >= _GetRanksSize())
+        return;
+
+    if (((rankId == GR_GUILDMASTER) && up) || ((rankId == _GetLowestRankId()) && !up))
+        return;
+
+    uint32 otherRankId = rankId + (up ? -1 : 1);
+
+    // Swap every setting except RankIds
+    std::swap(m_ranks[rankId], m_ranks[otherRankId]);
+
+    // Switch Ids
+    m_ranks[rankId].SetId(rankId);
+    m_ranks[otherRankId].SetId(otherRankId);
+
+    _UpdateGuildRanksDB();
+    _UpdateBankRightsDB();
+
+    for (Members::iterator itr = m_members.begin(); itr != m_members.end(); ++itr)
+    {
+        if (itr->second->GetRankId() == rankId)
+            itr->second->ChangeRank(otherRankId);
+        else if (itr->second->GetRankId() == otherRankId)
+            itr->second->ChangeRank(rankId);
+    }
 }
 
 void Guild::HandleMemberDepositMoney(WorldSession* session, uint64 amount, bool cashFlow /*=false*/)

@@ -396,7 +396,7 @@ private:
 
         bool IsOnline() { return (m_flags & GUILDMEMBER_STATUS_ONLINE); }
 
-        void ChangeRank(uint8 newRank);
+        void ChangeRank(uint8 newRank, bool UpdateDB = true);
 
         inline void UpdateLogoutTime() { m_logoutTime = ::time(NULL); }
         inline bool IsRank(uint8 rankId) const { return m_rankId == rankId; }
@@ -589,6 +589,7 @@ private:
         void SaveToDB(SQLTransaction& trans) const;
 
         uint8 GetId() const { return m_rankId; }
+        void SetId(uint8 rankId) { m_rankId = rankId; }
 
         std::string const& GetName() const { return m_name; }
         void SetName(std::string const& name);
@@ -795,6 +796,7 @@ public:
     void HandleSetMemberRank(WorldSession* session, uint64 guid, uint64 setterGuid, uint32 rank);
     void HandleAddNewRank(WorldSession* session, std::string const& name);
     void HandleRemoveRank(WorldSession* session, uint8 rankId);
+    void HandleSwitchRank(uint8 rankId, bool up);
     void HandleMemberDepositMoney(WorldSession* session, uint64 amount, bool cashFlow = false);
     bool HandleMemberWithdrawMoney(WorldSession* session, uint64 amount, bool repair = false);
     void HandleMemberLogout(WorldSession* session);
@@ -964,6 +966,11 @@ private:
     void _DeleteBankItems(SQLTransaction& trans, bool removeItemsFromDB = false);
     bool _ModifyBankMoney(SQLTransaction& trans, uint64 amount, bool add);
     void _SetLeaderGUID(Member* pLeader);
+
+    // Handling guild rights
+    void _UpdateGuildRanksDB() const;
+    void _UpdateBankRightsDB() const;
+    void _UpdateAllGuildRightsOnRankDeleted(uint8 rankId) const;
 
     void _SetRankBankMoneyPerDay(uint8 rankId, uint32 moneyPerDay);
     void _SetRankBankTabRightsAndSlots(uint8 rankId, GuildBankRightsAndSlots rightsAndSlots, bool saveToDB = true);
