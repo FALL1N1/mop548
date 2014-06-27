@@ -727,33 +727,45 @@ void WorldSession::HandleRaidTargetUpdateOpcode(WorldPacket& recvData)
 
     uint8 x;
     uint8 iconID;
-    ObjectGuid guid;
-
+   
     recvData >> x;
     recvData >> iconID;
 
-    guid[3] = recvData.ReadBit();
-    guid[2] = recvData.ReadBit();
-    guid[1] = recvData.ReadBit();
-    guid[5] = recvData.ReadBit();
-    guid[0] = recvData.ReadBit();
-    guid[6] = recvData.ReadBit();
-    guid[7] = recvData.ReadBit();
-    guid[4] = recvData.ReadBit();
+    /** error handling **/
+    /********************/
 
-    recvData.FlushBits();
+    // everything's fine, do it
+    if (x == 0xFF)                                           // target icon request
+        group->SendTargetIconList(this);
+    else                                                    // target icon update
+    {
+        if (!group->IsLeader(GetPlayer()->GetGUID()) && !group->IsAssistant(GetPlayer()->GetGUID()))
+            return;
 
-    recvData.ReadByteSeq(guid[2]);
-    recvData.ReadByteSeq(guid[3]);
-    recvData.ReadByteSeq(guid[0]);
-    recvData.ReadByteSeq(guid[7]);
-    recvData.ReadByteSeq(guid[5]);
-    recvData.ReadByteSeq(guid[1]);
-    recvData.ReadByteSeq(guid[6]);
-    recvData.ReadByteSeq(guid[4]);    
+        ObjectGuid guid;
 
-    if (group->IsLeader(GetPlayer()->GetGUID()) || group->IsAssistant(GetPlayer()->GetGUID()))
+        guid[3] = recvData.ReadBit();
+        guid[2] = recvData.ReadBit();
+        guid[1] = recvData.ReadBit();
+        guid[5] = recvData.ReadBit();
+        guid[0] = recvData.ReadBit();
+        guid[6] = recvData.ReadBit();
+        guid[7] = recvData.ReadBit();
+        guid[4] = recvData.ReadBit();
+
+        recvData.FlushBits();
+
+        recvData.ReadByteSeq(guid[2]);
+        recvData.ReadByteSeq(guid[3]);
+        recvData.ReadByteSeq(guid[0]);
+        recvData.ReadByteSeq(guid[7]);
+        recvData.ReadByteSeq(guid[5]);
+        recvData.ReadByteSeq(guid[1]);
+        recvData.ReadByteSeq(guid[6]);
+        recvData.ReadByteSeq(guid[4]);
+
         group->SetTargetIcon(iconID, _player->GetGUID(), guid);
+    }
 }
 
 void WorldSession::HandleGroupRaidConvertOpcode(WorldPacket& recvData)
