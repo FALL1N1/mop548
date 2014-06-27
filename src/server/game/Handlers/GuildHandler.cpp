@@ -259,7 +259,12 @@ void WorldSession::HandleGuildMOTDOpcode(WorldPacket& recvPacket)
     TC_LOG_DEBUG("guild", "CMSG_GUILD_MOTD [%s]: MOTD: %s", GetPlayerInfo().c_str(), motd.c_str());
 
     if (Guild* guild = GetPlayer()->GetGuild())
+    {
         guild->HandleSetMOTD(this, motd);
+
+        recvPacket.SetOpcode(SMSG_GUILD_MOTD);
+        guild->BroadcastPacket(&recvPacket);
+    }
 }
 
 void WorldSession::HandleGuildSetNoteOpcode(WorldPacket& recvPacket)

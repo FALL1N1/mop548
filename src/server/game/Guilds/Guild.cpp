@@ -1618,8 +1618,6 @@ void Guild::HandleSetMOTD(WorldSession* session, std::string const& motd)
         stmt->setString(0, motd);
         stmt->setUInt32(1, m_id);
         CharacterDatabase.Execute(stmt);
-
-        _BroadcastEvent(GE_MOTD, 0, motd.c_str());
     }
 }
 
