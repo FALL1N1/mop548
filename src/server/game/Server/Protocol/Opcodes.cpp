@@ -118,7 +118,7 @@ void OpcodeTable::InitializeClientTable()
     DEFINE_OPCODE_HANDLER(CMSG_BUG,                                0x0000, STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleBugOpcode                    );
     DEFINE_OPCODE_HANDLER(CMSG_BUSY_TRADE,                         0x0000, STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleBusyTradeOpcode              );
     DEFINE_OPCODE_HANDLER(CMSG_BUYBACK_ITEM,                       0x0661, STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleBuybackItem                  ); // 5.4.8 18414
-    DEFINE_OPCODE_HANDLER(CMSG_BUY_BANK_SLOT,                      0x12F2, STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleBuyBankSlotOpcode            );
+    DEFINE_OPCODE_HANDLER(CMSG_BUY_BANK_SLOT,                      0x12F2, STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleBuyBankSlotOpcode            ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(CMSG_BUY_ITEM,                           0x02E2, STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleBuyItemOpcode                ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(CMSG_CALENDAR_ADD_EVENT,                 0x0000, STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleCalendarAddEvent             );
     DEFINE_OPCODE_HANDLER(CMSG_CALENDAR_ARENA_TEAM,                0x0000, STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleCalendarArenaTeam            );
@@ -519,7 +519,7 @@ void OpcodeTable::InitializeClientTable()
     DEFINE_OPCODE_HANDLER(CMSG_SHOWING_CLOAK,                      0x0000, STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleShowingCloakOpcode           );
     DEFINE_OPCODE_HANDLER(CMSG_SHOWING_HELM,                       0x0000, STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleShowingHelmOpcode            );
     DEFINE_OPCODE_HANDLER(CMSG_SOCKET_GEMS,                        0x02CB, STATUS_LOGGEDIN, PROCESS_THREADUNSAFE,  &WorldSession::HandleSocketOpcode                 ); // 5.4.8 18291
-    DEFINE_OPCODE_HANDLER(CMSG_SPELLCLICK,                         0x0000, STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleSpellClick                   );
+    DEFINE_OPCODE_HANDLER(CMSG_SPELLCLICK,                         0x067A, STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleSpellClick                   ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(CMSG_SPIRIT_HEALER_ACTIVATE,             0x0000, STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleSpiritHealerActivateOpcode   );
     DEFINE_OPCODE_HANDLER(CMSG_SPLIT_ITEM,                         0x02EC, STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleSplitItemOpcode              ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(CMSG_STANDSTATECHANGE,                   0x03E6, STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleStandStateChangeOpcode       ); // 5.4.8 18291
