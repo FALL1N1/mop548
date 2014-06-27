@@ -346,7 +346,42 @@ void WorldSession::HandleGuildDelRankOpcode(WorldPacket& recvPacket)
     TC_LOG_DEBUG("guild", "CMSG_GUILD_DEL_RANK [%s]: Rank: %u", GetPlayerInfo().c_str(), rankId);
 
     if (Guild* guild = GetPlayer()->GetGuild())
+    {
         guild->HandleRemoveRank(this, rankId);
+        guild->SendGuildRankInfo(this);
+        guild->HandleQuery(this);
+        guild->HandleRoster(this);
+    }
+}
+
+void WorldSession::HandleGuildSwitchRankOpcode(WorldPacket& recvPacket)
+{
+    uint32 rankId;
+    bool up;
+
+    recvPacket >> rankId;
+    up = recvPacket.ReadBit();
+
+    TC_LOG_DEBUG("guild", "CMSG_GUILD_SWITCH_RANK [%s]: rank %u up %u", GetPlayerInfo().c_str(), rankId, up);
+
+    if (Guild* guild = GetPlayer()->GetGuild())
+    {
+        if (GetPlayer()->GetGUID() != guild->GetLeaderGUID())
+        {
+            Guild::SendCommandResult(this, GUILD_COMMAND_INVITE, ERR_GUILD_PERMISSIONS);
+            return;
+        }
+
+        guild->HandleSwitchRank(uint8(rankId), up);
+        guild->SendGuildRankInfo(this);
+        guild->HandleQuery(this);
+        guild->HandleRoster(this);
+    }
+    else
+    {
+        Guild::SendCommandResult(this, GUILD_COMMAND_CREATE, ERR_GUILD_PLAYER_NOT_IN_GUILD);
+        return;
+    }
 }
 
 void WorldSession::HandleGuildChangeInfoTextOpcode(WorldPacket& recvPacket)
