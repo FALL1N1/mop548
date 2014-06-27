@@ -1501,6 +1501,60 @@ void Group::SetTargetIcon(uint8 iconID, ObjectGuid whoGuid, ObjectGuid targetGui
     BroadcastPacket(&data, true);
 }
 
+
+void Group::SendTargetIconList(WorldSession* session)
+{
+    if (!session)
+        return;
+
+    WorldPacket data(SMSG_RAID_TARGET_UPDATE_ALL, (1 + TARGETICONCOUNT * 9));
+    
+    size_t count_pos = data.bitwpos();
+    data.WriteBits(0, 23);
+    uint8 count = 0;   
+
+    for (uint8 i = 0; i < TARGETICONCOUNT; ++i)
+    {
+        if (m_targetIcons[i] == 0)
+            continue;
+
+        ObjectGuid guid = ObjectGuid(m_targetIcons[i]);
+        data.WriteBit(guid[2]);
+        data.WriteBit(guid[1]);
+        data.WriteBit(guid[3]);
+        data.WriteBit(guid[7]);
+        data.WriteBit(guid[6]);
+        data.WriteBit(guid[4]);
+        data.WriteBit(guid[0]);
+        data.WriteBit(guid[5]); 
+
+        count++;
+    }
+
+    data.PutBits(count_pos, count, 23);
+    data.FlushBits();
+
+    for (uint8 i = 0; i < TARGETICONCOUNT; ++i)
+    {
+        if (m_targetIcons[i] == 0)
+            continue;
+
+        ObjectGuid guid = ObjectGuid(m_targetIcons[i]);
+        data.WriteByteSeq(guid[4]);
+        data.WriteByteSeq(guid[7]);
+        data.WriteByteSeq(guid[1]);
+        data.WriteByteSeq(guid[0]);
+        data.WriteByteSeq(guid[6]);
+        data.WriteByteSeq(guid[5]);
+        data.WriteByteSeq(guid[3]);
+        data << uint8(i);
+        data.WriteByteSeq(guid[2]);
+    }
+    
+    data << uint8(1);
+    session->SendPacket(&data);
+}
+
 // --------------------------------------------------------------------------------------
 // --------------------------------- RAID MARKERS ---------------------------------------
 // --------------------------------------------------------------------------------------
