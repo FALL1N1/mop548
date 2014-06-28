@@ -1934,12 +1934,14 @@ void Guild::HandleInviteMember(WorldSession* session, std::string const& name)
     ObjectGuid oldGuildGuid = 0;
 
     std::string oldGuildName = "";
+    uint32 oldGuildRealmID = 0;
 
     // previous guild
     /*if (Guild* guild = pInvited->GetGuild())
     {
         oldGuildGuid = guild->GetGUID();
         oldGuildName = guild->GetName();
+        oldGuildRealmID = realmID;
     }*/
 
     WorldPacket data(SMSG_GUILD_INVITE, 51 + player->GetName().length() + m_name.length() + oldGuildName.length());
@@ -1965,29 +1967,29 @@ void Guild::HandleInviteMember(WorldSession* session, std::string const& name)
 
     //data.FlushBits();
     data.WriteByteSeq(newGuildGuid[1]);
-    data << (int32)0;
+    data << (uint32)m_emblemInfo.GetBackgroundColor();
     data.WriteByteSeq(newGuildGuid[4]);
     data.WriteString(player->GetName());
-    data << (int32)0;
+    data << (uint32)m_emblemInfo.GetBorderStyle();
     data.WriteByteSeq(oldGuildGuid[7]);
     data.WriteByteSeq(newGuildGuid[0]);
     data.WriteByteSeq(newGuildGuid[2]);
-    data << (int32)0;
+    data << (uint32)m_emblemInfo.GetColor();
     data.WriteByteSeq(oldGuildGuid[2]);
     data.WriteByteSeq(oldGuildGuid[5]);
-    data << (int32)_level;
-    data << uint32(0);
+    data << (uint32)_level;
+    data << (uint32)oldGuildRealmID;
     data.WriteByteSeq(newGuildGuid[7]);
     data.WriteByteSeq(newGuildGuid[3]);
     data.WriteByteSeq(oldGuildGuid[4]);
-    data << uint32(0);
+    data << m_emblemInfo.GetBorderColor();
     data.WriteString(m_name);
-    data << uint32(0);
-    data << uint32(0);
+    data << (uint32)realmID; // Guild Realm ID
+    data << (uint32)m_emblemInfo.GetStyle();
     data.WriteByteSeq(oldGuildGuid[0]);
     data.WriteString(oldGuildName);
     data.WriteByteSeq(newGuildGuid[5]);
-    data << uint32(0);
+    data << (uint32)realmID; // Inviter Realm ID
     data.WriteByteSeq(oldGuildGuid[1]);
     data.WriteByteSeq(newGuildGuid[6]);
     data.WriteByteSeq(oldGuildGuid[3]);
