@@ -43,6 +43,7 @@ enum GuildMisc
     GUILD_EVENT_LOG_GUID_UNDEFINED      = 0xFFFFFFFF,
     GUILD_EXPERIENCE_UNCAPPED_LEVEL     = 20,                   ///> Hardcoded in client, starting from this level, guild daily experience gain is unlimited.
     TAB_UNDEFINED                       = 0xFF,
+    GUILD_FACTION_ID                    = 1168                  // guild reputation
 };
 
 enum GuildMemberData
@@ -332,9 +333,19 @@ typedef std::vector <GuildBankRightsAndSlots> GuildBankRightsAndSlotsVec;
 
 typedef std::set <uint8> SlotIds;
 
+#define MAX_GUILD_PROFESSIONS 2
+
 class Guild
 {
 private:
+    // Info about profession necesary for packet
+    struct ProfessionInfo
+    {
+        uint16 skillId;
+        uint16 skillValue;
+        uint8 rank;
+    };
+
     // Class representing guild member
     class Member
     {
@@ -358,8 +369,8 @@ private:
             memset(m_bankWithdraw, 0, (GUILD_BANK_MAX_TABS + 1) * sizeof(int32));
         }
 
-        void SetStats(Player* player);
-        void SetStats(std::string const& name, uint8 level, uint8 _class, uint32 zoneId, uint32 accountId, uint32 reputation);
+        void SetStats(Player* player, bool save = true);
+        void SetStats(std::string const& name, uint8 level, uint8 _class, uint32 zoneId, uint32 accountId);
         bool CheckStats() const;
 
         void SetPublicNote(std::string const& publicNote);
@@ -367,8 +378,8 @@ private:
         void SetZoneId(uint32 id) { m_zoneId = id; }
         void SetAchievementPoints(uint32 val) { m_achievementPoints = val; }
         void SetLevel(uint8 var) { m_level = var; }
-        void AddReputation(uint32& reputation);
-        void AddActivity(uint64 activity);
+        void AddReputation(uint32 reputation);
+        void AddActivity(uint32 activity);
 
         void AddFlag(uint8 var) { m_flags |= var; }
         void RemFlag(uint8 var) { m_flags &= ~var; }
@@ -393,6 +404,7 @@ private:
         uint64 GetWeekActivity() const { return m_weekActivity; }
         uint32 GetTotalReputation() const { return m_totalReputation; }
         uint32 GetWeekReputation() const { return m_weekReputation; }
+        std::vector<ProfessionInfo> GetProfessionsInfo() const { return m_professions; }
 
         bool IsOnline() { return (m_flags & GUILDMEMBER_STATUS_ONLINE); }
 
@@ -431,6 +443,9 @@ private:
         uint64 m_weekActivity;
         uint32 m_totalReputation;
         uint32 m_weekReputation;
+        std::vector<ProfessionInfo> m_professions;
+
+        void SetProfessions(Player const* player);
     };
 
     // Base class for event entries
@@ -880,6 +895,9 @@ public:
     bool HasAchieved(uint32 achievementId) const;
     void UpdateAchievementCriteria(AchievementCriteriaTypes type, uint64 miscValue1, uint64 miscValue2, uint64 miscValue3, Unit* unit, Player* player);
 
+    // Guild Reputation
+    void GiveReputationToMember(uint32 reputation, Player* player);
+
 protected:
     uint32 m_id;
     std::string m_name;
@@ -995,7 +1013,7 @@ private:
 
     void _SendBankContentUpdate(MoveItemData* pSrc, MoveItemData* pDest) const;
     void _SendBankContentUpdate(uint8 tabId, SlotIds slots) const;
-    void SendGuildReputationWeeklyCap(WorldSession* session, uint32 reputation) const;
+    void SendGuildReputationWeeklyCap(Member* member) const;
     void SendGuildRanksUpdate(uint64 setterGuid, uint64 targetGuid, uint32 rank);
     void _SendPlayerJoinedGuild(ObjectGuid guid, std::string name) const;
     void _SendPlayerLogged(ObjectGuid guid, std::string name, bool online) const;

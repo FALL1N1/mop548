@@ -202,7 +202,11 @@ void GuildMgr::LoadGuilds()
                                                 //           0           1        2     3      4        5       6       7       8       9       10
         QueryResult result = CharacterDatabase.Query("SELECT gm.guildid, gm.guid, rank, pnote, offnote, w.tab0, w.tab1, w.tab2, w.tab3, w.tab4, w.tab5, "
                                                 //    11      12      13       14      15       16       17      18         19
-                                                     "w.tab6, w.tab7, w.money, c.name, c.level, c.class, c.zone, c.account, c.logout_time "
+                                                     "w.tab6, w.tab7, w.money, c.name, c.level, c.class, c.zone, c.account, c.logout_time, "
+                                                //            20               21               22               23                 24
+                                                     "gm.weekActivity, gm.totalActivity, gm.weekReputation, gm.totalReputation, gm.achievementPoints, "
+                                                //          25              26                  27                  28                  29                  30
+                                                     "gm.firstSkillId, gm.firstSkillValue, gm.firstSkillRank, gm.secondSkillId, gm.secondSkillValue, gm.secondSkillRank "
                                                      "FROM guild_member gm "
                                                      "LEFT JOIN guild_member_withdraw w ON gm.guid = w.guid "
                                                      "LEFT JOIN characters c ON c.guid = gm.guid ORDER BY gm.guildid ASC");
@@ -581,6 +585,9 @@ void GuildMgr::ResetTimes(bool week)
 {
     CharacterDatabase.Execute(CharacterDatabase.GetPreparedStatement(CHAR_UPD_GUILD_RESET_TODAY_EXPERIENCE));
     CharacterDatabase.Execute(CharacterDatabase.GetPreparedStatement(CHAR_DEL_GUILD_MEMBER_WITHDRAW));
+
+    if (week)
+        CharacterDatabase.Execute(CharacterDatabase.GetPreparedStatement(CHAR_UPD_GUILD_MEMBER_RESET_WEEK_ADVANCEMENT));
 
     for (GuildContainer::const_iterator itr = GuildStore.begin(); itr != GuildStore.end(); ++itr)
         if (Guild* guild = itr->second)

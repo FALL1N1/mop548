@@ -1816,6 +1816,7 @@ class Player : public Unit, public GridObject<Player>
         uint32 GetFreePrimaryProfessionPoints() const { return GetUInt32Value(PLAYER_FIELD_CHARACTER_POINTS); }
         void SetFreePrimaryProfessions(uint16 profs) { SetUInt32Value(PLAYER_FIELD_CHARACTER_POINTS, profs); }
         void InitPrimaryProfessions();
+        SkillStatusMap const& GetSkillStatusMap() const { return mSkillStatus; }
 
         PlayerSpellMap const& GetSpellMap() const { return m_spells; }
         PlayerSpellMap      & GetSpellMap()       { return m_spells; }

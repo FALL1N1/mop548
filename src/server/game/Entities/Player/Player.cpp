@@ -7307,9 +7307,6 @@ bool Player::RewardHonor(Unit* victim, uint32 groupsize, int32 honor, bool pvpto
     {
         if (groupsize > 1)
             honor_f /= groupsize;
-
-        // apply honor multiplier from aura (not stacking-get highest)
-        AddPct(honor_f, GetMaxPositiveAuraModifier(SPELL_AURA_MOD_HONOR_GAIN_PCT));
     }
 
     honor_f *= sWorld->getRate(RATE_HONOR);
@@ -15767,7 +15764,11 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
         moneyRew = int32(quest->GetRewMoneyMaxLevel() * sWorld->getRate(RATE_DROP_MONEY));
 
     if (Guild* guild = sGuildMgr->GetGuildById(GetGuildId()))
-        guild->GiveXP(uint32(quest->XPValue(this) * sWorld->getRate(RATE_XP_QUEST) * sWorld->getRate(RATE_XP_GUILD_MODIFIER)), this);
+    {
+        uint32 guildXP = uint32(quest->XPValue(this) * sWorld->getRate(RATE_XP_QUEST) * sWorld->getRate(RATE_XP_GUILD_MODIFIER));
+        guild->GiveXP(guildXP, this);
+        guild->GiveReputationToMember(uint32(ceil(float(guildXP / 450))), this);
+    }
 
     // Give player extra money if GetRewOrReqMoney > 0 and get ReqMoney if negative
     if (quest->GetRewOrReqMoney())
