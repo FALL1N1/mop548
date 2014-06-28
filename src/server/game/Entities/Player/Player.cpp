@@ -3172,9 +3172,9 @@ void Player::GiveLevel(uint8 level)
 
     // send levelup info to client
     WorldPacket data(SMSG_LEVELUP_INFO, ((MAX_POWERS_PER_CLASS * 4) + 4 + 4 + (MAX_STATS * 4) + 4));
-
-    data << uint32(level);
+    
     data << uint32(0);
+    data << uint32(level);
     data << uint32(int32(basehp) - int32(GetCreateHealth()));
 
     for (uint8 i = STAT_STRENGTH; i < MAX_STATS; ++i)       // Stats loop (0-4)
@@ -5216,10 +5216,10 @@ void Player::BuildPlayerRepop()
 void Player::ResurrectPlayer(float restore_percent, bool applySickness)
 {
     WorldPacket data(SMSG_DEATH_RELEASE_LOC, 4 * 4);          // remove spirit healer position
-    data << float(0);
-    data << float(0);
-    data << float(0);
     data << uint32(-1);
+    data << float(0);
+    data << float(0);
+    data << float(0);    
     GetSession()->SendPacket(&data);
 
     // speed change, land walk
@@ -5634,10 +5634,10 @@ void Player::RepopAtGraveyard()
         if (isDead())                                        // not send if alive, because it used in TeleportTo()
         {
             WorldPacket data(SMSG_DEATH_RELEASE_LOC, 4 * 4);  // show spirit healer position on minimap
+            data << ClosestGrave->map_id;
             data << ClosestGrave->y;
             data << ClosestGrave->z;
-            data << ClosestGrave->x;
-            data << ClosestGrave->map_id;
+            data << ClosestGrave->x;            
             GetSession()->SendPacket(&data);
         }
     }
@@ -10156,26 +10156,26 @@ uint32 Player::GetXPRestBonus(uint32 xp)
 
 void Player::SetBindPoint(uint64 guid)
 {
-    ObjectGuid ikGuid = guid;
+    ObjectGuid Guid = guid;
+    
+    WorldPacket data(SMSG_BINDER_CONFIRM, 7);
+    data.WriteBit(Guid[4]);
+    data.WriteBit(Guid[6]);
+    data.WriteBit(Guid[2]);
+    data.WriteBit(Guid[1]);
+    data.WriteBit(Guid[5]);
+    data.WriteBit(Guid[3]);
+    data.WriteBit(Guid[0]);
+    data.WriteBit(Guid[7]);
 
-    WorldPacket data(SMSG_BINDER_CONFIRM, 1 + 8);
-    data.WriteBit(ikGuid[7]);
-    data.WriteBit(ikGuid[0]);
-    data.WriteBit(ikGuid[1]);
-    data.WriteBit(ikGuid[5]);
-    data.WriteBit(ikGuid[3]);
-    data.WriteBit(ikGuid[6]);
-    data.WriteBit(ikGuid[2]);
-    data.WriteBit(ikGuid[4]);
-
-    data.WriteByteSeq(ikGuid[3]);
-    data.WriteByteSeq(ikGuid[4]);
-    data.WriteByteSeq(ikGuid[6]);
-    data.WriteByteSeq(ikGuid[2]);
-    data.WriteByteSeq(ikGuid[1]);
-    data.WriteByteSeq(ikGuid[7]);
-    data.WriteByteSeq(ikGuid[5]);
-    data.WriteByteSeq(ikGuid[0]);
+    data.WriteByteSeq(Guid[6]);
+    data.WriteByteSeq(Guid[2]);
+    data.WriteByteSeq(Guid[5]);
+    data.WriteByteSeq(Guid[0]);
+    data.WriteByteSeq(Guid[4]);
+    data.WriteByteSeq(Guid[7]);
+    data.WriteByteSeq(Guid[1]);
+    data.WriteByteSeq(Guid[3]);
 
     GetSession()->SendPacket(&data);
 }
