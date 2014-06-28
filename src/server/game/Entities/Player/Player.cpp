@@ -3178,9 +3178,7 @@ void Player::GiveLevel(uint8 level)
     for (uint8 i = STAT_STRENGTH; i < MAX_STATS; ++i)       // Stats loop (0-4)
         data << uint32(int32(info.stats[i]) - GetCreateStat(Stats(i)));
 
-    bool talent = false;
-
-    data << uint32(talent);
+    data << uint32(0);
     data << uint32(level);
     data << uint32(int32(basemana) - int32(GetCreateMana()));
 
