@@ -629,7 +629,7 @@ void Guild::BankTab::SendText(Guild const* guild, WorldSession* session) const
     }
 }
 
-void Guild::Member::SetProfessions(Player const* player)
+void Guild::Member::_SetProfessions(Player const* player)
 {
     if (!m_professions.empty())
         m_professions.clear();
@@ -667,33 +667,26 @@ void Guild::Member::SetStats(Player* player, bool save)
     m_accountId = player->GetSession()->GetAccountId();
     m_achievementPoints = player->GetAchievementPoints();
     m_totalReputation = player->GetReputation(GUILD_FACTION_ID);
-    SetProfessions(player);
-
-    ProfessionInfo profInfo[MAX_GUILD_PROFESSIONS];
-    for (uint8 i = 0; i < MAX_GUILD_PROFESSIONS; i++)
-    {
-        profInfo[i].skillId = 0;
-        profInfo[i].skillValue = 0;
-        profInfo[i].rank = 0;
-    }
-
-    for (uint8 i = 0; i < std::min((uint8)m_professions.size(), (uint8)MAX_GUILD_PROFESSIONS); i++)
-    {
-        profInfo[i].skillId = m_professions[i].skillId;
-        profInfo[i].skillValue = m_professions[i].skillValue;
-        profInfo[i].rank = m_professions[i].rank;
-    }
+    _SetProfessions(player);
 
     if (save)
     {
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GUILD_MEMBER_ROSTER_INFO);
         stmt->setUInt32(0, m_achievementPoints);
-        for (uint8 i = 0; i < MAX_GUILD_PROFESSIONS; i++)
+        for (uint8 i = 0; i < std::min((uint8)m_professions.size(), (uint8)MAX_GUILD_PROFESSIONS); i++)
         {
-            stmt->setUInt16(1 + (3 * i), profInfo[i].skillId);
-            stmt->setUInt16(2 + (3 * i), profInfo[i].skillValue);
-            stmt->setUInt8(3 + (3 * i), profInfo[i].rank);
+            stmt->setUInt16(1 + (3 * i), m_professions[i].skillId);
+            stmt->setUInt16(2 + (3 * i), m_professions[i].skillValue);
+            stmt->setUInt8(3 + (3 * i), m_professions[i].rank);
         }
+
+        for (uint8 i = m_professions.size(); i < (uint8)MAX_GUILD_PROFESSIONS; i++)
+        {
+            stmt->setUInt16(1 + (3 * i), 0);
+            stmt->setUInt16(2 + (3 * i), 0);
+            stmt->setUInt8(3 + (3 * i), 0);
+        }
+
         stmt->setUInt32(7, GUID_LOPART(m_guid));
         CharacterDatabase.Execute(stmt);
     }
@@ -1540,7 +1533,7 @@ void Guild::HandleRoster(WorldSession* session /*= NULL*/)
         for (uint8 i = 0; i < std::min((uint8)professionInfo.size(), (uint8)MAX_GUILD_PROFESSIONS); i++)
             memberData << uint32(professionInfo[i].rank) << uint32(professionInfo[i].skillId) << uint32(professionInfo[i].skillValue);
 
-        for (uint8 i = professionInfo.size(); i < MAX_GUILD_PROFESSIONS; i++) // if player doesnt have 2 professions
+        for (uint8 i = professionInfo.size(); i < (uint8)MAX_GUILD_PROFESSIONS; i++) // if player doesnt have 2 professions
             memberData << uint32(0) << uint32(0) << uint32(0);
 
         memberData << uint8(member->GetLevel());
@@ -2554,10 +2547,10 @@ void Guild::SendLoginInfo(WorldSession* session)
           SMSG_GUILD_MEMBER_DAILY_RESET // bank withdrawal reset
     */
 
-    WorldPacket data(SMSG_GUILD_EVENT, 1 + 1 + m_motd.size() + 1);
-    data << uint8(GE_MOTD);
-    data << uint8(1);
-    data << m_motd;
+    WorldPacket data(SMSG_GUILD_MOTD, 2 + m_motd.length());
+    data.WriteBits(m_motd.length(), 10);
+    data.FlushBits();
+    data.WriteString(m_motd);
     session->SendPacket(&data);
 
     TC_LOG_DEBUG("guild", "SMSG_GUILD_EVENT [%s] MOTD", session->GetPlayerInfo().c_str());

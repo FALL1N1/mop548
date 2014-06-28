@@ -43,7 +43,8 @@ enum GuildMisc
     GUILD_EVENT_LOG_GUID_UNDEFINED      = 0xFFFFFFFF,
     GUILD_EXPERIENCE_UNCAPPED_LEVEL     = 20,                   ///> Hardcoded in client, starting from this level, guild daily experience gain is unlimited.
     TAB_UNDEFINED                       = 0xFF,
-    GUILD_FACTION_ID                    = 1168                  // guild reputation
+    GUILD_FACTION_ID                    = 1168,                 // guild reputation
+    MAX_GUILD_PROFESSIONS               = 2
 };
 
 enum GuildMemberData
@@ -333,8 +334,6 @@ typedef std::vector <GuildBankRightsAndSlots> GuildBankRightsAndSlotsVec;
 
 typedef std::set <uint8> SlotIds;
 
-#define MAX_GUILD_PROFESSIONS 2
-
 class Guild
 {
 private:
@@ -445,7 +444,7 @@ private:
         uint32 m_weekReputation;
         std::vector<ProfessionInfo> m_professions;
 
-        void SetProfessions(Player const* player);
+        void _SetProfessions(Player const* player);
     };
 
     // Base class for event entries
