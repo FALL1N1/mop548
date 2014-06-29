@@ -1160,7 +1160,7 @@ void BattlegroundMgr::BuildBattlegroundListPacket(WorldPacket* data, uint64 guid
     data->WriteBit(guidBytes[3]);
 
     size_t count_pos = data->bitwpos();
-    data->WriteBits(0, 24);                                 // placeholder
+    data->WriteBits(0, 22);                                 // placeholder
 
     data->WriteByteSeq(guidBytes[7]);
     data->WriteByteSeq(guidBytes[3]);
@@ -1179,7 +1179,7 @@ void BattlegroundMgr::BuildBattlegroundListPacket(WorldPacket* data, uint64 guid
         *data << uint32(*itr);
         ++count;
     }
-    data->PutBits(count_pos, count, 24);                    // bg instance count
+    data->PutBits(count_pos, count, 22);                    // bg instance count
 }
 
 void BattlegroundMgr::SendToBattleground(Player* player, uint32 instanceId, BattlegroundTypeId bgTypeId)
