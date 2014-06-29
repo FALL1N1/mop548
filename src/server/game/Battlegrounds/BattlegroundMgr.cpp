@@ -1138,38 +1138,38 @@ void BattlegroundMgr::BuildBattlegroundListPacket(WorldPacket* data, uint64 guid
     data->Initialize(SMSG_BATTLEFIELD_LIST);
     *data << uint32(winnerConquest)             // Winner Conquest Reward or Random Winner Conquest Reward
           << uint32(winnerConquest)             // Winner Conquest Reward or Random Winner Conquest Reward
+          << uint8(bracketEntry->maxLevel)      // max level
+          << uint32(loserHonor)                 // Loser Honor Reward or Random Loser Honor Reward
           << uint32(loserHonor)                 // Loser Honor Reward or Random Loser Honor Reward
           << uint32(bgTypeId)                   // battleground id
-          << uint32(loserHonor)                 // Loser Honor Reward or Random Loser Honor Reward
           << uint32(winnerHonor)                // Winner Honor Reward or Random Winner Honor Reward
-          << uint32(winnerHonor)                // Winner Honor Reward or Random Winner Honor Reward
-          << uint8(bracketEntry->maxLevel)      // max level
-          << uint8(bracketEntry->minLevel);     // min level
-
+          << uint8(bracketEntry->minLevel)      // min level
+          << uint32(winnerHonor);               // Winner Honor Reward or Random Winner Honor Reward
+          
     data->WriteBit(guidBytes[0]);
-    data->WriteBit(guidBytes[1]);
+    data->WriteBit(0);                                      // unk
+    data->WriteBit(guidBytes[4]);
+    data->WriteBit(0);                                      // unk
+    data->WriteBit(guidBytes[2]);
+    data->WriteBit(0);                                      // unk
     data->WriteBit(guidBytes[7]);
+    data->WriteBit(guidBytes[6]);
+    data->WriteBit(guidBytes[5]);
+    data->WriteBit(guidBytes[1]);
     data->WriteBit(0);                                      // unk
-    data->WriteBit(0);                                      // unk
+    data->WriteBit(guidBytes[3]);
 
-    data->FlushBits();
     size_t count_pos = data->bitwpos();
     data->WriteBits(0, 24);                                 // placeholder
 
-    data->WriteBit(guidBytes[6]);
-    data->WriteBit(guidBytes[4]);
-    data->WriteBit(guidBytes[2]);
-    data->WriteBit(guidBytes[3]);
-    data->WriteBit(0);                                      // unk
-    data->WriteBit(guidBytes[5]);
-    data->WriteBit(0);                                      // unk
-
-    data->FlushBits();
-
+    data->WriteByteSeq(guidBytes[7]);
+    data->WriteByteSeq(guidBytes[3]);
+    data->WriteByteSeq(guidBytes[4]);
+    data->WriteByteSeq(guidBytes[0]);
+    data->WriteByteSeq(guidBytes[5]);
     data->WriteByteSeq(guidBytes[6]);
     data->WriteByteSeq(guidBytes[1]);
-    data->WriteByteSeq(guidBytes[7]);
-    data->WriteByteSeq(guidBytes[5]);
+    data->WriteByteSeq(guidBytes[2]);
 
     uint32 count = 0;
     BattlegroundBracketId bracketId = bracketEntry->GetBracketId();
@@ -1180,11 +1180,6 @@ void BattlegroundMgr::BuildBattlegroundListPacket(WorldPacket* data, uint64 guid
         ++count;
     }
     data->PutBits(count_pos, count, 24);                    // bg instance count
-
-    data->WriteByteSeq(guidBytes[0]);
-    data->WriteByteSeq(guidBytes[2]);
-    data->WriteByteSeq(guidBytes[4]);
-    data->WriteByteSeq(guidBytes[3]);
 }
 
 void BattlegroundMgr::SendToBattleground(Player* player, uint32 instanceId, BattlegroundTypeId bgTypeId)
