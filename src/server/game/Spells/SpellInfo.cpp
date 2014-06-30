@@ -1785,6 +1785,26 @@ SpellCastResult SpellInfo::CheckTarget(Unit const* caster, WorldObject const* ta
             return SPELL_FAILED_BAD_TARGETS;
     }
 
+    //Check Dynamic and DESTAOE spells like FoK
+    if ((Effects[0].TargetA.GetTarget() == TARGET_DEST_CASTER) && (Effects[0].TargetB.GetTarget() == TARGET_UNIT_DEST_AREA_ENEMY))
+    if (!caster->IsWithinLOSInMap(target))
+        return SPELL_FAILED_LINE_OF_SIGHT;
+
+    //Check spells with type: Fire Nova Helfire etc.
+    if ((Effects[0].TargetA.GetTarget() == TARGET_DEST_DEST) && (Effects[0].TargetB.GetTarget() == TARGET_UNIT_DEST_AREA_ENEMY))
+    if (!caster->IsWithinLOSInMap(target))
+        return SPELL_FAILED_LINE_OF_SIGHT;
+
+    //Checking LoS spells with type: Whirlwind | bladestorm
+    if ((Effects[0].TargetA.GetTarget() == TARGET_SRC_CASTER) && (Effects[0].TargetB.GetTarget() == TARGET_UNIT_SRC_AREA_ENEMY) && !IsPositive())
+    if (!caster->IsWithinLOSInMap(target))
+        return SPELL_FAILED_LINE_OF_SIGHT;
+
+    //Checking LoS spells with type: Cyclone etc.
+    if ((Effects[0].TargetA.GetTarget() == TARGET_UNIT_CONE_ENEMY_104) && !IsPositive())
+    if (!caster->IsWithinLOSInMap(target))
+        return SPELL_FAILED_LINE_OF_SIGHT;
+
     // check GM mode and GM invisibility - only for player casts (npc casts are controlled by AI) and negative spells
     if (unitTarget != caster && (caster->IsControlledByPlayer() || !IsPositive()) && unitTarget->GetTypeId() == TYPEID_PLAYER)
     {
