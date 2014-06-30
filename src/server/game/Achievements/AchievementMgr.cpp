@@ -2439,8 +2439,8 @@ void AchievementMgr<Guild>::SendAchievementInfo(Player* receiver, uint32 achieve
     receiver->GetSession()->SendPacket(&data);
 }
 
-template<class T>
-bool AchievementMgr<T>::HasAchieved(uint32 achievementId) const
+template<>
+bool AchievementMgr<Guild>::HasAchieved(uint32 achievementId) const
 {
     return m_completedAchievements.find(achievementId) != m_completedAchievements.end();
 }
