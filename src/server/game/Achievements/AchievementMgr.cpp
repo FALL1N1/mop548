@@ -652,7 +652,7 @@ void AchievementMgr<Player>::SaveToDB(SQLTransaction& trans)
     {
         for (CompletedAchievementMap::iterator iter = m_completedAchievements.begin(); iter != m_completedAchievements.end(); ++iter)
         {
-            if (!iter->second.changed)
+            if (!iter->second.changed) // should be always false for non-char (account) achievement
                 continue;
 
             PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_ACHIEVEMENT_BY_ACHIEVEMENT);
@@ -663,7 +663,8 @@ void AchievementMgr<Player>::SaveToDB(SQLTransaction& trans)
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_ACHIEVEMENT);
             stmt->setUInt32(0, GetOwner()->GetGUID());
             stmt->setUInt16(1, iter->first);
-            stmt->setUInt32(2, uint32(iter->second.date));
+            stmt->setUInt32(2, GetOwner()->GetSession()->GetAccountId());
+            stmt->setUInt32(3, uint32(iter->second.date));
             trans->Append(stmt);
 
             iter->second.changed = false;
@@ -765,11 +766,30 @@ void AchievementMgr<Player>::LoadFromDB(PreparedQueryResult achievementResult, P
             if (!achievement)
                 continue;
 
-            CompletedAchievementData& ca = m_completedAchievements[achievementid];
-            ca.date = time_t(fields[1].GetUInt32());
-            ca.changed = false;
+            uint32 completerGuid = fields[1].GetUInt32();
+            bool completerNotOwner = (completerGuid != GetOwner()->GetGUIDLow());
 
-            _achievementPoints += achievement->points;
+            if (m_completedAchievements.find(achievementid) != m_completedAchievements.end())
+            {
+                CompletedAchievementData& ca = m_completedAchievements[achievementid];
+                if ((*ca.guids.begin() == GetOwner()->GetGUIDLow()) || completerNotOwner)
+                    continue;
+
+                ca.guids.clear();
+                ca.guids.insert(MAKE_NEW_GUID(completerGuid, 0, HIGHGUID_PLAYER));
+                ca.date = time_t(fields[2].GetUInt32());
+            }
+            else
+            {
+                CompletedAchievementData& ca = m_completedAchievements[achievementid];
+                ca.guids.insert(MAKE_NEW_GUID(completerGuid, 0, HIGHGUID_PLAYER));
+                ca.date = time_t(fields[2].GetUInt32());
+                ca.changed = false;
+                _achievementPoints += achievement->points;
+
+                if (completerNotOwner)
+                    continue;
+            }
 
             // title achievement rewards are retroactive
             if (AchievementReward const* reward = sAchievementMgr->GetAchievementReward(achievement))
@@ -889,9 +909,12 @@ void AchievementMgr<Player>::Reset()
 {
     for (CompletedAchievementMap::const_iterator iter = m_completedAchievements.begin(); iter != m_completedAchievements.end(); ++iter)
     {
-        WorldPacket data(SMSG_ACHIEVEMENT_DELETED, 4);
-        data << uint32(iter->first);
-        SendPacket(&data);
+        if (*iter->second.guids.begin() == GetOwner()->GetGUID()) // Don't remove achievements from the others player characters
+        {
+            WorldPacket data(SMSG_ACHIEVEMENT_DELETED, 4);
+            data << uint32(iter->first);
+            SendPacket(&data);
+        }
     }
 
     for (CriteriaProgressMap::const_iterator iter = m_criteriaProgress.begin(); iter != m_criteriaProgress.end(); ++iter)
@@ -2162,6 +2185,7 @@ void AchievementMgr<T>::SendAllAchievementData(Player* /*receiver*/) const
         if (!isVisible(*itr))
             continue;
 
+        guid = *itr->second.guids.begin();
         data.WriteBit(guid[0]);
         data.WriteBit(guid[7]);
         data.WriteBit(guid[1]);
@@ -2171,12 +2195,12 @@ void AchievementMgr<T>::SendAllAchievementData(Player* /*receiver*/) const
         data.WriteBit(guid[6]);
         data.WriteBit(guid[3]);
 
-        completedData << uint32(itr->first);                    // achievement Id
-        completedData << uint32(0);                             // timer 1
+        completedData << uint32(itr->first);                   // achievement Id
+        completedData << uint32(0);                            // timer 1
         completedData.WriteByteSeq(guid[5]);
         completedData.WriteByteSeq(guid[7]);
-        completedData << uint32(0);                             // timer 2
-        completedData.AppendPackedTime(itr->second.date);       // achievement date
+        completedData << uint32(0);                            // timer 2
+        completedData.AppendPackedTime(itr->second.date);      // achievement date
         completedData.WriteByteSeq(guid[0]);
         completedData.WriteByteSeq(guid[4]);
         completedData.WriteByteSeq(guid[1]);
@@ -2413,6 +2437,13 @@ void AchievementMgr<Guild>::SendAchievementInfo(Player* receiver, uint32 achieve
         data.append(criteriaData);
 
     receiver->GetSession()->SendPacket(&data);
+}
+
+template<>
+bool AchievementMgr<Player>::HasAchieved(uint32 achievementId) const
+{
+    CompletedAchievementMap::const_iterator achievement = m_completedAchievements.find(achievementId);
+    return ((achievement != m_completedAchievements.end()) && (achievement->second.guids.find(GetOwner()->GetGUID()) != achievement->second.guids.end()));
 }
 
 template<class T>
