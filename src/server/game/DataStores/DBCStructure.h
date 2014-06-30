@@ -1603,6 +1603,16 @@ struct OverrideSpellDataEntry
     //char*     SpellBarName;                               // 12
 };
 
+struct PowerDisplayEntry
+{
+    uint32 Id;                                              // 0
+    uint32 PowerType;                                       // 1
+    //char*  Name;                                          // 2
+    //uint32 R;                                             // 3
+    //uint32 G;                                             // 4
+    //uint32 B;                                             // 5
+};
+
 struct PvPDifficultyEntry
 {
     //uint32      id;                                       // 0        m_ID
@@ -2323,7 +2333,7 @@ struct VehicleEntry
     uint32  m_uiLocomotionType;                             // 35
     float   m_msslTrgtImpactTexRadius;                      // 36
     uint32  m_uiSeatIndicatorType;                          // 37
-    uint32  m_powerType;                                    // 38, new in 3.1
+    uint32  m_powerDisplayId;                               // 38, new in 3.1
                                                             // 39, new in 3.1
                                                             // 40, new in 3.1
 };
