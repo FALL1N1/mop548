@@ -2439,7 +2439,7 @@ void AchievementMgr<Guild>::SendAchievementInfo(Player* receiver, uint32 achieve
     receiver->GetSession()->SendPacket(&data);
 }
 
-template<>
+template<class Player>
 bool AchievementMgr<Player>::HasAchieved(uint32 achievementId) const
 {
     CompletedAchievementMap::const_iterator achievement = m_completedAchievements.find(achievementId);
