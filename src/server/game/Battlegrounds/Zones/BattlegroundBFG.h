@@ -224,7 +224,7 @@ public:
 
     /* Score-keeping */
     void UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor = true);
-    void FillInitialWorldStates(WorldPacket& data);
+    void FillInitialWorldStates(WorldStateBuilder& builder);
 
     void EventPlayerClickedOnFlag(Player* source, GameObject* /*target_obj*/);
 
