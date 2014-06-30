@@ -2442,6 +2442,12 @@ void AchievementMgr<Guild>::SendAchievementInfo(Player* receiver, uint32 achieve
 template<class T>
 bool AchievementMgr<T>::HasAchieved(uint32 achievementId) const
 {
+    return m_completedAchievements.find(achievementId) != m_completedAchievements.end();
+}
+
+template<>
+bool AchievementMgr<Player>::HasAchieved(uint32 achievementId) const
+{
     CompletedAchievementMap::const_iterator achievement = m_completedAchievements.find(achievementId);
     return ((achievement != m_completedAchievements.end()) && (achievement->second.guids.find(GetOwner()->GetGUID()) != achievement->second.guids.end()));
 }
