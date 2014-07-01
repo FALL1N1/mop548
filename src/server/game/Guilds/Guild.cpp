@@ -101,7 +101,7 @@ inline uint32 _GetGuildBankTabPrice(uint8 tabId)
 
 void Guild::SendCommandResult(WorldSession* session, GuildCommandType type, GuildCommandError errCode, std::string const& param)
 {
-    WorldPacket data(SMSG_GUILD_COMMAND_RESULT, 8 + param.size() + 1);
+    WorldPacket data(SMSG_GUILD_COMMAND_RESULT, 4 + 4 + 1 + param.size());
     data << uint32(type);
     data << uint32(errCode);
 

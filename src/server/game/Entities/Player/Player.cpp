@@ -13676,7 +13676,7 @@ void Player::SendEquipError(InventoryResult msg, Item* pItem, Item* pItem2, uint
     ObjectGuid pItemGuid = pItem ? pItem->GetGUID() : 0;
     ObjectGuid pItemGuid2 = pItem2 ? pItem2->GetGUID() : 0;
 
-    WorldPacket data(SMSG_INVENTORY_CHANGE_FAILURE, (msg == EQUIP_ERR_CANT_EQUIP_LEVEL_I ? 22 : 18));
+    WorldPacket data(SMSG_INVENTORY_CHANGE_FAILURE, (msg == EQUIP_ERR_NO_OUTPUT ? 26 : 24));
 
     if (msg != EQUIP_ERR_OK)
     {
@@ -14714,58 +14714,65 @@ void Player::SendNewItem(Item* item, uint32 count, bool received, bool created, 
         return;
 
     ObjectGuid playerGuid = GetGUID();
-    ObjectGuid unknownGuid = uint64(0);
+    ObjectGuid unknownGuid = uint64(0); //May be vendor or bag
 
-    WorldPacket data(SMSG_ITEM_PUSH_RESULT, 1 + 8 + 1 + 4 + 4 + 4 + 4 + 4 + 4 + 1 + 4 + 4 + 4);
-    data.WriteBit(1);                                       // display in chat
-    data.WriteBit(created);                                 // 0=received, 1=created
-    data.WriteBit(playerGuid[2]);
-    data.WriteBit(playerGuid[0]);
-    data.WriteBit(playerGuid[4]);
-    data.WriteBit(unknownGuid[3]);
-    data.WriteBit(unknownGuid[7]);
-    data.WriteBit(unknownGuid[1]);
-    data.WriteBit(unknownGuid[4]);
-    data.WriteBit(unknownGuid[6]);
-    data.WriteBit(0);                                       // 1 = bonus item - "You received bonus loot"
-    data.WriteBit(playerGuid[5]);
-    data.WriteBit(playerGuid[1]);
-    data.WriteBit(unknownGuid[5]);
-    data.WriteBit(playerGuid[6]);
+    WorldPacket data(SMSG_ITEM_PUSH_RESULT, 3 + 8 + 8 + 4 + 4 + 4 + 4 + 4 + 4 + 4 + 4 + 4 + 1);
+
     data.WriteBit(unknownGuid[2]);
-    data.WriteBit(playerGuid[7]);
-    data.WriteBit(unknownGuid[0]);
-    data.WriteBit(playerGuid[3]);
+    data.WriteBit(playerGuid[4]);
+    data.WriteBit(unknownGuid[5]);
+    data.WriteBit(1);                                       // display in chat
+    data.WriteBit(playerGuid[1]);
     data.WriteBit(received);                                // 0=looted, 1=from npc
+    data.WriteBit(unknownGuid[4]);
+    data.WriteBit(playerGuid[6]);
+    data.WriteBit(playerGuid[5]);
+    data.WriteBit(playerGuid[7]);
+    data.WriteBit(playerGuid[0]);
+    data.WriteBit(unknownGuid[0]);
+    data.WriteBit(unknownGuid[7]);
+    data.WriteBit(playerGuid[2]);
+    data.WriteBit(unknownGuid[6]);
+    data.WriteBit(0);                                       // 1 = bonus item - "You received bonus loot"   
+    data.WriteBit(playerGuid[3]);
+    data.WriteBit(unknownGuid[1]);
+    data.WriteBit(created);                                 // 0=received, 1=created
+    data.WriteBit(unknownGuid[3]);
     data.FlushBits();
 
-    // uint32 value order needs to be rechecked
-    data.WriteByteSeq(unknownGuid[6]);
-    data << uint32(item->GetItemSuffixFactor());            // SuffixFactor
     data.WriteByteSeq(playerGuid[1]);
-    data << uint32(0);
-    data << uint32(count);                                  // count of items
-    data << uint32(0);
-    data << uint32(item->GetItemRandomPropertyId());        // random item property id
-    data.WriteByteSeq(playerGuid[3]);
-    data.WriteByteSeq(unknownGuid[7]);
-    data.WriteByteSeq(playerGuid[5]);
-    data << uint32(0);
-    data.WriteByteSeq(playerGuid[2]);
-    data.WriteByteSeq(unknownGuid[0]);
     data.WriteByteSeq(unknownGuid[1]);
-    data.WriteByteSeq(playerGuid[7]);
-    data << uint8(item->GetBagSlot());                      // bagslot
-    data << uint32(item->GetEntry());                       // item id
-    data << uint32(0);
-    data.WriteByteSeq(playerGuid[0]);
-    data.WriteByteSeq(playerGuid[4]);
+
+    data << uint32(0); //unk
+
+    data.WriteByteSeq(unknownGuid[0]);
+    data.WriteByteSeq(playerGuid[5]);
+    data.WriteByteSeq(playerGuid[2]);
+    data << uint32(item->GetItemSuffixFactor());            // SuffixFactor Guessed
     data.WriteByteSeq(unknownGuid[5]);
-    data.WriteByteSeq(unknownGuid[2]);
+
+    data << uint32(0); //unk
+
+    data << uint32(item->GetEntry());                       // item id
+    data << uint32(item->GetItemRandomPropertyId());        // random item property id
+    data.WriteByteSeq(unknownGuid[6]);
+
+    data << uint32(0); //unk
+
     data << uint32(GetItemCount(item->GetEntry()));         // count of items in inventory
-                                                            // item slot, but when added to stack: 0xFFFFFFFF
-    data << uint32((item->GetCount() == count) ? item->GetSlot() : -1);
+    data.WriteByteSeq(unknownGuid[2]);
+    data.WriteByteSeq(playerGuid[0]);
+    data << uint32(count);                                  // count of items
+    data.WriteByteSeq(playerGuid[7]);
+    data.WriteByteSeq(unknownGuid[5]);
+    data.WriteByteSeq(playerGuid[4]);
+    data << uint32((item->GetCount() == count) ? item->GetSlot() : -1); // item slot, but when added to stack: 0xFFFFFFFF
+    data << uint8(item->GetBagSlot());                      // bagslot
+    data.WriteByteSeq(playerGuid[3]);
     data.WriteByteSeq(playerGuid[6]);
+    
+    data << uint32(0); //unk
+       
     data.WriteByteSeq(unknownGuid[3]);
     data.WriteByteSeq(unknownGuid[4]);
 
@@ -14773,20 +14780,6 @@ void Player::SendNewItem(Item* item, uint32 count, bool received, bool created, 
         GetGroup()->BroadcastPacket(&data, true);
     else
         GetSession()->SendPacket(&data);
-
-    /*WorldPacket data(SMSG_ITEM_PUSH_RESULT, (8+4+4+4+1+4+4+4+4+4));
-    data << uint64(GetGUID());                              // player GUID
-    data << uint32(received);                               // 0=looted, 1=from npc
-    data << uint32(created);                                // 0=received, 1=created
-    data << uint32(1);                                      // bool print error to chat
-    data << uint8(item->GetBagSlot());                      // bagslot
-                                                            // item slot, but when added to stack: 0xFFFFFFFF
-    data << uint32((item->GetCount() == count) ? item->GetSlot() : -1);
-    data << uint32(item->GetEntry());                       // item id
-    data << uint32(item->GetItemSuffixFactor());            // SuffixFactor
-    data << int32(item->GetItemRandomPropertyId());         // random item property id
-    data << uint32(count);                                  // count of items
-    data << uint32(GetItemCount(item->GetEntry()));         // count of items in inventory*/
 }
 
 /*********************************************************/
@@ -15072,11 +15065,11 @@ void Player::OnGossipSelect(WorldObject* source, uint32 gossipListId, uint32 men
             GetSession()->SendShowBank(guid);
             break;
         case GOSSIP_OPTION_PETITIONER:
-            PlayerTalkClass->SendCloseGossip();
+            PlayerTalkClass->SendCloseGossip(); //Probably obsolete
             GetSession()->SendPetitionShowList(guid);
             break;
         case GOSSIP_OPTION_TABARDDESIGNER:
-            PlayerTalkClass->SendCloseGossip();
+            PlayerTalkClass->SendCloseGossip(); //Probably obsolete
             GetSession()->SendTabardVendorActivate(guid);
             break;
         case GOSSIP_OPTION_AUCTIONEER:

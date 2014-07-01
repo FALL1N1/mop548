@@ -55,37 +55,37 @@ void WorldSession::HandlePetitionBuyOpcode(WorldPacket& recvData)
 {
     TC_LOG_DEBUG("network", "Received opcode CMSG_PETITION_BUY");
 
-    ObjectGuid guidNPC;
-    uint8 nameLen;
-    std::string name;
+    ObjectGuid guid;
 
-    guidNPC[5] = recvData.ReadBit();
-    guidNPC[2] = recvData.ReadBit();
-    guidNPC[3] = recvData.ReadBit();
-    nameLen = recvData.ReadBits(7);
-    guidNPC[4] = recvData.ReadBit();
-    guidNPC[1] = recvData.ReadBit();
-    guidNPC[7] = recvData.ReadBit();
-    guidNPC[0] = recvData.ReadBit();
-    guidNPC[6] = recvData.ReadBit();
+    guid[5] = recvData.ReadBit();
+    guid[2] = recvData.ReadBit();
+    guid[3] = recvData.ReadBit();
 
-    name = recvData.ReadString(nameLen);
-    recvData.ReadByteSeq(guidNPC[1]);
-    recvData.ReadByteSeq(guidNPC[7]);
-    recvData.ReadByteSeq(guidNPC[4]);
-    recvData.ReadByteSeq(guidNPC[6]);
-    recvData.ReadByteSeq(guidNPC[0]);
-    recvData.ReadByteSeq(guidNPC[5]);
-    recvData.ReadByteSeq(guidNPC[2]);
-    recvData.ReadByteSeq(guidNPC[3]);
+    uint8 nameLength = recvData.ReadBits(7);
 
-    TC_LOG_DEBUG("network", "Petitioner with GUID %u tried sell petition: name %s", GUID_LOPART(guidNPC), name.c_str());
+    guid[4] = recvData.ReadBit();
+    guid[1] = recvData.ReadBit();
+    guid[7] = recvData.ReadBit();
+    guid[0] = recvData.ReadBit();
+    guid[6] = recvData.ReadBit();
+
+    std::string name = recvData.ReadString(nameLength);
+
+    recvData.ReadByteSeq(guid[1]);
+    recvData.ReadByteSeq(guid[7]);
+    recvData.ReadByteSeq(guid[4]);
+    recvData.ReadByteSeq(guid[6]);
+    recvData.ReadByteSeq(guid[0]);
+    recvData.ReadByteSeq(guid[5]);
+    recvData.ReadByteSeq(guid[2]);
+    recvData.ReadByteSeq(guid[3]);
+    TC_LOG_DEBUG("network", "Petitioner with GUID %u tried sell petition: name %s", GUID_LOPART(guid), name.c_str());
 
     // prevent cheating
-    Creature* creature = GetPlayer()->GetNPCIfCanInteractWith(guidNPC, UNIT_NPC_FLAG_PETITIONER);
+    Creature* creature = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_PETITIONER);
     if (!creature)
     {
-        TC_LOG_DEBUG("network", "WORLD: HandlePetitionBuyOpcode - Unit (GUID: %u) not found or you can't interact with him.", GUID_LOPART(guidNPC));
+        TC_LOG_DEBUG("network", "WORLD: HandlePetitionBuyOpcode - Unit (GUID: %u) not found or you can't interact with him.", GUID_LOPART(guid));
         return;
     }
 
@@ -144,6 +144,7 @@ void WorldSession::HandlePetitionBuyOpcode(WorldPacket& recvData)
     if (!charter)
         return;
 
+    //I think this has changed
     charter->SetUInt32Value(ITEM_FIELD_ENCHANTMENT, charter->GetGUIDLow());
     // ITEM_FIELD_ENCHANTMENT is guild/arenateam id
     // ITEM_FIELD_ENCHANTMENT+1 is current signatures count (showed on item)
@@ -172,6 +173,7 @@ void WorldSession::HandlePetitionBuyOpcode(WorldPacket& recvData)
     // delete petitions with the same guid as this one
     ssInvalidPetitionGUIDs << '\'' << charter->GetGUIDLow() << '\'';
 
+    //Probably DB Charter Petitions has changed too
     TC_LOG_DEBUG("network", "Invalid petition GUIDs: %s", ssInvalidPetitionGUIDs.str().c_str());
     CharacterDatabase.EscapeString(name);
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
@@ -182,7 +184,7 @@ void WorldSession::HandlePetitionBuyOpcode(WorldPacket& recvData)
     stmt->setUInt32(0, _player->GetGUIDLow());
     stmt->setUInt32(1, charter->GetGUIDLow());
     stmt->setString(2, name);
-    stmt->setUInt8(3, uint8(type));
+    stmt->setUInt8(3, uint8(type)); //Type no needed anymore
     trans->Append(stmt);
 
     CharacterDatabase.CommitTransaction(trans);
