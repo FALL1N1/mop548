@@ -583,7 +583,7 @@ void AchievementMgr<T>::ResetAchievementCriteria(AchievementCriteriaTypes type, 
             continue;
 
         // don't update already completed criteria if not forced or achievement already complete
-        if ((IsCompletedCriteria(achievementCriteria, achievement) && !evenIfCriteriaComplete) || HasAchieved(achievement->ID))
+        if ((IsCompletedCriteria(achievementCriteria, achievement) && !evenIfCriteriaComplete) || GetOwner()->HasAchieved(achievement->ID))
             continue;
 
         for (uint8 j = 0; j < MAX_CRITERIA_REQUIREMENTS; ++j)
@@ -1754,7 +1754,7 @@ void AchievementMgr<T>::CompletedCriteriaFor(AchievementEntry const* achievement
         return;
 
     // already completed and stored
-    if (HasAchieved(achievement->ID))
+    if (GetOwner()->HasAchieved(achievement->ID))
         return;
 
     if (IsCompletedAchievement(achievement))
@@ -1988,7 +1988,7 @@ void AchievementMgr<Player>::CompletedAchievement(AchievementEntry const* achiev
     if (GetOwner()->IsGameMaster())
         return;
 
-    if (achievement->flags & ACHIEVEMENT_FLAG_COUNTER || HasAchieved(achievement->ID))
+    if (achievement->flags & ACHIEVEMENT_FLAG_COUNTER || GetOwner()->HasAchieved(achievement->ID))
         return;
 
     if (achievement->flags & ACHIEVEMENT_FLAG_SHOW_IN_GUILD_NEWS)
@@ -2072,7 +2072,7 @@ void AchievementMgr<Guild>::CompletedAchievement(AchievementEntry const* achieve
 {
     TC_LOG_DEBUG("achievement", "AchievementMgr<Guild>::CompletedAchievement(%u)", achievement->ID);
 
-    if (achievement->flags & ACHIEVEMENT_FLAG_COUNTER || HasAchieved(achievement->ID))
+    if (achievement->flags & ACHIEVEMENT_FLAG_COUNTER || GetOwner()->HasAchieved(achievement->ID))
         return;
 
     if (achievement->flags & ACHIEVEMENT_FLAG_SHOW_IN_GUILD_NEWS)
@@ -2439,8 +2439,8 @@ void AchievementMgr<Guild>::SendAchievementInfo(Player* receiver, uint32 achieve
     receiver->GetSession()->SendPacket(&data);
 }
 
-template<>
-bool AchievementMgr<Guild>::HasAchieved(uint32 achievementId) const
+template<class T>
+bool AchievementMgr<T>::HasAchieved(uint32 achievementId) const
 {
     return m_completedAchievements.find(achievementId) != m_completedAchievements.end();
 }
