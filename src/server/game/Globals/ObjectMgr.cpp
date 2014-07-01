@@ -9041,6 +9041,17 @@ PlayerInfo const* ObjectMgr::GetPlayerInfo(uint32 race, uint32 class_) const
         return NULL;
     if (class_ >= MAX_CLASSES)
         return NULL;
+
+    switch (race)
+    {
+        case RACE_PANDAREN_ALLIANCE:
+        case RACE_PANDAREN_HORDE:
+            race = RACE_PANDAREN_NEUTRAL;
+            break;
+        default:
+            break;
+    }
+
     PlayerInfo const* info = _playerInfo[race][class_];
     if (!info)
         return NULL;
