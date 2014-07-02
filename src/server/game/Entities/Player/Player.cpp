@@ -6998,6 +6998,15 @@ void Player::setFactionForRace(uint8 race)
     setFaction(rEntry ? rEntry->FactionID : 0);
 }
 
+void Player::SendPandarenChooseFactionPacket()
+{
+    if (getRace() != RACE_PANDAREN_NEUTRAL)
+        return;
+
+    WorldPacket data(SMSG_PANDAREN_CHOOSE_FACTION, 0);
+    GetSession()->SendPacket(&data);
+}
+
 ReputationRank Player::GetReputationRank(uint32 faction) const
 {
     FactionEntry const* factionEntry = sFactionStore.LookupEntry(faction);

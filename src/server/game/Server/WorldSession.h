@@ -410,6 +410,9 @@ class WorldSession
         // played time
         void HandlePlayedTime(WorldPacket& recvPacket);
 
+        // Pandaren Faction Choice
+        void HandlePandarenFactionChoiceOpcode(WorldPacket& recvPacket);
+
         // new
         void HandleMoveUnRootAck(WorldPacket& recvPacket);
         void HandleMoveRootAck(WorldPacket& recvPacket);

@@ -1414,6 +1414,14 @@ void WorldSession::HandlePlayedTime(WorldPacket& recvData)
     SendPacket(&data);
 }
 
+void WorldSession::HandlePandarenFactionChoiceOpcode(WorldPacket& recvData)
+{
+    uint32 race;
+    recvData >> race;
+    race = race ? RACE_PANDAREN_ALLIANCE : RACE_PANDAREN_HORDE;
+    // TODO: change faction
+}
+
 void WorldSession::HandleInspectOpcode(WorldPacket& recvData)
 {
     ObjectGuid guid;
