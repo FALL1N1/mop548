@@ -40,6 +40,7 @@
 #include "Battleground.h"
 #include "OutdoorPvP.h"
 #include "Pet.h"
+#include "ReputationMgr.h"
 #include "SocialMgr.h"
 #include "CellImpl.h"
 #include "AccountMgr.h"
@@ -1417,6 +1418,15 @@ void WorldSession::HandlePlayedTime(WorldPacket& recvData)
 void WorldSession::HandlePandarenFactionChoiceOpcode(WorldPacket& recvData)
 {
     Player* player = GetPlayer();
+
+    if (player->getRace() != RACE_PANDAREN_NEUTRAL)
+    {
+        TC_LOG_ERROR("network", "Player '%s' (GUID: %u) sent CMSG_PANDAREN_CHOOSE_FACTION, but his race is %d. Race should be %d.",
+            player->GetName().c_str(), player->GetGUIDLow(), player->getRace(), RACE_PANDAREN_NEUTRAL);
+        recvData.rfinish();
+        return;
+    }
+
     uint32 race;
     recvData >> race;
 
@@ -1438,6 +1448,10 @@ void WorldSession::HandlePandarenFactionChoiceOpcode(WorldPacket& recvData)
 
     for (uint8 i = 0; i < PANDAREN_FACTION_LANGUAGE_COUNT; i++)
         player->learnSpell(languageSpells[i], false);
+
+    // should i do something before sending?
+    player->GetReputationMgr().SendInitialReputations();
+    player->GetReputationMgr().SendForceReactions();
 
     // TODO: change faction
 }
