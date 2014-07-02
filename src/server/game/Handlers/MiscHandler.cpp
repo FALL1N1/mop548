@@ -1446,8 +1446,15 @@ void WorldSession::HandlePandarenFactionChoiceOpcode(WorldPacket& recvData)
         languageSpells[2] = 108131; // Pandaren Horde
     }
 
+    player->SetRace(race);
     for (uint8 i = 0; i < PANDAREN_FACTION_LANGUAGE_COUNT; i++)
         player->learnSpell(languageSpells[i], false);
+
+    WorldPacket data(SMSG_PANDAREN_FACTION_CHOSEN, 4 + 1);
+    data << (uint32)race;
+    data.WriteBit(1); // unk bool
+    data.FlushBits();
+    SendPacket(&data);
 
     // should i do something before sending?
     player->GetReputationMgr().SendInitialReputations();
