@@ -804,6 +804,7 @@ enum Language
 };
 
 #define LANGUAGES_COUNT   24
+#define PANDAREN_FACTION_LANGUAGE_COUNT 3
 
 enum TeamId
 {

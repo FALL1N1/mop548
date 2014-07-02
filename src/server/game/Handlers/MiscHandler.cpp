@@ -1416,9 +1416,29 @@ void WorldSession::HandlePlayedTime(WorldPacket& recvData)
 
 void WorldSession::HandlePandarenFactionChoiceOpcode(WorldPacket& recvData)
 {
+    Player* player = GetPlayer();
     uint32 race;
     recvData >> race;
-    race = race ? RACE_PANDAREN_ALLIANCE : RACE_PANDAREN_HORDE;
+
+    uint32 languageSpells[PANDAREN_FACTION_LANGUAGE_COUNT];
+    if (race)
+    {
+        race = RACE_PANDAREN_ALLIANCE;
+        languageSpells[0] = 668;    // Common
+        languageSpells[1] = 143368; // Pandaren, Common.
+        languageSpells[2] = 108130; // Pandaren Alliance
+    }
+    else
+    {
+        race = RACE_PANDAREN_HORDE;
+        languageSpells[0] = 669;    // Orcish
+        languageSpells[1] = 143369; // Pandaren, Orcish.
+        languageSpells[2] = 108131; // Pandaren Horde
+    }
+
+    for (uint8 i = 0; i < PANDAREN_FACTION_LANGUAGE_COUNT; i++)
+        player->learnSpell(languageSpells[i], false);
+
     // TODO: change faction
 }
 
