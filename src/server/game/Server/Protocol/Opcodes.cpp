@@ -397,7 +397,7 @@ void OpcodeTable::InitializeClientTable()
     DEFINE_OPCODE_HANDLER(CMSG_OPEN_ITEM,                          0x1D10, STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleOpenItemOpcode               ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(CMSG_OPT_OUT_OF_LOOT,                    0x0000, STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleOptOutOfLootOpcode           );
     DEFINE_OPCODE_HANDLER(CMSG_PAGE_TEXT_QUERY,                    0x0000, STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandlePageTextQueryOpcode          );
-    DEFINE_OPCODE_HANDLER(CMSG_PANDAREN_CHOOSE_FACTION,            0x0027, STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandlePandarenFactionChoiceOpcode  ); // 5.4.8 18414
+    DEFINE_OPCODE_HANDLER(CMSG_PANDAREN_FACTION_CHOSEN,            0x0027, STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandlePandarenFactionChoiceOpcode  ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(CMSG_PARTY_SILENCE,                      0x0000, STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                        );
     DEFINE_OPCODE_HANDLER(CMSG_PARTY_UNSILENCE,                    0x0000, STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                        );
     DEFINE_OPCODE_HANDLER(CMSG_PETITION_BUY,                       0x12D9, STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandlePetitionBuyOpcode            ); // 5.4.8 18414
