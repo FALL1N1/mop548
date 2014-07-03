@@ -1447,6 +1447,8 @@ void WorldSession::HandlePandarenFactionChoiceOpcode(WorldPacket& recvData)
     }
 
     player->SetRace(race);
+    player->setFactionForRace(race);
+
     for (uint8 i = 0; i < PANDAREN_FACTION_LANGUAGE_COUNT; i++)
         player->learnSpell(languageSpells[i], false);
 
@@ -1456,11 +1458,8 @@ void WorldSession::HandlePandarenFactionChoiceOpcode(WorldPacket& recvData)
     data.FlushBits();
     SendPacket(&data);
 
-    // should i do something before sending?
     player->GetReputationMgr().SendInitialReputations();
     player->GetReputationMgr().SendForceReactions();
-
-    // TODO: change faction
 }
 
 void WorldSession::HandleInspectOpcode(WorldPacket& recvData)
