@@ -790,36 +790,24 @@ void WorldSession::HandleReportPvPAFK(WorldPacket& recvData)
     reportedPlayer->ReportedAfkBy(_player);
 }
 
-void WorldSession::HandleRequestRatedBgInfo(WorldPacket & recvData)
+void WorldSession::HandleRequestRatedInfo(WorldPacket & recvData)
 {
     TC_LOG_DEBUG("network", "WORLD: CMSG_REQUEST_RATED_BG_INFO");
 
-    uint8 unk;
-    recvData >> unk;
+    //_player->GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_META_RBG, true);
+    //_player->GetCurrency(CURRENCY_TYPE_CONQUEST_POINTS, true);
 
-    TC_LOG_DEBUG("bg.battleground", "WorldSession::HandleRequestRatedBgInfo: unk = %u", unk);
-
-    /// @Todo: perfome research in this case
-    /// The unk fields are related to arenas
-    WorldPacket data(SMSG_RATED_BG_STATS, 72);
-    data << uint32(0);      // BgWeeklyWins20vs20
-    data << uint32(0);      // BgWeeklyPlayed20vs20
-    data << uint32(0);      // BgWeeklyPlayed15vs15
-    data << uint32(0);
-    data << uint32(0);      // BgWeeklyWins10vs10
-    data << uint32(0);
-    data << uint32(0);
-    data << uint32(0);
-    data << uint32(0);      // BgWeeklyWins15vs15
-    data << uint32(0);
-    data << uint32(0);
-    data << uint32(0);
-    data << uint32(0);
-    data << uint32(0);
-    data << uint32(0);
-    data << uint32(0);      // BgWeeklyPlayed10vs10
-    data << uint32(0);
-    data << uint32(0);
+    WorldPacket data(SMSG_BATTLEFIELD_RATED_INFO, 40);
+    data << uint32(0);      // unk
+    data << uint32(0);      // unk
+    data << uint32(0);      // unk
+    data << uint32(0);      // unk
+    data << uint32(400);    // Rated BG Victory Reward
+    data << uint32(0);      // unk
+    data << uint32(180);    // Rated Arena Victory Reward
+    data << uint32(0);      // unk
+    data << uint32(0);      // unk
+    data << uint32(0);      // unk
 
     SendPacket(&data);
 }
@@ -828,13 +816,13 @@ void WorldSession::HandleRequestPvpOptions(WorldPacket& /*recvData*/)
 {
     TC_LOG_DEBUG("network", "WORLD: CMSG_REQUEST_PVP_OPTIONS_ENABLED");
 
-    /// @Todo: perfome research in this case
     WorldPacket data(SMSG_PVP_OPTIONS_ENABLED, 1);
+    // WargamesEnabled, RatedBGsEnabled, RatedArenasEnabled
     data.WriteBit(1);
-    data.WriteBit(1);       // WargamesEnabled
     data.WriteBit(1);
-    data.WriteBit(1);       // RatedBGsEnabled
-    data.WriteBit(1);       // RatedArenasEnabled
+    data.WriteBit(1);
+    data.WriteBit(1);
+    data.WriteBit(1);   
 
     data.FlushBits();
 
@@ -848,19 +836,51 @@ void WorldSession::HandleRequestPvpReward(WorldPacket& /*recvData*/)
     _player->SendPvpRewards();
 }
 
-void WorldSession::HandleRequestRatedBgStats(WorldPacket& /*recvData*/)
+void WorldSession::HandleRequestRatedStats(WorldPacket& /*recvData*/)
 {
-    TC_LOG_DEBUG("network", "WORLD: CMSG_REQUEST_RATED_BG_STATS");
+    TC_LOG_DEBUG("network", "WORLD: CMSG_REQUEST_RATED_STATS");
 
-    WorldPacket data(SMSG_BATTLEFIELD_RATED_INFO, 29);
-    data << uint32(0);  // Reward
-    data << uint8(3);   // unk
-    data << uint32(0);  // unk
-    data << uint32(0);  // unk
-    data << _player->GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_META_RBG, true);
-    data << uint32(0);  // unk
-    data << uint32(0);  // unk
-    data << _player->GetCurrency(CURRENCY_TYPE_CONQUEST_POINTS, true);
+    WorldPacket data(SMSG_RATED_STATS, 128);    
+    
+    // 2vs2 arenas
+    data << uint32(0);
+    data << uint32(0);
+    data << uint32(0); // games?
+    data << uint32(0); // current rating
+    data << uint32(0); // wins
+    data << uint32(0);
+    data << uint32(0);
+    data << uint32(0);
+
+    // 3vs3 arenas
+    data << uint32(0);
+    data << uint32(0);
+    data << uint32(0);
+    data << uint32(0);
+    data << uint32(0);
+    data << uint32(0);
+    data << uint32(0);
+    data << uint32(0);
+
+    // 5vs5 arenas
+    data << uint32(0);
+    data << uint32(0);
+    data << uint32(0);
+    data << uint32(0);
+    data << uint32(0);
+    data << uint32(0);
+    data << uint32(0);
+    data << uint32(0);
+
+    // Rated Battlegrounds
+    data << uint32(0);
+    data << uint32(0);
+    data << uint32(0);
+    data << uint32(0);
+    data << uint32(0);
+    data << uint32(0);
+    data << uint32(0);
+    data << uint32(0);
 
     SendPacket(&data);
 }
