@@ -39,6 +39,9 @@ ChannelMgr* ChannelMgr::forTeam(uint32 team)
     if (team == HORDE)
         return ACE_Singleton<HordeChannelMgr, ACE_Null_Mutex>::instance();
 
+    if (team == PANDAREN_NEUTRAL)
+        return ACE_Singleton<NeutralChannelMgr, ACE_Null_Mutex>::instance();
+
     return NULL;
 }
 
