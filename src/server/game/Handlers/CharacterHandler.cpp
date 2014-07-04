@@ -911,44 +911,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
     LoadAccountData(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_ACCOUNT_DATA), PER_CHARACTER_CACHE_MASK);
     SendAccountDataTimes(PER_CHARACTER_CACHE_MASK);
 
-    bool feedbackSystem = true;
-    bool excessiveWarning = false;
-
-    data.Initialize(SMSG_FEATURE_SYSTEM_STATUS, 4 + 4 + 4 + 1 + 4 + 2 + 4 + 4 + 4 + 4 + 4 + 4 + 4);
-    data << uint32(0);                  // Scroll of Resurrection per day?
-    data << uint32(0);                  // Scroll of Resurrection current
-    data << uint32(0);
-    data << uint8(2);
-    data << uint32(0);
-
-    data.WriteBit(1);
-    data.WriteBit(1);                   // ingame shop status (0 - "The Shop is temporarily unavailable.")
-    data.WriteBit(1);
-    data.WriteBit(0);                   // Recruit a Friend button
-    data.WriteBit(0);                   // server supports voice chat
-    data.WriteBit(1);                   // show ingame shop icon
-    data.WriteBit(0);                   // Scroll of Resurrection button
-    data.WriteBit(excessiveWarning);    // excessive play time warning
-    data.WriteBit(0);                   // ingame shop parental control (1 - "Feature has been disabled by Parental Controls.")
-    data.WriteBit(feedbackSystem);      // feedback system (bug, suggestion and report systems)
-    data.FlushBits();
-
-    if (excessiveWarning)
-    {
-        data << uint32(0);              // excessive play time warning after period(in seconds)
-        data << uint32(0);
-        data << uint32(0);
-    }
-
-    if (feedbackSystem)
-    {
-        data << uint32(0);
-        data << uint32(1);
-        data << uint32(10);
-        data << uint32(60000);
-    }
-
-    SendPacket(&data);
+    pCurrChar->SendFeatureSystemStatus();
 
     // Send MOTD
     {
