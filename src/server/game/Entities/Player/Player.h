@@ -2106,6 +2106,7 @@ class Player : public Unit, public GridObject<Player>
         void setFactionForRace(uint8 race);
 
         void SendPandarenChooseFactionPacket();
+        void SendFeatureSystemStatus();
 
         void InitDisplayIds();
 

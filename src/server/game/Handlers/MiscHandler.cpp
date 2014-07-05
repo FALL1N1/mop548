@@ -1459,6 +1459,7 @@ void WorldSession::HandlePandarenFactionChoiceOpcode(WorldPacket& recvData)
     SendPacket(&data);
 
     player->GetReputationMgr().SendInitialReputations();
+    player->SendFeatureSystemStatus();
     player->GetReputationMgr().SendForceReactions();
 }
 
