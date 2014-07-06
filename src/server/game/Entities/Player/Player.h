@@ -2514,7 +2514,7 @@ class Player : public Unit, public GridObject<Player>
             These methods are only sent to the current unit.
         */
         void SendMovementSetCanTransitionBetweenSwimAndFly(bool apply);
-        void SendMovementSetCollisionHeight(float height);
+        void SendMovementSetCollisionHeight(float height, bool mounted);
 
         bool CanFly() const { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_CAN_FLY); }
 

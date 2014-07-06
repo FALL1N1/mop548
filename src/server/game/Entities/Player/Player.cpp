@@ -27710,12 +27710,39 @@ void Player::SendMovementSetCanTransitionBetweenSwimAndFly(bool apply)
         SMSG_MOVE_UNSET_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY).Send();
 }
 
-void Player::SendMovementSetCollisionHeight(float height)
+void Player::SendMovementSetCollisionHeight(float height, bool mounted)
 {
-    static MovementStatusElements const heightElement = MSEExtraFloat;
-    Movement::ExtraMovementStatusElement extra(&heightElement);
-    extra.Data.floatData = height;
-    Movement::PacketSender(this, NULL_OPCODE, SMSG_MOVE_SET_COLLISION_HEIGHT, SMSG_MOVE_UPDATE_COLLISION_HEIGHT, &extra).Send();
+    ObjectGuid guid = GetGUID();
+    WorldPacket data(SMSG_MOVE_SET_COLLISION_HEIGHT);
+    data.WriteBit(guid[7]);
+    data.WriteBit(guid[0]);
+    data.WriteBit(guid[1]);
+    data.WriteBit(!mounted);
+    data.WriteBit(guid[3]);
+    data.WriteBits(0, 2); // unk
+    data.WriteBit(guid[2]);
+    data.WriteBit(guid[6]);
+    data.WriteBit(guid[5]);
+    data.WriteBit(guid[4]);
+
+    data.FlushBits();
+    data << height;
+    if (mounted)
+        data << (uint32)0; // unk
+
+    data.WriteByteSeq(guid[3]);
+    data.WriteByteSeq(guid[2]);
+    data.WriteByteSeq(guid[5]);
+    data.WriteByteSeq(guid[6]);
+    data << (uint32)0; // unk
+    data << (float)1; // unk
+    data.WriteByteSeq(guid[7]);
+    data.WriteByteSeq(guid[1]);
+    data.WriteByteSeq(guid[4]);
+    data.WriteByteSeq(guid[0]);
+    GetSession()->SendPacket(&data);
+
+    // TODO: SMSG_MOVE_UPDATE_COLLISION_HEIGHT send this to other players?
 }
 
 float Player::GetCollisionHeight(bool mounted) const
