@@ -284,9 +284,9 @@ void OpcodeTable::InitializeClientTable()
     DEFINE_OPCODE_HANDLER(CMSG_GUILD_ROSTER,                       0x1459, STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleGuildRosterOpcode            ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(CMSG_GUILD_SET_ACHIEVEMENT_TRACKING,     0x0000, STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                        );
     DEFINE_OPCODE_HANDLER(CMSG_GUILD_SET_GUILD_MASTER,             0x1A83, STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleGuildSetGuildMaster          ); // 5.4.8 18414
-    DEFINE_OPCODE_HANDLER(CMSG_GUILD_SET_NOTE,                     0x0000, STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleGuildSetNoteOpcode           );
+    DEFINE_OPCODE_HANDLER(CMSG_GUILD_SET_NOTE,                     0x05DA, STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleGuildSetNoteOpcode           ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(CMSG_GUILD_SET_RANK_PERMISSIONS,         0x0000, STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleGuildSetRankPermissionsOpcode);
-    DEFINE_OPCODE_HANDLER(CMSG_GUILD_SWITCH_RANK,                  0x0CD1, STATUS_LOGGEDIN, PROCESS_INPLACE,       &WorldSession::HandleGuildSwitchRankOpcode        ); // 5.4.8 18414
+    DEFINE_OPCODE_HANDLER(CMSG_GUILD_SWITCH_RANK,                  0x0CD1, STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleGuildSwitchRankOpcode        ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(CMSG_HEARTH_AND_RESURRECT,               0x0000, STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleHearthAndResurrect           );
     DEFINE_OPCODE_HANDLER(CMSG_IGNORE_TRADE,                       0x0000, STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleIgnoreTradeOpcode            );
     DEFINE_OPCODE_HANDLER(CMSG_INITIATE_TRADE,                     0x0000, STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleInitiateTradeOpcode          );
@@ -901,6 +901,7 @@ void OpcodeTable::InitializeServerTable()
     DEFINE_OPCODE_HANDLER(SMSG_GUILD_RESET,                        0x0000, STATUS_UNHANDLED);
     DEFINE_OPCODE_HANDLER(SMSG_GUILD_REWARDS_LIST,                 0x1A69, STATUS_NEVER    ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(SMSG_GUILD_ROSTER,                       0x0BE0, STATUS_NEVER    ); // 5.4.8 18414
+    DEFINE_OPCODE_HANDLER(SMSG_GUILD_SET_NOTE,                     0x0BE1, STATUS_NEVER    ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(SMSG_GUILD_UPDATE_ROSTER,                0x0000, STATUS_UNHANDLED);
     DEFINE_OPCODE_HANDLER(SMSG_GUILD_XP,                           0x0AF0, STATUS_NEVER    ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(SMSG_TABARDVENDOR_ACTIVATE,              0x0A3E, STATUS_NEVER    ); // 5.4.8 18414
