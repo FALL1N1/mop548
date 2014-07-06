@@ -2104,7 +2104,7 @@ void Guild::HandleUpdateMemberRank(WorldSession* session, uint64 guid, bool demo
         // Player cannot promote himself
         if (member->IsSamePlayer(player->GetGUID()))
         {
-            SendCommandResult(session, type, ERR_GUILD_NAME_INVALID);
+            SendCommandResult(session, type, ERR_GUILD_PERMISSIONS);
             return;
         }
 

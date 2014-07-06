@@ -117,10 +117,10 @@ enum GuildCommandError
     ERR_ALREADY_IN_GUILD_S              = 3,
     ERR_INVITED_TO_GUILD                = 4,
     ERR_ALREADY_INVITED_TO_GUILD_S      = 5,
-    ERR_GUILD_LEADER_LEAVE              = 6,
+    ERR_GUILD_NAME_INVALID              = 6, // ok
     ERR_GUILD_NAME_EXISTS_S             = 7,
-    ERR_GUILD_NAME_INVALID              = 8, // ok
-    ERR_GUILD_PERMISSIONS               = 8,
+    ERR_GUILD_LEADER_LEAVE              = 8,
+    ERR_GUILD_PERMISSIONS               = 8, // ok
     ERR_GUILD_PLAYER_NOT_IN_GUILD       = 9,
     ERR_GUILD_PLAYER_NOT_IN_GUILD_S     = 10, // ok
     ERR_GUILD_PLAYER_NOT_FOUND_S        = 11,
