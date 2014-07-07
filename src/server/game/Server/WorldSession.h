@@ -978,6 +978,7 @@ class WorldSession
         void SendLoadCUFProfiles();
 
         // Battle Pets
+        void HandleBattlePetDelete(WorldPacket& recvData);
         void HandleBattlePetModifyName(WorldPacket& recvData);
         void HandleBattlePetQueryName(WorldPacket& recvData);
         void HandleBattlePetSetBattleSlot(WorldPacket& recvData);
