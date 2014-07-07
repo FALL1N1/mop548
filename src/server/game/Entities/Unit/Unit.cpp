@@ -10106,7 +10106,7 @@ void Unit::Dismount()
     data.WriteByteSeq(guid[4]);
     data.WriteByteSeq(guid[2]);
     data.WriteByteSeq(guid[0]);
-    SendMessageToSet(&data, false);
+    SendMessageToSet(&data, true);
 
     // dismount as a vehicle
     if (GetTypeId() == TYPEID_PLAYER && GetVehicleKit())
