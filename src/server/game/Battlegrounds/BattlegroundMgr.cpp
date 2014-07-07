@@ -1127,6 +1127,7 @@ void BattlegroundMgr::BuildBattlegroundListPacket(WorldPacket* data, uint64 guid
 
     size_t count_pos = data->bitwpos();
     data->WriteBits(0, 22);                                 // placeholder
+    data->FlushBits();
 
     data->WriteByteSeq(guidBytes[7]);
     data->WriteByteSeq(guidBytes[3]);

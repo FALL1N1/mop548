@@ -102,7 +102,7 @@ void OpcodeTable::InitializeClientTable()
     DEFINE_OPCODE_HANDLER(CMSG_AUTO_DECLINE_GUILD_INVITES,         0x06CB, STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleAutoDeclineGuildInvites      ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(CMSG_BANKER_ACTIVATE,                    0x02E9, STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleBankerActivateOpcode         ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(CMSG_BATTLEFIELD_LEAVE,                  0x0257, STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleBattlefieldLeaveOpcode       ); // 5.4.8 18414
-    DEFINE_OPCODE_HANDLER(CMSG_BATTLEFIELD_LIST,                   0x1C41, STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleBattlefieldListOpcode        ); // 5.4.8 18414
+    DEFINE_OPCODE_HANDLER(CMSG_BATTLEFIELD_LIST,                   0x1C41, STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleBattlefieldListOpcode        ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(CMSG_BATTLEFIELD_MGR_ENTRY_INVITE_RESPONSE, 0x1806, STATUS_LOGGEDIN, PROCESS_INPLACE,    &WorldSession::HandleBfEntryInviteResponse        ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(CMSG_BATTLEFIELD_MGR_EXIT_REQUEST,       0x08B3, STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleBfExitRequest                ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(CMSG_BATTLEFIELD_MGR_QUEUE_INVITE_RESPONSE, 0x0A97, STATUS_LOGGEDIN, PROCESS_INPLACE,    &WorldSession::HandleBfQueueInviteResponse        ); // 5.4.8 18414
@@ -422,7 +422,7 @@ void OpcodeTable::InitializeClientTable()
     DEFINE_OPCODE_HANDLER(CMSG_PET_SET_ACTION,                     0x0000, STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandlePetSetAction                 );
     DEFINE_OPCODE_HANDLER(CMSG_PET_SPELL_AUTOCAST,                 0x0000, STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandlePetSpellAutocastOpcode       );
     DEFINE_OPCODE_HANDLER(CMSG_PET_STOP_ATTACK,                    0x0000, STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandlePetStopAttack                );
-    DEFINE_OPCODE_HANDLER(CMSG_PING,                               0x0012, STATUS_NEVER,     PROCESS_INPLACE,      &WorldSession::Handle_EarlyProccess               ); // 5.4.8 18291
+    DEFINE_OPCODE_HANDLER(CMSG_PING,                               0x0000, STATUS_NEVER,     PROCESS_INPLACE,      &WorldSession::Handle_EarlyProccess               ); // 5.4.8 18291 its 0x0012 but for some resone this messes up the servers ping/pong and the other sync's
     DEFINE_OPCODE_HANDLER(CMSG_PLAYED_TIME,                        0x03F6, STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandlePlayedTime                   ); // 5.4.8 18291
     DEFINE_OPCODE_HANDLER(CMSG_PLAYER_LOGIN,                       0x158F, STATUS_AUTHED,    PROCESS_THREADUNSAFE, &WorldSession::HandlePlayerLoginOpcode            ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(CMSG_PLAYER_VEHICLE_ENTER,               0x0000, STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleEnterPlayerVehicle           );
@@ -444,7 +444,7 @@ void OpcodeTable::InitializeClientTable()
     DEFINE_OPCODE_HANDLER(CMSG_QUESTGIVER_HELLO,                   0x02DB, STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleQuestgiverHelloOpcode        ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(CMSG_QUESTGIVER_QUERY_QUEST,             0x12F0, STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleQuestgiverQueryQuestOpcode   ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(CMSG_QUESTGIVER_REQUEST_REWARD,          0x0378, STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleQuestgiverRequestRewardOpcode); // 5.4.8 18414
-    DEFINE_OPCODE_HANDLER(CMSG_QUESTGIVER_STATUS_MULTIPLE_QUERY,   0x0345, STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleQuestgiverStatusMultipleQuery); // 5.4.8 18414 Might Be 0x02F1 or maby 0x0345 or 0x06E4
+    DEFINE_OPCODE_HANDLER(CMSG_QUESTGIVER_STATUS_MULTIPLE_QUERY,   0x02F1, STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleQuestgiverStatusMultipleQuery); // 5.4.8 18414 Might Be 0x02F1 or maby 0x0345 or 0x06E4
     DEFINE_OPCODE_HANDLER(CMSG_QUESTGIVER_STATUS_QUERY,            0x036A, STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleQuestgiverStatusQueryOpcode  ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(CMSG_QUESTLOG_REMOVE_QUEST,              0x0779, STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleQuestLogRemoveQuest          ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(CMSG_QUEST_CONFIRM_ACCEPT,               0x0000, STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleQuestConfirmAccept           );
@@ -1279,9 +1279,9 @@ void OpcodeTable::InitializeServerTable()
     DEFINE_OPCODE_HANDLER(SMSG_TAXINODE_STATUS,                    0x169E, STATUS_NEVER    );
     DEFINE_OPCODE_HANDLER(SMSG_TEST_DROP_RATE_RESULT,              0x0000, STATUS_UNHANDLED);
     DEFINE_OPCODE_HANDLER(SMSG_TEXT_EMOTE,                         0x002E, STATUS_NEVER    ); // 5.4.8 18291
-    DEFINE_OPCODE_HANDLER(SMSG_THREAT_CLEAR,                       0x180B, STATUS_UNHANDLED);
-    DEFINE_OPCODE_HANDLER(SMSG_THREAT_REMOVE,                      0x1960, STATUS_UNHANDLED);
-    DEFINE_OPCODE_HANDLER(SMSG_THREAT_UPDATE,                      0x0632, STATUS_UNHANDLED);
+    DEFINE_OPCODE_HANDLER(SMSG_THREAT_CLEAR,                       0x180B, STATUS_NEVER    ); // 5.4.8 18414
+    DEFINE_OPCODE_HANDLER(SMSG_THREAT_REMOVE,                      0x1960, STATUS_NEVER    ); // 5.4.8 18414
+    DEFINE_OPCODE_HANDLER(SMSG_THREAT_UPDATE,                      0x0632, STATUS_NEVER    ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(SMSG_TIME_ADJUSTMENT,                    0x0000, STATUS_UNHANDLED);
     DEFINE_OPCODE_HANDLER(SMSG_TIME_SYNC_REQ,                      0x1A8F, STATUS_NEVER    ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(SMSG_TITLE_EARNED,                       0x068E, STATUS_UNHANDLED);

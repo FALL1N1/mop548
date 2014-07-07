@@ -929,7 +929,7 @@ void WorldSession::HandleQuestgiverStatusMultipleQuery(WorldPacket& /*recvPacket
     uint32 count = 0;
     ByteBuffer byteData;
 
-    WorldPacket data(SMSG_QUESTGIVER_STATUS_MULTIPLE, 3 + count * (1 + 8 + 4));
+    WorldPacket data(SMSG_QUESTGIVER_STATUS_MULTIPLE, 3 + count * (4 + 8 + 4));
 
     size_t pos = data.bitwpos();
     data.WriteBits(count, 21);      // placeholder
