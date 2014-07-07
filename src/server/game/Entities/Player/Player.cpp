@@ -27,6 +27,7 @@
 #include "BattlefieldWG.h"
 #include "Battleground.h"
 #include "BattlegroundMgr.h"
+#include "BattlePetMgr.h"
 #include "CellImpl.h"
 #include "Channel.h"
 #include "ChannelMgr.h"
@@ -891,6 +892,7 @@ Player::Player(WorldSession* session): Unit(true), phaseMgr(this)
 
     m_achievementMgr = new AchievementMgr<Player>(this);
     m_reputationMgr = new ReputationMgr(this);
+    m_battlePetMgr = new BattlePetMgr(this);
 }
 
 Player::~Player()
@@ -923,6 +925,7 @@ Player::~Player()
     delete m_runes;
     delete m_achievementMgr;
     delete m_reputationMgr;
+    delete m_battlePetMgr;
 
     for (uint8 i = 0; i < VOID_STORAGE_MAX_SLOT; ++i)
         delete _voidStorageItems[i];
@@ -8914,6 +8917,17 @@ void Player::CastItemUseSpell(Item* item, SpellCastTargets const& targets, uint8
             TC_LOG_ERROR("entities.player", "Player::CastItemUseSpell: Item (Entry: %u) in have wrong spell id %u, ignoring ", proto->ItemId, learn_spell_id);
             SendEquipError(EQUIP_ERR_INTERNAL_BAG_ERROR, item, NULL);
             return;
+        }
+
+        for (BattlePetItemXSpeciesStore::iterator itr = sBattlePetItemXSpeciesStore.begin(); itr != sBattlePetItemXSpeciesStore.end(); itr++)
+        {
+            if (itr->first != item->GetEntry())
+                continue;
+
+            m_battlePetMgr->Create(itr->second);
+            learning_spell_id = 0;
+
+            break;
         }
 
         Spell* spell = new Spell(this, spellInfo, TRIGGERED_NONE);
@@ -18049,6 +18063,10 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
 
     SetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID, GetTalentSpecialization(GetActiveSpec()));
 
+    // must be loaded before spells
+    m_battlePetMgr->LoadFromDb(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_BATTLE_PETS));
+    m_battlePetMgr->LoadSlotsFromDb(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_BATTLE_PET_SLOTS));
+
     _LoadTalents(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_TALENTS));
     _LoadSpells(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_SPELLS));
 
@@ -19930,6 +19948,7 @@ void Player::SaveToDB(bool create /*=false*/)
     _SaveInstanceTimeRestrictions(trans);
     _SaveCurrency(trans);
     _SaveCUFProfiles(trans);
+    m_battlePetMgr->SaveToDb(trans);
 
     // check if stats should only be saved on logout
     // save stats can be out of transaction
@@ -23900,6 +23919,9 @@ void Player::SendInitialPacketsAfterAddToMap()
     }
     else if (GetRaidDifficulty() != GetStoredRaidDifficulty())
         SendRaidDifficulty(GetGroup() != NULL);
+
+    m_battlePetMgr->SendBattlePetJournal();
+    m_battlePetMgr->SendBattlePetJournalLock();
 }
 
 void Player::SendUpdateToOutOfRangeGroupMembers()
@@ -27710,12 +27732,39 @@ void Player::SendMovementSetCanTransitionBetweenSwimAndFly(bool apply)
         SMSG_MOVE_UNSET_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY).Send();
 }
 
-void Player::SendMovementSetCollisionHeight(float height)
+void Player::SendMovementSetCollisionHeight(float height, bool mounted)
 {
-    static MovementStatusElements const heightElement = MSEExtraFloat;
-    Movement::ExtraMovementStatusElement extra(&heightElement);
-    extra.Data.floatData = height;
-    Movement::PacketSender(this, NULL_OPCODE, SMSG_MOVE_SET_COLLISION_HEIGHT, SMSG_MOVE_UPDATE_COLLISION_HEIGHT, &extra).Send();
+    ObjectGuid guid = GetGUID();
+    WorldPacket data(SMSG_MOVE_SET_COLLISION_HEIGHT);
+    data.WriteBit(guid[7]);
+    data.WriteBit(guid[0]);
+    data.WriteBit(guid[1]);
+    data.WriteBit(!mounted);
+    data.WriteBit(guid[3]);
+    data.WriteBits(0, 2); // unk
+    data.WriteBit(guid[2]);
+    data.WriteBit(guid[6]);
+    data.WriteBit(guid[5]);
+    data.WriteBit(guid[4]);
+
+    data.FlushBits();
+    data << height;
+    if (mounted)
+        data << (uint32)0; // unk
+
+    data.WriteByteSeq(guid[3]);
+    data.WriteByteSeq(guid[2]);
+    data.WriteByteSeq(guid[5]);
+    data.WriteByteSeq(guid[6]);
+    data << (uint32)0; // unk
+    data << (float)1; // unk
+    data.WriteByteSeq(guid[7]);
+    data.WriteByteSeq(guid[1]);
+    data.WriteByteSeq(guid[4]);
+    data.WriteByteSeq(guid[0]);
+    GetSession()->SendPacket(&data);
+
+    // TODO: SMSG_MOVE_UPDATE_COLLISION_HEIGHT send this to other players?
 }
 
 float Player::GetCollisionHeight(bool mounted) const
