@@ -1061,14 +1061,49 @@ void WorldSession::SendEnchantmentLog(uint64 target, uint64 caster, uint32 itemI
     GetPlayer()->SendMessageToSet(&data, true);
 }
 
-void WorldSession::SendItemEnchantTimeUpdate(uint64 Playerguid, uint64 Itemguid, uint32 slot, uint32 Duration)
+void WorldSession::SendItemEnchantTimeUpdate(ObjectGuid Playerguid, ObjectGuid Itemguid, uint32 slot, uint32 Duration)
 {
                                                             // last check 2.0.10
-    WorldPacket data(SMSG_ITEM_ENCHANT_TIME_UPDATE, (8+4+4+8));
-    data << uint64(Itemguid);
+    WorldPacket data(SMSG_ITEM_ENCHANT_TIME_UPDATE, 21);
+    
+    data.WriteBit(Itemguid[4]);
+    data.WriteBit(Itemguid[0]);
+    data.WriteBit(Playerguid[3]);
+    data.WriteBit(Itemguid[3]);
+    data.WriteBit(Playerguid[2]);
+    data.WriteBit(Playerguid[6]);
+    data.WriteBit(Playerguid[7]);
+    data.WriteBit(Itemguid[1]);
+    data.WriteBit(Playerguid[4]);
+    data.WriteBit(Itemguid[6]);
+    data.WriteBit(Itemguid[5]);
+    data.WriteBit(Playerguid[0]);
+    data.WriteBit(Itemguid[2]);
+    data.WriteBit(Playerguid[5]);
+    data.WriteBit(Playerguid[1]);
+    data.WriteBit(Itemguid[7]);
+
     data << uint32(slot);
+
+    data.WriteByteSeq(Playerguid[4]);
+    data.WriteByteSeq(Playerguid[2]);
+    data.WriteByteSeq(Itemguid[5]);
+    data.WriteByteSeq(Itemguid[4]);
+    data.WriteByteSeq(Playerguid[6]);
+    data.WriteByteSeq(Itemguid[1]);
+    data.WriteByteSeq(Playerguid[0]);
+    data.WriteByteSeq(Playerguid[1]);
+    data.WriteByteSeq(Itemguid[6]);
+    data.WriteByteSeq(Itemguid[2]);
+    data.WriteByteSeq(Playerguid[7]);
+    data.WriteByteSeq(Itemguid[0]);
+    data.WriteByteSeq(Itemguid[3]);
+    data.WriteByteSeq(Itemguid[7]);
+    data.WriteByteSeq(Playerguid[3]);
+    data.WriteByteSeq(Playerguid[5]);
+
     data << uint32(Duration);
-    data << uint64(Playerguid);
+
     SendPacket(&data);
 }
 
