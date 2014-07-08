@@ -611,6 +611,129 @@ void WorldSession::HandleMoveWaterWalkAck(WorldPacket& recvData)
     recvData.read_skip<uint32>();                          // unk2
 }
 
+void WorldSession::HandleMoveSetFly(WorldPacket& recvData)
+{
+    // TODO: find out what are unknown booleans and use ReadMovementInfo
+    TC_LOG_DEBUG("network", "CMSG_MOVE_SET_FLY");
+    ObjectGuid playerGuid;
+    ObjectGuid transportGuid;
+
+    recvData.read_skip<float>(); // position Y
+    recvData.read_skip<float>(); // position Z
+    recvData.read_skip<float>(); // position X
+    playerGuid[5] = recvData.ReadBit();
+    bool hasTransportData = recvData.ReadBit();
+    playerGuid[3] = recvData.ReadBit();
+    uint32 unkCounter = recvData.ReadBits(22);
+    bool unkBool2 = !recvData.ReadBit();
+    recvData.ReadBit();
+    bool unkBool3 = recvData.ReadBit();
+    playerGuid[6] = recvData.ReadBit();
+    recvData.ReadBit();
+    playerGuid[7] = recvData.ReadBit();
+    bool unkBool4 = !recvData.ReadBit();
+    playerGuid[0] = recvData.ReadBit();
+    playerGuid[2] = recvData.ReadBit();
+    bool unkBool5 = !recvData.ReadBit();
+    bool unkBool11 = !recvData.ReadBit();
+    playerGuid[1] = recvData.ReadBit();
+    recvData.ReadBit();
+    bool unkBool12 = !recvData.ReadBit();
+    bool unkBool6 = !recvData.ReadBit();
+    playerGuid[4] = recvData.ReadBit();
+    bool hasMovementFlag = !recvData.ReadBit();
+
+    bool unkBool8, unkBool9 = false;
+    if (hasTransportData)
+    {
+        transportGuid[1] = recvData.ReadBit();
+        transportGuid[3] = recvData.ReadBit();
+        transportGuid[5] = recvData.ReadBit();
+        unkBool8 = recvData.ReadBit();
+        transportGuid[6] = recvData.ReadBit();
+        transportGuid[7] = recvData.ReadBit();
+        transportGuid[2] = recvData.ReadBit();
+        transportGuid[4] = recvData.ReadBit();
+        unkBool9 = recvData.ReadBit();
+        transportGuid[0] = recvData.ReadBit();
+    }
+
+    if (unkBool2)
+        recvData.ReadBits(13);
+
+    bool unkBool10 = false;
+    if (unkBool3)
+        unkBool10 = recvData.ReadBit();
+
+    if (hasMovementFlag)
+        _player->SetUnitMovementFlags(recvData.ReadBits(30));
+
+    recvData.ReadByteSeq(playerGuid[1]);
+    recvData.ReadByteSeq(playerGuid[6]);
+    recvData.ReadByteSeq(playerGuid[5]);
+    recvData.ReadByteSeq(playerGuid[2]);
+    recvData.ReadByteSeq(playerGuid[4]);
+    recvData.ReadByteSeq(playerGuid[0]);
+    recvData.ReadByteSeq(playerGuid[7]);
+    recvData.ReadByteSeq(playerGuid[3]);
+
+    for (uint32 i = 0; i < unkCounter; i++)
+        recvData.read_skip<uint32>();
+
+    if (hasTransportData)
+    {
+        recvData.ReadByteSeq(transportGuid[7]);
+        recvData.ReadByteSeq(transportGuid[5]);
+        recvData.ReadByteSeq(transportGuid[1]);
+        recvData.read_skip<uint32>();
+        recvData.read_skip<uint8>();
+
+        if (unkBool9)
+            recvData.read_skip<uint32>();
+
+        recvData.ReadByteSeq(transportGuid[0]);
+        recvData.ReadByteSeq(transportGuid[4]);
+        recvData.read_skip<float>();
+        recvData.ReadByteSeq(transportGuid[3]);
+        recvData.read_skip<float>();
+        recvData.ReadByteSeq(transportGuid[2]);
+        recvData.ReadByteSeq(transportGuid[6]);
+        recvData.read_skip<float>();
+        recvData.read_skip<float>();
+
+        if (unkBool8)
+            recvData.read_skip<uint32>();
+    }
+
+    if (unkBool3)
+    {
+        if (unkBool10)
+        {
+            recvData.read_skip<float>();
+            recvData.read_skip<float>();
+            recvData.read_skip<float>();
+        }
+
+        recvData.read_skip<float>();
+        recvData.read_skip<uint32>();
+    }
+
+    if (unkBool4)
+        recvData.read_skip<uint32>();
+
+    if (unkBool6)
+        recvData.read_skip<uint32>();
+
+    if (unkBool5)
+        recvData.read_skip<float>();
+
+    if (unkBool11)
+        recvData.read_skip<float>();
+
+    if (unkBool12)
+        recvData.read_skip<float>();
+}
+
 void WorldSession::HandleSummonResponseOpcode(WorldPacket& recvData)
 {
     if (!_player->IsAlive() || _player->IsInCombat())
