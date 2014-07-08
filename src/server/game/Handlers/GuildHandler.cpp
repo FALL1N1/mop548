@@ -827,6 +827,15 @@ void WorldSession::HandleAutoDeclineGuildInvites(WorldPacket& recvPacket)
     GetPlayer()->ApplyModFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_AUTO_DECLINE_GUILD, enable);
 }
 
+void WorldSession::HandleRequestGuildCriteriaData(WorldPacket& recvPacket)
+{
+    uint32 achievementID;
+    recvPacket >> achievementID;
+
+    if (Guild* guild = GetPlayer()->GetGuild())
+        guild->SendGuildCriteriaData(this, achievementID);
+}
+
 void WorldSession::HandleGuildRewardsQueryOpcode(WorldPacket& recvPacket)
 {
     recvPacket.read_skip<uint32>(); // Unk
