@@ -1958,6 +1958,9 @@ void WorldSession::HandleMoveSetCanFlyAckOpcode(WorldPacket& recvData)
 
     _player->m_mover->m_movementInfo.flags = movementInfo.GetMovementFlags();
 }
+void WorldSession::HandleMoveSetFly(WorldPacket& /*recvData*/)
+{
+}
 
 void WorldSession::HandleRequestPetInfoOpcode(WorldPacket& /*recvData */)
 {
