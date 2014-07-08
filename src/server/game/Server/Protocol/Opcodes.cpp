@@ -145,7 +145,7 @@ void OpcodeTable::InitializeClientTable()
     DEFINE_OPCODE_HANDLER(CMSG_CANCEL_AURA,                        0x1861, STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleCancelAuraOpcode             ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(CMSG_CANCEL_AUTO_REPEAT_SPELL,           0x0000, STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleCancelAutoRepeatSpellOpcode  );
     DEFINE_OPCODE_HANDLER(CMSG_CANCEL_CAST,                        0x18C0, STATUS_LOGGEDIN,  PROCESS_THREADSAFE,   &WorldSession::HandleCancelCastOpcode             ); // 5.4.8 18414
-    DEFINE_OPCODE_HANDLER(CMSG_CANCEL_CHANNELLING,                 0x0000, STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleCancelChanneling             );
+    DEFINE_OPCODE_HANDLER(CMSG_CANCEL_CHANNELLING,                 0x08C0, STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleCancelChanneling             ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(CMSG_CANCEL_MOUNT_AURA,                  0x10E3, STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleCancelMountAuraOpcode        ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(CMSG_CANCEL_QUEUED_SPELL,                0x0000, STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                        );
     DEFINE_OPCODE_HANDLER(CMSG_CANCEL_TEMP_ENCHANTMENT,            0x0000, STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleCancelTempEnchantmentOpcode  );
@@ -579,8 +579,6 @@ void OpcodeTable::InitializeClientTable()
     DEFINE_OPCODE_HANDLER(CMSG_WORLD_TELEPORT,                     0x0000, STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleWorldTeleportOpcode          );
     DEFINE_OPCODE_HANDLER(CMSG_WRAP_ITEM,                          0x0000, STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleWrapItemOpcode               );
     DEFINE_OPCODE_HANDLER(CMSG_ZONEUPDATE,                         0x0000, STATUS_UNHANDLED, PROCESS_THREADSAFE,   &WorldSession::HandleZoneUpdateOpcode             );
-    DEFINE_OPCODE_HANDLER(MSG_CHANNEL_START,                       0x0000, STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                        );
-    DEFINE_OPCODE_HANDLER(MSG_CHANNEL_UPDATE,                      0x0000, STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                        );
     DEFINE_OPCODE_HANDLER(CMSG_CORPSE_QUERY,                       0x0000, STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleCorpseQueryOpcode            );
     DEFINE_OPCODE_HANDLER(MSG_INSPECT_ARENA_TEAMS,                 0x0000, STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleInspectArenaTeamsOpcode      );
     DEFINE_OPCODE_HANDLER(MSG_LIST_STABLED_PETS,                   0x0000, STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleListStabledPetsOpcode        );
@@ -1348,6 +1346,8 @@ void OpcodeTable::InitializeServerTable()
     DEFINE_OPCODE_HANDLER(MSG_VERIFY_CONNECTIVITY,                 0x4F57, STATUS_NEVER    ); // Not an opcode
     DEFINE_OPCODE_HANDLER(SMSG_RAID_TARGET_UPDATE,                 0x160B, STATUS_NEVER    ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(SMSG_RAID_TARGET_UPDATE_ALL,             0x0283, STATUS_NEVER    ); // 5.4.8 18414
+    DEFINE_OPCODE_HANDLER(MSG_CHANNEL_START,                       0x10F9, STATUS_NEVER    ); // 5.4.8 18414
+    DEFINE_OPCODE_HANDLER(MSG_CHANNEL_UPDATE,                      0x11D9, STATUS_NEVER    ); // 5.4.8 18414
 
     #undef DEFINE_OPCODE_HANDLER
 };

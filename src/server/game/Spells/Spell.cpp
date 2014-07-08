@@ -4943,9 +4943,26 @@ void Spell::SendChannelUpdate(uint32 time)
         m_caster->SetUInt32Value(UNIT_FIELD_CHANNEL_SPELL, 0);
     }
 
-    WorldPacket data(MSG_CHANNEL_UPDATE, 8+4);
-    data.append(m_caster->GetPackGUID());
+    WorldPacket data(MSG_CHANNEL_UPDATE, 8 + 4);
+    ObjectGuid guid = m_caster->GetGUID();
+    data.WriteBit(guid[0]);
+    data.WriteBit(guid[3]);
+    data.WriteBit(guid[4]);
+    data.WriteBit(guid[1]);
+    data.WriteBit(guid[5]);
+    data.WriteBit(guid[2]);
+    data.WriteBit(guid[6]);
+    data.WriteBit(guid[7]);
+    
+    data.WriteByteSeq(guid[4]);
+    data.WriteByteSeq(guid[7]);
+    data.WriteByteSeq(guid[1]);
+    data.WriteByteSeq(guid[2]);
+    data.WriteByteSeq(guid[6]);
+    data.WriteByteSeq(guid[5]);
     data << uint32(time);
+    data.WriteByteSeq(guid[0]);
+    data.WriteByteSeq(guid[3]);
 
     m_caster->SendMessageToSet(&data, true);
 }
@@ -4958,28 +4975,88 @@ void Spell::SendChannelStart(uint32 duration)
             channelTarget = !m_UniqueTargetInfo.empty() ? m_UniqueTargetInfo.front().targetGUID : m_UniqueGOTargetInfo.front().targetGUID;
 
     WorldPacket data(MSG_CHANNEL_START, (8+4+4));
-    data.append(m_caster->GetPackGUID());
-    data << uint32(m_spellInfo->Id);
-    data << uint32(duration);
-    data << uint8(0);                           // immunity (castflag & 0x04000000)
-    /*
-    if (immunity)
-    {
-        data << uint32();                       // CastSchoolImmunities
-        data << uint32();                       // CastImmunities
-    }
-    */
-    data << uint8(0);                           // healPrediction (castflag & 0x40000000)
+    ObjectGuid guid = m_caster->GetGUID();
+    
+    data.WriteBit(guid[7]);
+    data.WriteBit(guid[5]);
+    data.WriteBit(guid[4]);
+    data.WriteBit(guid[1]);
+    
+    data.WriteBit(0); // healPrediction
+    
     /*
     if (healPrediction)
     {
-        data.appendPackGUID(channelTarget);     // target packguid
-        data << uint32();                       // spellid
-        data << uint8(0);                       // unk3
-        if (unk3 == 2)
-            data.append();                      // unk packed guid (unused ?)
+        targetGUD[2] = packet.ReadBit();
+        targetGUD[6] = packet.ReadBit();
+        targetGUD[4] = packet.ReadBit();
+
+        hasType = !packet.ReadBit();
+
+        targetGUD[3] = packet.ReadBit();
+        targetGUD[7] = packet.ReadBit();
+        targetGUD[5] = packet.ReadBit();
+        targetGUD[1] = packet.ReadBit();
+        targetGUD[2] = packet.ReadBit();
+        
+        hasHealAmount = !packet.ReadBit();
+        packet.ReadBit(); // fake bit
+
+        packet.StartBitStream(guid2, 4, 5, 1, 7, 0, 2, 3, 6);
     }
     */
+
+    data.WriteBit(guid[3]);
+    data.WriteBit(guid[2]);
+    data.WriteBit(guid[0]);
+    data.WriteBit(guid[6]);
+    
+    data.WriteBit(0); // immunity
+   
+    /*
+    if (healPrediction)
+    {
+        packet.ParseBitStream(guid2, 4, 6, 1, 0, 7, 3, 2, 5);
+        
+        if (hasType)
+            packet.ReadByte("Type");
+            
+        packet.ReadXORByte(targetGUD, 4);
+        packet.ReadXORByte(targetGUD, 5);
+        packet.ReadXORByte(targetGUD, 1);
+        packet.ReadXORByte(targetGUD, 3);
+        
+        if (hasHealAmount)
+            packet.ReadInt32("Heal Amount");
+
+        packet.ReadXORByte(targetGUD, 6);
+        packet.ReadXORByte(targetGUD, 7);
+        packet.ReadXORByte(targetGUD, 2);
+        packet.ReadXORByte(targetGUD, 0);
+
+        packet.WriteGuid("TargetGUD", targetGUD);
+        packet.WriteGuid("Guid2", guid2);
+    }
+    */
+    /*
+    if (immunity)
+    {
+        data << uint32(); // CastSchoolImmunities
+        data << uint32(); // CastImmunities
+    }
+    */
+    
+    data.WriteByteSeq(guid[6]);
+    data.WriteByteSeq(guid[7]);
+    data.WriteByteSeq(guid[3]);
+    data.WriteByteSeq(guid[1]);
+    data.WriteByteSeq(guid[0]);
+    data << uint32(duration);
+    data.WriteByteSeq(guid[5]);
+    data.WriteByteSeq(guid[4]);
+    data.WriteByteSeq(guid[2]);
+    data << uint32(m_spellInfo->Id);
+
     m_caster->SendMessageToSet(&data, true);
 
     m_timer = duration;
