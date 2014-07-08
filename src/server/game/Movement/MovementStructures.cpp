@@ -4746,22 +4746,22 @@ MovementStatusElements const SplineMoveSetWaterWalk[] =
 
 MovementStatusElements const SplineMoveSetLandWalk[] =
 {
+    MSEHasGuidByte1,
     MSEHasGuidByte5,
-    MSEHasGuidByte0,
-    MSEHasGuidByte4,
     MSEHasGuidByte6,
+    MSEHasGuidByte0,
     MSEHasGuidByte7,
     MSEHasGuidByte2,
     MSEHasGuidByte3,
-    MSEHasGuidByte1,
-    MSEGuidByte5,
-    MSEGuidByte7,
-    MSEGuidByte3,
-    MSEGuidByte4,
+    MSEHasGuidByte4,
     MSEGuidByte1,
-    MSEGuidByte2,
-    MSEGuidByte0,
     MSEGuidByte6,
+    MSEGuidByte4,
+    MSEGuidByte3,
+    MSEGuidByte7,
+    MSEGuidByte0,
+    MSEGuidByte2,
+    MSEGuidByte5,
     MSEEnd,
 };
 
@@ -4961,23 +4961,23 @@ MovementStatusElements const MoveWaterWalk[] =
 
 MovementStatusElements const MoveLandWalk[] =
 {
-    MSEHasGuidByte5,
-    MSEHasGuidByte1,
-    MSEHasGuidByte6,
-    MSEHasGuidByte2,
-    MSEHasGuidByte3,
-    MSEHasGuidByte4,
     MSEHasGuidByte0,
     MSEHasGuidByte7,
-    MSEGuidByte6,
-    MSEGuidByte1,
+    MSEHasGuidByte3,
+    MSEHasGuidByte1,
+    MSEHasGuidByte6,
+    MSEHasGuidByte5,
+    MSEHasGuidByte2,
+    MSEHasGuidByte4,
     MSEGuidByte7,
-    MSEGuidByte5,
+    MSEGuidByte6,
     MSEGuidByte4,
-    MSEGuidByte0,
     MSEGuidByte3,
     MSEGuidByte2,
+    MSEGuidByte0,
+    MSEGuidByte1,
     MSECounter,
+    MSEGuidByte5,
     MSEEnd,
 };
 
@@ -5553,8 +5553,8 @@ MovementStatusElements const* GetMovementStatusElementsSequence(Opcodes opcode)
             return SplineMoveUnsetFlying;
         //case SMSG_SPLINE_MOVE_SET_WATER_WALK:
         //    return SplineMoveSetWaterWalk;
-        //case SMSG_SPLINE_MOVE_SET_LAND_WALK:
-        //    return SplineMoveSetLandWalk;
+        case SMSG_SPLINE_MOVE_SET_LAND_WALK:
+            return SplineMoveSetLandWalk;
         //case SMSG_SPLINE_MOVE_SET_FEATHER_FALL:
         //    return SplineMoveSetFeatherFall;
         //case SMSG_SPLINE_MOVE_SET_NORMAL_FALL:
@@ -5573,8 +5573,8 @@ MovementStatusElements const* GetMovementStatusElementsSequence(Opcodes opcode)
         //    return MoveUnsetHover;
         //case SMSG_MOVE_WATER_WALK:
         //    return MoveWaterWalk;
-        //case SMSG_MOVE_LAND_WALK:
-        //    return MoveLandWalk;
+        case SMSG_MOVE_LAND_WALK:
+            return MoveLandWalk;
         //case SMSG_MOVE_FEATHER_FALL:
         //    return MoveFeatherFall;
         //case SMSG_MOVE_NORMAL_FALL:

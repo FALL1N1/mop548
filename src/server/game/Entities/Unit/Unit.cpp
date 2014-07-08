@@ -16495,9 +16495,9 @@ bool Unit::SetCanFly(bool enable)
     }
     else
     {
-        RemoveUnitMovementFlag(MOVEMENTFLAG_CAN_FLY | MOVEMENTFLAG_MASK_MOVING_FLY);
-        if (!IsLevitating())
+        if (!IsLevitating() && IsFlying())
             SetFall(true);
+        RemoveUnitMovementFlag(MOVEMENTFLAG_CAN_FLY | MOVEMENTFLAG_MASK_MOVING_FLY);
     }
 
     if (enable)

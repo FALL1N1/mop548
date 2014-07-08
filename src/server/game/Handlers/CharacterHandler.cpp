@@ -1137,6 +1137,11 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
         }
     }
 
+    // Update character speed on login
+    pCurrChar->UpdateSpeed(MOVE_RUN, true);
+    pCurrChar->UpdateSpeed(MOVE_FLIGHT, true);
+    pCurrChar->UpdateSpeed(MOVE_SWIM, true);
+
     // show time before shutdown if shutdown planned.
     if (sWorld->IsShuttingDown())
         sWorld->ShutdownMsg(true, pCurrChar);

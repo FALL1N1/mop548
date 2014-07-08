@@ -666,9 +666,32 @@ public:
             object->SetByteValue(GAMEOBJECT_FIELD_STATE_SPELL_VISUAL_ID, objectType, objectState);
         else if (objectType == 4)
         {
-            WorldPacket data(SMSG_GAMEOBJECT_CUSTOM_ANIM, 8+4);
-            data << object->GetGUID();
-            data << (uint32)(objectState);
+            ObjectGuid GUID = object->GetGUID();
+
+            WorldPacket data(SMSG_GAMEOBJECT_CUSTOM_ANIM, 8 + 4 + 2);
+            data.WriteBit(GUID[4]);
+            data.WriteBit(GUID[7]);
+            data.WriteBit(GUID[1]);
+            data.WriteBit(GUID[0]);
+            data.WriteBit(GUID[5]);
+            data.WriteBit(GUID[3]);
+            data.WriteBit(GUID[2]);
+            data.WriteBit(((uint32)(objectState) > 0 ? 1 : 0));
+            data.WriteBit(GUID[6]);
+            data.WriteBit(1);
+
+            if ((uint32)(objectState) > 0)
+                data << uint32((uint32)(objectState));
+
+            data.WriteByteSeq(GUID[5]);
+            data.WriteByteSeq(GUID[6]);
+            data.WriteByteSeq(GUID[7]);
+            data.WriteByteSeq(GUID[3]);
+            data.WriteByteSeq(GUID[4]);
+            data.WriteByteSeq(GUID[0]);
+            data.WriteByteSeq(GUID[2]);
+            data.WriteByteSeq(GUID[1]);
+
             object->SendMessageToSet(&data, true);
         }
         handler->PSendSysMessage("Set gobject type %d state %d", objectType, objectState);
