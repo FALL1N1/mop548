@@ -8131,8 +8131,8 @@ void Player::DuelComplete(DuelCompleteType type)
 
     TC_LOG_DEBUG("entities.unit", "Duel Complete %s %s", GetName().c_str(), duel->opponent->GetName().c_str());
 
-    WorldPacket data(SMSG_DUEL_COMPLETE, (1));
-    data << (uint8)((type != DUEL_INTERRUPTED) ? 1 : 0);
+    WorldPacket data(SMSG_DUEL_COMPLETE, 1);
+    data.WriteBit((type != DUEL_INTERRUPTED) ? 1 : 0);
     GetSession()->SendPacket(&data);
 
     if (duel->opponent->GetSession())
@@ -8140,10 +8140,18 @@ void Player::DuelComplete(DuelCompleteType type)
 
     if (type != DUEL_INTERRUPTED)
     {
-        data.Initialize(SMSG_DUEL_WINNER, (1+20));          // we guess size
-        data << uint8(type == DUEL_WON ? 0 : 1);            // 0 = just won; 1 = fled
-        data << duel->opponent->GetName();
-        data << GetName();
+        std::string opponentName = duel->opponent->GetName();
+        std::string playerName = GetName();
+
+        data.Initialize(SMSG_DUEL_WINNER, 30);      // we guess size
+        data.WriteBit(type == DUEL_WON ? 0 : 1);    // 0 = just won; 1 = fled
+        data.WriteBits(opponentName.size(), 6);
+        data.WriteBits(playerName.size(), 6);
+        data << uint32(0);
+        data << opponentName;
+        data << uint32(0);
+        data << playerName;
+
         SendMessageToSet(&data, true);
     }
 
@@ -27273,7 +27281,7 @@ void Player::SendDeclineGuildInvitation(std::string declinerName, bool autoDecli
 void Player::SendDuelCountdown(uint32 counter)
 {
     WorldPacket data(SMSG_DUEL_COUNTDOWN, 4);
-    data << uint32(counter);                                // seconds
+    data << uint32(counter); // seconds
     GetSession()->SendPacket(&data);
 }
 

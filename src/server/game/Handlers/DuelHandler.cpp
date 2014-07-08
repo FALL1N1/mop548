@@ -47,12 +47,13 @@ void WorldSession::HandleDuelProposedOpcode(WorldPacket& recvPacket)
     recvPacket.ReadByteSeq(guid[6]);
     recvPacket.ReadByteSeq(guid[0]);
 
-    Player* caster = GetPlayer();
-    Unit* unitTarget = NULL;
+    Player* caster = GetPlayer();    
 
+    Unit* unitTarget = NULL;
     unitTarget = sObjectAccessor->GetUnit(*caster, guid);
 
-    caster->CastSpell(unitTarget, 7266, false);
+    if (caster && unitTarget)
+        caster->CastSpell(unitTarget, 7266, false);
 
 	TC_LOG_DEBUG("network", "WORLD: Received CMSG_DUEL_REQUEST");
 }
