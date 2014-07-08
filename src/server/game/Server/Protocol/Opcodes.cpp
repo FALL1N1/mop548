@@ -422,7 +422,7 @@ void OpcodeTable::InitializeClientTable()
     DEFINE_OPCODE_HANDLER(CMSG_PET_SET_ACTION,                     0x0000, STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandlePetSetAction                 );
     DEFINE_OPCODE_HANDLER(CMSG_PET_SPELL_AUTOCAST,                 0x0000, STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandlePetSpellAutocastOpcode       );
     DEFINE_OPCODE_HANDLER(CMSG_PET_STOP_ATTACK,                    0x0000, STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandlePetStopAttack                );
-    DEFINE_OPCODE_HANDLER(CMSG_PING,                               0x0000, STATUS_NEVER,     PROCESS_INPLACE,      &WorldSession::Handle_EarlyProccess               ); // 5.4.8 18291 its 0x0012 but for some resone this messes up the servers ping/pong and the other sync's
+    DEFINE_OPCODE_HANDLER(CMSG_PING,                               0x0012, STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_EarlyProccess               ); // 5.4.8 18291 its 0x0012 but for some resone this messes up the servers ping/pong and the other sync's
     DEFINE_OPCODE_HANDLER(CMSG_PLAYED_TIME,                        0x03F6, STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandlePlayedTime                   ); // 5.4.8 18291
     DEFINE_OPCODE_HANDLER(CMSG_PLAYER_LOGIN,                       0x158F, STATUS_AUTHED,    PROCESS_THREADUNSAFE, &WorldSession::HandlePlayerLoginOpcode            ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(CMSG_PLAYER_VEHICLE_ENTER,               0x0000, STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleEnterPlayerVehicle           );
@@ -831,11 +831,11 @@ void OpcodeTable::InitializeServerTable()
     DEFINE_OPCODE_HANDLER(SMSG_FORCE_SET_VEHICLE_REC_ID,           0x0000, STATUS_UNHANDLED);
     DEFINE_OPCODE_HANDLER(SMSG_FORGE_MASTER_SET,                   0x0000, STATUS_UNHANDLED);
     DEFINE_OPCODE_HANDLER(SMSG_FRIEND_STATUS,                      0x0532, STATUS_NEVER    ); // 5.4.8 18414
-    DEFINE_OPCODE_HANDLER(SMSG_GAMEOBJECT_CUSTOM_ANIM,             0x001F, STATUS_UNHANDLED); // 5.4.8 18414
+    DEFINE_OPCODE_HANDLER(SMSG_GAMEOBJECT_CUSTOM_ANIM,             0x001F, STATUS_NEVER    ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(SMSG_GAMEOBJECT_DESPAWN_ANIM,            0x108B, STATUS_NEVER    ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(SMSG_GAMEOBJECT_PAGETEXT,                0x14AF, STATUS_UNHANDLED); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(SMSG_GAMEOBJECT_QUERY_RESPONSE,          0x06BF, STATUS_NEVER    ); // 5.4.8 18414
-    DEFINE_OPCODE_HANDLER(SMSG_GAMEOBJECT_RESET_STATE,             0x100E, STATUS_UNHANDLED); // 5.4.8 18414
+    DEFINE_OPCODE_HANDLER(SMSG_GAMEOBJECT_RESET_STATE,             0x100E, STATUS_NEVER    ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(SMSG_GAMESPEED_SET,                      0x0000, STATUS_UNHANDLED);
     DEFINE_OPCODE_HANDLER(SMSG_GAMETIME_SET,                       0x0000, STATUS_UNHANDLED);
     DEFINE_OPCODE_HANDLER(SMSG_GAMETIME_UPDATE,                    0x0000, STATUS_UNHANDLED);
