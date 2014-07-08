@@ -8132,7 +8132,7 @@ void Player::DuelComplete(DuelCompleteType type)
     TC_LOG_DEBUG("entities.unit", "Duel Complete %s %s", GetName().c_str(), duel->opponent->GetName().c_str());
 
     WorldPacket data(SMSG_DUEL_COMPLETE, 1);
-    data.WriteBit((type != DUEL_INTERRUPTED) ? 1 : 0);
+    data.WriteBit((type != DUEL_INTERRUPTED) ? 0 : 1);
     GetSession()->SendPacket(&data);
 
     if (duel->opponent->GetSession())
@@ -8147,10 +8147,10 @@ void Player::DuelComplete(DuelCompleteType type)
         data.WriteBit(type == DUEL_WON ? 0 : 1);    // 0 = just won; 1 = fled
         data.WriteBits(opponentName.size(), 6);
         data.WriteBits(playerName.size(), 6);
-        data << uint32(0);
-        data << opponentName;
-        data << uint32(0);
-        data << playerName;
+        data << uint32(0);                          // realmid?
+        data.WriteString(opponentName);
+        data << uint32(0);                          // realmid?
+        data.WriteString(playerName);
 
         SendMessageToSet(&data, true);
     }
