@@ -1112,20 +1112,37 @@ void AchievementMgr<T>::SendCriteriaUpdate(AchievementCriteriaEntry const* /*ent
 template<>
 void AchievementMgr<Player>::SendCriteriaUpdate(AchievementCriteriaEntry const* entry, CriteriaProgress const* progress, uint32 timeElapsed, bool timedCompleted) const
 {
+    ObjectGuid guid = GetOwner()->GetGUID();
     WorldPacket data(SMSG_CRITERIA_UPDATE, 8 + 4 + 8);
+    data.WriteBit(guid[4]);
+    data.WriteBit(guid[6]);
+    data.WriteBit(guid[2]);
+    data.WriteBit(guid[3]);
+    data.WriteBit(guid[7]);
+    data.WriteBit(guid[1]);
+    data.WriteBit(guid[5]);
+    data.WriteBit(guid[0]);
+    data.FlushBits();
+
+    data.WriteByteSeq(guid[3]);
+    data.WriteByteSeq(guid[6]);
+    data.WriteByteSeq(guid[2]);
     data << uint32(entry->ID);
 
-    // the counter is packed like a packed Guid
-    data.appendPackGUID(progress->counter);
-
-    data.appendPackGUID(GetOwner()->GetGUID());
     if (!entry->timeLimit)
         data << uint32(0);
     else
         data << uint32(timedCompleted ? 0 : 1); // this are some flags, 1 is for keeping the counter at 0 in client
+
+    data.WriteByteSeq(guid[5]);
+    data.WriteByteSeq(guid[1]);
     data.AppendPackedTime(progress->date);
-    data << uint32(timeElapsed);    // time elapsed in seconds
-    data << uint32(0);              // unk
+    data.WriteByteSeq(guid[4]);
+    data << uint32(timeElapsed); // time elapsed in seconds, always these 2 are similars
+    data << uint32(timeElapsed);
+    data.WriteByteSeq(guid[7]);
+    data.WriteByteSeq(guid[0]);
+    data << (uint64)progress->counter;
     SendPacket(&data);
 }
 
