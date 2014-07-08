@@ -1113,7 +1113,7 @@ template<>
 void AchievementMgr<Player>::SendCriteriaUpdate(AchievementCriteriaEntry const* entry, CriteriaProgress const* progress, uint32 timeElapsed, bool timedCompleted) const
 {
     ObjectGuid guid = GetOwner()->GetGUID();
-    WorldPacket data(SMSG_CRITERIA_UPDATE, 8 + 4 + 8);
+    WorldPacket data(SMSG_CRITERIA_UPDATE, 8 + 4 + 4 + 8 + 4 + 4 + 8);
     data.WriteBit(guid[4]);
     data.WriteBit(guid[6]);
     data.WriteBit(guid[2]);
