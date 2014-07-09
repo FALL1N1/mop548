@@ -21612,11 +21612,15 @@ void Player::AddSpellMod(SpellModifier* mod, bool apply)
     int i = 0;
     flag128 _mask = 0;
     uint32 modTypeCount = 0; // count of mods per one mod->op
+    
     WorldPacket data(opcode);
-    data << uint32(1);  // count of different mod->op's in packet
+    data.WriteBits(1, 22);  // count of different mod->op's in packet
     size_t writePos = data.wpos();
-    data << uint32(modTypeCount);
-    data << uint8(mod->op);
+    data.WriteBits(modTypeCount, 21);
+
+    if (opcode == SMSG_SET_FLAT_SPELL_MODIFIER)
+        data << uint8(mod->op);
+    
     for (int eff = 0; eff < 128; ++eff)
     {
         if (eff != 0 && (eff % 32) == 0)
@@ -21631,13 +21635,20 @@ void Player::AddSpellMod(SpellModifier* mod, bool apply)
                     val += (*itr)->value;
             val += apply ? mod->value : -(mod->value);
 
-            data << uint8(eff);
             data << float(val);
+            data << uint8(eff);
             ++modTypeCount;
         }
     }
+
+    if (opcode == SMSG_SET_PCT_SPELL_MODIFIER)
+        data << uint8(mod->op);
+
     data.put<uint32>(writePos, modTypeCount);
+    data.FlushBits();
+
     SendDirectMessage(&data);
+
     if (apply)
         m_spellMods[mod->op].push_back(mod);
     else

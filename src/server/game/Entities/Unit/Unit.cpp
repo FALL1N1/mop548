@@ -14693,7 +14693,7 @@ void Unit::SendPlaySpellVisualKit(uint32 id, uint32 unkParam)
 {
     ObjectGuid guid = GetGUID();
 
-    WorldPacket data(SMSG_PLAY_SPELL_VISUAL_KIT, 4 + 4+ 4 + 8);
+    WorldPacket data(SMSG_PLAY_SPELL_VISUAL_KIT, 4 + 4 + 4 + 8);
     data.WriteBit(guid[4]);
     data.WriteBit(guid[2]);
     data.WriteBit(guid[6]);
