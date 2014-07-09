@@ -21607,20 +21607,11 @@ bool Player::IsAffectedBySpellmod(SpellInfo const* spellInfo, SpellModifier* mod
 void Player::AddSpellMod(SpellModifier* mod, bool apply)
 {
     TC_LOG_DEBUG("spells", "Player::AddSpellMod %d", mod->spellId);
-    Opcodes opcode = Opcodes((mod->type == SPELLMOD_FLAT) ? SMSG_SET_FLAT_SPELL_MODIFIER : SMSG_SET_PCT_SPELL_MODIFIER);
-
+       
     int i = 0;
-    flag128 _mask = 0;
-    uint32 modTypeCount = 0; // count of mods per one mod->op
-    
-    WorldPacket data(opcode);
-    data.WriteBits(1, 22);  // count of different mod->op's in packet
-    size_t writePos = data.wpos();
-    data.WriteBits(modTypeCount, 21);
+    flag128 _mask = 0;    
+    std::map<uint8, float> spellModList;
 
-    if (opcode == SMSG_SET_FLAT_SPELL_MODIFIER)
-        data << uint8(mod->op);
-    
     for (int eff = 0; eff < 128; ++eff)
     {
         if (eff != 0 && (eff % 32) == 0)
@@ -21631,23 +21622,44 @@ void Player::AddSpellMod(SpellModifier* mod, bool apply)
         {
             int32 val = 0;
             for (SpellModList::iterator itr = m_spellMods[mod->op].begin(); itr != m_spellMods[mod->op].end(); ++itr)
-                if ((*itr)->type == mod->type && (*itr)->mask & _mask)
-                    val += (*itr)->value;
+            if ((*itr)->type == mod->type && (*itr)->mask & _mask)
+                val += (*itr)->value;
             val += apply ? mod->value : -(mod->value);
 
-            data << float(val);
-            data << uint8(eff);
-            ++modTypeCount;
+            spellModList[uint8(eff)] = float(val);
         }
     }
 
-    if (opcode == SMSG_SET_PCT_SPELL_MODIFIER)
+    if (mod->type == SPELLMOD_FLAT)
+    {
+        WorldPacket data(SMSG_SET_FLAT_SPELL_MODIFIER, 3 + 3 + spellModList.size() * 3 + 1);
+        data.WriteBits(1, 22);  // count of different mod->op's in packet
+        data.WriteBits(spellModList.size(), 21);
         data << uint8(mod->op);
+        for (std::map<uint8, float>::iterator iter = spellModList.begin(); iter != spellModList.end(); ++iter)
+        {
+            data << float(iter->second);
+            data << uint8(iter->first);
+        }
+        data.FlushBits();
 
-    data.put<uint32>(writePos, modTypeCount);
-    data.FlushBits();
+        SendDirectMessage(&data);
+    }        
+    else
+    {
+        WorldPacket data(SMSG_SET_PCT_SPELL_MODIFIER, 3 + 3 + spellModList.size() * 3 + 1);
+        data.WriteBits(1, 22);  // count of different mod->op's in packet
+        data.WriteBits(spellModList.size(), 21);
+        for (std::map<uint8, float>::iterator iter = spellModList.begin(); iter != spellModList.end(); ++iter)
+        {
+            data << float(iter->second);
+            data << uint8(iter->first);
+        }
+        data << uint8(mod->op);
+        data.FlushBits();
 
-    SendDirectMessage(&data);
+        SendDirectMessage(&data);
+    }
 
     if (apply)
         m_spellMods[mod->op].push_back(mod);
