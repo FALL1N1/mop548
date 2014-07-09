@@ -2489,6 +2489,81 @@ void Guild::SendNewsUpdate(WorldSession* session)
     TC_LOG_DEBUG("guild", "SMSG_GUILD_NEWS_UPDATE [%s]", session->GetPlayerInfo().c_str());
 }
 
+void Guild::SendGuildCriteriaData(WorldSession* session, uint32 achievementID)
+{
+    AchievementCriteriaEntryList const* criterias = sAchievementMgr->GetAchievementCriteriaByAchievement(achievementID);
+    if (!session || !criterias)
+        return;
+    
+    static CriteriaProgress defaultCriteria = { 0, 0, 0, false };
+    CriteriaProgress const* criteria;    
+    ObjectGuid counter;
+    ObjectGuid counter2 = 0;
+    ByteBuffer criteriaData(criterias->size() * (8 + 8 + 4 + 4 + 4 + 4 + 4));
+    uint32 completed;
+
+    WorldPacket data(SMSG_GUILD_CRITERIA_DATA, 3 + criterias->size() * (8 + 8 + 4 + 4 + 4 + 4 + 4));
+    data.WriteBits(criterias->size(), 19);
+
+    for (AchievementCriteriaEntryList::const_iterator itr = criterias->begin(); itr != criterias->end(); itr++)
+    {
+        criteria = m_achievementMgr.GetCriteriaProgress((*itr)->ID);
+
+        if (!criteria)
+        {
+            criteria = &defaultCriteria;
+            completed = 0;
+        }
+        else
+            completed = 1;
+
+        counter = criteria->counter;
+
+        data.WriteBit(counter2[2]);
+        data.WriteBit(counter2[4]);
+        data.WriteBit(counter2[6]);
+        data.WriteBit(counter[0]);
+        data.WriteBit(counter2[7]);
+        data.WriteBit(counter[2]);
+        data.WriteBit(counter[5]);
+        data.WriteBit(counter[1]);
+        data.WriteBit(counter[4]);
+        data.WriteBit(counter2[0]);
+        data.WriteBit(counter2[3]);
+        data.WriteBit(counter[7]);
+        data.WriteBit(counter[6]);
+        data.WriteBit(counter2[1]);
+        data.WriteBit(counter[3]);
+        data.WriteBit(counter2[5]);
+
+        criteriaData.WriteByteSeq(counter2[1]);
+        criteriaData.WriteByteSeq(counter[5]);
+        criteriaData.WriteByteSeq(counter2[6]);
+        criteriaData << (uint32)(*itr)->ID;
+        criteriaData.WriteByteSeq(counter[6]);
+        criteriaData << (uint32)criteria->date;
+        criteriaData << (uint32)criteria->date;
+        criteriaData.WriteByteSeq(counter2[3]);
+        criteriaData.WriteByteSeq(counter[0]);
+        criteriaData.WriteByteSeq(counter2[7]);
+        criteriaData.WriteByteSeq(counter[4]);
+        criteriaData.WriteByteSeq(counter[2]);
+        criteriaData.WriteByteSeq(counter[3]);
+        criteriaData.WriteByteSeq(counter2[4]);
+        criteriaData.WriteByteSeq(counter[1]);
+        criteriaData.WriteByteSeq(counter2[5]);
+        criteriaData.WriteByteSeq(counter2[0]);
+        criteriaData << (uint32)completed;
+        criteriaData.WriteByteSeq(counter2[2]);
+        criteriaData.WriteByteSeq(counter[7]);
+        criteriaData << (uint32)criteria->date;
+    }
+
+    data.FlushBits();
+    data.append(criteriaData);
+    session->SendPacket(&data);
+}
+
 void Guild::SendBankLog(WorldSession* session, uint8 tabId) const
 {
     // GUILD_BANK_MAX_TABS send by client for money log

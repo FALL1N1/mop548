@@ -1146,60 +1146,6 @@ void AchievementMgr<Player>::SendCriteriaUpdate(AchievementCriteriaEntry const* 
     SendPacket(&data);
 }
 
-template<>
-void AchievementMgr<Guild>::SendCriteriaUpdate(AchievementCriteriaEntry const* entry, CriteriaProgress const* progress, uint32 /*timeElapsed*/, bool /*timedCompleted*/) const
-{
-    //will send response to criteria progress request
-    WorldPacket data(SMSG_GUILD_CRITERIA_DATA, 3 + 1 + 1 + 8 + 8 + 4 + 4 + 4 + 4 + 4);
-
-    ObjectGuid counter = progress->counter; // for accessing every byte individually
-    ObjectGuid guid = progress->CompletedGUID;
-
-    data.WriteBits(1, 21);
-    data.WriteBit(counter[4]);
-    data.WriteBit(counter[1]);
-    data.WriteBit(guid[2]);
-    data.WriteBit(counter[3]);
-    data.WriteBit(guid[1]);
-    data.WriteBit(counter[5]);
-    data.WriteBit(counter[0]);
-    data.WriteBit(guid[3]);
-    data.WriteBit(counter[2]);
-    data.WriteBit(guid[7]);
-    data.WriteBit(guid[5]);
-    data.WriteBit(guid[0]);
-    data.WriteBit(counter[6]);
-    data.WriteBit(guid[6]);
-    data.WriteBit(counter[7]);
-    data.WriteBit(guid[4]);
-
-    data.FlushBits();
-
-    data.WriteByteSeq(guid[5]);
-    data << uint32(progress->date);      // unknown date
-    data.WriteByteSeq(counter[3]);
-    data.WriteByteSeq(counter[7]);
-    data << uint32(progress->date);      // unknown date
-    data.WriteByteSeq(counter[6]);
-    data.WriteByteSeq(guid[4]);
-    data.WriteByteSeq(guid[1]);
-    data.WriteByteSeq(counter[4]);
-    data.WriteByteSeq(guid[3]);
-    data.WriteByteSeq(counter[0]);
-    data.WriteByteSeq(guid[2]);
-    data.WriteByteSeq(counter[1]);
-    data.WriteByteSeq(guid[6]);
-    data << uint32(progress->date);      // last update time (not packed!)
-    data << uint32(entry->ID);
-    data.WriteByteSeq(counter[5]);
-    data << uint32(0);
-    data.WriteByteSeq(guid[7]);
-    data.WriteByteSeq(counter[2]);
-    data.WriteByteSeq(guid[0]);
-
-    SendPacket(&data);
-}
-
 /**
  * called at player login. The player might have fulfilled some achievements when the achievement system wasn't working yet
  */
@@ -1842,9 +1788,9 @@ bool AchievementMgr<T>::IsCompletedAchievement(AchievementEntry const* entry)
 }
 
 template<class T>
-CriteriaProgress* AchievementMgr<T>::GetCriteriaProgress(AchievementCriteriaEntry const* entry)
+CriteriaProgress* AchievementMgr<T>::GetCriteriaProgress(uint32 criteriaID)
 {
-    CriteriaProgressMap::iterator iter = m_criteriaProgress.find(entry->ID);
+    CriteriaProgressMap::iterator iter = m_criteriaProgress.find(criteriaID);
 
     if (iter == m_criteriaProgress.end())
         return NULL;
