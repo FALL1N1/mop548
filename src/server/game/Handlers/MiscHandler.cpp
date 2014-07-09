@@ -1458,6 +1458,8 @@ void WorldSession::HandlePandarenFactionChoiceOpcode(WorldPacket& recvData)
     data.FlushBits();
     SendPacket(&data);
 
+    player->GetReputationMgr().UpdateReputationFlags();
+
     player->GetReputationMgr().SendInitialReputations();
     player->SendFeatureSystemStatus();
     player->GetReputationMgr().SendForceReactions();

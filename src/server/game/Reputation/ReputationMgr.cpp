@@ -519,6 +519,32 @@ void ReputationMgr::SetInactive(FactionState* faction, bool inactive) const
     faction->needSave = true;
 }
 
+void ReputationMgr::UpdateReputationFlags()
+{
+    _visibleFactionCount = 0;
+
+    for (FactionStateList::iterator itr = _factions.begin(); itr != _factions.end(); itr++)
+    {
+        FactionState* faction = &itr->second;
+        if (!faction)
+            continue;
+
+        FactionEntry const* factionEntry = sFactionStore.LookupEntry(faction->ID);
+        if (!factionEntry)
+            continue;
+
+        if (faction->Flags != GetDefaultStateFlags(factionEntry))
+        {
+            faction->Flags |= GetDefaultStateFlags(factionEntry); // Bitwise OR in case of some DB flags
+            faction->needSave = true;
+            faction->needSend = true;
+        }
+        
+        if (faction->Flags & FACTION_FLAG_VISIBLE)
+            _visibleFactionCount++;
+    }
+}
+
 void ReputationMgr::LoadFromDB(PreparedQueryResult result)
 {
     // Set initial reputations (so everything is nifty before DB data load)
