@@ -21622,8 +21622,8 @@ void Player::AddSpellMod(SpellModifier* mod, bool apply)
         {
             int32 val = 0;
             for (SpellModList::iterator itr = m_spellMods[mod->op].begin(); itr != m_spellMods[mod->op].end(); ++itr)
-            if ((*itr)->type == mod->type && (*itr)->mask & _mask)
-                val += (*itr)->value;
+                if ((*itr)->type == mod->type && (*itr)->mask & _mask)
+                    val += (*itr)->value;
             val += apply ? mod->value : -(mod->value);
 
             spellModList[uint8(eff)] = float(val);
