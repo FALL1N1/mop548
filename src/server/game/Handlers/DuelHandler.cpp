@@ -28,7 +28,6 @@
 void WorldSession::HandleDuelProposedOpcode(WorldPacket& recvPacket)
 {
     ObjectGuid guid;
-
     guid[1] = recvPacket.ReadBit();
     guid[5] = recvPacket.ReadBit();
     guid[4] = recvPacket.ReadBit();
