@@ -9087,11 +9087,11 @@ bool Unit::isSpellCrit(Unit* victim, SpellInfo const* spellProto, SpellSchoolMas
                 case 64844: // Divine Hymn
                 case 71607: // Item - Bauble of True Blood 10m
                 case 71646: // Item - Bauble of True Blood 25m
+                case 73685: // Unleash Life
                     break;
                 default:
                     return false;
             }
-            break;
         case SPELL_DAMAGE_CLASS_MAGIC:
         {
             if (schoolMask & SPELL_SCHOOL_MASK_NORMAL)
@@ -14103,9 +14103,7 @@ void Unit::SetStunned(bool apply)
         SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
 
         // Creature specific
-        if (GetTypeId() != TYPEID_PLAYER)
-            ToCreature()->StopMoving();
-        else
+        if (GetTypeId() == TYPEID_PLAYER)
             SetStandState(UNIT_STAND_STATE_STAND);
 
         SetRooted(true);
@@ -14136,6 +14134,8 @@ void Unit::SetRooted(bool apply, bool packetOnly /*= false*/)
             // MOVEMENTFLAG_ROOT cannot be used in conjunction with MOVEMENTFLAG_MASK_MOVING (tested 3.3.5a)
             // this will freeze clients. That's why we remove MOVEMENTFLAG_MASK_MOVING before
             // setting MOVEMENTFLAG_ROOT
+            if (GetTypeId() != TYPEID_PLAYER)
+                ToCreature()->StopMoving();
             RemoveUnitMovementFlag(MOVEMENTFLAG_MASK_MOVING);
             AddUnitMovementFlag(MOVEMENTFLAG_ROOT);
         }
