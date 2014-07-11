@@ -479,6 +479,13 @@ void WorldSession::LogoutPlayer(bool save)
             _player->BuildPlayerRepop();
             _player->RepopAtGraveyard();
         }
+        else if (_player->IsInCombat())
+        {
+            _player->getHostileRefManager().deleteReferences();
+            _player->BuildPlayerRepop();
+            _player->KillPlayer();
+            _player->RepopAtGraveyard();
+        }
         else if (_player->HasAuraType(SPELL_AURA_SPIRIT_OF_REDEMPTION))
         {
             // this will kill character by SPELL_AURA_SPIRIT_OF_REDEMPTION
