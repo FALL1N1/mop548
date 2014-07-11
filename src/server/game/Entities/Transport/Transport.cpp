@@ -480,19 +480,6 @@ bool Transport::TeleportTransport(uint32 newMapid, float x, float y, float z)
     }
     else
     {
-        // Teleport players, they need to know it
-        for (std::set<WorldObject*>::iterator itr = _passengers.begin(); itr != _passengers.end(); ++itr)
-        {
-            if ((*itr)->GetTypeId() == TYPEID_PLAYER)
-            {
-                float destX, destY, destZ, destO;
-                (*itr)->m_movementInfo.transport.pos.GetPosition(destX, destY, destZ, destO);
-                TransportBase::CalculatePassengerPosition(destX, destY, destZ, &destO, x, y, z, GetOrientation());
-
-                (*itr)->ToUnit()->NearTeleportTo(destX, destY, destZ, destO);
-            }
-        }
-
         UpdatePosition(x, y, z, GetOrientation());
         return false;
     }
