@@ -7159,10 +7159,58 @@ void Player::RewardReputation(Unit* victim, float rate)
         // support for: Championing - http://www.wowwiki.com/Championing
         Map const* map = GetMap();
         if (map && map->IsNonRaidDungeon())
+        {
             if (LFGDungeonEntry const* dungeon = GetLFGDungeon(map->GetId(), map->GetDifficulty()))
-                if (dungeon->reclevel == 80)
-                    ChampioningFaction = GetChampioningFaction();
+            {
+                ChampioningFaction = GetChampioningFaction();
+
+                switch (ChampioningFaction)
+                {
+                    // All reputation gains while in dungeons will be applied to your standing with them.
+                    // Reputation with Capital Cities
+                    case 1134:
+                    case 1133:
+                    case 76:
+                    case 72:
+                    case 68:
+                    case 69:
+                    case 530:
+                    case 47:
+                    case 911:
+                    case 930:
+                    case 81:
+                    case 54:
+                        break;
+                    // Wotlk Reputations
+                    case 1106:
+                    case 1098:
+                    case 1090:
+                    case 1091:
+                    // 1162 reputation => Cataclysm reputation
+                    // in case of Cataclysm normal dungeon
+                    // where it should't award reputation for wotlk dungeon
+                        if (dungeon->reclevel != 80 || Rep->RepFaction1 == 1162)
+                            ChampioningFaction = 0;
+                        break;
+                    // Cataclysm Reputations
+                    case 1158:
+                    case 1171:
+                    case 1135:
+                    case 1173:
+                    case 1174:
+                    case 1172:
+                        if (dungeon->reclevel != 85)
+                            ChampioningFaction = 0;
+                        break;
+                    default:
+                        return;
+                }
+            }
+        }
     }
+
+    if (!((Rep->RepFaction1 == 1162) && !ChampioningFaction)) // cataclysm dungeon => no tabard
+        return;
 
     uint32 team = GetTeam();
 
@@ -27590,7 +27638,7 @@ void Player::RefundItem(Item* item)
         uint32 count = iece->RequiredCurrencyCount[i];
         uint32 currencyid = iece->RequiredCurrency[i];
         if (count && currencyid)
-            ModifyCurrency(currencyid, count);
+            ModifyCurrency(currencyid, count, true, true);
     }
 
     // Grant back money
