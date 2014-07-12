@@ -33,8 +33,8 @@ ByteBufferPositionException::ByteBufferPositionException(bool add, size_t pos,
     ss << "Attempted to " << (add ? "put" : "get") << " value with size: "
        << valueSize << " in ByteBuffer (pos: " << pos << " size: " << size
        << ")\n\n" << trace.c_str();
-
     message().assign(ss.str());
+    printf("\nError Message => [%s]\n\n", message().c_str());
 }
 
 ByteBufferSourceException::ByteBufferSourceException(size_t pos, size_t size,

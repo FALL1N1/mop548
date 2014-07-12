@@ -40,6 +40,7 @@ void UpdateData::AddOutOfRangeGUID(uint64 guid)
 
 void UpdateData::AddUpdateBlock(const ByteBuffer &block)
 {
+
     m_data.append(block);
     ++m_blockCount;
 }
@@ -56,7 +57,7 @@ bool UpdateData::BuildPacket(WorldPacket* packet)
     {
         *packet << uint8(UPDATETYPE_OUT_OF_RANGE_OBJECTS);
         *packet << uint32(m_outOfRangeGUIDs.size());
-
+        
         for (std::set<uint64>::const_iterator i = m_outOfRangeGUIDs.begin(); i != m_outOfRangeGUIDs.end(); ++i)
             packet->appendPackGUID(*i);
     }

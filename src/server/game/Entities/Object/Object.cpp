@@ -380,7 +380,7 @@ uint32 Object::GetDynamicUInt32Value(uint32 tab, uint16 index) const
     ASSERT(tab < m_dynamicTab.size() || index < 32);
     return m_dynamicTab[tab][index];
 }
-
+/*
 void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
 {
     bool hasLiving = flags & UPDATEFLAG_LIVING;
@@ -390,6 +390,25 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
     bool hasTarget = flags & UPDATEFLAG_HAS_TARGET;
     bool hasVehicle = false; //flags & UPDATEFLAG_VEHICLE;
     bool hasAnimKits = false; //flags & UPDATEFLAG_ANIMKITS;
+    bool hasFallData;
+    bool hasFallDirection;
+    bool hasSpline;
+    uint32 movementFlags;
+    uint32 movementFlagsExtra;
+
+
+}
+*/
+
+void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
+{
+    bool hasLiving = flags & UPDATEFLAG_LIVING;
+    bool hasStacionaryPostion = flags & UPDATEFLAG_STATIONARY_POSITION;
+    bool hasGobjectRotation = flags & UPDATEFLAG_ROTATION;
+    bool hasTransportPosition = flags & UPDATEFLAG_GO_TRANSPORT_POSITION;  // false; // flags & UPDATEFLAG_GO_TRANSPORT_POSITION;
+    bool hasTarget = flags & UPDATEFLAG_HAS_TARGET;
+    bool hasVehicle = flags & UPDATEFLAG_VEHICLE; // false; //flags & UPDATEFLAG_VEHICLE;
+    bool hasAnimKits = flags & UPDATEFLAG_ANIMKITS; // false; //flags & UPDATEFLAG_ANIMKITS;
 
     bool hasFallData;
     bool hasFallDirection;
@@ -663,6 +682,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
 
 void Object::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* target) const
 {
+
     if (!target)
         return;
 
