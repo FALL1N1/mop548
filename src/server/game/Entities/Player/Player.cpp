@@ -23805,6 +23805,7 @@ void Player::SendComboPoints()
         data.WriteBit(guid[4]);
         data.WriteBit(guid[1]);
         data.WriteBit(guid[2]);
+        data.FlushBits();
         data.WriteByteSeq(guid[5]);
         data.WriteByteSeq(guid[6]);
         data.WriteByteSeq(guid[4]);
