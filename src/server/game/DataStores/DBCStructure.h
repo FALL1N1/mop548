@@ -680,12 +680,12 @@ struct BattlemasterListEntry
     uint32 HolidayWorldStateId;                             // 21 new 3.1
     uint32 minLevel;                                        // 22, min level (sync with PvPDifficulty.dbc content)
     uint32 maxLevel;                                        // 23, max level (sync with PvPDifficulty.dbc content)
-    //uint32 maxGroupSizeRated;                             // 24 4.0.1
+    uint32 maxGroupSizeRated;                               // 24 4.0.1
     //uint32 unk;                                           // 25 - 4.0.6.13596
-    //uint32 maxPlayers;                                    // 26 4.0.1
+    uint32 maxPlayers;                                      // 26 4.0.1
     //uint32 unk1;                                          // 27 4.0.3, value 2 for Rated Battlegrounds
     //uint32 unk2                                           // 28 - Pandaria
-    //char* strType;                                        // 29 - Pandaria
+    char* strType;                                          // 29 - Pandaria
 };
 
 #define MAX_OUTFIT_ITEMS 24
@@ -2609,6 +2609,7 @@ struct TaxiPathNodePtr
 typedef Path<TaxiPathNodePtr, TaxiPathNodeEntry const> TaxiPathNodeList;
 typedef std::vector<TaxiPathNodeList> TaxiPathNodesByPath;
 
-#define TaxiMaskSize 114
+// 1294 / 8 = 161.75 so it's 162  + 1 if not runded thats wy its 162 and not 161. TaxiNodes.dbc take the Highest value devide it by 8 and then if its not rounded add +1 and remove the decimals.
+#define TaxiMaskSize 162
 typedef uint8 TaxiMask[TaxiMaskSize];
 #endif
