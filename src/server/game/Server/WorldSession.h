@@ -989,6 +989,8 @@ class WorldSession
         void HandleBattlePetSetFlags(WorldPacket& recvData);
         void HandleBattlePetSummonCompanion(WorldPacket& recvData);
 
+        void HandleRequestResearchHistory(WorldPacket& recvPacket);
+
     private:
         void InitializeQueryCallbackParameters();
         void ProcessQueryCallbacks();

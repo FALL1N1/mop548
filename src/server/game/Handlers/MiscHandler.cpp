@@ -2500,3 +2500,11 @@ void WorldSession::SendLoadCUFProfiles()
     data.append(byteBuffer);
     SendPacket(&data);
 }
+
+void WorldSession::HandleRequestResearchHistory(WorldPacket& recvPacket)
+{
+    sLog->outDebug("network", "WORLD: CMSG_REQUEST_RESEARCH_HISTORY");
+
+    _player->SendResearchHistory();
+}
+

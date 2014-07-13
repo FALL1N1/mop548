@@ -392,6 +392,7 @@ public:
     uint32 SpellShapeshiftId;
     uint32 SpellTargetRestrictionsId;
     uint32 SpellTotemsId;
+    uint32 ResearchProjectId;
     // SpellScalingEntry
     int32  CastTimeMin;
     int32  CastTimeMax;

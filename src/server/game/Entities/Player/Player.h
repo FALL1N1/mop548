@@ -32,6 +32,7 @@
 #include "Unit.h"
 #include "Opcodes.h"
 #include "WorldSession.h"
+#include "ObjectMgr.h"
 
 #include <string>
 #include <vector>
@@ -894,6 +895,9 @@ enum PlayerLoginQueryIndex
     PLAYER_LOGIN_QUERY_LOAD_CUF_PROFILES            = 35,
     PLAYER_LOGIN_QUERY_LOAD_BATTLE_PETS             = 36,
     PLAYER_LOGIN_QUERY_LOAD_BATTLE_PET_SLOTS        = 37,
+    PLAYER_LOGIN_QUERY_LOAD_RESEARCH_DIGSITES       = 38,
+    PLAYER_LOGIN_QUERY_LOAD_RESEARCH_HISTORY        = 39,
+    PLAYER_LOGIN_QUERY_LOAD_RESEARCH_PROJECTS       = 40,
     MAX_PLAYER_LOGIN_QUERY
 };
 
@@ -1215,6 +1219,41 @@ private:
     PlayerTalentInfo(PlayerTalentInfo const&);
 };
 
+#define RESEARCH_CONTINENT_COUNT    4
+#define RESEARCH_BRANCH_COUNT       10
+#define MAX_DIGSITES_PER_CONTINENT  4
+#define MAX_FINDS_PER_DIGSITE       3
+
+const uint32 ResearchContinents[RESEARCH_CONTINENT_COUNT] = { 0, 1, 530, 571 }; // Eastern Kingdoms, Kalimdor, Outland, Northrend
+
+struct ResearchDigsite
+{
+    ResearchDigsite(ResearchDigsiteInfo const* digsiteInfo, uint8 remainingFindCount) : _digsiteInfo(digsiteInfo), _archaeologyFind(NULL), _remainingFindCount(remainingFindCount) { }
+
+    void SelectNewArchaeologyFind(bool onInit);
+    void ChangeArchaeologyFind(ArchaeologyFindInfo const* find) { _archaeologyFind = find; }
+    ArchaeologyFindInfo const* GetArchaeologyFind() { return _archaeologyFind; }
+    bool IsEmptyDigsite() { return !_remainingFindCount; }
+
+    uint32 GetDigsiteId() { return _digsiteInfo->digsiteId; }
+    ResearchDigsiteInfo const* GetDigsiteInfo() { return _digsiteInfo; }
+    uint8 GetRemainingFindCount() { return _remainingFindCount; }
+
+private:
+    ResearchDigsiteInfo const* _digsiteInfo;
+    ArchaeologyFindInfo const* _archaeologyFind;
+    uint8 _remainingFindCount;
+};
+
+struct ResearchProjectHistory
+{
+    uint32 researchCount;
+    uint32 firstResearchTimestamp;
+};
+
+typedef UNORDERED_MAP<uint32 /*projectId*/, ResearchProjectHistory> ResearchHistoryMap;
+typedef UNORDERED_MAP<uint32 /*branchId*/, uint32 /*projectId*/> ResearchProjectMap;
+
 class Player : public Unit, public GridObject<Player>
 {
     friend class WorldSession;
@@ -1408,6 +1447,7 @@ class Player : public Unit, public GridObject<Player>
         void AutoStoreLoot(uint8 bag, uint8 slot, uint32 loot_id, LootStore const& store, bool broadcast = false);
         void AutoStoreLoot(uint32 loot_id, LootStore const& store, bool broadcast = false) { AutoStoreLoot(NULL_BAG, NULL_SLOT, loot_id, store, broadcast); }
         void StoreLootItem(uint8 lootSlot, Loot* loot);
+        void StoreLootCurrency(uint8 lootSlot, Loot* loot);
 
         InventoryResult CanTakeMoreSimilarItems(uint32 entry, uint32 count, Item* pItem, uint32* no_space_count = NULL) const;
         InventoryResult CanStoreItem(uint8 bag, uint8 slot, ItemPosCountVec& dest, uint32 entry, uint32 count, Item* pItem = NULL, bool swap = false, uint32* no_space_count = NULL) const;
@@ -2220,6 +2260,7 @@ class Player : public Unit, public GridObject<Player>
         void SendLootRelease(ObjectGuid guid);
         void SendNotifyLootItemRemoved(uint8 lootSlot, ObjectGuid guid);
         void SendNotifyLootMoneyRemoved();
+        void SendNotifyLootCurrencyRemoved(uint8 lootSlot);
 
         /*********************************************************/
         /***               BATTLEGROUND SYSTEM                 ***/
@@ -2545,6 +2586,23 @@ class Player : public Unit, public GridObject<Player>
 
         void ReadyCheckComplete();
 
+        // Archaeology
+        void SaveResearchDigsiteToDB(ResearchDigsite* digsite);
+        void DeleteResearchDigsite(ResearchDigsite* digsite);
+        void UpdateResearchDigsites();
+        bool IsWithinResearchDigsite(ResearchDigsite* digsite);
+        ResearchDigsite* GetCurrentResearchDigsite();
+        ResearchDigsite* TryToSpawnResearchDigsiteOnContinent(uint32 mapId);
+        ResearchDigsiteInfo const* GetRandomResearchDigsiteForContinent(uint32 mapId);
+        bool IsResearchDigsiteAvailable(ResearchDigsiteInfo const* digsiteInfo);
+        void SendResearchHistory();
+        void SolveResearchProject(Spell* spell);
+        bool HasCompletedResearchProject(uint32 projectId) { return _researchHistory.end() != _researchHistory.find(projectId); }
+        bool HasCompletedAllRareProjectsForRace(uint32 researchBranchId);
+        bool HasCompletedAllCommonProjectsForRace(uint32 researchBranchId, bool onlyAvailable);
+        uint32 GetRandomResearchProjectForRace(uint32 researchBranchId);
+        void UpdateResearchProjects();
+
     protected:
         // Gamemaster whisper whitelist
         WhisperListContainer WhisperList;
@@ -2623,6 +2681,9 @@ class Player : public Unit, public GridObject<Player>
         void _LoadInstanceTimeRestrictions(PreparedQueryResult result);
         void _LoadCurrency(PreparedQueryResult result);
         void _LoadCUFProfiles(PreparedQueryResult result);
+        void _LoadResearchHistory(PreparedQueryResult result);
+        void _LoadResearchProjects(PreparedQueryResult result);
+        void _LoadResearchDigsites(PreparedQueryResult result);
 
         /*********************************************************/
         /***                   SAVE SYSTEM                     ***/
@@ -2648,6 +2709,8 @@ class Player : public Unit, public GridObject<Player>
         void _SaveInstanceTimeRestrictions(SQLTransaction& trans);
         void _SaveCurrency(SQLTransaction& trans);
         void _SaveCUFProfiles(SQLTransaction& trans);
+        void _SaveResearchHistory(SQLTransaction& trans);
+        void _SaveResearchProjects(SQLTransaction& trans);
 
         /*********************************************************/
         /***              ENVIRONMENTAL SYSTEM                 ***/
@@ -2826,6 +2889,11 @@ class Player : public Unit, public GridObject<Player>
         uint8 m_grantableLevels;
 
         CUFProfile* _CUFProfiles[MAX_CUF_PROFILES];
+
+        // Archaeology
+        ResearchDigsite* _researchDigsites[RESEARCH_CONTINENT_COUNT][MAX_DIGSITES_PER_CONTINENT];
+        ResearchProjectMap _researchProjects;
+        ResearchHistoryMap _researchHistory;
 
     private:
         // internal common parts for CanStore/StoreItem functions

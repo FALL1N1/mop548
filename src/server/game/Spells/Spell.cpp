@@ -511,7 +511,7 @@ SpellValue::SpellValue(SpellInfo const* proto)
 Spell::Spell(Unit* caster, SpellInfo const* info, TriggerCastFlags triggerFlags, uint64 originalCasterGUID, bool skipCheck) :
 m_spellInfo(sSpellMgr->GetSpellForDifficultyFromSpell(info, caster)),
 m_caster((info->AttributesEx6 & SPELL_ATTR6_CAST_BY_CHARMER && caster->GetCharmerOrOwner()) ? caster->GetCharmerOrOwner() : caster)
-, m_spellValue(new SpellValue(m_spellInfo)), m_preGeneratedPath(PathGenerator(m_caster))
+, m_spellValue(new SpellValue(m_spellInfo)), m_preGeneratedPath(PathGenerator(m_caster)), m_researchData(NULL)
 {
     m_customError = SPELL_CUSTOM_ERROR_NONE;
     m_skipCheck = skipCheck;
@@ -633,6 +633,7 @@ Spell::~Spell()
         ASSERT(m_caster->ToPlayer()->m_spellModTakingSpell != this);
 
     delete m_spellValue;
+    delete m_researchData;
 
     CheckEffectExecuteData();
 }
@@ -3749,6 +3750,11 @@ void Spell::finish(bool ok)
     // Stop Attack for some spells
     if (m_spellInfo->Attributes & SPELL_ATTR0_STOP_ATTACK_TARGET)
         m_caster->AttackStop();
+
+    // handle archaeology research
+    if (m_researchData)
+        if (Player* player = m_caster->ToPlayer())
+            player->SolveResearchProject(this);
 }
 
 void Spell::SendCastResult(SpellCastResult result)

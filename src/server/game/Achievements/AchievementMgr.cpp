@@ -1266,6 +1266,7 @@ void AchievementMgr<T>::UpdateAchievementCriteria(AchievementCriteriaTypes type,
             case ACHIEVEMENT_CRITERIA_TYPE_GET_KILLING_BLOWS:
             case ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILL_AT_AREA:
             case ACHIEVEMENT_CRITERIA_TYPE_WIN_ARENA: // This also behaves like ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_ARENA
+            case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_ARCHAEOLOGY_PROJECTS:
                 SetCriteriaProgress(achievementCriteria, 1, referencePlayer, PROGRESS_ACCUMULATE);
                 break;
             // std case: increment at miscValue1
@@ -1521,7 +1522,6 @@ void AchievementMgr<T>::UpdateAchievementCriteria(AchievementCriteriaTypes type,
             case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUESTS_GUILD:
             case ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILLS_GUILD:
             case ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE_TYPE_GUILD:
-            case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_ARCHAEOLOGY_PROJECTS:
             case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_GUILD_CHALLENGE_TYPE:
             case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_GUILD_CHALLENGE:
                 break;                                   // Not implemented yet :(
@@ -1670,6 +1670,8 @@ bool AchievementMgr<T>::IsCompletedCriteria(AchievementCriteriaEntry const* achi
             return progress->counter >= achievementCriteria->currencyGain.count;
         case ACHIEVEMENT_CRITERIA_TYPE_WIN_ARENA:
             return achievementCriteria->win_arena.count && progress->counter >= achievementCriteria->win_arena.count;
+        case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_ARCHAEOLOGY_PROJECTS:
+            return progress->counter >= achievementCriteria->complete_research_projects.completeCount;
         // handle all statistic-only criteria here
         case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_BATTLEGROUND:
         case ACHIEVEMENT_CRITERIA_TYPE_DEATH_AT_MAP:
@@ -3013,6 +3015,22 @@ bool AchievementMgr<T>::AdditionalRequirementsSatisfied(AchievementCriteriaEntry
                 if (!unit || unit->GetHealthPct() >= reqValue)
                     return false;
                 break;
+            case ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_PROJECT_RARITY: // 65
+            {
+                // miscValue1 is projectId
+                ResearchProjectEntry const* projectEntry = sResearchProjectStore.LookupEntry(uint32(miscValue1));
+                if (!projectEntry || projectEntry->Rarity != reqValue)
+                    return false;
+                break;
+            }
+            case ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_PROJECT_RACE: // 66
+            {
+                // miscValue1 is projectId
+                ResearchProjectEntry const* projectEntry = sResearchProjectStore.LookupEntry(uint32(miscValue1));
+                if (!projectEntry || projectEntry->ResearchBranchId != reqValue)
+                    return false;
+                break;
+            }
             default:
                 break;
         }

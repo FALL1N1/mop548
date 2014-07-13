@@ -45,6 +45,7 @@
 #include <functional>
 #include "PhaseMgr.h"
 #include "DB2Stores.h"
+#include "Containers.h"
 
 class Item;
 class PhaseMgr;
@@ -649,6 +650,37 @@ struct HotfixInfo
 };
 
 typedef std::vector<HotfixInfo> HotfixData;
+
+struct ResearchDigsiteInfo
+{
+    uint32 digsiteId;
+    uint32 branchId;
+    uint32 requiredSkillValue;
+    uint32 requiredLevel;
+};
+
+typedef std::list<ResearchDigsiteInfo> ResearchDigsiteList;
+typedef UNORDERED_MAP<uint32 /*mapId*/, ResearchDigsiteList> ResearchDigsiteContainer;
+
+struct ArchaeologyFindInfo
+{
+    uint32 guid;
+    uint32 goEntry;
+    float x;
+    float y;
+    float z;
+};
+
+typedef std::list<ArchaeologyFindInfo> ArchaeologyFindList;
+typedef UNORDERED_MAP<uint32 /*digsiteId*/, ArchaeologyFindList> ArchaeologyFindContainer;
+
+struct ResearchProjectRequirements
+{
+    uint32 requiredSkillValue;
+    float chance;
+};
+
+typedef UNORDERED_MAP<uint32, ResearchProjectRequirements> ResearchProjectRequirementContainer;
 
 class PlayerDumpReader;
 
@@ -1271,6 +1303,63 @@ class ObjectMgr
 
         void LoadMissingKeyChains();
 
+        void LoadResearchDigsiteInfo();
+        void LoadArchaeologyFindInfo();
+        void LoadResearchProjectRequirements();
+
+        ResearchDigsiteInfo const* GetResearchDigsiteInfo(uint32 digsiteId) const
+        {
+            for (ResearchDigsiteContainer::const_iterator itr = _researchDigsiteStore.begin(); itr != _researchDigsiteStore.end(); ++itr)
+            for (ResearchDigsiteList::const_iterator digsite = itr->second.begin(); digsite != itr->second.end(); ++digsite)
+            if (digsite->digsiteId == digsiteId)
+                return &(*digsite);
+
+            return NULL;
+        }
+
+        ResearchDigsiteList const* GetResearchDigsitesForContinent(uint32 mapId) const
+        {
+            ResearchDigsiteContainer::const_iterator iter = _researchDigsiteStore.find(mapId);
+            if (iter != _researchDigsiteStore.end())
+                return &iter->second;
+
+            return NULL;
+        }
+
+        ArchaeologyFindInfo const* GetArchaeologyFindInfo(uint32 findGUID, uint32 digsiteId)
+        {
+            ArchaeologyFindContainer::const_iterator itr = _archaeologyFindStore.find(digsiteId);
+            if (itr == _archaeologyFindStore.end())
+                return NULL;
+
+            for (ArchaeologyFindList::const_iterator find = itr->second.begin(); find != itr->second.end(); ++find)
+            if (find->guid == findGUID)
+                return &(*find);
+
+            return NULL;
+        }
+
+        ArchaeologyFindInfo const* GetRandomArchaeologyFindForDigsite(uint32 digsiteId)
+        {
+            ArchaeologyFindContainer::const_iterator itr = _archaeologyFindStore.find(digsiteId);
+            if (itr == _archaeologyFindStore.end())
+                return NULL;
+
+            if (itr->second.empty())
+                return NULL;
+
+            return &Trinity::Containers::SelectRandomContainerElement(itr->second);
+        }
+
+        ResearchProjectRequirements const* GetResearchProjectRequirements(uint32 projectId) const
+        {
+            ResearchProjectRequirementContainer::const_iterator iter = _researchProjectRequirementStore.find(projectId);
+            if (iter != _researchProjectRequirementStore.end())
+                return &iter->second;
+
+            return NULL;
+        }
+
     private:
         // first free id for selected id type
         uint32 _auctionId;
@@ -1427,6 +1516,10 @@ class ObjectMgr
             GO_TO_CREATURE          // GO is dependant on creature
         };
         HotfixData _hotfixData;
+
+        ResearchDigsiteContainer _researchDigsiteStore;
+        ArchaeologyFindContainer _archaeologyFindStore;
+        ResearchProjectRequirementContainer _researchProjectRequirementStore;
 };
 
 #define sObjectMgr ACE_Singleton<ObjectMgr, ACE_Null_Mutex>::instance()
