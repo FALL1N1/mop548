@@ -1,4 +1,4 @@
-INSERT INTO `research_digsite_finds` (`guid`, `digsiteId`, `goEntry`, `position_x`, `position_y`, `position_z`) VALUES
+REPLACE INTO `research_digsite_finds` (`guid`, `digsiteId`, `goEntry`, `position_x`, `position_y`, `position_z`) VALUES
 -- Ironband's Excavation Site
 (1, 9, 204282, -5724.44, -3802.11, 324.001), -- Dwarf Archaeology Find
 (2, 9, 204282, -5610.75, -3818.11, 318.173), -- Dwarf Archaeology Find
@@ -3864,7 +3864,7 @@ INSERT INTO `research_digsite_finds` (`guid`, `digsiteId`, `goEntry`, `position_
 (3683, 617, 203078, 3152.69, -3685.54, 134.747), -- Nerubian Archaeology Find
 (3684, 617, 203078, 3116.14, -3977, 112.014); -- Nerubian Archaeology Find
 
-INSERT INTO `research_digsite_data` (`digsiteId`, `branchId`, `requiredSkillValue`, `requiredLevel`) VALUES
+REPLACE INTO `research_digsite_data` (`digsiteId`, `branchId`, `requiredSkillValue`, `requiredLevel`) VALUES
 (9, 1, 0, 10), -- Ironband's Excavation Site
 (10, 1, 0, 20), -- Ironbeard's Tomb
 (12, 1, 0, 20), -- Whelgar's Excavation Site
@@ -4046,7 +4046,7 @@ INSERT INTO `research_digsite_data` (`digsiteId`, `branchId`, `requiredSkillValu
 (615, 5, 375, 40), -- Terrorweb Tunnel Digsite
 (617, 5, 375, 40); -- Plaguewood Digsite
 
-INSERT INTO `research_project_requirements` (`projectId`, `requiredSkillValue`, `chance`) VALUES
+REPLACE INTO `research_project_requirements` (`projectId`, `requiredSkillValue`, `chance`) VALUES
 (106, 0, 10), -- Fossilized Hatchling (Rare)
 (173, 150, 5), -- Highborne Soul Mirror (Rare)
 (175, 150, 5), -- Druid and Priest Statue Set (Rare)
@@ -4134,7 +4134,7 @@ INSERT INTO `gameobject_template` (`entry`, `type`, `displayId`, `name`, `IconNa
 (207190, 3, 10492, 'Tol\vir Archaeology Find', '', '', '', 0, 0, 0.5, 0, 0, 0, 0, 0, 0, 1859, 36056, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 85, 2, 0, 0, 0, 50, 50, 0, 0, 0, 0, 0, 0, 0, 0, '', '', 15595);
 
 DELETE FROM `gameobject_loot_template` WHERE `entry` IN (35827, 36055, 28434, 35546, 35733, 36019, 36037, 36054, 36056);
-INSERT INTO `gameobject_loot_template` (`entry`, `itemOrCurrency`, `ChanceOrQuestChance`, `lootmode`, `groupid`, `mincountOrRef`, `maxcount`) VALUES
+INSERT INTO `gameobject_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `lootmode`, `groupid`, `mincountOrRef`, `maxcount`) VALUES
 -- Night Elf Archaeology Find
 (35827, -394, 100, 1, 0, 5, 9),
 (35827, 63127, 15, 1, 0, 1, 1),
@@ -4164,7 +4164,7 @@ INSERT INTO `gameobject_loot_template` (`entry`, `itemOrCurrency`, `ChanceOrQues
 
 -- Canopic Jar
 DELETE FROM `item_loot_template` WHERE `entry`=64657;
-INSERT INTO `item_loot_template` (`entry`, `itemOrCurrency`, `ChanceOrQuestChance`, `lootmode`, `groupid`, `mincountOrRef`, `maxcount`) VALUES
+INSERT INTO `item_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `lootmode`, `groupid`, `mincountOrRef`, `maxcount`) VALUES
 (64657, 67540, 100, 1, 0, 1, 1), -- Mummified Organ
 (64657, 67538, 2, 1, 0, 1, 1); -- Recipe: Vial of the Sands
 
