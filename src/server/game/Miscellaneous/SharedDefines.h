@@ -1669,6 +1669,22 @@ enum Targets
     TARGET_UNK_125                     = 125,
     TARGET_UNK_126                     = 126,
     TARGET_UNK_127                     = 127,
+    TARGET_UNK_128                     = 128, // not used (5.4.8)
+    TARGET_UNK_129                     = 129,
+    TARGET_UNK_130                     = 130,
+    TARGET_UNK_131                     = 131,
+    TARGET_UNK_132                     = 132,
+    TARGET_UNK_133                     = 133, // not used (5.4.8)
+    TARGET_UNK_134                     = 134,
+    TARGET_UNK_135                     = 135, // 2 spells
+    TARGET_UNK_136                     = 136, // 2 spells
+    TARGET_UNK_137                     = 137,
+    TARGET_UNK_138                     = 138,
+    TARGET_UNK_139                     = 139,
+    TARGET_UNK_140                     = 140,
+    TARGET_UNK_141                     = 141,
+    TARGET_UNK_142                     = 142,
+    TARGET_UNK_143                     = 143,
     TOTAL_SPELL_TARGETS
 };
 
