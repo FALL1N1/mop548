@@ -1219,12 +1219,12 @@ private:
     PlayerTalentInfo(PlayerTalentInfo const&);
 };
 
-#define RESEARCH_CONTINENT_COUNT    4
+#define RESEARCH_CONTINENT_COUNT    5
 #define RESEARCH_BRANCH_COUNT       10
 #define MAX_DIGSITES_PER_CONTINENT  4
 #define MAX_FINDS_PER_DIGSITE       3
 
-const uint32 ResearchContinents[RESEARCH_CONTINENT_COUNT] = { 0, 1, 530, 571 }; // Eastern Kingdoms, Kalimdor, Outland, Northrend
+const uint32 ResearchContinents[RESEARCH_CONTINENT_COUNT] = { 0, 1, 530, 571, 870}; // Eastern Kingdoms, Kalimdor, Outland, Northrend, Pandaria
 
 struct ResearchDigsite
 {
