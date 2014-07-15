@@ -3929,6 +3929,8 @@ void Guild::SendBankList(WorldSession* session, uint8 tabId, bool withContent, b
         }
     }
 
+    data.FlushBits();
+
     if (!contentData.empty())
         data.append(contentData);
 
