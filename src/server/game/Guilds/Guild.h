@@ -349,7 +349,7 @@ private:
     class Member
     {
     public:
-        Member(uint32 guildId, uint64 guid, uint8 rankId):
+        Member(uint32 guildId, uint64 guid, uint8 rankId) :
             m_guildId(guildId),
             m_guid(guid),
             m_zoneId(0),
@@ -359,13 +359,14 @@ private:
             m_logoutTime(::time(NULL)),
             m_accountId(0),
             m_rankId(rankId),
+            m_bankWithdrawMoney(0),
             m_achievementPoints(0),
             m_totalActivity(0),
             m_weekActivity(0),
             m_totalReputation(0),
             m_weekReputation(0)
         {
-            memset(m_bankWithdraw, 0, (GUILD_BANK_MAX_TABS + 1) * sizeof(int32));
+            memset(m_bankWithdraw, 0, (GUILD_BANK_MAX_TABS) * sizeof(int32));
         }
 
         void SetStats(Player* player, bool save = true);
@@ -414,8 +415,10 @@ private:
         inline bool IsRankNotLower(uint8 rankId) const { return m_rankId <= rankId; }
         inline bool IsSamePlayer(uint64 guid) const { return m_guid == guid; }
 
-        void UpdateBankWithdrawValue(SQLTransaction& trans, uint8 tabId, uint32 amount);
+        void UpdateBankWithdrawValue(SQLTransaction& trans, uint8 tabId);
+        void UpdateBankWithdrawMoney(SQLTransaction& trans, uint64 amount);
         int32 GetBankWithdrawValue(uint8 tabId) const;
+        int64 GetBankWithdrawMoney() const;
         void ResetValues(bool weekly = false);
 
         inline Player* FindPlayer() const { return ObjectAccessor::FindPlayer(m_guid); }
@@ -436,7 +439,8 @@ private:
         std::string m_publicNote;
         std::string m_officerNote;
 
-        int32 m_bankWithdraw[GUILD_BANK_MAX_TABS + 1];
+        int32 m_bankWithdraw[GUILD_BANK_MAX_TABS];
+        uint64 m_bankWithdrawMoney;
         uint32 m_achievementPoints;
         uint64 m_totalActivity;
         uint64 m_weekActivity;
@@ -833,6 +837,7 @@ public:
     void SendLoginInfo(WorldSession* session);
     void SendNewsUpdate(WorldSession* session);
     void SendGuildCriteriaData(WorldSession* session, uint32 achievementID);
+    void SendGuildMoney() const;
 
     // Load from DB
     bool LoadFromDB(Field* fields);
@@ -999,7 +1004,7 @@ private:
     std::string _GetRankName(uint8 rankId) const;
 
     int32 _GetMemberRemainingSlots(Member const* member, uint8 tabId) const;
-    int32 _GetMemberRemainingMoney(Member const* member) const;
+    int64 _GetMemberRemainingMoney(Member const* member) const;
     void _UpdateMemberWithdrawSlots(SQLTransaction& trans, uint64 guid, uint8 tabId);
     bool _MemberHasTabRights(uint64 guid, uint8 tabId, uint32 rights) const;
 
