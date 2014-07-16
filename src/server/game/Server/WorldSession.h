@@ -407,12 +407,15 @@ class WorldSession
         void HandleRandomizeCharNameOpcode(WorldPacket& recvData);
         void HandleReorderCharacters(WorldPacket& recvData);
         void HandleOpeningCinematic(WorldPacket& recvData);
-
+        
         // played time
         void HandlePlayedTime(WorldPacket& recvPacket);
 
         // Pandaren Faction Choice
         void HandlePandarenFactionChoiceOpcode(WorldPacket& recvPacket);
+
+        // Battle Net
+        void SendBattlePayDistributionUpdate(int32 bonusInt32Value, int8 bonusByteValue, int32 textId, std::string bonusText, std::string bonusText2);
 
         // new
         void HandleMoveUnRootAck(WorldPacket& recvPacket);
