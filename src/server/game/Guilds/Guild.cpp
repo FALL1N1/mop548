@@ -1774,6 +1774,57 @@ void Guild::HandleSetEmblem(WorldSession* session, const EmblemInfo& emblemInfo)
     }
 }
 
+void Guild::_SendSetNewGuildMaster(Member const* guildMaster, Member const* newGuildMaster, bool replace) const
+{
+    ObjectGuid gumGuid = guildMaster->GetGUID();
+    ObjectGuid newGumGuid = newGuildMaster->GetGUID();
+
+    WorldPacket data(SMSG_GUILD_SET_GUILD_MASTER, guildMaster->GetName().size() + newGuildMaster->GetName().size() + 2 * 8);
+    data.WriteBit(newGumGuid[4]);
+    data.WriteBit(newGumGuid[2]);
+    data.WriteBit(newGumGuid[7]);
+    data.WriteBit(gumGuid[4]);
+    data.WriteBits(guildMaster->GetName().size(), 6);
+    data.WriteBit(gumGuid[0]);
+    data.WriteBit(newGumGuid[6]);
+    data.WriteBit(newGumGuid[3]);
+    data.WriteBit(replace);
+    data.WriteBit(newGumGuid[1]);
+    data.WriteBit(newGumGuid[0]);
+    data.WriteBit(gumGuid[1]);
+    data.WriteBit(gumGuid[7]);
+    data.WriteBit(gumGuid[3]);
+    data.WriteBit(gumGuid[6]);
+    data.WriteBit(gumGuid[2]);
+    data.WriteBits(newGuildMaster->GetName().size(), 6);
+    data.WriteBit(gumGuid[5]);
+    data.WriteBit(newGumGuid[5]);
+    data.FlushBits();
+
+    data.WriteByteSeq(newGumGuid[5]);
+    data.WriteByteSeq(newGumGuid[6]);
+    data.WriteString(guildMaster->GetName());
+    data.WriteString(newGuildMaster->GetName());
+    data.WriteByteSeq(newGumGuid[3]);
+    data.WriteByteSeq(newGumGuid[4]);
+    data << (int32)realmID;
+    data.WriteByteSeq(gumGuid[6]);
+    data.WriteByteSeq(newGumGuid[0]);
+    data.WriteByteSeq(gumGuid[5]);
+    data.WriteByteSeq(newGumGuid[2]);
+    data.WriteByteSeq(newGumGuid[7]);
+    data.WriteByteSeq(gumGuid[7]);
+    data.WriteByteSeq(gumGuid[4]);
+    data << (int32)realmID;
+    data.WriteByteSeq(newGumGuid[1]);
+    data.WriteByteSeq(gumGuid[2]);
+    data.WriteByteSeq(gumGuid[1]);
+    data.WriteByteSeq(gumGuid[3]);
+    data.WriteByteSeq(gumGuid[0]);
+    
+    BroadcastPacket(&data);
+}
+
 void Guild::HandleSetNewGuildMaster(WorldSession* session, std::string const& name)
 {
     Player* player = session->GetPlayer();
@@ -1787,8 +1838,8 @@ void Guild::HandleSetNewGuildMaster(WorldSession* session, std::string const& na
         if (Member* newGuildMaster = GetMember(name))
         {
             _SetLeaderGUID(newGuildMaster);
-            oldGuildMaster->ChangeRank(GR_INITIATE);
-            _BroadcastEvent(GE_LEADER_CHANGED, 0, player->GetName().c_str(), name.c_str());
+            oldGuildMaster->ChangeRank(m_ranks.back().GetId());
+            _SendSetNewGuildMaster(oldGuildMaster, newGuildMaster, false);
         }
     }
 }
@@ -2329,7 +2380,7 @@ void Guild::HandleSwitchRank(uint8 rankId, bool up)
     }
 }
 
-void Guild::SendGuildMoney() const
+void Guild::_SendGuildMoney() const
 {
     WorldPacket data(SMSG_GUILD_BANK_MONEY, 8);
     data << m_bankMoney;
@@ -2354,7 +2405,7 @@ void Guild::HandleMemberDepositMoney(WorldSession* session, uint64 amount, bool 
     _LogBankEvent(trans, cashFlow ? GUILD_BANK_LOG_CASH_FLOW_DEPOSIT : GUILD_BANK_LOG_DEPOSIT_MONEY, uint8(0), player->GetGUIDLow(), amount);
     CharacterDatabase.CommitTransaction(trans);
 
-    SendGuildMoney();
+    _SendGuildMoney();
 
     if (player->GetSession()->HasPermission(rbac::RBAC_PERM_LOG_GM_TRADE))
     {
@@ -2403,7 +2454,7 @@ bool Guild::HandleMemberWithdrawMoney(WorldSession* session, uint64 amount, bool
     _LogBankEvent(trans, repair ? GUILD_BANK_LOG_REPAIR_MONEY : GUILD_BANK_LOG_WITHDRAW_MONEY, uint8(0), player->GetGUIDLow(), amount);
     CharacterDatabase.CommitTransaction(trans);
 
-    SendGuildMoney();
+    _SendGuildMoney();
     return true;
 }
 

@@ -837,7 +837,6 @@ public:
     void SendLoginInfo(WorldSession* session);
     void SendNewsUpdate(WorldSession* session);
     void SendGuildCriteriaData(WorldSession* session, uint32 achievementID);
-    void SendGuildMoney() const;
 
     // Load from DB
     bool LoadFromDB(Field* fields);
@@ -1023,6 +1022,8 @@ private:
     void _SendPlayerJoinedGuild(ObjectGuid guid, std::string name) const;
     void _SendPlayerLogged(ObjectGuid guid, std::string name, bool online) const;
     void _SendRemovePlayerFromGuild(ObjectGuid removedGuid, std::string removedName, ObjectGuid kickerGuid = 0, std::string kickerName = "") const;
+    void _SendGuildMoney() const;
+    void _SendSetNewGuildMaster(Member const* guildMaster, Member const* newGuildMaster, bool replace) const;
 
     void _BroadcastEvent(GuildEvents guildEvent, uint64 guid, const char* param1 = NULL, const char* param2 = NULL, const char* param3 = NULL) const;
 };
