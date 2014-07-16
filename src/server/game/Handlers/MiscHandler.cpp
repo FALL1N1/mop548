@@ -620,9 +620,8 @@ void WorldSession::HandleLogoutCancelOpcode(WorldPacket& /*recvData*/)
     TC_LOG_DEBUG("network", "WORLD: Sent SMSG_LOGOUT_CANCEL_ACK Message");
 }
 
-void WorldSession::HandleTogglePvP(WorldPacket& recvData)
+void WorldSession::HandleSetPvP(WorldPacket& recvData)
 {
-    // this opcode can be used in two ways: Either set explicit new status or toggle old status
     if (recvData.size() == 1)
     {
         bool newPvPStatus;
@@ -630,11 +629,11 @@ void WorldSession::HandleTogglePvP(WorldPacket& recvData)
         GetPlayer()->ApplyModFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_IN_PVP, newPvPStatus);
         GetPlayer()->ApplyModFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_PVP_TIMER, !newPvPStatus);
     }
-    else
-    {
-        GetPlayer()->ToggleFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_IN_PVP);
-        GetPlayer()->ToggleFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_PVP_TIMER);
-    }
+}
+void WorldSession::HandleTogglePvP(WorldPacket& recvData)
+{
+    GetPlayer()->ToggleFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_IN_PVP);
+    GetPlayer()->ToggleFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_PVP_TIMER);
 
     if (GetPlayer()->HasFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_IN_PVP))
     {
@@ -1410,7 +1409,7 @@ void WorldSession::HandlePlayedTime(WorldPacket& recvData)
 
     WorldPacket data(SMSG_PLAYED_TIME, 4 + 4 + 1);
     data << uint32(_player->GetTotalPlayedTime());
-    data << uint32(_player->GetLevelPlayedTime());    
+    data << uint32(_player->GetLevelPlayedTime());
     data << uint8(unk1);                                    // 0 - will not show in chat frame
     SendPacket(&data);
 }
