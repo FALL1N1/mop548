@@ -415,7 +415,8 @@ class WorldSession
         void HandlePandarenFactionChoiceOpcode(WorldPacket& recvPacket);
 
         // Battle Net
-        void SendBattlePayDistributionUpdate(int32 bonusInt32Value, int8 bonusByteValue, int32 textId, std::string bonusText, std::string bonusText2);
+        void SendBattlePayDistributionUpdate(ObjectGuid guid, int8 bonusId, int32 bonusFlag, int32 textId, std::string bonusText, std::string bonusText2);
+        void HandleBattleCharBoost(WorldPacket& recvPacket);
 
         // new
         void HandleMoveUnRootAck(WorldPacket& recvPacket);

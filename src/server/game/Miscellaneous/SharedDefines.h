@@ -238,9 +238,12 @@ enum Powers
 enum BattlePayDistribution
 {
     // character boost
-    CHARACTER_BOOST_90_INT32_VALUE      = 1,
-    CHARACTER_BOOST_90_BYTE_VALUE       = 2,
-    CHARACTER_BOOST_TUTORIAL_TEXT_ID    = 88
+    CHARACTER_BOOST                     = 2,
+    CHARACTER_BOOST_ALLOW               = 1,
+    CHARACTER_BOOST_TEXT_ID             = 88,
+    CHARACTER_BOOST_SPEC_MASK           = 0xFFF,
+    CHARACTER_BOOST_FACTION_ALLIANCE    = 0x1000000
+
 };
 
 #define CHARACTER_BOOST_BONUS_TEXT      "Boost your character to level 90!"

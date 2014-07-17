@@ -1430,6 +1430,84 @@ void WorldSession::HandlePlayedTime(WorldPacket& recvData)
     SendPacket(&data);
 }
 
+void WorldSession::HandleBattleCharBoost(WorldPacket& recvData)
+{
+    ObjectGuid playerGuid, guid;
+    uint32 charInfo = 0;
+    bool hasCharInfo = false;
+
+    recvData.read_skip<uint32>();
+    guid[1] = recvData.ReadBit();
+    playerGuid[0] = recvData.ReadBit();
+    guid[5] = recvData.ReadBit();
+    guid[4] = recvData.ReadBit();
+    playerGuid[3] = recvData.ReadBit();
+    guid[6] = recvData.ReadBit();
+    guid[0] = recvData.ReadBit();
+    playerGuid[5] = recvData.ReadBit();
+    guid[3] = recvData.ReadBit();
+    guid[7] = recvData.ReadBit();
+    playerGuid[1] = recvData.ReadBit();
+    guid[2] = recvData.ReadBit();
+    playerGuid[2] = recvData.ReadBit();
+    hasCharInfo = recvData.ReadBit();
+    playerGuid[7] = recvData.ReadBit();
+    playerGuid[4] = recvData.ReadBit();
+    playerGuid[6] = recvData.ReadBit();
+
+    recvData.ReadByteSeq(playerGuid[2]);
+    recvData.ReadByteSeq(guid[0]);
+    recvData.ReadByteSeq(playerGuid[0]);
+    recvData.ReadByteSeq(playerGuid[7]);
+    recvData.ReadByteSeq(guid[7]);
+    recvData.ReadByteSeq(playerGuid[3]);
+    recvData.ReadByteSeq(guid[6]);
+    recvData.ReadByteSeq(guid[4]);
+    recvData.ReadByteSeq(guid[5]);
+    recvData.ReadByteSeq(playerGuid[1]);
+    recvData.ReadByteSeq(playerGuid[6]);
+    recvData.ReadByteSeq(playerGuid[4]);
+    recvData.ReadByteSeq(guid[1]);
+    recvData.ReadByteSeq(guid[2]);
+    recvData.ReadByteSeq(guid[3]);
+    recvData.ReadByteSeq(playerGuid[5]);
+
+    if (hasCharInfo)
+        recvData >> charInfo;
+
+    if (false /*race == 24*/)
+    {
+        if (charInfo & CHARACTER_BOOST_FACTION_ALLIANCE)
+        {
+
+        }
+        else
+        {
+
+        }
+    }
+
+    WorldPacket data(SMSG_BATTLE_CHAR_BOOST, 8);
+    data.WriteBit(playerGuid[6]);
+    data.WriteBit(playerGuid[2]);
+    data.WriteBit(playerGuid[5]);
+    data.WriteBit(playerGuid[4]);
+    data.WriteBit(playerGuid[7]);
+    data.WriteBit(playerGuid[0]);
+    data.WriteBit(playerGuid[3]);
+    data.WriteBit(playerGuid[1]);
+    data.WriteByteSeq(playerGuid[4]);
+    data.WriteByteSeq(playerGuid[1]);
+    data.WriteByteSeq(playerGuid[6]);
+    data.WriteByteSeq(playerGuid[0]);
+    data.WriteByteSeq(playerGuid[7]);
+    data.WriteByteSeq(playerGuid[5]);
+    data.WriteByteSeq(playerGuid[2]);
+    data.WriteByteSeq(playerGuid[3]);
+    
+    SendPacket(&data);
+}
+
 void WorldSession::HandlePandarenFactionChoiceOpcode(WorldPacket& recvData)
 {
     Player* player = GetPlayer();
@@ -1480,12 +1558,20 @@ void WorldSession::HandlePandarenFactionChoiceOpcode(WorldPacket& recvData)
     player->GetReputationMgr().SendForceReactions();
 }
 
-void WorldSession::SendBattlePayDistributionUpdate(int32 bonusInt32Value, int8 bonusByteValue, int32 textId, std::string bonusText, std::string bonusText2)
+void WorldSession::SendBattlePayDistributionUpdate(ObjectGuid guid, int8 bonusId, int32 bonusFlag, int32 textId, std::string bonusText, std::string bonusText2)
 { 
+    ObjectGuid guid2 = 0;
     WorldPacket data(SMSG_BATTLE_PAY_DISTRIBUTION_UPDATE, 8 + 4 + 8 + bonusText.length() + bonusText2.length() + 8 + 1 + 4 + 4 + 8 + 4 + 4 + 4);
-    data.WriteBits(0, 2); // guid
+    data.WriteBit(guid2[5]);
+    data.WriteBit(guid2[0]);
     data.WriteBit(1); // unkBool
-    data.WriteBits(0, 7); // guid
+    data.WriteBit(guid2[1]);
+    data.WriteBit(guid[4]);
+    data.WriteBit(guid[7]);
+    data.WriteBit(guid[0]);
+    data.WriteBit(0);
+    data.WriteBit(guid[1]);
+    data.WriteBit(guid[2]);
     // if (unkBool)
     // {
         data.WriteBits(1, 2);
@@ -1503,7 +1589,16 @@ void WorldSession::SendBattlePayDistributionUpdate(int32 bonusInt32Value, int8 b
         // }
     // }
 
-    data.WriteBits(0, 8); // guid
+    data.WriteBit(guid2[7]);
+    data.WriteBit(guid[6]);
+    data.WriteBit(guid2[2]);
+    data.WriteBit(guid[5]);
+    data.WriteBit(guid2[3]);
+    data.WriteBit(guid2[6]);
+    data.WriteBit(guid[3]);
+    data.WriteBit(guid2[4]);
+    data.FlushBits();
+
     // if (unkBool)
     // {
         data << int32(0);
@@ -1513,14 +1608,31 @@ void WorldSession::SendBattlePayDistributionUpdate(int32 bonusInt32Value, int8 b
         // if (bool11)
             //data << int32(0);
         data << int64(0);
-        data << int8(bonusByteValue);
+        data << int8(bonusId);
         data << int32(0);
     // }
+
     data << int32(textId);
+    data.WriteByteSeq(guid[4]);
     data << int64(0);
+    data.WriteByteSeq(guid[1]);
+    data.WriteByteSeq(guid[5]);
+    data.WriteByteSeq(guid2[2]);
+    data.WriteByteSeq(guid2[4]);
+    data.WriteByteSeq(guid2[1]);
+    data.WriteByteSeq(guid2[0]);
     data << int32(0);
+    data.WriteByteSeq(guid2[7]);
+    data.WriteByteSeq(guid[0]);
+    data.WriteByteSeq(guid[7]);
     data << int32(0);
-    data << int32(bonusInt32Value);
+    data << int32(bonusFlag);
+    data.WriteByteSeq(guid[6]);
+    data.WriteByteSeq(guid2[5]);
+    data.WriteByteSeq(guid2[6]);
+    data.WriteByteSeq(guid2[3]);
+    data.WriteByteSeq(guid[3]);
+    data.WriteByteSeq(guid[2]);
 
     SendPacket(&data);
 }

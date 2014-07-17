@@ -293,9 +293,6 @@ void WorldSession::HandleCharEnum(PreparedQueryResult result)
         data.append(dataBuffer);
 
     SendPacket(&data);
-
-    SendBattlePayDistributionUpdate(CHARACTER_BOOST_90_INT32_VALUE, CHARACTER_BOOST_90_BYTE_VALUE, CHARACTER_BOOST_TUTORIAL_TEXT_ID,
-                CHARACTER_BOOST_BONUS_TEXT, CHARACTER_BOOST_BONUS_TEXT2);
 }
 
 
