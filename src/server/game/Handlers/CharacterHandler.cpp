@@ -293,6 +293,8 @@ void WorldSession::HandleCharEnum(PreparedQueryResult result)
         data.append(dataBuffer);
 
     SendPacket(&data);
+
+    _HandleBattleCharBoost();
 }
 
 

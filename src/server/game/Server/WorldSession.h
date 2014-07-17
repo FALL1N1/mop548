@@ -97,6 +97,16 @@ struct AccountData
     std::string Data;
 };
 
+struct CharacterBoostData
+{
+    CharacterBoostData() : charGuid(0), action(0), specialization(0) { }
+
+    uint64 charGuid;
+    uint32 action;
+    uint32 specialization;
+    bool allianceFaction;
+};
+
 enum PartyOperation
 {
     PARTY_OP_INVITE = 0,
@@ -417,7 +427,7 @@ class WorldSession
         // Battle Net
         void SendBattlePayDistributionUpdate(ObjectGuid guid, int8 bonusId, int32 bonusFlag, int32 textId, std::string bonusText, std::string bonusText2);
         void HandleBattleCharBoost(WorldPacket& recvPacket);
-
+        
         // new
         void HandleMoveUnRootAck(WorldPacket& recvPacket);
         void HandleMoveRootAck(WorldPacket& recvPacket);
@@ -1058,6 +1068,11 @@ class WorldSession
         // private trade methods
         void moveItems(Item* myItems[], Item* hisItems[]);
 
+        // character boost
+        void _AddCharBoostItems(std::vector<uint32>& itemsToEquip, std::vector<uint32>& itemsToMail) const;
+        void _HandleBattleCharBoost();
+        void _SendBattleCharBoostItems();
+
         // logging helper
         void LogUnexpectedOpcode(WorldPacket* packet, const char* status, const char *reason);
         void LogUnprocessedTail(WorldPacket* packet);
@@ -1080,6 +1095,7 @@ class WorldSession
         AccountTypes _security;
         uint32 _accountId;
         uint8 m_expansion;
+        CharacterBoostData m_charBoostInfo;
 
         typedef std::list<AddonInfo> AddonsList;
 

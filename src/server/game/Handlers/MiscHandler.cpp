@@ -1430,6 +1430,85 @@ void WorldSession::HandlePlayedTime(WorldPacket& recvData)
     SendPacket(&data);
 }
 
+void WorldSession::_AddCharBoostItems(std::vector<uint32>& itemsToEquip, std::vector<uint32>& itemsToMail) const
+{
+    switch (m_charBoostInfo.specialization)
+    {
+        case CHAR_SPECIALIZATION_MAGE_ARCANE:
+        case CHAR_SPECIALIZATION_MAGE_FIRE:
+        case CHAR_SPECIALIZATION_MAGE_FROST:
+            for (uint32 i = 101068; i < 101081; i++)
+                itemsToEquip.push_back(i);
+            itemsToMail.push_back(101081);
+            itemsToEquip.push_back(101082);
+            itemsToEquip.push_back(101083);
+            break;
+        default:
+            break;
+    }
+}
+
+void WorldSession::_SendBattleCharBoostItems()
+{
+    m_charBoostInfo.action = CHARACTER_BOOST_APPLIED;
+    ObjectGuid guid = m_charBoostInfo.charGuid;
+    std::vector<uint32> itemsToEquip, itemsToMail;
+    _AddCharBoostItems(itemsToEquip, itemsToMail);
+
+    // TODO: Save Items to DB
+
+    WorldPacket data(SMSG_BATTLE_CHAR_BOOST_ITEMS, 8 + 3 + itemsToEquip.size());
+    data.WriteBit(guid[2]);
+    data.WriteBit(guid[0]);
+    data.WriteBit(guid[7]);
+    data.WriteBit(guid[5]);
+    data.WriteBit(guid[3]);
+    data.WriteBit(guid[4]);
+    data.WriteBit(guid[1]);
+    data.WriteBits(itemsToEquip.size(), 22);
+    data.WriteBit(guid[6]);
+    data.FlushBits();
+
+    data.WriteByteSeq(guid[7]);
+    data.WriteByteSeq(guid[2]);
+    data.WriteByteSeq(guid[6]);
+    data.WriteByteSeq(guid[5]);
+    for (uint8 i = 0; i < itemsToEquip.size(); i++)
+        data << (uint32)itemsToEquip[i];
+    data.WriteByteSeq(guid[0]);
+    data.WriteByteSeq(guid[1]);
+    data.WriteByteSeq(guid[3]);
+    data.WriteByteSeq(guid[4]);
+    
+    SendPacket(&data);
+}
+
+void WorldSession::_HandleBattleCharBoost()
+{
+    if (!m_charBoostInfo.charGuid)
+        return;
+
+    switch (m_charBoostInfo.action)
+    {
+        case CHARACTER_BOOST_ITEMS:
+            if (false /*race == 24*/)
+            {
+
+            }
+            SendBattlePayDistributionUpdate(m_charBoostInfo.charGuid, CHARACTER_BOOST, m_charBoostInfo.action, 
+                CHARACTER_BOOST_TEXT_ID, CHARACTER_BOOST_BONUS_TEXT, CHARACTER_BOOST_BONUS_TEXT2);
+            _SendBattleCharBoostItems();
+            break;
+        case CHARACTER_BOOST_APPLIED:
+            SendBattlePayDistributionUpdate(m_charBoostInfo.charGuid, CHARACTER_BOOST, m_charBoostInfo.action,
+                CHARACTER_BOOST_TEXT_ID, CHARACTER_BOOST_BONUS_TEXT, CHARACTER_BOOST_BONUS_TEXT2);
+            m_charBoostInfo.charGuid = 0;
+            break;
+        default:
+            break;
+    }
+}
+
 void WorldSession::HandleBattleCharBoost(WorldPacket& recvData)
 {
     ObjectGuid playerGuid, guid;
@@ -1475,17 +1554,15 @@ void WorldSession::HandleBattleCharBoost(WorldPacket& recvData)
     if (hasCharInfo)
         recvData >> charInfo;
 
-    if (false /*race == 24*/)
-    {
-        if (charInfo & CHARACTER_BOOST_FACTION_ALLIANCE)
-        {
+    bool allianceFaction = charInfo & CHARACTER_BOOST_FACTION_ALLIANCE;
 
-        }
-        else
-        {
+    SendBattlePayDistributionUpdate(playerGuid, CHARACTER_BOOST, CHARACTER_BOOST_CHOOSED, CHARACTER_BOOST_TEXT_ID,
+        CHARACTER_BOOST_BONUS_TEXT, CHARACTER_BOOST_BONUS_TEXT2);
 
-        }
-    }
+    m_charBoostInfo.charGuid = playerGuid;
+    m_charBoostInfo.action = CHARACTER_BOOST_ITEMS;
+    m_charBoostInfo.specialization = charInfo & CHARACTER_BOOST_SPEC_MASK;
+    m_charBoostInfo.allianceFaction = allianceFaction;
 
     WorldPacket data(SMSG_BATTLE_CHAR_BOOST, 8);
     data.WriteBit(playerGuid[6]);
