@@ -235,6 +235,17 @@ enum Powers
 
 #define MAX_POWERS_PER_CLASS            5
 
+enum BattlePayDistribution
+{
+    // character boost
+    CHARACTER_BOOST_90_INT32_VALUE      = 1,
+    CHARACTER_BOOST_90_BYTE_VALUE       = 2,
+    CHARACTER_BOOST_TUTORIAL_TEXT_ID    = 88
+};
+
+#define CHARACTER_BOOST_BONUS_TEXT      "Boost your character to level 90!"
+#define CHARACTER_BOOST_BONUS_TEXT2     "Level 90 Character Boost"
+
 enum SpellSchools
 {
     SPELL_SCHOOL_NORMAL                 = 0,

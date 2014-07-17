@@ -1480,6 +1480,51 @@ void WorldSession::HandlePandarenFactionChoiceOpcode(WorldPacket& recvData)
     player->GetReputationMgr().SendForceReactions();
 }
 
+void WorldSession::SendBattlePayDistributionUpdate(int32 bonusInt32Value, int8 bonusByteValue, int32 textId, std::string bonusText, std::string bonusText2)
+{ 
+    WorldPacket data(SMSG_BATTLE_PAY_DISTRIBUTION_UPDATE, 8 + 4 + 8 + bonusText.length() + bonusText2.length() + 8 + 1 + 4 + 4 + 8 + 4 + 4 + 4);
+    data.WriteBits(0, 2); // guid
+    data.WriteBit(1); // unkBool
+    data.WriteBits(0, 7); // guid
+    // if (unkBool)
+    // {
+        data.WriteBits(1, 2);
+        data.WriteBits(0, 20);
+        data.WriteBit(1); // bool4
+        // if (bool4)
+        // {
+            data.WriteBits(0, 10);
+            data.WriteBit(0);
+            data.WriteBits(bonusText2.length(), 10);
+            data.WriteBit(0);
+            data.WriteBit(0);
+            data.WriteBits(bonusText.length(), 13);
+            data.WriteBit(0); // bool11
+        // }
+    // }
+
+    data.WriteBits(0, 8); // guid
+    // if (unkBool)
+    // {
+        data << int32(0);
+        data << int64(0);
+        data.WriteString(bonusText);
+        data.WriteString(bonusText2);
+        // if (bool11)
+            //data << int32(0);
+        data << int64(0);
+        data << int8(bonusByteValue);
+        data << int32(0);
+    // }
+    data << int32(textId);
+    data << int64(0);
+    data << int32(0);
+    data << int32(0);
+    data << int32(bonusInt32Value);
+
+    SendPacket(&data);
+}
+
 void WorldSession::HandleInspectOpcode(WorldPacket& recvData)
 {
     ObjectGuid guid;

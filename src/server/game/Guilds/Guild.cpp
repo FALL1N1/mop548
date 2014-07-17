@@ -1838,8 +1838,35 @@ void Guild::HandleSetNewGuildMaster(WorldSession* session, std::string const& na
         if (Member* newGuildMaster = GetMember(name))
         {
             _SetLeaderGUID(newGuildMaster);
-            oldGuildMaster->ChangeRank(m_ranks.back().GetId());
+            oldGuildMaster->ChangeRank(_GetLowestRankId());
             _SendSetNewGuildMaster(oldGuildMaster, newGuildMaster, false);
+        }
+    }
+}
+
+void Guild::HandleReplaceGuildMaster(WorldSession* session)
+{
+    Player* player = session->GetPlayer();
+
+    if (Member* newGuildMaster = GetMember(player->GetGUID()))
+    {
+        if (newGuildMaster->GetRankId() > GR_MEMBER) // 3 ranks down from gum is the requirements
+        {
+            SendCommandResult(session, GUILD_COMMAND_CHANGE_LEADER, ERR_GUILD_PERMISSIONS);
+            return;
+        }
+
+        if (Member* oldGuildMaster = GetMember(m_leaderGuid))
+        {
+            if (oldGuildMaster->GetLogoutTime() > uint64(time(NULL) - (DAY * 90)))
+            {
+                SendCommandResult(session, GUILD_COMMAND_CHANGE_LEADER, ERR_GUILD_PERMISSIONS);
+                return;
+            }
+
+            _SetLeaderGUID(newGuildMaster);
+            oldGuildMaster->ChangeRank(_GetLowestRankId());
+            _SendSetNewGuildMaster(oldGuildMaster, newGuildMaster, true);
         }
     }
 }
