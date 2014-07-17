@@ -29,7 +29,7 @@ void WorldSession::HandleJoinChannel(WorldPacket& recvPacket)
     std::string channelName, password;
 
     recvPacket >> channelId;
-
+	
     uint8 unknown1 = recvPacket.ReadBit();                  // unknown bit	
     channelLength = recvPacket.ReadBits(7);
     passLength = recvPacket.ReadBits(7);

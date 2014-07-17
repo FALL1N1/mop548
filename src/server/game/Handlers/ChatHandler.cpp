@@ -678,59 +678,61 @@ namespace Trinity
     class EmoteChatBuilder
     {
         public:
-            EmoteChatBuilder(Player const& player, uint32 text_emote, uint32 emote_num, ObjectGuid target)
+            EmoteChatBuilder(Player const& player, uint32 text_emote, uint32 emote_num, Unit const* target)
                 : i_player(player), i_text_emote(text_emote), i_emote_num(emote_num), i_target(target) { }
 
             void operator()(WorldPacket& data, LocaleConstant loc_idx)
             {
-                ObjectGuid sender = i_player.GetGUID();
+                ObjectGuid Guid = i_target ? i_target->GetGUID() : 0;
+                ObjectGuid TargetGuid = i_player.GetGUID();
 
-                data.Initialize(SMSG_TEXT_EMOTE, 2 + 8 + 8 + 4 + 4);
-                data.WriteBit(sender[1]);
-                data.WriteBit(i_target[7]);
-                data.WriteBit(sender[6]);
-                data.WriteBit(i_target[5]);
-                data.WriteBit(sender[3]);
-                data.WriteBit(i_target[6]);
-                data.WriteBit(i_target[2]);
-                data.WriteBit(sender[7]);
-                data.WriteBit(i_target[0]);
-                data.WriteBit(i_target[1]);
-                data.WriteBit(sender[4]);
-                data.WriteBit(sender[2]);
-                data.WriteBit(i_target[3]);
-                data.WriteBit(i_target[4]);
-                data.WriteBit(sender[0]);
-                data.WriteBit(sender[5]);
+                data.Initialize(SMSG_TEXT_EMOTE, 2 * (8 + 1) + 4 + 4);
 
-                data.WriteByteSeq(i_target[2]);
-                data.WriteByteSeq(i_target[1]);
-                data.WriteByteSeq(sender[7]);
-                data.WriteByteSeq(sender[4]);
-                data.WriteByteSeq(i_target[7]);
-                data.WriteByteSeq(sender[5]);
-                data.WriteByteSeq(sender[2]);
+                data.WriteBit(Guid[1]);
+                data.WriteBit(TargetGuid[7]);
+                data.WriteBit(Guid[6]);
+                data.WriteBit(TargetGuid[5]);
+                data.WriteBit(Guid[3]);
+                data.WriteBit(TargetGuid[6]);
+                data.WriteBit(TargetGuid[2]);
+                data.WriteBit(Guid[7]);
+                data.WriteBit(TargetGuid[0]);
+                data.WriteBit(TargetGuid[1]);
+                data.WriteBit(Guid[4]);
+                data.WriteBit(Guid[2]);
+                data.WriteBit(TargetGuid[3]);
+                data.WriteBit(TargetGuid[4]);
+                data.WriteBit(Guid[0]);
+                data.WriteBit(Guid[5]);
 
-                data << uint32(i_text_emote);
-
-                data.WriteByteSeq(sender[6]);
-                data.WriteByteSeq(i_target[0]);
-                data.WriteByteSeq(sender[3]);
-                data.WriteByteSeq(sender[1]);
-                data.WriteByteSeq(i_target[6]);
-                data.WriteByteSeq(sender[0]);
-                data.WriteByteSeq(i_target[3]);
-                data.WriteByteSeq(i_target[5]);
-                data.WriteByteSeq(i_target[4]);
+                data.WriteByteSeq(TargetGuid[2]);
+                data.WriteByteSeq(TargetGuid[1]);
+                data.WriteByteSeq(Guid[7]);
+                data.WriteByteSeq(Guid[4]);
+                data.WriteByteSeq(TargetGuid[7]);
+                data.WriteByteSeq(Guid[5]);
+                data.WriteByteSeq(Guid[2]);
 
                 data << uint32(i_emote_num);
+
+                data.WriteByteSeq(Guid[6]);
+                data.WriteByteSeq(TargetGuid[0]);
+                data.WriteByteSeq(Guid[3]);
+                data.WriteByteSeq(Guid[1]);
+                data.WriteByteSeq(TargetGuid[6]);
+                data.WriteByteSeq(Guid[0]);
+                data.WriteByteSeq(TargetGuid[3]);
+                data.WriteByteSeq(TargetGuid[5]);
+                data.WriteByteSeq(TargetGuid[4]);
+
+                data << uint32(i_text_emote);
             }
 
         private:
             Player const& i_player;
             uint32        i_text_emote;
             uint32        i_emote_num;
-            ObjectGuid    i_target;
+            Unit const*   i_target;
     };
 }                                                           // namespace Trinity
 
@@ -745,30 +747,30 @@ void WorldSession::HandleTextEmoteOpcode(WorldPacket& recvData)
         SendNotification(GetTrinityString(LANG_WAIT_BEFORE_SPEAKING), timeStr.c_str());
         return;
     }
-
-    uint32 text_emote, emoteNum;
+	
     ObjectGuid guid;
+    uint32 text_emote, emoteNum;
 
     recvData >> text_emote;
     recvData >> emoteNum;
-    
-    guid[6] = recvData.ReadBit();
-    guid[7] = recvData.ReadBit();
-    guid[3] = recvData.ReadBit();
-    guid[2] = recvData.ReadBit();
-    guid[0] = recvData.ReadBit();
-    guid[5] = recvData.ReadBit();
-    guid[1] = recvData.ReadBit();
-    guid[4] = recvData.ReadBit();
-
-    recvData.ReadByteSeq(guid[0]);
-    recvData.ReadByteSeq(guid[5]);
-    recvData.ReadByteSeq(guid[1]);
-    recvData.ReadByteSeq(guid[4]);
-    recvData.ReadByteSeq(guid[2]);
-    recvData.ReadByteSeq(guid[3]);
-    recvData.ReadByteSeq(guid[7]);
-    recvData.ReadByteSeq(guid[6]);
+	
+	guid[6] = recvData.ReadBit();
+	guid[7] = recvData.ReadBit();
+	guid[3] = recvData.ReadBit();
+	guid[2] = recvData.ReadBit();
+	guid[0] = recvData.ReadBit();
+	guid[5] = recvData.ReadBit();
+	guid[1] = recvData.ReadBit();
+	guid[4] = recvData.ReadBit();
+	
+	recvData.ReadByteSeq(guid[0]);
+	recvData.ReadByteSeq(guid[5]);
+	recvData.ReadByteSeq(guid[1]);
+	recvData.ReadByteSeq(guid[4]);
+	recvData.ReadByteSeq(guid[2]);
+	recvData.ReadByteSeq(guid[3]);
+	recvData.ReadByteSeq(guid[7]);
+	recvData.ReadByteSeq(guid[6]);
 
     sScriptMgr->OnPlayerTextEmote(GetPlayer(), text_emote, emoteNum, guid);
 
@@ -800,7 +802,7 @@ void WorldSession::HandleTextEmoteOpcode(WorldPacket& recvData)
     Cell cell(p);
     cell.SetNoCreate();
 
-    Trinity::EmoteChatBuilder emote_builder(*GetPlayer(), text_emote, emoteNum, guid);
+    Trinity::EmoteChatBuilder emote_builder(*GetPlayer(), text_emote, emoteNum, unit);
     Trinity::LocalizedPacketDo<Trinity::EmoteChatBuilder > emote_do(emote_builder);
     Trinity::PlayerDistWorker<Trinity::LocalizedPacketDo<Trinity::EmoteChatBuilder > > emote_worker(GetPlayer(), sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_TEXTEMOTE), emote_do);
     TypeContainerVisitor<Trinity::PlayerDistWorker<Trinity::LocalizedPacketDo<Trinity::EmoteChatBuilder> >, WorldTypeMapContainer> message(emote_worker);
@@ -819,24 +821,24 @@ void WorldSession::HandleChatIgnoredOpcode(WorldPacket& recvData)
     uint8 unk;
     //TC_LOG_DEBUG("network", "WORLD: Received CMSG_CHAT_IGNORED");
 
-    recvData >> unk;                                       // probably related to spam reporting
     guid[5] = recvData.ReadBit();
-    guid[2] = recvData.ReadBit();
-    guid[6] = recvData.ReadBit();
-    guid[4] = recvData.ReadBit();
-    guid[7] = recvData.ReadBit();
+    recvData >> unk;                                       // probably related to spam reporting
     guid[0] = recvData.ReadBit();
     guid[1] = recvData.ReadBit();
     guid[3] = recvData.ReadBit();
+    guid[6] = recvData.ReadBit();
+    guid[7] = recvData.ReadBit();
+    guid[4] = recvData.ReadBit();
+    guid[2] = recvData.ReadBit();
 
-    recvData.ReadByteSeq(guid[0]);
-    recvData.ReadByteSeq(guid[6]);
-    recvData.ReadByteSeq(guid[5]);
-    recvData.ReadByteSeq(guid[1]);
-    recvData.ReadByteSeq(guid[4]);
-    recvData.ReadByteSeq(guid[3]);
-    recvData.ReadByteSeq(guid[7]);
     recvData.ReadByteSeq(guid[2]);
+    recvData.ReadByteSeq(guid[0]);
+    recvData.ReadByteSeq(guid[3]);
+    recvData.ReadByteSeq(guid[4]);
+    recvData.ReadByteSeq(guid[7]);
+    recvData.ReadByteSeq(guid[6]);
+    recvData.ReadByteSeq(guid[0]);
+    recvData.ReadByteSeq(guid[5]);
 
     Player* player = ObjectAccessor::FindPlayer(guid);
     if (!player || !player->GetSession())
