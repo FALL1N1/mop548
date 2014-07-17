@@ -99,7 +99,7 @@ struct AccountData
 
 struct CharacterBoostData
 {
-    CharacterBoostData() : charGuid(0), action(0), specialization(0) { }
+    CharacterBoostData() : charGuid(0), action(0), specialization(0), allianceFaction(false) { }
 
     uint64 charGuid;
     uint32 action;

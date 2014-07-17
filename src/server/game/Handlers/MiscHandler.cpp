@@ -1450,7 +1450,6 @@ void WorldSession::_AddCharBoostItems(std::vector<uint32>& itemsToEquip, std::ve
 
 void WorldSession::_SendBattleCharBoostItems()
 {
-    m_charBoostInfo.action = CHARACTER_BOOST_APPLIED;
     ObjectGuid guid = m_charBoostInfo.charGuid;
     std::vector<uint32> itemsToEquip, itemsToMail;
     _AddCharBoostItems(itemsToEquip, itemsToMail);
@@ -1491,18 +1490,20 @@ void WorldSession::_HandleBattleCharBoost()
     switch (m_charBoostInfo.action)
     {
         case CHARACTER_BOOST_ITEMS:
+            SendBattlePayDistributionUpdate(m_charBoostInfo.charGuid, CHARACTER_BOOST, m_charBoostInfo.action, 
+                CHARACTER_BOOST_TEXT_ID, CHARACTER_BOOST_BONUS_TEXT, CHARACTER_BOOST_BONUS_TEXT2);
+            m_charBoostInfo.action = CHARACTER_BOOST_APPLIED;
+            _SendBattleCharBoostItems();
+            // TODO: set level and race if necesary
             if (false /*race == 24*/)
             {
 
             }
-            SendBattlePayDistributionUpdate(m_charBoostInfo.charGuid, CHARACTER_BOOST, m_charBoostInfo.action, 
-                CHARACTER_BOOST_TEXT_ID, CHARACTER_BOOST_BONUS_TEXT, CHARACTER_BOOST_BONUS_TEXT2);
-            _SendBattleCharBoostItems();
             break;
         case CHARACTER_BOOST_APPLIED:
             SendBattlePayDistributionUpdate(m_charBoostInfo.charGuid, CHARACTER_BOOST, m_charBoostInfo.action,
                 CHARACTER_BOOST_TEXT_ID, CHARACTER_BOOST_BONUS_TEXT, CHARACTER_BOOST_BONUS_TEXT2);
-            m_charBoostInfo.charGuid = 0;
+            m_charBoostInfo = CharacterBoostData();
             break;
         default:
             break;
@@ -1529,7 +1530,7 @@ void WorldSession::HandleBattleCharBoost(WorldPacket& recvData)
     playerGuid[1] = recvData.ReadBit();
     guid[2] = recvData.ReadBit();
     playerGuid[2] = recvData.ReadBit();
-    hasCharInfo = recvData.ReadBit();
+    hasCharInfo = !recvData.ReadBit();
     playerGuid[7] = recvData.ReadBit();
     playerGuid[4] = recvData.ReadBit();
     playerGuid[6] = recvData.ReadBit();
@@ -1554,15 +1555,13 @@ void WorldSession::HandleBattleCharBoost(WorldPacket& recvData)
     if (hasCharInfo)
         recvData >> charInfo;
 
-    bool allianceFaction = charInfo & CHARACTER_BOOST_FACTION_ALLIANCE;
-
     SendBattlePayDistributionUpdate(playerGuid, CHARACTER_BOOST, CHARACTER_BOOST_CHOOSED, CHARACTER_BOOST_TEXT_ID,
         CHARACTER_BOOST_BONUS_TEXT, CHARACTER_BOOST_BONUS_TEXT2);
 
     m_charBoostInfo.charGuid = playerGuid;
     m_charBoostInfo.action = CHARACTER_BOOST_ITEMS;
     m_charBoostInfo.specialization = charInfo & CHARACTER_BOOST_SPEC_MASK;
-    m_charBoostInfo.allianceFaction = allianceFaction;
+    m_charBoostInfo.allianceFaction = charInfo & CHARACTER_BOOST_FACTION_ALLIANCE;
 
     WorldPacket data(SMSG_BATTLE_CHAR_BOOST, 8);
     data.WriteBit(playerGuid[6]);

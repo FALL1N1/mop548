@@ -1949,7 +1949,7 @@ void Player::InnEnter(time_t time, uint32 mapid, float x, float y, float z)
     time_inn_enter = time;
 }
 
-bool Player::BuildEnumData(PreparedQueryResult result, ByteBuffer* dataBuffer, ByteBuffer* bitBuffer)
+bool Player::BuildEnumData(PreparedQueryResult result, ByteBuffer* dataBuffer, ByteBuffer* bitBuffer, uint64 boostedCharGuid)
 {
     //             0               1                2                3                 4                  5                       6                        7
     //    "SELECT characters.guid, characters.name, characters.race, characters.class, characters.gender, characters.playerBytes, characters.playerBytes2, characters.level, "
@@ -2033,7 +2033,7 @@ bool Player::BuildEnumData(PreparedQueryResult result, ByteBuffer* dataBuffer, B
     bitBuffer->WriteBit(guildGuid[3]);
     bitBuffer->WriteBit(guid[3]);
     bitBuffer->WriteBit(guid[7]);
-    bitBuffer->WriteBit(0); // Can boost ?
+    bitBuffer->WriteBit(boostedCharGuid == (uint64)guid);
     bitBuffer->WriteBit(atLoginFlags & AT_LOGIN_FIRST);
     bitBuffer->WriteBit(guid[6]);
     bitBuffer->WriteBit(guildGuid[6]);

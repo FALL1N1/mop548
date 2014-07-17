@@ -263,7 +263,7 @@ void WorldSession::HandleCharEnum(PreparedQueryResult result)
 
             TC_LOG_INFO("network", "Loading char guid %u from account %u.", guidLow, GetAccountId());
 
-            Player::BuildEnumData(result, &dataBuffer, &bitBuffer);
+            Player::BuildEnumData(result, &dataBuffer, &bitBuffer, m_charBoostInfo.charGuid);
 
             // Do not allow banned characters to log in
             if (!(*result)[20].GetUInt32())
@@ -292,9 +292,13 @@ void WorldSession::HandleCharEnum(PreparedQueryResult result)
     if (charCount)
         data.append(dataBuffer);
 
+    if (m_charBoostInfo.action == CHARACTER_BOOST_APPLIED)
+        _HandleBattleCharBoost();
+    
     SendPacket(&data);
 
-    _HandleBattleCharBoost();
+    if (m_charBoostInfo.action == CHARACTER_BOOST_ITEMS)
+        _HandleBattleCharBoost();
 }
 
 
