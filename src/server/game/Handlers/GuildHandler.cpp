@@ -535,7 +535,7 @@ void WorldSession::HandleGuildBankDepositMoney(WorldPacket& recvPacket)
     recvPacket.ReadByteSeq(guid[3]);
 
     TC_LOG_DEBUG("guild", "CMSG_GUILD_BANK_DEPOSIT_MONEY [%s]: Go: [" UI64FMTD "], money: " UI64FMTD,
-        GetPlayerInfo().c_str(), guid, money);
+        GetPlayerInfo().c_str(), (uint64)guid, money);
 
     if (GetPlayer()->GetGameObjectIfCanInteractWith(guid, GAMEOBJECT_TYPE_GUILD_BANK))
         if (money && GetPlayer()->HasEnoughMoney(money))
@@ -568,7 +568,7 @@ void WorldSession::HandleGuildBankWithdrawMoney(WorldPacket& recvPacket)
     recvPacket.ReadByteSeq(guid[5]);
 
     TC_LOG_DEBUG("guild", "CMSG_GUILD_BANK_WITHDRAW_MONEY [%s]: Go: [" UI64FMTD "], money: " UI64FMTD,
-        GetPlayerInfo().c_str(), guid, money);
+        GetPlayerInfo().c_str(), (uint64)guid, money);
 
     if (money && GetPlayer()->GetGameObjectIfCanInteractWith(guid, GAMEOBJECT_TYPE_GUILD_BANK))
         if (Guild* guild = GetPlayer()->GetGuild())
