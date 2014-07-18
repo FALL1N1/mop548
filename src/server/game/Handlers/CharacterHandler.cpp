@@ -246,6 +246,11 @@ void WorldSession::HandleCharEnum(PreparedQueryResult result)
     ByteBuffer bitBuffer;
     ByteBuffer dataBuffer;
 
+    // Sended before SMSG_CHAR_ENUM
+    // must be procceded before BuildEnumData, because of unsetting bosted character guid
+    if (m_charBoostInfo.action == CHARACTER_BOOST_APPLIED)
+        _HandleBattleCharBoost();
+
     if (result)
     {
         _legitCharacters.clear();
@@ -291,12 +296,10 @@ void WorldSession::HandleCharEnum(PreparedQueryResult result)
 
     if (charCount)
         data.append(dataBuffer);
-
-    if (m_charBoostInfo.action == CHARACTER_BOOST_APPLIED)
-        _HandleBattleCharBoost();
     
     SendPacket(&data);
 
+    // Sended after SMSG_CHAR_ENUM
     if (m_charBoostInfo.action == CHARACTER_BOOST_ITEMS)
         _HandleBattleCharBoost();
 }

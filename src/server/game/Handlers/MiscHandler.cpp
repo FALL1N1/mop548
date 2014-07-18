@@ -1634,9 +1634,11 @@ void WorldSession::HandlePandarenFactionChoiceOpcode(WorldPacket& recvData)
     player->GetReputationMgr().SendForceReactions();
 }
 
-void WorldSession::SendBattlePayDistributionUpdate(ObjectGuid guid, int8 bonusId, int32 bonusFlag, int32 textId, std::string bonusText, std::string bonusText2)
+void WorldSession::SendBattlePayDistributionUpdate(uint64 playerGuid, int8 bonusId, int32 bonusFlag, int32 textId, std::string const& bonusText, std::string const& bonusText2)
 { 
+    ObjectGuid guid = GUID_LOPART(playerGuid);
     ObjectGuid guid2 = 0;
+
     WorldPacket data(SMSG_BATTLE_PAY_DISTRIBUTION_UPDATE, 8 + 4 + 8 + bonusText.length() + bonusText2.length() + 8 + 1 + 4 + 4 + 8 + 4 + 4 + 4);
     data.WriteBit(guid2[5]);
     data.WriteBit(guid2[0]);
