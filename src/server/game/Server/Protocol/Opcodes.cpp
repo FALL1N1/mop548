@@ -512,7 +512,8 @@ void OpcodeTable::InitializeClientTable()
     DEFINE_OPCODE_HANDLER(CMSG_SET_CURRENCY_FLAGS,                 0x0000, STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                        );
     DEFINE_OPCODE_HANDLER(CMSG_SET_DUNGEON_DIFFICULTY,             0x1A36, STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleSetDungeonDifficultyOpcode   ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(CMSG_SET_EVERYONE_IS_ASSISTANT,          0x01E1, STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleSetEveryoneIsAssistant       ); // 5.4.8 18414
-    DEFINE_OPCODE_HANDLER(CMSG_SET_FACTION_ATWAR,                  0x0000, STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleSetFactionAtWar              );
+    DEFINE_OPCODE_HANDLER(CMSG_SET_FACTION_ATWAR,                  0x027B, STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleSetFactionAtWar              ); // 5.4.8 18414
+    DEFINE_OPCODE_HANDLER(CMSG_SET_FACTION_NOT_ATWAR,              0x064B, STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleSetFactionNotAtWar           ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(CMSG_SET_FACTION_INACTIVE,               0x0778, STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleSetFactionInactiveOpcode     ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(CMSG_SET_GUILD_BANK_TEXT,                0x0000, STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleSetGuildBankTabText          );
     DEFINE_OPCODE_HANDLER(CMSG_SET_PET_SLOT,                       0x0000, STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                        );
@@ -529,7 +530,7 @@ void OpcodeTable::InitializeClientTable()
     DEFINE_OPCODE_HANDLER(CMSG_SET_TRADE_GOLD,                     0x0000, STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleSetTradeGoldOpcode           );
     DEFINE_OPCODE_HANDLER(CMSG_SET_TRADE_ITEM,                     0x03D5, STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleSetTradeItemOpcode           );
     DEFINE_OPCODE_HANDLER(CMSG_SET_VEHICLE_REC_ID_ACK,             0x0000, STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                        );
-    DEFINE_OPCODE_HANDLER(CMSG_SET_WATCHED_FACTION,                0x0000, STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleSetWatchedFactionOpcode      );
+    DEFINE_OPCODE_HANDLER(CMSG_SET_WATCHED_FACTION,                0x06C9, STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleSetWatchedFactionOpcode      ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(CMSG_SHOWING_CLOAK,                      0x02F2, STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleShowingCloakOpcode           ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(CMSG_SHOWING_HELM,                       0x126B, STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleShowingHelmOpcode            ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(CMSG_SOCKET_GEMS,                        0x02CB, STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleSocketOpcode                 ); // 5.4.8 18414
@@ -1288,7 +1289,7 @@ void OpcodeTable::InitializeServerTable()
     DEFINE_OPCODE_HANDLER(SMSG_STREAMING_MOVIE,                    0x0000, STATUS_UNHANDLED);
     DEFINE_OPCODE_HANDLER(SMSG_SUMMON_CANCEL,                      0x0000, STATUS_UNHANDLED);
     DEFINE_OPCODE_HANDLER(SMSG_SUMMON_REQUEST,                     0x0000, STATUS_UNHANDLED);
-    DEFINE_OPCODE_HANDLER(SMSG_SUPERCEDED_SPELL,                   0x0000, STATUS_UNHANDLED);
+    DEFINE_OPCODE_HANDLER(SMSG_SUPERCEDED_SPELL,                   0x1943, STATUS_UNHANDLED);
     DEFINE_OPCODE_HANDLER(SMSG_SUPPRESS_NPC_GREETINGS,             0x0000, STATUS_UNHANDLED);
     DEFINE_OPCODE_HANDLER(SMSG_SUSPEND_COMMS,                      0x0000, STATUS_UNHANDLED);
     DEFINE_OPCODE_HANDLER(SMSG_SUSPEND_TOKEN_RESPONSE,             0x0000, STATUS_UNHANDLED);

@@ -1220,13 +1220,20 @@ void WorldSession::HandleSetFactionAtWar(WorldPacket& recvData)
 {
     TC_LOG_DEBUG("network", "WORLD: Received CMSG_SET_FACTION_ATWAR");
 
-    uint32 repListID;
-    uint8  flag;
-
+    uint8 repListID;
     recvData >> repListID;
-    recvData >> flag;
 
-    GetPlayer()->GetReputationMgr().SetAtWar(repListID, flag);
+    GetPlayer()->GetReputationMgr().SetAtWar(repListID, true);
+}
+
+void WorldSession::HandleSetFactionNotAtWar(WorldPacket& recvData)
+{
+    TC_LOG_DEBUG("network", "WORLD: Received CMSG_SET_FACTION_NOT_ATWAR");
+
+    uint8 repListID;
+    recvData >> repListID;
+
+    GetPlayer()->GetReputationMgr().SetAtWar(repListID, false);
 }
 
 //I think this function is never used :/ I dunno, but i guess this opcode not exists
