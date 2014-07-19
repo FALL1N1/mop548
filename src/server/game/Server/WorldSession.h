@@ -1069,9 +1069,9 @@ class WorldSession
         void moveItems(Item* myItems[], Item* hisItems[]);
 
         // character boost
-        void _AddCharBoostItems(std::vector<uint32>& itemsToEquip, std::vector<uint32>& itemsToMail) const;
+        void _AddCharBoostItems(std::map<uint8, uint32>& itemsToEquip, std::vector<uint32>& itemsToMail) const;
         void _HandleBattleCharBoost();
-        void _SendBattleCharBoostItems();
+        void _SendBattleCharBoostResult();
 
         // logging helper
         void LogUnexpectedOpcode(WorldPacket* packet, const char* status, const char *reason);

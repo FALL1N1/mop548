@@ -215,11 +215,13 @@ class Item : public Object
 {
     public:
         static Item* CreateItem(uint32 itemEntry, uint32 count, Player const* player = NULL);
+        static Item* CreateItem(uint32 itemEntry, uint32 count, uint64 playerGuid);
         Item* CloneItem(uint32 count, Player const* player = NULL) const;
 
         Item();
 
         virtual bool Create(uint32 guidlow, uint32 itemid, Player const* owner);
+        virtual bool Create(uint32 guidlow, uint32 itemid, uint64 playerGuid);
 
         ItemTemplate const* GetTemplate() const;
 
@@ -277,6 +279,7 @@ class Item : public Object
         InventoryResult CanBeMergedPartlyWith(ItemTemplate const* proto) const;
 
         uint8 GetSlot() const {return m_slot;}
+        uint8 GetEquipmentSlot() const;
         Bag* GetContainer() { return m_container; }
         uint8 GetBagSlot() const;
         void SetSlot(uint8 slot) { m_slot = slot; }
