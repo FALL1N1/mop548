@@ -848,13 +848,25 @@ void WorldSession::_SendBattleCharBoostResult()
     uint32 lowGuid = GUID_LOPART(guid);
     uint8 charRace = 0;
 
+    uint32 const* languageSpells = NULL;
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_RACE);
     stmt->setUInt32(0, lowGuid);
     if (PreparedQueryResult result = CharacterDatabase.Query(stmt))
     {
         charRace = (*result)[0].GetUInt8();
         if (charRace == RACE_PANDAREN_NEUTRAL)
-            charRace = m_charBoostInfo.allianceFaction ? RACE_PANDAREN_ALLIANCE : RACE_PANDAREN_HORDE;
+        {
+            if (m_charBoostInfo.allianceFaction)
+            {
+                charRace = RACE_PANDAREN_ALLIANCE;
+                languageSpells = pandarenLanguageSpellsAlliance;
+            }
+            else
+            {
+                charRace = RACE_PANDAREN_HORDE;
+                languageSpells = pandarenLanguageSpellsHorde;
+            }
+        }
     }
 
     if (!charRace)
@@ -873,7 +885,7 @@ void WorldSession::_SendBattleCharBoostResult()
     trans->Append(stmt);
 
     std::map<uint8, uint32>::const_iterator itr;
-    std::ostringstream items("");
+    std::ostringstream items;
     for (uint8 i = 0; i < EQUIPMENT_SLOT_END; i++)
     {
         itr = itemsToEquip.find(i);
@@ -904,6 +916,19 @@ void WorldSession::_SendBattleCharBoostResult()
     stmt->setUInt32(2, lowGuid);
     trans->Append(stmt);
 
+    if (languageSpells)
+    {
+        for (uint8 i = 0; i < PANDAREN_FACTION_LANGUAGE_COUNT; i++)
+        {
+            stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_SPELL);
+            stmt->setUInt32(0, lowGuid);
+            stmt->setUInt32(1, languageSpells[i]);
+            stmt->setBool(2, 1);
+            stmt->setBool(3, 0);
+            trans->Append(stmt);
+        }
+    }
+
     CharacterDatabase.CommitTransaction(trans);
 
     WorldPacket data(SMSG_BATTLE_CHAR_BOOST_ITEMS, 8 + 3 + itemsToEquip.size());
@@ -928,6 +953,10 @@ void WorldSession::_SendBattleCharBoostResult()
     data.WriteByteSeq(guid[1]);
     data.WriteByteSeq(guid[3]);
     data.WriteByteSeq(guid[4]);
+
+    /*time_t t = time(NULL);
+    while (t == time(NULL))
+        continue;*/
 
     SendPacket(&data); // must be sent with delay
 }

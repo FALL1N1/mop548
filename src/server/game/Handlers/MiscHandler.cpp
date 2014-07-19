@@ -1519,20 +1519,16 @@ void WorldSession::HandlePandarenFactionChoiceOpcode(WorldPacket& recvData)
     uint32 race;
     recvData >> race;
 
-    uint32 languageSpells[PANDAREN_FACTION_LANGUAGE_COUNT];
+    uint32 const* languageSpells;
     if (race)
     {
         race = RACE_PANDAREN_ALLIANCE;
-        languageSpells[0] = 668;    // Common
-        languageSpells[1] = 143368; // Pandaren, Common.
-        languageSpells[2] = 108130; // Pandaren Alliance
+        languageSpells = pandarenLanguageSpellsAlliance;
     }
     else
     {
         race = RACE_PANDAREN_HORDE;
-        languageSpells[0] = 669;    // Orcish
-        languageSpells[1] = 143369; // Pandaren, Orcish.
-        languageSpells[2] = 108131; // Pandaren Horde
+        languageSpells = pandarenLanguageSpellsHorde;
     }
 
     player->SetRace(race);
