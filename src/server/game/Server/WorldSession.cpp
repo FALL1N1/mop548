@@ -873,29 +873,27 @@ void WorldSession::_SendBattleCharBoostResult()
     trans->Append(stmt);
 
     std::map<uint8, uint32>::const_iterator itr;
-    for (itr = itemsToEquip.begin(); itr != itemsToEquip.end(); itr++)
-    {
-        if (Item* item = Item::CreateItem(itr->second, 1, guid))
-        {
-            item->SaveToDB(trans);
-
-            stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_INVENTORY);
-            stmt->setUInt32(0, lowGuid);
-            stmt->setUInt32(1, 0);
-            stmt->setUInt8(2, itr->first);
-            stmt->setUInt32(3, item->GetGUIDLow());
-            trans->Append(stmt);
-
-            
-        }
-    }
-
     std::ostringstream items("");
     for (uint8 i = 0; i < EQUIPMENT_SLOT_END; i++)
     {
         itr = itemsToEquip.find(i);
         if (itr != itemsToEquip.end())
-            items << (itr->second) << " 0 ";
+        {
+            if (Item* item = Item::CreateItem(itr->second, 1, guid))
+            {
+                item->SaveToDB(trans);
+
+                stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_INVENTORY);
+                stmt->setUInt32(0, lowGuid);
+                stmt->setUInt32(1, 0);
+                stmt->setUInt8(2, itr->first);
+                stmt->setUInt32(3, item->GetGUIDLow());
+                trans->Append(stmt);
+
+                items << (itr->second) << " 0 ";
+            } else
+                items << "0 0 ";
+        }
         else
             items << "0 0 ";
     }
@@ -975,19 +973,19 @@ void WorldSession::SendBattlePayDistributionUpdate(uint64 playerGuid, int8 bonus
     data.WriteBit(guid[2]);
     // if (unkBool)
     // {
-    data.WriteBits(1, 2);
-    data.WriteBits(0, 20);
-    data.WriteBit(1); // bool4
-    // if (bool4)
-    // {
-    data.WriteBits(0, 10);
-    data.WriteBit(0);
-    data.WriteBits(bonusText2.length(), 10);
-    data.WriteBit(0);
-    data.WriteBit(0);
-    data.WriteBits(bonusText.length(), 13);
-    data.WriteBit(0); // bool11
-    // }
+        data.WriteBits(1, 2);
+        data.WriteBits(0, 20);
+        data.WriteBit(1); // bool4
+        // if (bool4)
+        // {
+            data.WriteBits(0, 10);
+            data.WriteBit(0);
+            data.WriteBits(bonusText2.length(), 10);
+            data.WriteBit(0);
+            data.WriteBit(0);
+            data.WriteBits(bonusText.length(), 13);
+            data.WriteBit(0); // bool11
+        // }
     // }
 
     data.WriteBit(guid2[7]);
@@ -1002,15 +1000,15 @@ void WorldSession::SendBattlePayDistributionUpdate(uint64 playerGuid, int8 bonus
 
     // if (unkBool)
     // {
-    data << int32(0);
-    data << int64(0);
-    data.WriteString(bonusText);
-    data.WriteString(bonusText2);
-    // if (bool11)
-    //data << int32(0);
-    data << int64(0);
-    data << int8(bonusId);
-    data << int32(0);
+        data << int32(0);
+        data << int64(0);
+        data.WriteString(bonusText);
+        data.WriteString(bonusText2);
+        // if (bool11)
+            //data << int32(0);
+        data << int64(0);
+        data << int8(bonusId);
+        data << int32(0);
     // }
 
     data << int32(textId);
