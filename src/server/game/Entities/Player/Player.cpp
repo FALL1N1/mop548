@@ -3284,7 +3284,11 @@ void Player::GiveLevel(uint8 level)
     for (std::list<uint32>::const_iterator iter = learnList.begin(); iter != learnList.end(); iter++)
     {
         if (!HasSpell(*iter))
+        {
+            if (*iter == 93322 && !HasSpell(93322))
+                CastSpell(this, 93322, true);
             learnSpell(*iter, true);
+        }
     }
 
     sScriptMgr->OnPlayerLevelChanged(this, oldLevel);

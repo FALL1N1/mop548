@@ -358,7 +358,7 @@ class Spell
         void EffectCreateAreaTrigger(SpellEffIndex effIndex);
         void EffectRemoveTalent(SpellEffIndex effIndex);
         void EffectBattlePetsUnlock(SpellEffIndex effIndex);
-
+        void EffectPetBar(SpellEffIndex effIndex);
         typedef std::set<Aura*> UsedSpellMods;
 
         Spell(Unit* caster, SpellInfo const* info, TriggerCastFlags triggerFlags, uint64 originalCasterGUID = 0, bool skipCheck = false);

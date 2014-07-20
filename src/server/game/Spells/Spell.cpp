@@ -3950,7 +3950,7 @@ void Spell::SendSpellStart()
     bool hasAmmoInventoryType = castFlags & CAST_FLAG_PROJECTILE;
     bool hasAmmoDisplayId = castFlags & CAST_FLAG_PROJECTILE;
     uint8 runeCooldownPassedCount = (castFlags & CAST_FLAG_RUNE_LIST) && m_caster->GetTypeId() == TYPEID_PLAYER ? MAX_RUNES : 0;
-    uint8 predictedPowerCount = castFlags & CAST_FLAG_POWER_LEFT_SELF ? 1 : 0;
+    bool predictedPowerCount = castFlags & CAST_FLAG_POWER_LEFT_SELF ? 1 : 0;
 
     WorldPacket data(SMSG_SPELL_START, 25);
 
@@ -4184,7 +4184,7 @@ void Spell::SendSpellStart()
         data << uint32(0);
     }
 
-    if (predictedPowerCount > 0)
+    if (predictedPowerCount)
     {
         /*for (uint32 i = 0; i < powerUnitPowerCount; ++i)
         {
@@ -4254,10 +4254,11 @@ void Spell::SendSpellGo()
     // not send invisible spell casting
     if (!IsNeedSendToClient())
         return;
-
     //TC_LOG_DEBUG("spells", "Sending SMSG_SPELL_GO id=%u", m_spellInfo->Id);
 
     uint32 castFlags = CAST_FLAG_UNKNOWN_9;
+
+    printf("Sending SMSG_SPELL_GO id=[%u]\tflags=[%u] \n", m_spellInfo->Id, castFlags);
 
     // triggered spells with spell visual != 0
     if ((IsTriggered() && !m_spellInfo->IsAutoRepeatRangedSpell()) || m_triggeredByAuraSpell)
@@ -4307,7 +4308,8 @@ void Spell::SendSpellGo()
     bool hasAmmoDisplayId = castFlags & CAST_FLAG_PROJECTILE;
     bool hasRunesStateBefore = (castFlags & CAST_FLAG_RUNE_LIST) && m_caster->GetTypeId() == TYPEID_PLAYER;
     bool hasRunesStateAfter = (castFlags & CAST_FLAG_RUNE_LIST) && m_caster->GetTypeId() == TYPEID_PLAYER;
-    uint8 predictedPowerCount = castFlags & CAST_FLAG_POWER_LEFT_SELF ? 1 : 0;
+    uint32 ExtraTargetCount = m_caster->m_extraAttacks;
+    bool predictedPowerCount = castFlags & CAST_FLAG_POWER_LEFT_SELF ? 1 : 0;
     uint8 runeCooldownPassedCount = (castFlags & CAST_FLAG_RUNE_LIST) && m_caster->GetTypeId() == TYPEID_PLAYER ? MAX_RUNES : 0;
 
     // This function also fill data for channeled spells:
@@ -4342,7 +4344,7 @@ void Spell::SendSpellGo()
     data.WriteBit(casterGuid[6]);
     data.WriteBit(!hasDestUnkByte);
     data.WriteBit(casterUnitGuid[7]);
-    data.WriteBits(0, 20); // Extra Target Count
+    data.WriteBits(ExtraTargetCount, 20); // Extra Target Count
 
     size_t missTypeCountPos = data.bitwpos();
     data.WriteBits(0, 25); // Miss Type Count
@@ -4352,7 +4354,7 @@ void Spell::SendSpellGo()
 
     data.WriteBit(casterUnitGuid[1]);
     data.WriteBit(casterGuid[0]);
-    data.WriteBits(0, 13); // Unknown bits
+    data.WriteBits(m_spellInfo->AttributesCu, 13); // Unknown bits number 16 when you get petbar .. May be this m_spellInfo->AttributesCu
 
     uint32 missCount = 0;
     for (std::list<TargetInfo>::const_iterator ihit = m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
@@ -4660,7 +4662,7 @@ void Spell::SendSpellGo()
     data.WriteByteSeq(casterGuid[4]);
     data.WriteByteSeq(casterUnitGuid[1]);
 
-    if (predictedPowerCount > 0)
+    if (predictedPowerCount)
     {
         //for (uint32 i = 0; i < powerUnitPowerCount; ++i)
         //{

@@ -59,17 +59,58 @@ void WorldSession::HandleDismissCritter(WorldPacket& recvData)
 
 void WorldSession::HandlePetAction(WorldPacket& recvData)
 {
-    uint64 guid1;
+    ObjectGuid guid1;
     uint32 data;
-    uint64 guid2;
+    ObjectGuid guid2;
     float x, y, z;
-    recvData >> guid1;                                     //pet guid
+    // recvData >> guid1;                                     //pet guid
     recvData >> data;
-    recvData >> guid2;                                     //tag guid
+    // recvData >> guid2;                                     //tag guid
     // Position
     recvData >> x;
     recvData >> y;
     recvData >> z;
+
+    guid2[1] = recvData.ReadBit(); // 25    1               This are test counts to check errors. I will remove them later
+    guid2[0] = recvData.ReadBit(); // 24    0
+    guid2[6] = recvData.ReadBit(); // 30    6
+    guid2[7] = recvData.ReadBit(); // 31    7
+    guid2[5] = recvData.ReadBit(); // 29    5
+    guid1[7] = recvData.ReadBit();          // 23   7
+    guid2[2] = recvData.ReadBit(); // 26    2
+    guid2[3] = recvData.ReadBit(); // 27    3
+    guid1[6] = recvData.ReadBit();          // 22   6
+    guid1[3] = recvData.ReadBit();          // 19   3
+    guid1[0] = recvData.ReadBit();          // 16   0
+    guid1[2] = recvData.ReadBit();          // 18   2
+    guid1[5] = recvData.ReadBit();          // 21   5
+    guid2[4] = recvData.ReadBit(); // 28    4
+    guid1[4] = recvData.ReadBit();          // 20   4
+    guid1[1] = recvData.ReadBit();          // 17   1
+
+
+
+    recvData.ReadByteSeq(guid2[7]);
+    recvData.ReadByteSeq(guid2[6]);
+    recvData.ReadByteSeq(guid2[2]);
+    recvData.ReadByteSeq(guid2[1]);
+    recvData.ReadByteSeq(guid2[5]);
+    recvData.ReadByteSeq(guid2[4]);
+
+    recvData.ReadByteSeq(guid1[5]);
+
+    recvData.ReadByteSeq(guid2[3]);
+
+    recvData.ReadByteSeq(guid1[0]);
+    recvData.ReadByteSeq(guid1[1]);
+    recvData.ReadByteSeq(guid1[7]);
+    recvData.ReadByteSeq(guid1[4]);
+    recvData.ReadByteSeq(guid1[6]);
+    recvData.ReadByteSeq(guid1[2]);
+    recvData.ReadByteSeq(guid1[3]);
+
+    recvData.ReadByteSeq(guid2[0]);
+
 
     uint32 spellid = UNIT_ACTION_BUTTON_ACTION(data);
     uint8 flag = UNIT_ACTION_BUTTON_TYPE(data);             //delete = 0x07 CastSpell = C1
@@ -527,10 +568,38 @@ void WorldSession::HandlePetSetAction(WorldPacket& recvData)
 {
     TC_LOG_INFO("network", "HandlePetSetAction. CMSG_PET_SET_ACTION");
 
-    uint64 petguid;
+    ObjectGuid petguid;
     uint8  count;
 
-    recvData >> petguid;
+    count = (recvData.size() == 24) ? 2 : 1;
+
+    uint32 position[2];
+    uint32 data[2];
+
+    for (uint8 i = 0; i < count; ++i)
+    {
+        recvData >> position[i];
+        recvData >> data[i];
+    }
+    petguid[2] = recvData.ReadBit();
+    petguid[6] = recvData.ReadBit();
+    petguid[0] = recvData.ReadBit();
+    petguid[5] = recvData.ReadBit();
+    petguid[1] = recvData.ReadBit();
+    petguid[3] = recvData.ReadBit();
+    petguid[7] = recvData.ReadBit();
+    petguid[4] = recvData.ReadBit();
+
+    recvData.ReadByteSeq(petguid[1]);
+    recvData.ReadByteSeq(petguid[2]);
+    recvData.ReadByteSeq(petguid[5]);
+    recvData.ReadByteSeq(petguid[7]);
+    recvData.ReadByteSeq(petguid[0]);
+    recvData.ReadByteSeq(petguid[3]);
+    recvData.ReadByteSeq(petguid[6]);
+    recvData.ReadByteSeq(petguid[4]);
+
+    // recvData >> petguid;
 
     Unit* pet = ObjectAccessor::GetUnit(*_player, petguid);
 
@@ -547,16 +616,12 @@ void WorldSession::HandlePetSetAction(WorldPacket& recvData)
         return;
     }
 
-    count = (recvData.size() == 24) ? 2 : 1;
-
-    uint32 position[2];
-    uint32 data[2];
     bool move_command = false;
 
     for (uint8 i = 0; i < count; ++i)
     {
-        recvData >> position[i];
-        recvData >> data[i];
+        // recvData >> position[i];
+        // recvData >> data[i];
 
         uint8 act_state = UNIT_ACTION_BUTTON_TYPE(data[i]);
 
@@ -874,7 +939,6 @@ void WorldSession::HandlePetCastSpellOpcode(WorldPacket& recvPacket)
         delete spell;
     }
 }
-
 void WorldSession::SendPetNameInvalid(uint32 error, const std::string& name, DeclinedName *declinedName)
 {
     WorldPacket data(SMSG_PET_NAME_INVALID, 4 + name.size() + 1 + 1);

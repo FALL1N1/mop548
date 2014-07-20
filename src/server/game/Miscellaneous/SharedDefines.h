@@ -995,7 +995,7 @@ enum SpellEffects
     SPELL_EFFECT_DAMAGE_FROM_MAX_HEALTH_PCT         = 165,
     SPELL_EFFECT_GIVE_CURRENCY                      = 166,
     SPELL_EFFECT_167                                = 167,
-    SPELL_EFFECT_168                                = 168,
+    SPELL_EFFECT_PET_BAR                            = 168, // This is to activate the Pet Control Bar
     SPELL_EFFECT_DESTROY_ITEM                       = 169,
     SPELL_EFFECT_170                                = 170,
     SPELL_EFFECT_171                                = 171, // Summons gamebject
