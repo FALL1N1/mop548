@@ -1308,13 +1308,35 @@ uint32 Player::EnvironmentalDamage(EnviromentalDamage type, uint32 damage)
     damage -= absorb + resist;
 
     DealDamageMods(this, damage, &absorb);
-
+	
+    ObjectGuid Guid = GetGUID();
     WorldPacket data(SMSG_ENVIRONMENTALDAMAGELOG, (21));
-    data << uint64(GetGUID());
-    data << uint8(type != DAMAGE_FALL_TO_VOID ? type : DAMAGE_FALL);
-    data << uint32(damage);
-    data << uint32(absorb);
-    data << uint32(resist);
+
+	data.WriteBit(Guid[5]);//69
+	data.WriteBit(Guid[7]);//71
+	data.WriteBit(Guid[1]);//65
+	data.WriteBit(Guid[4]);//68
+	data.WriteBit(Guid[2]);//66
+	data.WriteBit(Guid[0]);//64
+    data << uint8(0);//48
+	data.WriteBit(Guid[6]);//70
+	data.WriteBit(Guid[3]);//67
+
+	data.FlushBits(); // if uint8 type
+	
+    data << uint32(damage);//uint32 60
+    data.WriteByteSeq(Guid[0]);//64
+    data.WriteByteSeq(Guid[7]);//71
+    data << uint8(type != DAMAGE_FALL_TO_VOID ? type : DAMAGE_FALL);//uint8 52
+    data.WriteByteSeq(Guid[6]);//70
+    data.WriteByteSeq(Guid[3]);//67
+    data.WriteByteSeq(Guid[5]);//69
+    data << uint32(absorb);//uint32 56
+    data.WriteByteSeq(Guid[1]);//65
+    data.WriteByteSeq(Guid[2]);//66
+    data.WriteByteSeq(Guid[4]);//68
+    data << uint32(resist);//uint32 16
+
     SendMessageToSet(&data, true);
 
     uint32 final_damage = DealDamage(this, damage, NULL, SELF_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
@@ -1927,7 +1949,7 @@ void Player::InnEnter(time_t time, uint32 mapid, float x, float y, float z)
     time_inn_enter = time;
 }
 
-bool Player::BuildEnumData(PreparedQueryResult result, ByteBuffer* dataBuffer, ByteBuffer* bitBuffer)
+bool Player::BuildEnumData(PreparedQueryResult result, ByteBuffer* dataBuffer, ByteBuffer* bitBuffer, uint64 boostedCharGuid)
 {
     //             0               1                2                3                 4                  5                       6                        7
     //    "SELECT characters.guid, characters.name, characters.race, characters.class, characters.gender, characters.playerBytes, characters.playerBytes2, characters.level, "
@@ -2011,7 +2033,7 @@ bool Player::BuildEnumData(PreparedQueryResult result, ByteBuffer* dataBuffer, B
     bitBuffer->WriteBit(guildGuid[3]);
     bitBuffer->WriteBit(guid[3]);
     bitBuffer->WriteBit(guid[7]);
-    bitBuffer->WriteBit(0); // Can boost ?
+    bitBuffer->WriteBit(boostedCharGuid == (uint64)guid);
     bitBuffer->WriteBit(atLoginFlags & AT_LOGIN_FIRST);
     bitBuffer->WriteBit(guid[6]);
     bitBuffer->WriteBit(guildGuid[6]);
@@ -3191,22 +3213,23 @@ void Player::GiveLevel(uint8 level)
     sObjectMgr->GetPlayerClassLevelInfo(getClass(), level, basehp, basemana);
 
     // send levelup info to client
-    WorldPacket data(SMSG_LEVELUP_INFO, (4 + 4 + MAX_POWERS_PER_CLASS * 4 + MAX_STATS * 4));
-    
+    WorldPacket data(SMSG_LEVELUP_INFO, ((MAX_POWERS_PER_CLASS * 4) + 4 + 4 + (MAX_STATS * 4) + 4));
+	
     data << uint32(int32(basehp) - int32(GetCreateHealth()));
 
     for (uint8 i = STAT_STRENGTH; i < MAX_STATS; ++i)       // Stats loop (0-4)
         data << uint32(int32(info.stats[i]) - GetCreateStat(Stats(i)));
+	
+    bool talent = false;
 
-    data << uint32(0);
+    data << bool(talent);
     data << uint32(level);
     data << uint32(int32(basemana) - int32(GetCreateMana()));
-
-    data << uint32(0);
-    data << uint32(0);
-    data << uint32(0);
-    data << uint32(0);
-
+    data << uint32(0); //unk
+    data << uint32(0); //unk
+    data << uint32(0); //unk
+    data << uint32(0); //unk
+		
     GetSession()->SendPacket(&data);
 
     SetUInt32Value(PLAYER_FIELD_NEXT_LEVEL_XP, sObjectMgr->GetXPForLevel(level));
@@ -10304,26 +10327,26 @@ uint32 Player::GetXPRestBonus(uint32 xp)
 
 void Player::SetBindPoint(uint64 guid)
 {
-    ObjectGuid Guid = guid;
-    
-    WorldPacket data(SMSG_BINDER_CONFIRM, 7);
-    data.WriteBit(Guid[4]);
-    data.WriteBit(Guid[6]);
-    data.WriteBit(Guid[2]);
-    data.WriteBit(Guid[1]);
-    data.WriteBit(Guid[5]);
-    data.WriteBit(Guid[3]);
-    data.WriteBit(Guid[0]);
-    data.WriteBit(Guid[7]);
+    ObjectGuid ikGuid = guid;
 
-    data.WriteByteSeq(Guid[6]);
-    data.WriteByteSeq(Guid[2]);
-    data.WriteByteSeq(Guid[5]);
-    data.WriteByteSeq(Guid[0]);
-    data.WriteByteSeq(Guid[4]);
-    data.WriteByteSeq(Guid[7]);
-    data.WriteByteSeq(Guid[1]);
-    data.WriteByteSeq(Guid[3]);
+    WorldPacket data(SMSG_BINDER_CONFIRM, 7);
+	data.WriteBit(ikGuid[4]);
+	data.WriteBit(ikGuid[6]);
+	data.WriteBit(ikGuid[2]);
+	data.WriteBit(ikGuid[1]);
+	data.WriteBit(ikGuid[5]);
+	data.WriteBit(ikGuid[3]);
+	data.WriteBit(ikGuid[0]);
+	data.WriteBit(ikGuid[7]);
+	
+	data.WriteByteSeq(ikGuid[6]);
+	data.WriteByteSeq(ikGuid[2]);
+	data.WriteByteSeq(ikGuid[5]);
+	data.WriteByteSeq(ikGuid[0]);
+	data.WriteByteSeq(ikGuid[4]);
+	data.WriteByteSeq(ikGuid[7]);
+	data.WriteByteSeq(ikGuid[1]);
+	data.WriteByteSeq(ikGuid[3]);
 
     GetSession()->SendPacket(&data);
 }

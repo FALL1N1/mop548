@@ -813,6 +813,308 @@ void WorldSession::SendAccountDataTimes(uint32 mask)
     SendPacket(&data);
 }
 
+void WorldSession::_AddCharBoostItems(std::map<uint8, uint32>& itemsToEquip, std::vector<uint32>& itemsToMail) const
+{
+    switch (m_charBoostInfo.specialization)
+    {
+        case CHAR_SPECIALIZATION_MAGE_ARCANE:
+        case CHAR_SPECIALIZATION_MAGE_FIRE:
+        case CHAR_SPECIALIZATION_MAGE_FROST:
+            itemsToEquip.insert(std::make_pair(EQUIPMENT_SLOT_NECK,101068));
+            itemsToEquip.insert(std::make_pair(EQUIPMENT_SLOT_TRINKET2, 101069));
+            itemsToEquip.insert(std::make_pair(EQUIPMENT_SLOT_FINGER1, 101070));
+            itemsToEquip.insert(std::make_pair(EQUIPMENT_SLOT_FINGER2, 101071));
+            itemsToEquip.insert(std::make_pair(EQUIPMENT_SLOT_TRINKET1, 101072));
+            itemsToEquip.insert(std::make_pair(EQUIPMENT_SLOT_FEET, 101073));
+            itemsToEquip.insert(std::make_pair(EQUIPMENT_SLOT_HANDS, 101074));
+            itemsToEquip.insert(std::make_pair(EQUIPMENT_SLOT_HEAD, 101075));
+            itemsToEquip.insert(std::make_pair(EQUIPMENT_SLOT_LEGS, 101076));
+            itemsToEquip.insert(std::make_pair(EQUIPMENT_SLOT_CHEST, 101077));
+            itemsToEquip.insert(std::make_pair(EQUIPMENT_SLOT_SHOULDERS, 101078));
+            itemsToEquip.insert(std::make_pair(EQUIPMENT_SLOT_WAIST, 101079));
+            itemsToEquip.insert(std::make_pair(EQUIPMENT_SLOT_WRISTS, 101080));
+            itemsToMail.push_back(101081);
+            itemsToEquip.insert(std::make_pair(EQUIPMENT_SLOT_BACK, 101082));
+            itemsToEquip.insert(std::make_pair(EQUIPMENT_SLOT_MAINHAND, 101083));
+            break;
+        default:
+            break;
+    }
+}
+
+void WorldSession::_SendBattleCharBoostResult()
+{
+    ObjectGuid guid = m_charBoostInfo.charGuid;
+    uint32 lowGuid = GUID_LOPART(guid);
+    uint8 charRace = 0;
+
+    uint32 const* languageSpells = NULL;
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_RACE);
+    stmt->setUInt32(0, lowGuid);
+    if (PreparedQueryResult result = CharacterDatabase.Query(stmt))
+    {
+        charRace = (*result)[0].GetUInt8();
+        if (charRace == RACE_PANDAREN_NEUTRAL)
+        {
+            if (m_charBoostInfo.allianceFaction)
+            {
+                charRace = RACE_PANDAREN_ALLIANCE;
+                languageSpells = pandarenLanguageSpellsAlliance;
+            }
+            else
+            {
+                charRace = RACE_PANDAREN_HORDE;
+                languageSpells = pandarenLanguageSpellsHorde;
+            }
+        }
+    }
+
+    if (!charRace)
+        return;
+
+    std::vector<uint32> itemsToMail;
+    std::map<uint8, uint32> itemsToEquip;
+    _AddCharBoostItems(itemsToEquip, itemsToMail);
+    
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_INVENTORY_ITEM_GUID_UNTIL_BAG_SLOT);
+    stmt->setUInt32(0, 0);
+    stmt->setUInt8(1, EQUIPMENT_SLOT_END);
+    stmt->setUInt32(2, lowGuid);
+    PreparedQueryResult result = CharacterDatabase.Query(stmt);
+
+    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    uint32 mailId = sObjectMgr->GenerateMailID();
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_MAIL);
+    stmt->setUInt32(0, mailId);
+    stmt->setUInt8(1, MAIL_NORMAL);
+    stmt->setInt8(2, MAIL_STATIONERY_GM);
+    stmt->setUInt16(3, 0);
+    stmt->setUInt32(4, 0);
+    stmt->setUInt32(5, lowGuid);
+    stmt->setString(6, "");
+    stmt->setString(7, "");
+    stmt->setBool(8, result || !itemsToMail.empty());
+    stmt->setUInt64(9, time(NULL) + 90 * DAY);
+    stmt->setUInt64(10, time(NULL)); // send immediatly
+    stmt->setUInt32(11, 0);
+    stmt->setUInt32(12, 0);
+    stmt->setUInt8(13, 0);
+    trans->Append(stmt);
+
+    if (result)
+    {
+        do
+        {
+            uint32 itemGuid = (*result)[0].GetUInt32();
+            stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_MAIL_ITEM);
+            stmt->setUInt32(0, mailId);
+            stmt->setUInt32(1, itemGuid);
+            stmt->setUInt32(2, lowGuid);
+            trans->Append(stmt);
+        } while (result->NextRow());
+    }
+
+    // probably have to be separated mail to not sent many items via 1 mail
+    for (uint8 i = 0; i < itemsToMail.size(); i++)
+    {
+        if (Item* item = Item::CreateItem(itemsToMail[i], 1, guid))
+        {
+            item->SaveToDB(trans);
+            stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_MAIL_ITEM);
+            stmt->setUInt32(0, mailId);
+            stmt->setUInt32(1, item->GetGUIDLow());
+            stmt->setUInt32(2, lowGuid);
+            trans->Append(stmt);
+        }
+    }
+
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_INVENTORY_UNTIL_BAG_SLOT);
+    stmt->setUInt32(0, 0);
+    stmt->setUInt8(1, EQUIPMENT_SLOT_END);
+    stmt->setUInt32(2, lowGuid);
+    trans->Append(stmt);
+
+    std::map<uint8, uint32>::const_iterator itr;
+    std::ostringstream items;
+    for (uint8 i = 0; i < EQUIPMENT_SLOT_END; i++)
+    {
+        itr = itemsToEquip.find(i);
+        if (itr != itemsToEquip.end())
+        {
+            if (Item* item = Item::CreateItem(itr->second, 1, guid))
+            {
+                item->SaveToDB(trans);
+
+                stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_INVENTORY);
+                stmt->setUInt32(0, lowGuid);
+                stmt->setUInt32(1, 0);
+                stmt->setUInt8(2, itr->first);
+                stmt->setUInt32(3, item->GetGUIDLow());
+                trans->Append(stmt);
+
+                items << (itr->second) << " 0 ";
+            } else
+                items << "0 0 ";
+        }
+        else
+            items << "0 0 ";
+    }
+    
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHARACTER_FOR_BOOST);
+    stmt->setUInt8(0, charRace);
+    stmt->setString(1, items.str());
+    stmt->setUInt32(2, lowGuid);
+    trans->Append(stmt);
+
+    if (languageSpells)
+    {
+        for (uint8 i = 0; i < PANDAREN_FACTION_LANGUAGE_COUNT; i++)
+        {
+            stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_SPELL);
+            stmt->setUInt32(0, lowGuid);
+            stmt->setUInt32(1, languageSpells[i]);
+            stmt->setBool(2, 1);
+            stmt->setBool(3, 0);
+            trans->Append(stmt);
+        }
+    }
+
+    CharacterDatabase.CommitTransaction(trans);
+
+    WorldPacket data(SMSG_BATTLE_CHAR_BOOST_ITEMS, 8 + 3 + itemsToEquip.size());
+    data.WriteBit(guid[2]);
+    data.WriteBit(guid[0]);
+    data.WriteBit(guid[7]);
+    data.WriteBit(guid[5]);
+    data.WriteBit(guid[3]);
+    data.WriteBit(guid[4]);
+    data.WriteBit(guid[1]);
+    data.WriteBits(itemsToEquip.size(), 22);
+    data.WriteBit(guid[6]);
+    data.FlushBits();
+
+    data.WriteByteSeq(guid[7]);
+    data.WriteByteSeq(guid[2]);
+    data.WriteByteSeq(guid[6]);
+    data.WriteByteSeq(guid[5]);
+    for (std::map<uint8, uint32>::const_iterator itr = itemsToEquip.begin(); itr != itemsToEquip.end(); itr++)
+        data << (uint32)itr->second;
+    data.WriteByteSeq(guid[0]);
+    data.WriteByteSeq(guid[1]);
+    data.WriteByteSeq(guid[3]);
+    data.WriteByteSeq(guid[4]);
+
+    /*time_t t = time(NULL);
+    while (t == time(NULL))
+        continue;*/
+
+    SendPacket(&data); // must be sent with delay
+}
+
+void WorldSession::_HandleBattleCharBoost()
+{
+    if (!m_charBoostInfo.charGuid)
+        return;
+
+    switch (m_charBoostInfo.action)
+    {
+        case CHARACTER_BOOST_ITEMS:
+            SendBattlePayDistributionUpdate(m_charBoostInfo.charGuid, CHARACTER_BOOST, m_charBoostInfo.action,
+                CHARACTER_BOOST_TEXT_ID, CHARACTER_BOOST_BONUS_TEXT, CHARACTER_BOOST_BONUS_TEXT2);
+            m_charBoostInfo.action = CHARACTER_BOOST_APPLIED;
+            _SendBattleCharBoostResult();
+            break;
+        case CHARACTER_BOOST_APPLIED:
+            SendBattlePayDistributionUpdate(m_charBoostInfo.charGuid, CHARACTER_BOOST, m_charBoostInfo.action,
+                CHARACTER_BOOST_TEXT_ID, CHARACTER_BOOST_BONUS_TEXT, CHARACTER_BOOST_BONUS_TEXT2);
+            m_charBoostInfo = CharacterBoostData();
+            break;
+        default:
+            break;
+    }
+}
+
+void WorldSession::SendBattlePayDistributionUpdate(uint64 playerGuid, int8 bonusId, int32 bonusFlag, int32 textId, std::string const& bonusText, std::string const& bonusText2)
+{
+    ObjectGuid guid = GUID_LOPART(playerGuid);
+    ObjectGuid guid2 = 0;
+
+    WorldPacket data(SMSG_BATTLE_PAY_DISTRIBUTION_UPDATE, 8 + 4 + 8 + bonusText.length() + bonusText2.length() + 8 + 1 + 4 + 4 + 8 + 4 + 4 + 4);
+    data.WriteBit(guid2[5]);
+    data.WriteBit(guid2[0]);
+    data.WriteBit(1); // unkBool
+    data.WriteBit(guid2[1]);
+    data.WriteBit(guid[4]);
+    data.WriteBit(guid[7]);
+    data.WriteBit(guid[0]);
+    data.WriteBit(0);
+    data.WriteBit(guid[1]);
+    data.WriteBit(guid[2]);
+    // if (unkBool)
+    // {
+        data.WriteBits(1, 2);
+        data.WriteBits(0, 20);
+        data.WriteBit(1); // bool4
+        // if (bool4)
+        // {
+            data.WriteBits(0, 10);
+            data.WriteBit(0);
+            data.WriteBits(bonusText2.length(), 10);
+            data.WriteBit(0);
+            data.WriteBit(0);
+            data.WriteBits(bonusText.length(), 13);
+            data.WriteBit(0); // bool11
+        // }
+    // }
+
+    data.WriteBit(guid2[7]);
+    data.WriteBit(guid[6]);
+    data.WriteBit(guid2[2]);
+    data.WriteBit(guid[5]);
+    data.WriteBit(guid2[3]);
+    data.WriteBit(guid2[6]);
+    data.WriteBit(guid[3]);
+    data.WriteBit(guid2[4]);
+    data.FlushBits();
+
+    // if (unkBool)
+    // {
+        data << int32(0);
+        data << int64(0);
+        data.WriteString(bonusText);
+        data.WriteString(bonusText2);
+        // if (bool11)
+            //data << int32(0);
+        data << int64(0);
+        data << int8(bonusId);
+        data << int32(0);
+    // }
+
+    data << int32(textId);
+    data.WriteByteSeq(guid[4]);
+    data << int64(0);
+    data.WriteByteSeq(guid[1]);
+    data.WriteByteSeq(guid[5]);
+    data.WriteByteSeq(guid2[2]);
+    data.WriteByteSeq(guid2[4]);
+    data.WriteByteSeq(guid2[1]);
+    data.WriteByteSeq(guid2[0]);
+    data << int32(0);
+    data.WriteByteSeq(guid2[7]);
+    data.WriteByteSeq(guid[0]);
+    data.WriteByteSeq(guid[7]);
+    data << int32(0);
+    data << int32(bonusFlag);
+    data.WriteByteSeq(guid[6]);
+    data.WriteByteSeq(guid2[5]);
+    data.WriteByteSeq(guid2[6]);
+    data.WriteByteSeq(guid2[3]);
+    data.WriteByteSeq(guid[3]);
+    data.WriteByteSeq(guid[2]);
+
+    SendPacket(&data);
+}
+
 void WorldSession::LoadTutorialsData()
 {
     memset(m_Tutorials, 0, sizeof(uint32) * MAX_ACCOUNT_TUTORIAL_VALUES);

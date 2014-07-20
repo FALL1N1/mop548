@@ -158,6 +158,60 @@ enum TalentTree // talent tabs
     TALENT_TREE_DRUID_RESTORATION    = 748
 };
 
+enum CharSpecialization
+{
+    CHAR_SPECIALIZATION_MAGE_ARCANE            = 62,
+    CHAR_SPECIALIZATION_MAGE_FIRE              = 63,
+    CHAR_SPECIALIZATION_MAGE_FROST             = 64,
+    CHAR_SPECIALIZATION_PALADIN_HOLY           = 65,
+    CHAR_SPECIALIZATION_PALADIN_PROTECTION     = 66,
+    CHAR_SPECIALIZATION_PALADIN_RETRIBUTION    = 70,
+    CHAR_SPECIALIZATION_WARRIOR_ARMS           = 71,
+    CHAR_SPECIALIZATION_WARRIOR_FURY           = 72,
+    CHAR_SPECIALIZATION_WARRIOR_PROTECTION     = 73,
+    CHAR_SPECIALIZATION_DRUID_BALANCE          = 102,
+    CHAR_SPECIALIZATION_DRUID_FERAL_CAT        = 103,
+    CHAR_SPECIALIZATION_DRUID_FERAL_BEAR       = 104,
+    CHAR_SPECIALIZATION_DRUID_RESTORATION      = 105,
+    CHAR_SPECIALIZATION_DEATH_KNIGHT_BLOOD     = 250,
+    CHAR_SPECIALIZATION_DEATH_KNIGHT_FROST     = 251,
+    CHAR_SPECIALIZATION_DEATH_KNIGHT_UNHOLY    = 252,
+    CHAR_SPECIALIZATION_HUNTER_BEAST_MASTERY   = 253,
+    CHAR_SPECIALIZATION_HUNTER_MARKSMANSHIP    = 254,
+    CHAR_SPECIALIZATION_HUNTER_SURVIVAL        = 255,
+    CHAR_SPECIALIZATION_PRIEST_DISCIPLINE      = 256,
+    CHAR_SPECIALIZATION_PRIEST_HOLY            = 257,
+    CHAR_SPECIALIZATION_PRIEST_SHADOW          = 258,
+    CHAR_SPECIALIZATION_ROGUE_ASSASSINATION    = 259,
+    CHAR_SPECIALIZATION_ROGUE_COMBAT           = 260,
+    CHAR_SPECIALIZATION_ROGUE_SUBTLETY         = 261,
+    CHAR_SPECIALIZATION_SHAMAN_ELEMENTAL       = 262,
+    CHAR_SPECIALIZATION_SHAMAN_ENHANCEMENT     = 263,
+    CHAR_SPECIALIZATION_SHAMAN_RESTORATION     = 264,
+    CHAR_SPECIALIZATION_WARLOCK_AFFLICTION     = 265,
+    CHAR_SPECIALIZATION_WARLOCK_DEMONOLOGY     = 266,
+    CHAR_SPECIALIZATION_WARLOCK_DESTRUCTION    = 267,
+    CHAR_SPECIALIZATION_MONK_BREWMASTER        = 268,
+    CHAR_SPECIALIZATION_MONK_BATTLEDANCER      = 269,
+    CHAR_SPECIALIZATION_MONK_MISTWEAVER        = 270
+};
+
+uint32 const pandarenLanguageSpellsAlliance[] =
+{
+    668,    // Common
+    143368, // Pandaren, Common
+    108130  // Pandaren Alliance
+};
+
+uint32 const pandarenLanguageSpellsHorde[] =
+{
+    669,    // Orcish
+    143369, // Pandaren, Orcish.
+    108131  // Pandaren Horde
+};
+
+#define PANDAREN_FACTION_LANGUAGE_COUNT 3
+
 // Spell modifier (used for modify other spells)
 struct SpellModifier
 {
@@ -1286,7 +1340,7 @@ class Player : public Unit, public GridObject<Player>
 
         void Update(uint32 time);
 
-        static bool BuildEnumData(PreparedQueryResult result, ByteBuffer* dataBuffer, ByteBuffer* bitBuffer);
+        static bool BuildEnumData(PreparedQueryResult result, ByteBuffer* dataBuffer, ByteBuffer* bitBuffer, uint64 boostedCharGuid = 0);
 
         void SetInWater(bool apply);
 

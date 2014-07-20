@@ -620,9 +620,8 @@ void WorldSession::HandleLogoutCancelOpcode(WorldPacket& /*recvData*/)
     TC_LOG_DEBUG("network", "WORLD: Sent SMSG_LOGOUT_CANCEL_ACK Message");
 }
 
-void WorldSession::HandleTogglePvP(WorldPacket& recvData)
+void WorldSession::HandleSetPvP(WorldPacket& recvData)
 {
-    // this opcode can be used in two ways: Either set explicit new status or toggle old status
     if (recvData.size() == 1)
     {
         bool newPvPStatus;
@@ -630,11 +629,11 @@ void WorldSession::HandleTogglePvP(WorldPacket& recvData)
         GetPlayer()->ApplyModFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_IN_PVP, newPvPStatus);
         GetPlayer()->ApplyModFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_PVP_TIMER, !newPvPStatus);
     }
-    else
-    {
-        GetPlayer()->ToggleFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_IN_PVP);
-        GetPlayer()->ToggleFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_PVP_TIMER);
-    }
+}
+void WorldSession::HandleTogglePvP(WorldPacket& recvData)
+{
+    GetPlayer()->ToggleFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_IN_PVP);
+    GetPlayer()->ToggleFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_PVP_TIMER);
 
     if (GetPlayer()->HasFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_IN_PVP))
     {
@@ -919,10 +918,26 @@ void WorldSession::HandleBugOpcode(WorldPacket& recvData)
 void WorldSession::HandleReclaimCorpseOpcode(WorldPacket& recvData)
 {
     TC_LOG_DEBUG("network", "WORLD: Received CMSG_RECLAIM_CORPSE");
-
-    //uint64 guid;
-    //recvData >> guid;
-    recvData.rfinish();
+	
+    ObjectGuid guid;
+	
+    guid[1] = recvData.ReadBit();
+    guid[5] = recvData.ReadBit();
+    guid[7] = recvData.ReadBit();
+    guid[2] = recvData.ReadBit();
+    guid[6] = recvData.ReadBit();
+    guid[3] = recvData.ReadBit();
+    guid[0] = recvData.ReadBit();
+    guid[4] = recvData.ReadBit();
+		
+    recvData.ReadByteSeq(guid[2]);
+    recvData.ReadByteSeq(guid[5]);
+    recvData.ReadByteSeq(guid[4]);
+    recvData.ReadByteSeq(guid[6]);
+    recvData.ReadByteSeq(guid[1]);
+    recvData.ReadByteSeq(guid[0]);
+    recvData.ReadByteSeq(guid[7]);
+    recvData.ReadByteSeq(guid[3]);
 
     if (GetPlayer()->IsAlive())
         return;
@@ -1410,8 +1425,82 @@ void WorldSession::HandlePlayedTime(WorldPacket& recvData)
 
     WorldPacket data(SMSG_PLAYED_TIME, 4 + 4 + 1);
     data << uint32(_player->GetTotalPlayedTime());
-    data << uint32(_player->GetLevelPlayedTime());    
+    data << uint32(_player->GetLevelPlayedTime());
     data << uint8(unk1);                                    // 0 - will not show in chat frame
+    SendPacket(&data);
+}
+
+void WorldSession::HandleBattleCharBoost(WorldPacket& recvData)
+{
+    ObjectGuid playerGuid, guid;
+    uint32 charInfo = 0;
+    bool hasCharInfo = false;
+
+    recvData.read_skip<uint32>();
+    guid[1] = recvData.ReadBit();
+    playerGuid[0] = recvData.ReadBit();
+    guid[5] = recvData.ReadBit();
+    guid[4] = recvData.ReadBit();
+    playerGuid[3] = recvData.ReadBit();
+    guid[6] = recvData.ReadBit();
+    guid[0] = recvData.ReadBit();
+    playerGuid[5] = recvData.ReadBit();
+    guid[3] = recvData.ReadBit();
+    guid[7] = recvData.ReadBit();
+    playerGuid[1] = recvData.ReadBit();
+    guid[2] = recvData.ReadBit();
+    playerGuid[2] = recvData.ReadBit();
+    hasCharInfo = !recvData.ReadBit();
+    playerGuid[7] = recvData.ReadBit();
+    playerGuid[4] = recvData.ReadBit();
+    playerGuid[6] = recvData.ReadBit();
+
+    recvData.ReadByteSeq(playerGuid[2]);
+    recvData.ReadByteSeq(guid[0]);
+    recvData.ReadByteSeq(playerGuid[0]);
+    recvData.ReadByteSeq(playerGuid[7]);
+    recvData.ReadByteSeq(guid[7]);
+    recvData.ReadByteSeq(playerGuid[3]);
+    recvData.ReadByteSeq(guid[6]);
+    recvData.ReadByteSeq(guid[4]);
+    recvData.ReadByteSeq(guid[5]);
+    recvData.ReadByteSeq(playerGuid[1]);
+    recvData.ReadByteSeq(playerGuid[6]);
+    recvData.ReadByteSeq(playerGuid[4]);
+    recvData.ReadByteSeq(guid[1]);
+    recvData.ReadByteSeq(guid[2]);
+    recvData.ReadByteSeq(guid[3]);
+    recvData.ReadByteSeq(playerGuid[5]);
+
+    if (hasCharInfo)
+        recvData >> charInfo;
+
+    SendBattlePayDistributionUpdate(playerGuid, CHARACTER_BOOST, CHARACTER_BOOST_CHOOSED, CHARACTER_BOOST_TEXT_ID,
+        CHARACTER_BOOST_BONUS_TEXT, CHARACTER_BOOST_BONUS_TEXT2);
+
+    m_charBoostInfo.charGuid = playerGuid;
+    m_charBoostInfo.action = CHARACTER_BOOST_ITEMS;
+    m_charBoostInfo.specialization = charInfo & CHARACTER_BOOST_SPEC_MASK;
+    m_charBoostInfo.allianceFaction = charInfo & CHARACTER_BOOST_FACTION_ALLIANCE;
+
+    WorldPacket data(SMSG_BATTLE_CHAR_BOOST, 8);
+    data.WriteBit(playerGuid[6]);
+    data.WriteBit(playerGuid[2]);
+    data.WriteBit(playerGuid[5]);
+    data.WriteBit(playerGuid[4]);
+    data.WriteBit(playerGuid[7]);
+    data.WriteBit(playerGuid[0]);
+    data.WriteBit(playerGuid[3]);
+    data.WriteBit(playerGuid[1]);
+    data.WriteByteSeq(playerGuid[4]);
+    data.WriteByteSeq(playerGuid[1]);
+    data.WriteByteSeq(playerGuid[6]);
+    data.WriteByteSeq(playerGuid[0]);
+    data.WriteByteSeq(playerGuid[7]);
+    data.WriteByteSeq(playerGuid[5]);
+    data.WriteByteSeq(playerGuid[2]);
+    data.WriteByteSeq(playerGuid[3]);
+    
     SendPacket(&data);
 }
 
@@ -1430,20 +1519,16 @@ void WorldSession::HandlePandarenFactionChoiceOpcode(WorldPacket& recvData)
     uint32 race;
     recvData >> race;
 
-    uint32 languageSpells[PANDAREN_FACTION_LANGUAGE_COUNT];
+    uint32 const* languageSpells;
     if (race)
     {
         race = RACE_PANDAREN_ALLIANCE;
-        languageSpells[0] = 668;    // Common
-        languageSpells[1] = 143368; // Pandaren, Common.
-        languageSpells[2] = 108130; // Pandaren Alliance
+        languageSpells = pandarenLanguageSpellsAlliance;
     }
     else
     {
         race = RACE_PANDAREN_HORDE;
-        languageSpells[0] = 669;    // Orcish
-        languageSpells[1] = 143369; // Pandaren, Orcish.
-        languageSpells[2] = 108131; // Pandaren Horde
+        languageSpells = pandarenLanguageSpellsHorde;
     }
 
     player->SetRace(race);
@@ -1468,6 +1553,7 @@ void WorldSession::HandlePandarenFactionChoiceOpcode(WorldPacket& recvData)
 void WorldSession::HandleInspectOpcode(WorldPacket& recvData)
 {
     ObjectGuid guid;
+
     guid[0] = recvData.ReadBit();
     guid[3] = recvData.ReadBit();
     guid[7] = recvData.ReadBit();

@@ -97,6 +97,16 @@ struct AccountData
     std::string Data;
 };
 
+struct CharacterBoostData
+{
+    CharacterBoostData() : charGuid(0), action(0), specialization(0), allianceFaction(false) { }
+
+    uint64 charGuid;
+    uint32 action;
+    uint32 specialization;
+    bool allianceFaction;
+};
+
 enum PartyOperation
 {
     PARTY_OP_INVITE = 0,
@@ -407,13 +417,17 @@ class WorldSession
         void HandleRandomizeCharNameOpcode(WorldPacket& recvData);
         void HandleReorderCharacters(WorldPacket& recvData);
         void HandleOpeningCinematic(WorldPacket& recvData);
-
+        
         // played time
         void HandlePlayedTime(WorldPacket& recvPacket);
 
         // Pandaren Faction Choice
         void HandlePandarenFactionChoiceOpcode(WorldPacket& recvPacket);
 
+        // Battle Net
+        void SendBattlePayDistributionUpdate(uint64 playerGuid, int8 bonusId, int32 bonusFlag, int32 textId, std::string const& bonusText, std::string const& bonusText2);
+        void HandleBattleCharBoost(WorldPacket& recvPacket);
+        
         // new
         void HandleMoveUnRootAck(WorldPacket& recvPacket);
         void HandleMoveRootAck(WorldPacket& recvPacket);
@@ -473,6 +487,7 @@ class WorldSession
         void HandleGMResponseResolve(WorldPacket& recvPacket);
 
         void HandleTogglePvP(WorldPacket& recvPacket);
+        void HandleSetPvP(WorldPacket& recvPacket);
 
         void HandleZoneUpdateOpcode(WorldPacket& recvPacket);
         void HandleSetSelectionOpcode(WorldPacket& recvPacket);
@@ -491,6 +506,7 @@ class WorldSession
         void HandleAreaTriggerOpcode(WorldPacket& recvPacket);
 
         void HandleSetFactionAtWar(WorldPacket& recvData);
+        void HandleSetFactionNotAtWar(WorldPacket& recvData);
         void HandleSetFactionCheat(WorldPacket& recvData);
         void HandleSetWatchedFactionOpcode(WorldPacket& recvData);
         void HandleSetFactionInactiveOpcode(WorldPacket& recvData);
@@ -576,6 +592,7 @@ class WorldSession
         void HandleGuildLeaveOpcode(WorldPacket& recvPacket);
         void HandleGuildDisbandOpcode(WorldPacket& recvPacket);
         void HandleGuildSetGuildMaster(WorldPacket& recvPacket);
+        void HandleGuildReplaceGuildMaster(WorldPacket& recvPacket);
         void HandleGuildMOTDOpcode(WorldPacket& recvPacket);
         void HandleGuildNewsUpdateStickyOpcode(WorldPacket& recvPacket);
         void HandleGuildSetNoteOpcode(WorldPacket& recvPacket);
@@ -949,6 +966,14 @@ class WorldSession
         void HandleReforgeItemOpcode(WorldPacket& recvData);
         void SendReforgeResult(bool success);
 
+		// BlackMarket
+		void HandleBlackMarketHelloOpcode(WorldPacket& recvData);
+		void SendBlackMarketHello(uint64 guid);
+		void HandleBlackMarketRequestItemOpcode(WorldPacket& recvData);
+		void SendBlackMarketRequestItemsResult();
+		void HandleBlackMarketBidOpcode(WorldPacket& recvData);
+		void SendBlackMarketBidResult();
+
         // Miscellaneous
         void HandleSpellClick(WorldPacket& recvData);
         void HandleMirrorImageDataRequest(WorldPacket& recvData);
@@ -1044,6 +1069,11 @@ class WorldSession
         // private trade methods
         void moveItems(Item* myItems[], Item* hisItems[]);
 
+        // character boost
+        void _AddCharBoostItems(std::map<uint8, uint32>& itemsToEquip, std::vector<uint32>& itemsToMail) const;
+        void _HandleBattleCharBoost();
+        void _SendBattleCharBoostResult();
+
         // logging helper
         void LogUnexpectedOpcode(WorldPacket* packet, const char* status, const char *reason);
         void LogUnprocessedTail(WorldPacket* packet);
@@ -1066,6 +1096,7 @@ class WorldSession
         AccountTypes _security;
         uint32 _accountId;
         uint8 m_expansion;
+        CharacterBoostData m_charBoostInfo;
 
         typedef std::list<AddonInfo> AddonsList;
 

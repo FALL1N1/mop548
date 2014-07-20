@@ -792,9 +792,10 @@ bool Guild::Member::LoadFromDB(Field* fields)
     m_publicNote  = fields[3].GetString();
     m_officerNote = fields[4].GetString();
 
-    for (uint8 i = 0; i <= GUILD_BANK_MAX_TABS; ++i)
+    for (uint8 i = 0; i < GUILD_BANK_MAX_TABS; ++i)
         m_bankWithdraw[i] = fields[5 + i].GetUInt32();
 
+    m_bankWithdrawMoney = fields[13].GetUInt64();
     SetStats(fields[14].GetString(),
              fields[15].GetUInt8(),                         // characters.level
              fields[16].GetUInt8(),                         // characters.class
@@ -847,16 +848,24 @@ bool Guild::Member::CheckStats() const
     return true;
 }
 
-// Decreases amount of money/slots left for today.
-// If (tabId == GUILD_BANK_MAX_TABS) decrease money amount.
-// Otherwise decrease remaining items amount for specified tab.
-void Guild::Member::UpdateBankWithdrawValue(SQLTransaction& trans, uint8 tabId, uint32 amount)
+void Guild::Member::UpdateBankWithdrawMoney(SQLTransaction& trans, uint64 amount)
 {
-    m_bankWithdraw[tabId] += amount;
+    m_bankWithdrawMoney += amount;
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_GUILD_MEMBER_WITHDRAW_MONEY);
+    stmt->setUInt32(0, GUID_LOPART(m_guid));
+    stmt->setUInt64(1, m_bankWithdrawMoney);
+    CharacterDatabase.ExecuteOrAppend(trans, stmt);
+}
+
+// Decreases amount of money/slots left for today.
+// Decrease remaining items amount for specified tab.
+void Guild::Member::UpdateBankWithdrawValue(SQLTransaction& trans, uint8 tabId)
+{
+    m_bankWithdraw[tabId]++;
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_GUILD_MEMBER_WITHDRAW);
     stmt->setUInt32(0, GUID_LOPART(m_guid));
-    for (uint8 i = 0; i <= GUILD_BANK_MAX_TABS;)
+    for (uint8 i = 0; i < GUILD_BANK_MAX_TABS;)
     {
         uint32 withdraw = m_bankWithdraw[i++];
         stmt->setUInt32(i, withdraw);
@@ -867,9 +876,10 @@ void Guild::Member::UpdateBankWithdrawValue(SQLTransaction& trans, uint8 tabId, 
 
 void Guild::Member::ResetValues(bool weekly /* = false*/)
 {
-    for (uint8 tabId = 0; tabId <= GUILD_BANK_MAX_TABS; ++tabId)
+    for (uint8 tabId = 0; tabId < GUILD_BANK_MAX_TABS; ++tabId)
         m_bankWithdraw[tabId] = 0;
 
+    m_bankWithdrawMoney = 0;
     if (weekly)
     {
         m_weekActivity = 0;
@@ -878,15 +888,22 @@ void Guild::Member::ResetValues(bool weekly /* = false*/)
 }
 
 // Get amount of money/slots left for today.
-// If (tabId == GUILD_BANK_MAX_TABS) return money amount.
-// Otherwise return remaining items amount for specified tab.
+// Return remaining items amount for specified tab.
 int32 Guild::Member::GetBankWithdrawValue(uint8 tabId) const
 {
     // Guild master has unlimited amount.
     if (IsRank(GR_GUILDMASTER))
-        return tabId == GUILD_BANK_MAX_TABS ? GUILD_WITHDRAW_MONEY_UNLIMITED : GUILD_WITHDRAW_SLOT_UNLIMITED;
+        return GUILD_WITHDRAW_SLOT_UNLIMITED;
 
     return m_bankWithdraw[tabId];
+}
+
+int64 Guild::Member::GetBankWithdrawMoney() const
+{
+    if (IsRank(GR_GUILDMASTER))
+        return GUILD_WITHDRAW_MONEY_UNLIMITED;
+
+    return m_bankWithdrawMoney;
 }
 
 // EmblemInfo
@@ -1757,6 +1774,57 @@ void Guild::HandleSetEmblem(WorldSession* session, const EmblemInfo& emblemInfo)
     }
 }
 
+void Guild::_SendSetNewGuildMaster(Member const* guildMaster, Member const* newGuildMaster, bool replace) const
+{
+    ObjectGuid gumGuid = guildMaster->GetGUID();
+    ObjectGuid newGumGuid = newGuildMaster->GetGUID();
+
+    WorldPacket data(SMSG_GUILD_SET_GUILD_MASTER, guildMaster->GetName().size() + newGuildMaster->GetName().size() + 2 * 8);
+    data.WriteBit(newGumGuid[4]);
+    data.WriteBit(newGumGuid[2]);
+    data.WriteBit(newGumGuid[7]);
+    data.WriteBit(gumGuid[4]);
+    data.WriteBits(guildMaster->GetName().size(), 6);
+    data.WriteBit(gumGuid[0]);
+    data.WriteBit(newGumGuid[6]);
+    data.WriteBit(newGumGuid[3]);
+    data.WriteBit(replace);
+    data.WriteBit(newGumGuid[1]);
+    data.WriteBit(newGumGuid[0]);
+    data.WriteBit(gumGuid[1]);
+    data.WriteBit(gumGuid[7]);
+    data.WriteBit(gumGuid[3]);
+    data.WriteBit(gumGuid[6]);
+    data.WriteBit(gumGuid[2]);
+    data.WriteBits(newGuildMaster->GetName().size(), 6);
+    data.WriteBit(gumGuid[5]);
+    data.WriteBit(newGumGuid[5]);
+    data.FlushBits();
+
+    data.WriteByteSeq(newGumGuid[5]);
+    data.WriteByteSeq(newGumGuid[6]);
+    data.WriteString(guildMaster->GetName());
+    data.WriteString(newGuildMaster->GetName());
+    data.WriteByteSeq(newGumGuid[3]);
+    data.WriteByteSeq(newGumGuid[4]);
+    data << (int32)realmID;
+    data.WriteByteSeq(gumGuid[6]);
+    data.WriteByteSeq(newGumGuid[0]);
+    data.WriteByteSeq(gumGuid[5]);
+    data.WriteByteSeq(newGumGuid[2]);
+    data.WriteByteSeq(newGumGuid[7]);
+    data.WriteByteSeq(gumGuid[7]);
+    data.WriteByteSeq(gumGuid[4]);
+    data << (int32)realmID;
+    data.WriteByteSeq(newGumGuid[1]);
+    data.WriteByteSeq(gumGuid[2]);
+    data.WriteByteSeq(gumGuid[1]);
+    data.WriteByteSeq(gumGuid[3]);
+    data.WriteByteSeq(gumGuid[0]);
+    
+    BroadcastPacket(&data);
+}
+
 void Guild::HandleSetNewGuildMaster(WorldSession* session, std::string const& name)
 {
     Player* player = session->GetPlayer();
@@ -1770,8 +1838,35 @@ void Guild::HandleSetNewGuildMaster(WorldSession* session, std::string const& na
         if (Member* newGuildMaster = GetMember(name))
         {
             _SetLeaderGUID(newGuildMaster);
-            oldGuildMaster->ChangeRank(GR_INITIATE);
-            _BroadcastEvent(GE_LEADER_CHANGED, 0, player->GetName().c_str(), name.c_str());
+            oldGuildMaster->ChangeRank(_GetLowestRankId());
+            _SendSetNewGuildMaster(oldGuildMaster, newGuildMaster, false);
+        }
+    }
+}
+
+void Guild::HandleReplaceGuildMaster(WorldSession* session)
+{
+    Player* player = session->GetPlayer();
+
+    if (Member* newGuildMaster = GetMember(player->GetGUID()))
+    {
+        if (newGuildMaster->GetRankId() > GR_MEMBER) // 3 ranks down from gum is the requirements
+        {
+            SendCommandResult(session, GUILD_COMMAND_CHANGE_LEADER, ERR_GUILD_PERMISSIONS);
+            return;
+        }
+
+        if (Member* oldGuildMaster = GetMember(m_leaderGuid))
+        {
+            if (oldGuildMaster->GetLogoutTime() > uint64(time(NULL) - (DAY * 90)))
+            {
+                SendCommandResult(session, GUILD_COMMAND_CHANGE_LEADER, ERR_GUILD_PERMISSIONS);
+                return;
+            }
+
+            _SetLeaderGUID(newGuildMaster);
+            oldGuildMaster->ChangeRank(_GetLowestRankId());
+            _SendSetNewGuildMaster(oldGuildMaster, newGuildMaster, true);
         }
     }
 }
@@ -1885,7 +1980,9 @@ void Guild::HandleBuyBankTab(WorldSession* session, uint8 tabId)
     }
 
     _CreateNewBankTab();
-    _BroadcastEvent(GE_BANK_TAB_PURCHASED, 0);
+    WorldPacket data(SMSG_GUILD_BANK_BUY_TAB, 0);
+    BroadcastPacket(&data);
+
     SendPermissions(session); /// Hack to force client to update permissions
 }
 
@@ -2310,6 +2407,13 @@ void Guild::HandleSwitchRank(uint8 rankId, bool up)
     }
 }
 
+void Guild::_SendGuildMoney() const
+{
+    WorldPacket data(SMSG_GUILD_BANK_MONEY, 8);
+    data << m_bankMoney;
+    BroadcastPacket(&data);
+}
+
 void Guild::HandleMemberDepositMoney(WorldSession* session, uint64 amount, bool cashFlow /*=false*/)
 {
     Player* player = session->GetPlayer();
@@ -2328,8 +2432,7 @@ void Guild::HandleMemberDepositMoney(WorldSession* session, uint64 amount, bool 
     _LogBankEvent(trans, cashFlow ? GUILD_BANK_LOG_CASH_FLOW_DEPOSIT : GUILD_BANK_LOG_DEPOSIT_MONEY, uint8(0), player->GetGUIDLow(), amount);
     CharacterDatabase.CommitTransaction(trans);
 
-    std::string aux = ByteArrayToHexStr(reinterpret_cast<uint8*>(&amount), 8, true);
-    _BroadcastEvent(GE_BANK_MONEY_CHANGED, 0, aux.c_str());
+    _SendGuildMoney();
 
     if (player->GetSession()->HasPermission(rbac::RBAC_PERM_LOG_GM_TRADE))
     {
@@ -2370,7 +2473,7 @@ bool Guild::HandleMemberWithdrawMoney(WorldSession* session, uint64 amount, bool
     }
 
     // Update remaining money amount
-    member->UpdateBankWithdrawValue(trans, GUILD_BANK_MAX_TABS, amount);
+    member->UpdateBankWithdrawMoney(trans, amount);
     // Remove money from bank
     _ModifyBankMoney(trans, amount, false);
 
@@ -2378,8 +2481,7 @@ bool Guild::HandleMemberWithdrawMoney(WorldSession* session, uint64 amount, bool
     _LogBankEvent(trans, repair ? GUILD_BANK_LOG_REPAIR_MONEY : GUILD_BANK_LOG_WITHDRAW_MONEY, uint8(0), player->GetGUIDLow(), amount);
     CharacterDatabase.CommitTransaction(trans);
 
-    std::string aux = ByteArrayToHexStr(reinterpret_cast<uint8*>(&amount), 8, true);
-    _BroadcastEvent(GE_BANK_MONEY_CHANGED, 0, aux.c_str());
+    _SendGuildMoney();
     return true;
 }
 
@@ -2596,16 +2698,18 @@ void Guild::SendPermissions(WorldSession* session) const
     uint8 rankId = member->GetRankId();
 
     WorldPacket data(SMSG_GUILD_PERMISSIONS_QUERY_RESULTS, 4 * 15 + 1);
-    data << uint32(_GetMemberRemainingMoney(member));
+    data << uint32(rankId);
+    data << uint32(_GetRankBankMoneyPerDay(rankId));
     data << uint32(_GetPurchasedTabsSize());
     data << uint32(_GetRankRights(rankId));
-    data << uint32(rankId);
-    data.WriteBits(GUILD_BANK_MAX_TABS, 23);
+    
+    data.WriteBits(GUILD_BANK_MAX_TABS, 21);
+    data.FlushBits();
 
     for (uint8 tabId = 0; tabId < GUILD_BANK_MAX_TABS; ++tabId)
     {
-        data << uint32(_GetRankBankTabRights(rankId, tabId));
         data << uint32(_GetMemberRemainingSlots(member, tabId));
+        data << uint32(_GetRankBankTabRights(rankId, tabId));
     }
 
     session->SendPacket(&data);
@@ -2618,7 +2722,7 @@ void Guild::SendMoneyInfo(WorldSession* session) const
     if (!member)
         return;
 
-    int32 amount = _GetMemberRemainingMoney(member);
+    int64 amount = _GetMemberRemainingMoney(member);
     WorldPacket data(SMSG_GUILD_BANK_MONEY_WITHDRAWN, 8);
     data << int64(amount);
     session->SendPacket(&data);
@@ -3477,6 +3581,9 @@ inline uint32 Guild::_GetRankRights(uint8 rankId) const
 
 inline int32 Guild::_GetRankBankMoneyPerDay(uint8 rankId) const
 {
+    if (rankId == GR_GUILDMASTER)
+        return GUILD_WITHDRAW_MONEY_UNLIMITED;
+
     if (const RankInfo* rankInfo = GetRankInfo(rankId))
         return rankInfo->GetBankMoneyPerDay();
     return 0;
@@ -3514,7 +3621,7 @@ inline int32 Guild::_GetMemberRemainingSlots(Member const* member, uint8 tabId) 
     return 0;
 }
 
-inline int32 Guild::_GetMemberRemainingMoney(Member const* member) const
+inline int64 Guild::_GetMemberRemainingMoney(Member const* member) const
 {
     if (member)
     {
@@ -3524,7 +3631,7 @@ inline int32 Guild::_GetMemberRemainingMoney(Member const* member) const
 
         if ((_GetRankRights(rankId) & (GR_RIGHT_WITHDRAW_REPAIR | GR_RIGHT_WITHDRAW_GOLD)) != 0)
         {
-            int32 remaining = _GetRankBankMoneyPerDay(rankId) - member->GetBankWithdrawValue(GUILD_BANK_MAX_TABS);
+            int64 remaining = int64(_GetRankBankMoneyPerDay(rankId) * GOLD) - member->GetBankWithdrawMoney();
             if (remaining > 0)
                 return remaining;
         }
@@ -3539,7 +3646,7 @@ inline void Guild::_UpdateMemberWithdrawSlots(SQLTransaction& trans, uint64 guid
         uint8 rankId = member->GetRankId();
         if (rankId != GR_GUILDMASTER
             && member->GetBankWithdrawValue(tabId) < _GetRankBankTabSlotsPerDay(rankId, tabId))
-            member->UpdateBankWithdrawValue(trans, tabId, 1);
+            member->UpdateBankWithdrawValue(trans, tabId);
     }
 }
 
@@ -3743,53 +3850,51 @@ void Guild::_SendBankContentUpdate(uint8 tabId, SlotIds slots) const
     {
         ByteBuffer tabData;
         WorldPacket data(SMSG_GUILD_BANK_LIST, 1200);
+        data << uint32(tabId);
+        data << uint64(m_bankMoney);
+        size_t rempos = data.wpos();
+        data << uint32(0);                                      // Item withdraw amount, will be filled later
         data.WriteBit(0);
-        data.WriteBits(slots.size(), 20);                                           // Item count
-        data.WriteBits(0, 22);                                                      // Tab count
+        data.WriteBits(0, 21);                                  // Tab count
+        data.WriteBits(slots.size(), 18);                       // Item count
 
         for (SlotIds::const_iterator itr = slots.begin(); itr != slots.end(); ++itr)
         {
             data.WriteBit(0);
 
             Item const* tabItem = tab->GetItem(*itr);
-            uint32 enchantCount = 0;
+            uint32 enchants = 0;
+            tabData << uint32(0);
+            tabData << uint32(tabItem ? tabItem->GetItemSuffixFactor() : 0);        // SuffixFactor
+
             if (tabItem)
             {
-                for (uint32 enchSlot = 0; enchSlot < MAX_ENCHANTMENT_SLOT; ++enchSlot)
+                for (uint32 ench = 0; ench < MAX_ENCHANTMENT_SLOT; ++ench)
                 {
-                    if (uint32 enchantId = tabItem->GetEnchantmentId(EnchantmentSlot(enchSlot)))
+                    if (uint32 enchantId = tabItem->GetEnchantmentId(EnchantmentSlot(ench)))
                     {
+                        tabData << uint32(ench);
                         tabData << uint32(enchantId);
-                        tabData << uint32(enchSlot);
-                        ++enchantCount;
+                        ++enchants;
                     }
                 }
             }
 
-            data.WriteBits(enchantCount, 23);                                       // enchantment count
-
-            tabData << uint32(0);
-            tabData << uint32(0);
-            tabData << uint32(0);
-            tabData << uint32(tabItem ? tabItem->GetCount() : 0);                   // ITEM_FIELD_STACK_COUNT
-            tabData << uint32(*itr);
-            tabData << uint32(0);
+            data.WriteBits(enchants, 21);
+            tabData << uint32(tabItem ? tabItem->GetEnchantmentId(EnchantmentSlot(0)) : 0);
+            tabData << uint32(0);                                                   // some weird string length
             tabData << uint32(tabItem ? tabItem->GetEntry() : 0);
-            tabData << uint32(tabItem ? tabItem->GetItemRandomPropertyId() : 0);
             tabData << uint32(tabItem ? abs(tabItem->GetSpellCharges()) : 0);       // Spell charges
-            tabData << uint32(tabItem ? tabItem->GetItemSuffixFactor() : 0);        // SuffixFactor
+            tabData << uint32(tabItem ? tabItem->GetCount() : 0);                   // ITEM_FIELD_STACK_COUNT
+            tabData << uint32(*itr);                                                // Slot ID
+            tabData << uint32(tabItem ? tabItem->GetItemRandomPropertyId() : 0);
+            tabData << uint32(0);
         }
 
         data.FlushBits();
 
-        data << uint64(m_bankMoney);
         if (!tabData.empty())
             data.append(tabData);
-
-        data << uint32(tabId);
-
-        size_t rempos = data.wpos();
-        data << uint32(0);                                      // Item withdraw amount, will be filled later
 
         for (Members::const_iterator itr = m_members.begin(); itr != m_members.end(); ++itr)
             if (_MemberHasTabRights(itr->second->GetGUID(), tabId, GUILD_BANK_RIGHT_VIEW_TAB))
@@ -3833,9 +3938,13 @@ void Guild::SendBankList(WorldSession* session, uint8 tabId, bool withContent, b
     if (!member) // Shouldn't happen, just in case
         return;
 
+    ByteBuffer contentData;
     ByteBuffer tabData;
     WorldPacket data(SMSG_GUILD_BANK_LIST, 500);
-    data.WriteBit(0);
+    data << uint32(tabId);
+    data << uint64(m_bankMoney);
+    data << uint32(_GetMemberRemainingSlots(member, tabId));
+    data.WriteBit(0); // unk bit
     uint32 itemCount = 0;
     if (withContent && _MemberHasTabRights(session->GetPlayer()->GetGUID(), tabId, GUILD_BANK_RIGHT_VIEW_TAB))
         if (BankTab const* tab = GetBankTab(tabId))
@@ -3843,8 +3952,23 @@ void Guild::SendBankList(WorldSession* session, uint8 tabId, bool withContent, b
                 if (tab->GetItem(slotId))
                     ++itemCount;
 
-    data.WriteBits(itemCount, 20);
-    data.WriteBits(withTabInfo ? _GetPurchasedTabsSize() : 0, 22);
+    data.WriteBits(withTabInfo ? _GetPurchasedTabsSize() : 0, 21);
+    data.WriteBits(itemCount, 18);
+    
+    if (withTabInfo)
+    {
+        for (uint8 i = 0; i < _GetPurchasedTabsSize(); ++i)
+        {
+            data.WriteBits(m_bankTabs[i]->GetIcon().length() / 2, 8);
+            data.WriteBit(m_bankTabs[i]->GetIcon().length() % 2);
+            data.WriteBits(m_bankTabs[i]->GetName().length(), 7);
+
+            tabData << uint32(i); // Bank Tab
+            tabData.WriteString(m_bankTabs[i]->GetIcon());
+            tabData.WriteString(m_bankTabs[i]->GetName());
+        }
+    }
+
     if (withContent && _MemberHasTabRights(session->GetPlayer()->GetGUID(), tabId, GUILD_BANK_RIGHT_VIEW_TAB))
     {
         if (BankTab const* tab = GetBankTab(tabId))
@@ -3856,60 +3980,40 @@ void Guild::SendBankList(WorldSession* session, uint8 tabId, bool withContent, b
                     data.WriteBit(0);
 
                     uint32 enchants = 0;
+                    contentData << uint32(0);
+                    contentData << uint32(tabItem->GetItemSuffixFactor());      // SuffixFactor
+
                     for (uint32 ench = 0; ench < MAX_ENCHANTMENT_SLOT; ++ench)
                     {
                         if (uint32 enchantId = tabItem->GetEnchantmentId(EnchantmentSlot(ench)))
                         {
-                            tabData << uint32(enchantId);
-                            tabData << uint32(ench);
+                            contentData << uint32(ench);
+                            contentData << uint32(enchantId);
                             ++enchants;
                         }
                     }
 
-                    data.WriteBits(enchants, 23);
-
-                    tabData << uint32(0);
-                    tabData << uint32(0);
-                    tabData << uint32(0);
-                    tabData << uint32(tabItem->GetCount());                 // ITEM_FIELD_STACK_COUNT
-                    tabData << uint32(slotId);
-                    tabData << uint32(0);
-                    tabData << uint32(tabItem->GetEntry());
-                    tabData << uint32(tabItem->GetItemRandomPropertyId());
-                    tabData << uint32(abs(tabItem->GetSpellCharges()));     // Spell charges
-                    tabData << uint32(tabItem->GetItemSuffixFactor());      // SuffixFactor
+                    data.WriteBits(enchants, 21);
+                    contentData << uint32(tabItem->GetEnchantmentId(EnchantmentSlot(0)));
+                    contentData << uint32(0);                                   // some weird string length
+                    contentData << uint32(tabItem->GetEntry());
+                    contentData << uint32(abs(tabItem->GetSpellCharges()));     // Spell charges
+                    contentData << uint32(tabItem->GetCount());                 // ITEM_FIELD_STACK_COUNT
+                    contentData << uint32(slotId);
+                    contentData << uint32(tabItem->GetItemRandomPropertyId());
+                    contentData << uint32(0);
                 }
             }
         }
     }
 
-    if (withTabInfo)
-    {
-        for (uint8 i = 0; i < _GetPurchasedTabsSize(); ++i)
-        {
-            data.WriteBits(m_bankTabs[i]->GetIcon().length(), 9);
-            data.WriteBits(m_bankTabs[i]->GetName().length(), 7);
-        }
-    }
-
     data.FlushBits();
 
-    if (withTabInfo)
-    {
-        for (uint8 i = 0; i < _GetPurchasedTabsSize(); ++i)
-        {
-            data.WriteString(m_bankTabs[i]->GetIcon());
-            data << uint32(i);
-            data.WriteString(m_bankTabs[i]->GetName());
-        }
-    }
+    if (!contentData.empty())
+        data.append(contentData);
 
-    data << uint64(m_bankMoney);
     if (!tabData.empty())
         data.append(tabData);
-
-    data << uint32(tabId);
-    data << uint32(_GetMemberRemainingSlots(member, tabId));
 
     session->SendPacket(&data);
 
