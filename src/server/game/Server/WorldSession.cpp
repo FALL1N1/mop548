@@ -876,7 +876,57 @@ void WorldSession::_SendBattleCharBoostResult()
     std::map<uint8, uint32> itemsToEquip;
     _AddCharBoostItems(itemsToEquip, itemsToMail);
     
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_INVENTORY_ITEM_GUID_UNTIL_BAG_SLOT);
+    stmt->setUInt32(0, 0);
+    stmt->setUInt8(1, EQUIPMENT_SLOT_END);
+    stmt->setUInt32(2, lowGuid);
+    PreparedQueryResult result = CharacterDatabase.Query(stmt);
+
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    uint32 mailId = sObjectMgr->GenerateMailID();
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_MAIL);
+    stmt->setUInt32(0, mailId);
+    stmt->setUInt8(1, MAIL_NORMAL);
+    stmt->setInt8(2, MAIL_STATIONERY_GM);
+    stmt->setUInt16(3, 0);
+    stmt->setUInt32(4, 0);
+    stmt->setUInt32(5, lowGuid);
+    stmt->setString(6, "");
+    stmt->setString(7, "");
+    stmt->setBool(8, result || !itemsToMail.empty());
+    stmt->setUInt64(9, time(NULL) + 90 * DAY);
+    stmt->setUInt64(10, time(NULL)); // send immediatly
+    stmt->setUInt32(11, 0);
+    stmt->setUInt32(12, 0);
+    stmt->setUInt8(13, 0);
+    trans->Append(stmt);
+
+    if (result)
+    {
+        do
+        {
+            uint32 itemGuid = (*result)[0].GetUInt32();
+            stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_MAIL_ITEM);
+            stmt->setUInt32(0, mailId);
+            stmt->setUInt32(1, itemGuid);
+            stmt->setUInt32(2, lowGuid);
+            trans->Append(stmt);
+        } while (result->NextRow());
+    }
+
+    // probably have to be separated mail to not sent many items via 1 mail
+    for (uint8 i = 0; i < itemsToMail.size(); i++)
+    {
+        if (Item* item = Item::CreateItem(itemsToMail[i], 1, guid))
+        {
+            item->SaveToDB(trans);
+            stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_MAIL_ITEM);
+            stmt->setUInt32(0, mailId);
+            stmt->setUInt32(1, item->GetGUIDLow());
+            stmt->setUInt32(2, lowGuid);
+            trans->Append(stmt);
+        }
+    }
 
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_INVENTORY_UNTIL_BAG_SLOT);
     stmt->setUInt32(0, 0);
