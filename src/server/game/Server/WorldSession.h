@@ -36,6 +36,7 @@
 #include "Object.h"
 
 class Creature;
+class CharacterBooster;
 class GameObject;
 class InstanceSave;
 class Item;
@@ -95,16 +96,6 @@ struct AccountData
 
     time_t Time;
     std::string Data;
-};
-
-struct CharacterBoostData
-{
-    CharacterBoostData() : charGuid(0), action(0), specialization(0), allianceFaction(false) { }
-
-    uint64 charGuid;
-    uint32 action;
-    uint32 specialization;
-    bool allianceFaction;
 };
 
 enum PartyOperation
@@ -1069,11 +1060,6 @@ class WorldSession
         // private trade methods
         void moveItems(Item* myItems[], Item* hisItems[]);
 
-        // character boost
-        void _AddCharBoostItems(std::map<uint8, uint32>& itemsToEquip, std::vector<uint32>& itemsToMail) const;
-        void _HandleBattleCharBoost();
-        void _SendBattleCharBoostResult();
-
         // logging helper
         void LogUnexpectedOpcode(WorldPacket* packet, const char* status, const char *reason);
         void LogUnprocessedTail(WorldPacket* packet);
@@ -1096,7 +1082,7 @@ class WorldSession
         AccountTypes _security;
         uint32 _accountId;
         uint8 m_expansion;
-        CharacterBoostData m_charBoostInfo;
+        CharacterBooster* m_charBooster;
 
         typedef std::list<AddonInfo> AddonsList;
 

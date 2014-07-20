@@ -55,6 +55,7 @@
 #include "AccountMgr.h"
 #include "Spell.h"
 #include "BattlegroundMgr.h"
+#include "BattleShop.h"
 #include "Battlefield.h"
 #include "BattlefieldMgr.h"
 #include "DB2Stores.h"
@@ -1478,10 +1479,7 @@ void WorldSession::HandleBattleCharBoost(WorldPacket& recvData)
     SendBattlePayDistributionUpdate(playerGuid, CHARACTER_BOOST, CHARACTER_BOOST_CHOOSED, CHARACTER_BOOST_TEXT_ID,
         CHARACTER_BOOST_BONUS_TEXT, CHARACTER_BOOST_BONUS_TEXT2);
 
-    m_charBoostInfo.charGuid = playerGuid;
-    m_charBoostInfo.action = CHARACTER_BOOST_ITEMS;
-    m_charBoostInfo.specialization = charInfo & CHARACTER_BOOST_SPEC_MASK;
-    m_charBoostInfo.allianceFaction = charInfo & CHARACTER_BOOST_FACTION_ALLIANCE;
+    m_charBooster->SetBoostedCharInfo(playerGuid, CHARACTER_BOOST_ITEMS, (charInfo & CHARACTER_BOOST_SPEC_MASK), (charInfo & CHARACTER_BOOST_FACTION_ALLIANCE));
 
     WorldPacket data(SMSG_BATTLE_CHAR_BOOST, 8);
     data.WriteBit(playerGuid[6]);
