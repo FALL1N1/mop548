@@ -18,6 +18,126 @@
  */
 
 #pragma once
+#include "Player.h"
+
+typedef std::map<uint8, uint32> SlotEquipmentMap;
+
+SlotEquipmentMap const mageEquipment = 
+{
+    { EQUIPMENT_SLOT_NECK, 101068 },
+    { EQUIPMENT_SLOT_TRINKET2, 101069 },
+    { EQUIPMENT_SLOT_FINGER1, 101070 },
+    { EQUIPMENT_SLOT_FINGER2, 101071 },
+    { EQUIPMENT_SLOT_TRINKET1, 101072 },
+    { EQUIPMENT_SLOT_FEET, 101073 },
+    { EQUIPMENT_SLOT_HANDS, 101074 },
+    { EQUIPMENT_SLOT_HEAD, 101075 },
+    { EQUIPMENT_SLOT_LEGS, 101076 },
+    { EQUIPMENT_SLOT_CHEST, 101077 },
+    { EQUIPMENT_SLOT_SHOULDERS, 101078 },
+    { EQUIPMENT_SLOT_WAIST, 101079 },
+    { EQUIPMENT_SLOT_WRISTS, 101080 },
+    { EQUIPMENT_SLOT_BACK, 101082 },
+    { EQUIPMENT_SLOT_MAINHAND, 101083 }
+};
+
+SlotEquipmentMap const hunterEquipment =
+{
+    { EQUIPMENT_SLOT_HEAD, 101061 },
+    { EQUIPMENT_SLOT_NECK, 101053 },
+    { EQUIPMENT_SLOT_SHOULDERS, 101063 },
+    { EQUIPMENT_SLOT_BACK, 101052 },
+    { EQUIPMENT_SLOT_CHEST, 101058 },
+    { EQUIPMENT_SLOT_WRISTS, 101064 },
+    { EQUIPMENT_SLOT_HANDS, 101060 },
+    { EQUIPMENT_SLOT_WAIST, 101065 },
+    { EQUIPMENT_SLOT_LEGS, 101062 },
+    { EQUIPMENT_SLOT_FEET, 101059 },
+    { EQUIPMENT_SLOT_FINGER1, 101055 },
+    { EQUIPMENT_SLOT_FINGER2, 101056 },
+    { EQUIPMENT_SLOT_TRINKET1, 101054 },
+    { EQUIPMENT_SLOT_TRINKET2, 101057 },
+    { EQUIPMENT_SLOT_MAINHAND, 101066 }
+};
+
+SlotEquipmentMap const rogueEquipmentAssassionation =
+{
+    { EQUIPMENT_SLOT_HEAD, 101207 },
+    { EQUIPMENT_SLOT_NECK, 101199},
+    { EQUIPMENT_SLOT_SHOULDERS, 101209 },
+    { EQUIPMENT_SLOT_BACK, 101198 },
+    { EQUIPMENT_SLOT_CHEST, 101204 },
+    { EQUIPMENT_SLOT_WRISTS, 101211 },
+    { EQUIPMENT_SLOT_HANDS, 101206 },
+    { EQUIPMENT_SLOT_WAIST, 101210 },
+    { EQUIPMENT_SLOT_LEGS, 101208 },
+    { EQUIPMENT_SLOT_FEET, 101205 },
+    { EQUIPMENT_SLOT_FINGER1, 101201 },
+    { EQUIPMENT_SLOT_FINGER2, 101202 },
+    { EQUIPMENT_SLOT_TRINKET1, 101200 },
+    { EQUIPMENT_SLOT_TRINKET2, 101203 },
+    { EQUIPMENT_SLOT_MAINHAND, 101214 },
+    { EQUIPMENT_SLOT_OFFHAND, 101214 }
+};
+
+SlotEquipmentMap const rogueEquipmentCombat =
+{
+    { EQUIPMENT_SLOT_HEAD, 101207 },
+    { EQUIPMENT_SLOT_NECK, 101199 },
+    { EQUIPMENT_SLOT_SHOULDERS, 101209 },
+    { EQUIPMENT_SLOT_BACK, 101198 },
+    { EQUIPMENT_SLOT_CHEST, 101204 },
+    { EQUIPMENT_SLOT_WRISTS, 101211 },
+    { EQUIPMENT_SLOT_HANDS, 101206 },
+    { EQUIPMENT_SLOT_WAIST, 101210 },
+    { EQUIPMENT_SLOT_LEGS, 101208 },
+    { EQUIPMENT_SLOT_FEET, 101205 },
+    { EQUIPMENT_SLOT_FINGER1, 101201 },
+    { EQUIPMENT_SLOT_FINGER2, 101202 },
+    { EQUIPMENT_SLOT_TRINKET1, 101200 },
+    { EQUIPMENT_SLOT_TRINKET2, 101203 },
+    { EQUIPMENT_SLOT_MAINHAND, 101213 },
+    { EQUIPMENT_SLOT_OFFHAND, 101213 }
+};
+
+SlotEquipmentMap const rogueEquipmentSubtlety =
+{
+    { EQUIPMENT_SLOT_HEAD, 101207 },
+    { EQUIPMENT_SLOT_NECK, 101199 },
+    { EQUIPMENT_SLOT_SHOULDERS, 101209 },
+    { EQUIPMENT_SLOT_BACK, 101198 },
+    { EQUIPMENT_SLOT_CHEST, 101204 },
+    { EQUIPMENT_SLOT_WRISTS, 101211 },
+    { EQUIPMENT_SLOT_HANDS, 101206 },
+    { EQUIPMENT_SLOT_WAIST, 101210 },
+    { EQUIPMENT_SLOT_LEGS, 101208 },
+    { EQUIPMENT_SLOT_FEET, 101205 },
+    { EQUIPMENT_SLOT_FINGER1, 101201 },
+    { EQUIPMENT_SLOT_FINGER2, 101202 },
+    { EQUIPMENT_SLOT_TRINKET1, 101200 },
+    { EQUIPMENT_SLOT_TRINKET2, 101203 },
+    { EQUIPMENT_SLOT_MAINHAND, 101212 },
+    { EQUIPMENT_SLOT_OFFHAND, 101212 }
+};
+
+SlotEquipmentMap const warlockEquipment =
+{
+    { EQUIPMENT_SLOT_HEAD, 101269 },
+    { EQUIPMENT_SLOT_NECK, 101262 },
+    { EQUIPMENT_SLOT_SHOULDERS, 101272 },
+    { EQUIPMENT_SLOT_BACK, 101276 },
+    { EQUIPMENT_SLOT_CHEST, 101271 },
+    { EQUIPMENT_SLOT_WRISTS, 101274 },
+    { EQUIPMENT_SLOT_HANDS, 101268 },
+    { EQUIPMENT_SLOT_WAIST, 101273 },
+    { EQUIPMENT_SLOT_LEGS, 101270 },
+    { EQUIPMENT_SLOT_FEET, 101267 },
+    { EQUIPMENT_SLOT_FINGER1, 101264 },
+    { EQUIPMENT_SLOT_FINGER2, 101265 },
+    { EQUIPMENT_SLOT_TRINKET1, 101266 },
+    { EQUIPMENT_SLOT_TRINKET2, 101263 },
+    { EQUIPMENT_SLOT_MAINHAND, 101277 }
+};
 
 enum CharSpecialization
 {
@@ -84,10 +204,10 @@ class CharacterBooster
 
     private:
         void _HandleCharacterBoost();
-        void _AddCharBoostItems(std::map<uint8, uint32>& itemsToEquip, std::vector<uint32>& itemsToMail) const;
-        void _SendCharBoostPacket(std::map<uint8, uint32>& items);
+        SlotEquipmentMap const* _GetCharBoostItems(std::vector<uint32>& itemsToMail) const;
+        void _SendCharBoostPacket(SlotEquipmentMap const* items);
         void _MailEquipedItems(SQLTransaction& trans) const;
-        void _SendMail(SQLTransaction& trans, std::vector<uint32>& items) const;
+        void _SendMail(SQLTransaction& trans, std::vector<uint32> const& items) const;
         uint32 _PrepareMail(SQLTransaction& trans, std::string const& subject, std::string const& body) const;
 
         CharacterBoostData m_charBoostInfo;

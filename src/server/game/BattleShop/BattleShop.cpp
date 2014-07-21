@@ -18,44 +18,43 @@
  */
 
 #include "BattleShop.h"
-#include "Player.h"
 #include "WorldSession.h"
 
 CharacterBooster::CharacterBooster(WorldSession* session) : m_session(session), m_timer(0), m_boosting(false), m_sendPacket(false) { }
 
-void CharacterBooster::_AddCharBoostItems(std::map<uint8, uint32>& itemsToEquip, std::vector<uint32>& itemsToMail) const
+SlotEquipmentMap const* CharacterBooster::_GetCharBoostItems(std::vector<uint32>& itemsToMail) const
 {
     switch (m_charBoostInfo.specialization)
     {
         case CHAR_SPECIALIZATION_MAGE_ARCANE:
         case CHAR_SPECIALIZATION_MAGE_FIRE:
         case CHAR_SPECIALIZATION_MAGE_FROST:
-            itemsToEquip.insert(std::make_pair(EQUIPMENT_SLOT_NECK, 101068));
-            itemsToEquip.insert(std::make_pair(EQUIPMENT_SLOT_TRINKET2, 101069));
-            itemsToEquip.insert(std::make_pair(EQUIPMENT_SLOT_FINGER1, 101070));
-            itemsToEquip.insert(std::make_pair(EQUIPMENT_SLOT_FINGER2, 101071));
-            itemsToEquip.insert(std::make_pair(EQUIPMENT_SLOT_TRINKET1, 101072));
-            itemsToEquip.insert(std::make_pair(EQUIPMENT_SLOT_FEET, 101073));
-            itemsToEquip.insert(std::make_pair(EQUIPMENT_SLOT_HANDS, 101074));
-            itemsToEquip.insert(std::make_pair(EQUIPMENT_SLOT_HEAD, 101075));
-            itemsToEquip.insert(std::make_pair(EQUIPMENT_SLOT_LEGS, 101076));
-            itemsToEquip.insert(std::make_pair(EQUIPMENT_SLOT_CHEST, 101077));
-            itemsToEquip.insert(std::make_pair(EQUIPMENT_SLOT_SHOULDERS, 101078));
-            itemsToEquip.insert(std::make_pair(EQUIPMENT_SLOT_WAIST, 101079));
-            itemsToEquip.insert(std::make_pair(EQUIPMENT_SLOT_WRISTS, 101080));
             itemsToMail.push_back(101081);
-            itemsToEquip.insert(std::make_pair(EQUIPMENT_SLOT_BACK, 101082));
-            itemsToEquip.insert(std::make_pair(EQUIPMENT_SLOT_MAINHAND, 101083));
-            break;
+            return &mageEquipment;
+        case CHAR_SPECIALIZATION_HUNTER_BEAST_MASTERY:
+        case CHAR_SPECIALIZATION_HUNTER_MARKSMANSHIP:
+        case CHAR_SPECIALIZATION_HUNTER_SURVIVAL:
+            return &hunterEquipment;
+        case CHAR_SPECIALIZATION_ROGUE_ASSASSINATION:
+            return &rogueEquipmentAssassionation;
+        case CHAR_SPECIALIZATION_ROGUE_COMBAT:
+            return &rogueEquipmentCombat;
+        case CHAR_SPECIALIZATION_ROGUE_SUBTLETY:
+            return &rogueEquipmentCombat;
+        case CHAR_SPECIALIZATION_WARLOCK_AFFLICTION:
+        case CHAR_SPECIALIZATION_WARLOCK_DEMONOLOGY:
+        case CHAR_SPECIALIZATION_WARLOCK_DESTRUCTION:
+            itemsToMail.push_back(101275);
+            return &warlockEquipment;
         default:
-            break;
+            return NULL;
     }
 }
 
-void CharacterBooster::_SendCharBoostPacket(std::map<uint8, uint32>& items)
+void CharacterBooster::_SendCharBoostPacket(SlotEquipmentMap const* items)
 {
     ObjectGuid guid = m_charBoostInfo.charGuid;
-    WorldPacket data(SMSG_BATTLE_CHAR_BOOST_ITEMS, 8 + 3 + items.size());
+    WorldPacket data(SMSG_BATTLE_CHAR_BOOST_ITEMS, 8 + 3 + items->size());
     data.WriteBit(guid[2]);
     data.WriteBit(guid[0]);
     data.WriteBit(guid[7]);
@@ -63,7 +62,7 @@ void CharacterBooster::_SendCharBoostPacket(std::map<uint8, uint32>& items)
     data.WriteBit(guid[3]);
     data.WriteBit(guid[4]);
     data.WriteBit(guid[1]);
-    data.WriteBits(items.size(), 22);
+    data.WriteBits(items->size(), 22);
     data.WriteBit(guid[6]);
     data.FlushBits();
 
@@ -71,7 +70,7 @@ void CharacterBooster::_SendCharBoostPacket(std::map<uint8, uint32>& items)
     data.WriteByteSeq(guid[2]);
     data.WriteByteSeq(guid[6]);
     data.WriteByteSeq(guid[5]);
-    for (std::map<uint8, uint32>::const_iterator itr = items.begin(); itr != items.end(); itr++)
+    for (std::map<uint8, uint32>::const_iterator itr = items->begin(); itr != items->end(); itr++)
         data << (uint32)itr->second;
     data.WriteByteSeq(guid[0]);
     data.WriteByteSeq(guid[1]);
@@ -104,7 +103,7 @@ uint32 CharacterBooster::_PrepareMail(SQLTransaction& trans, std::string const& 
     return mailId;
 }
 
-void CharacterBooster::_SendMail(SQLTransaction& trans, std::vector<uint32>& items) const
+void CharacterBooster::_SendMail(SQLTransaction& trans, std::vector<uint32> const& items) const
 {
     if (items.empty())
         return;
@@ -187,8 +186,9 @@ void CharacterBooster::_HandleCharacterBoost()
         return;
 
     std::vector<uint32> itemsToMail;
-    std::map<uint8, uint32> itemsToEquip;
-    _AddCharBoostItems(itemsToEquip, itemsToMail);
+    SlotEquipmentMap const* itemsToEquip = _GetCharBoostItems(itemsToMail);
+    if (!itemsToEquip)
+        return;
 
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
     _MailEquipedItems(trans);
@@ -198,8 +198,8 @@ void CharacterBooster::_HandleCharacterBoost()
     std::ostringstream items;
     for (uint8 i = 0; i < EQUIPMENT_SLOT_END; i++)
     {
-        itr = itemsToEquip.find(i);
-        if (itr != itemsToEquip.end())
+        itr = itemsToEquip->find(i);
+        if (itr != itemsToEquip->end())
         {
             if (Item* item = Item::CreateItem(itr->second, 1, m_charBoostInfo.charGuid))
             {
