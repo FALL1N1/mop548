@@ -57,7 +57,7 @@ SlotEquipmentMap const hunterEquipment =
     { EQUIPMENT_SLOT_FINGER2, 101056 },
     { EQUIPMENT_SLOT_TRINKET1, 101054 },
     { EQUIPMENT_SLOT_TRINKET2, 101057 },
-    { EQUIPMENT_SLOT_MAINHAND, 101066 }
+    { EQUIPMENT_SLOT_RANGED, 101066 }
 };
 
 SlotEquipmentMap const rogueEquipmentAssassionation =
