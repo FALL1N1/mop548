@@ -4258,8 +4258,6 @@ void Spell::SendSpellGo()
 
     uint32 castFlags = CAST_FLAG_UNKNOWN_9;
 
-    printf("Sending SMSG_SPELL_GO id=[%u]\tflags=[%u] \n", m_spellInfo->Id, castFlags);
-
     // triggered spells with spell visual != 0
     if ((IsTriggered() && !m_spellInfo->IsAutoRepeatRangedSpell()) || m_triggeredByAuraSpell)
         castFlags |= CAST_FLAG_PENDING;
