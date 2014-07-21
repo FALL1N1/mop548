@@ -57,6 +57,9 @@ enum CharSpecialization
     CHAR_SPECIALIZATION_MONK_MISTWEAVER         = 270
 };
 
+#define CHARRACTER_BOOST_EQUIPED_ITEMS_MAIL_BODY "We've supplied you with a whole new set of high-level gear, but attached you'll find all the old items and equipment you once carried.\n\n - The WoW Dev Team"
+#define CHARRACTER_BOOST_EQUIPED_ITEMS_MAIL_SUBJECT "Character Boost"
+
 struct CharacterBoostData
 {
     CharacterBoostData() : charGuid(0), lowGuid(0), action(0), specialization(0), allianceFaction(false) { }
@@ -83,6 +86,9 @@ class CharacterBooster
         void _HandleCharacterBoost();
         void _AddCharBoostItems(std::map<uint8, uint32>& itemsToEquip, std::vector<uint32>& itemsToMail) const;
         void _SendCharBoostPacket(std::map<uint8, uint32>& items);
+        void _MailEquipedItems(SQLTransaction& trans) const;
+        void _SendMail(SQLTransaction& trans, std::vector<uint32>& items) const;
+        uint32 _PrepareMail(SQLTransaction& trans, std::string const& subject, std::string const& body) const;
 
         CharacterBoostData m_charBoostInfo;
         WorldSession* m_session;
