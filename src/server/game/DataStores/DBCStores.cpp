@@ -238,7 +238,7 @@ SpecializationSpellsMap sSpecializationSpellsMap;
 SpecializationOverrideSpellsMap sSpecializationOverrideSpellMap;
 
 // store absolute bit position for first rank for talent inspect
-static uint32 sSpecializationClassStore[MAX_CLASSES][4];
+static uint32 sSpecializationClassStore[MAX_CLASSES][MAX_SPECIALIZATIONS];
 
 DBCStorage <TaxiNodesEntry> sTaxiNodesStore(TaxiNodesEntryfmt);
 TaxiMask sTaxiNodesMask;
@@ -727,6 +727,8 @@ void LoadDBCStores(const std::string& dataPath)
 
     // prepare fast data access to bit pos of talent ranks for use at inspecting
     {
+        // initialize because all classes but druid have only 3 specs
+        memset(sSpecializationClassStore, 0, MAX_SPECIALIZATIONS * sizeof(uint32));
         // now have all max ranks (and then bit amount used for store talent ranks in inspect)
         for (uint32 j = 0; j < sChrSpecializationStore.GetNumRows(); j++)
         {
@@ -1178,6 +1180,15 @@ std::list<uint32> GetSpellsForLevels(uint32 classId, uint32 raceMask, uint32 spe
         }
     }
     return spellList;
+}
+
+std::vector<uint32> const* GetSpecializationSpells(uint32 specializationId)
+{
+    SpecializationSpellsMap::const_iterator specIter = sSpecializationSpellsMap.find(specializationId);
+    if (specIter != sSpecializationSpellsMap.end())
+        return &specIter->second;
+
+    return NULL;
 }
 
 MapDifficulty const* GetMapDifficultyData(uint32 mapId, Difficulty difficulty)

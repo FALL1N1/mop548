@@ -24,7 +24,7 @@ CharacterBooster::CharacterBooster(WorldSession* session) : m_session(session), 
 
 SlotEquipmentMap const* CharacterBooster::_GetCharBoostItems(std::vector<uint32>& itemsToMail) const
 {
-    for (uint8 i = 0; i < 4; i++)
+    for (uint8 i = 0; i < BOSSTED_BAG_COUNT; i++)
         itemsToMail.push_back(EMBERSILK_BAG_ID);
 
     switch (m_charBoostInfo.specialization)
@@ -171,7 +171,7 @@ void CharacterBooster::_MailEquipedItems(SQLTransaction& trans) const
     trans->Append(stmt);
 }
 
-std::string CharacterBooster::_SetSpecialization(SQLTransaction& trans) const
+std::string CharacterBooster::_SetSpecialization(SQLTransaction& trans, uint8 const& classId) const
 {
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_TALENT);
     stmt->setUInt32(0, m_charBoostInfo.lowGuid);
@@ -179,12 +179,28 @@ std::string CharacterBooster::_SetSpecialization(SQLTransaction& trans) const
     {
         do
         {
-            uint32 spellId = (*result)[0].GetUInt32();
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_SPELL_BY_SPELL);
-            stmt->setUInt32(0, spellId);
+            stmt->setUInt32(0, (*result)[0].GetUInt32());
             stmt->setUInt32(1, m_charBoostInfo.lowGuid);
             trans->Append(stmt);
         } while (result->NextRow());
+    }
+
+    if (uint32 const* specs = GetClassSpecializations(classId))
+    {
+        for (uint8 i = 0; i < MAX_SPECIALIZATIONS; i++)
+        {
+            if (std::vector<uint32> const* spells = GetSpecializationSpells(specs[i]))
+            {
+                for (std::vector<uint32>::const_iterator iter = spells->begin(); iter != spells->end(); iter++)
+                {
+                    stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_SPELL_BY_SPELL);
+                    stmt->setUInt32(0, *iter);
+                    stmt->setUInt32(1, m_charBoostInfo.lowGuid);
+                    trans->Append(stmt);
+                }
+            }
+        }
     }
 
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_TALENT);
@@ -196,9 +212,15 @@ std::string CharacterBooster::_SetSpecialization(SQLTransaction& trans) const
     return talentTree.str();
 }
 
-void CharacterBooster::_LearnSpells(SQLTransaction& trans, uint32 const* languageSpells) const
+void CharacterBooster::_LearnSpells(SQLTransaction& trans, uint8 const& raceId, uint8 const& classId) const
 {
     PreparedStatement* stmt;
+    uint32 const* languageSpells = NULL;
+
+    if (raceId == RACE_PANDAREN_HORDE)
+        languageSpells = pandarenLanguageSpellsHorde;
+    else if (raceId == RACE_PANDAREN_ALLIANCE)
+        languageSpells = pandarenLanguageSpellsAlliance;
 
     if (languageSpells)
     {
@@ -213,58 +235,57 @@ void CharacterBooster::_LearnSpells(SQLTransaction& trans, uint32 const* languag
         }
     }
 
-    if (ChrSpecializationEntry const* specEntry = sChrSpecializationStore.LookupEntry(m_charBoostInfo.specialization))
+    std::vector<uint32> spellsToLearn;
+    switch (classId)
     {
-        std::vector<uint32> spellsToLearn;
-        switch (specEntry->classId)
-        {
-            case CLASS_WARRIOR:
-            case CLASS_PALADIN:
-                spellsToLearn.push_back(PLATE_MAIL_ARMOR_SPELL);
-                break;
-            default:
-                return;
-        }
-
-        for (uint8 i = 0; i < spellsToLearn.size(); i++)
-        {
-            stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_SPELL);
-            stmt->setUInt32(0, m_charBoostInfo.lowGuid);
-            stmt->setUInt32(1, spellsToLearn[i]);
-            stmt->setBool(2, 1);
-            stmt->setBool(3, 0);
-            trans->Append(stmt);
-        }
+        case CLASS_WARRIOR:
+        case CLASS_PALADIN:
+            spellsToLearn.push_back(PLATE_MAIL_ARMOR_SPELL);
+            break;
+        default:
+            return;
     }
+
+    for (uint8 i = 0; i < spellsToLearn.size(); i++)
+    {
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_SPELL);
+        stmt->setUInt32(0, m_charBoostInfo.lowGuid);
+        stmt->setUInt32(1, spellsToLearn[i]);
+        stmt->setBool(2, 1);
+        stmt->setBool(3, 0);
+        trans->Append(stmt);
+    }
+}
+
+uint8 CharacterBooster::_GetRace() const
+{
+    uint8 charRace = 0;
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_RACE);
+    stmt->setUInt32(0, m_charBoostInfo.lowGuid);
+
+    if (PreparedQueryResult result = CharacterDatabase.Query(stmt))
+    {
+        charRace = (*result)[0].GetUInt8();
+        if (charRace == RACE_PANDAREN_NEUTRAL)
+            charRace = m_charBoostInfo.allianceFaction ? RACE_PANDAREN_ALLIANCE : RACE_PANDAREN_HORDE;
+    }
+
+    return charRace;
 }
 
 void CharacterBooster::_HandleCharacterBoost()
 {
     uint32& lowGuid = m_charBoostInfo.lowGuid;
-    uint8 charRace = 0;
+    uint8 classId = 0;
 
-    uint32 const* languageSpells = NULL;
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_RACE);
-    stmt->setUInt32(0, lowGuid);
-    if (PreparedQueryResult result = CharacterDatabase.Query(stmt))
-    {
-        charRace = (*result)[0].GetUInt8();
-        if (charRace == RACE_PANDAREN_NEUTRAL)
-        {
-            if (m_charBoostInfo.allianceFaction)
-            {
-                charRace = RACE_PANDAREN_ALLIANCE;
-                languageSpells = pandarenLanguageSpellsAlliance;
-            }
-            else
-            {
-                charRace = RACE_PANDAREN_HORDE;
-                languageSpells = pandarenLanguageSpellsHorde;
-            }
-        }
-    }
+    if (ChrSpecializationEntry const* specEntry = sChrSpecializationStore.LookupEntry(m_charBoostInfo.specialization))
+        classId = specEntry->classId;
 
-    if (!charRace)
+    if (!classId)
+        return;
+
+    uint8 raceId = _GetRace();
+    if (!raceId)
         return;
 
     std::vector<uint32> itemsToMail;
@@ -272,6 +293,7 @@ void CharacterBooster::_HandleCharacterBoost()
     if (!itemsToEquip)
         return;
 
+    PreparedStatement* stmt;
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
     _MailEquipedItems(trans);
     _SendMail(trans, itemsToMail);
@@ -304,13 +326,13 @@ void CharacterBooster::_HandleCharacterBoost()
     }
 
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHARACTER_FOR_BOOST);
-    stmt->setUInt8(0, charRace);
-    stmt->setString(1, _SetSpecialization(trans));
+    stmt->setUInt8(0, raceId);
+    stmt->setString(1, _SetSpecialization(trans, classId));
     stmt->setString(2, items.str());
     stmt->setUInt32(3, lowGuid);
     trans->Append(stmt);
 
-    _LearnSpells(trans, languageSpells);
+    _LearnSpells(trans, raceId, classId);
     CharacterDatabase.CommitTransaction(trans);
     _SendCharBoostPacket(itemsToEquip);
 }

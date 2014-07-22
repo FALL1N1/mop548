@@ -300,8 +300,9 @@ enum CharSpecialization
 
 enum CharBoostMisc
 {
-    EMBERSILK_BAG_ID        = 54443,
-    PLATE_MAIL_ARMOR_SPELL  = 750
+    EMBERSILK_BAG_ID            = 54443,
+    BOSSTED_BAG_COUNT           = 4,
+    PLATE_MAIL_ARMOR_SPELL      = 750
 };
 
 struct CharacterBoostData
@@ -319,22 +320,24 @@ class CharacterBooster
 {
     public:
         CharacterBooster(WorldSession* session);
-        void HandleCharacterBoost();
-        void SetBoostedCharInfo(uint64 guid, uint32 action, uint32 specialization, bool allianceFaction);
+
         uint32 GetCurrentAction() const { return m_charBoostInfo.action; }
         uint32 GetGuidLow() const { return m_charBoostInfo.lowGuid; }
+        void HandleCharacterBoost();
         bool IsBoosting(uint32 lowGuid) const { return m_boosting && (m_charBoostInfo.lowGuid == lowGuid); }
+        void SetBoostedCharInfo(uint64 guid, uint32 action, uint32 specialization, bool allianceFaction);
         void Update(uint32 diff);
 
     private:
-        void _HandleCharacterBoost();
         SlotEquipmentMap const* _GetCharBoostItems(std::vector<uint32>& itemsToMail) const;
-        void _SendCharBoostPacket(SlotEquipmentMap const* items);
+        uint8 _GetRace() const;
+        void _HandleCharacterBoost();
+        void _LearnSpells(SQLTransaction& trans, uint8 const& raceId, uint8 const& classId) const;
         void _MailEquipedItems(SQLTransaction& trans) const;
-        void _SendMail(SQLTransaction& trans, std::vector<uint32> const& items) const;
         uint32 _PrepareMail(SQLTransaction& trans, std::string const& subject, std::string const& body) const;
-        std::string _SetSpecialization(SQLTransaction& trans) const;
-        void _LearnSpells(SQLTransaction& trans, uint32 const* languageSpells) const;
+        std::string _SetSpecialization(SQLTransaction& trans, uint8 const& classId) const;
+        void _SendMail(SQLTransaction& trans, std::vector<uint32> const& items) const;
+        void _SendCharBoostPacket(SlotEquipmentMap const* items);
 
         CharacterBoostData m_charBoostInfo;
         WorldSession* m_session;

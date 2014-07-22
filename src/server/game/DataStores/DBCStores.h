@@ -70,12 +70,13 @@ void Map2ZoneCoordinates(float &x, float &y, uint32 zone);
 uint32 GetClassBySkillId(uint32 skillId);
 uint32 GetSkillIdByClass(uint32 classId);
 std::list<uint32> GetSpellsForLevels(uint32 classId, uint32 raceMask, uint32 specializationId, uint32 minLevel, uint32 maxLevel);
+std::vector<uint32> const* GetSpecializationSpells(uint32 specializationId);
 
 typedef std::map<uint32/*pair32(map, diff)*/, MapDifficulty> MapDifficultyMap;
 MapDifficulty const* GetMapDifficultyData(uint32 mapId, Difficulty difficulty);
 MapDifficulty const* GetDownscaledMapDifficultyData(uint32 mapId, Difficulty &difficulty);
 
-uint32 const* /*[MAX_TALENT_TABS]*/ GetClassSpecializations(uint8 classId);
+uint32 const* /*[MAX_SPECIALIZATIONS]*/ GetClassSpecializations(uint8 classId);
 
 uint32 GetLiquidFlags(uint32 liquidType);
 
