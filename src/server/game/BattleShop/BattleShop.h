@@ -22,6 +22,25 @@
 
 typedef std::map<uint8, uint32> SlotEquipmentMap;
 
+SlotEquipmentMap const hunterEquipment =
+{
+    { EQUIPMENT_SLOT_HEAD, 101061 },
+    { EQUIPMENT_SLOT_NECK, 101053 },
+    { EQUIPMENT_SLOT_SHOULDERS, 101063 },
+    { EQUIPMENT_SLOT_BACK, 101052 },
+    { EQUIPMENT_SLOT_CHEST, 101058 },
+    { EQUIPMENT_SLOT_WRISTS, 101065 },
+    { EQUIPMENT_SLOT_HANDS, 101060 },
+    { EQUIPMENT_SLOT_WAIST, 101064 },
+    { EQUIPMENT_SLOT_LEGS, 101062 },
+    { EQUIPMENT_SLOT_FEET, 101059 },
+    { EQUIPMENT_SLOT_FINGER1, 101055 },
+    { EQUIPMENT_SLOT_FINGER2, 101056 },
+    { EQUIPMENT_SLOT_TRINKET1, 101054 },
+    { EQUIPMENT_SLOT_TRINKET2, 101057 },
+    { EQUIPMENT_SLOT_MAINHAND, 101066 }
+};
+
 SlotEquipmentMap const mageEquipment = 
 {
     { EQUIPMENT_SLOT_NECK, 101068 },
@@ -41,23 +60,63 @@ SlotEquipmentMap const mageEquipment =
     { EQUIPMENT_SLOT_MAINHAND, 101083 }
 };
 
-SlotEquipmentMap const hunterEquipment =
+SlotEquipmentMap const paladinEquipmentHoly =
 {
-    { EQUIPMENT_SLOT_HEAD, 101061 },
-    { EQUIPMENT_SLOT_NECK, 101053 },
-    { EQUIPMENT_SLOT_SHOULDERS, 101063 },
-    { EQUIPMENT_SLOT_BACK, 101052 },
-    { EQUIPMENT_SLOT_CHEST, 101058 },
-    { EQUIPMENT_SLOT_WRISTS, 101065 },
-    { EQUIPMENT_SLOT_HANDS, 101060 },
-    { EQUIPMENT_SLOT_WAIST, 101064 },
-    { EQUIPMENT_SLOT_LEGS, 101062 },
-    { EQUIPMENT_SLOT_FEET, 101059 },
-    { EQUIPMENT_SLOT_FINGER1, 101055 },
-    { EQUIPMENT_SLOT_FINGER2, 101056 },
-    { EQUIPMENT_SLOT_TRINKET1, 101054 },
-    { EQUIPMENT_SLOT_TRINKET2, 101057 },
-    { EQUIPMENT_SLOT_MAINHAND, 101066 }
+    { EQUIPMENT_SLOT_HEAD, 101132 },
+    { EQUIPMENT_SLOT_NECK, 101134 },
+    { EQUIPMENT_SLOT_SHOULDERS, 101139 },
+    { EQUIPMENT_SLOT_BACK, 101129 },
+    { EQUIPMENT_SLOT_CHEST, 101128 },
+    { EQUIPMENT_SLOT_WRISTS, 101141 },
+    { EQUIPMENT_SLOT_HANDS, 101131 },
+    { EQUIPMENT_SLOT_WAIST, 101140 },
+    { EQUIPMENT_SLOT_LEGS, 101133 },
+    { EQUIPMENT_SLOT_FEET, 101130 },
+    { EQUIPMENT_SLOT_FINGER1, 101136 },
+    { EQUIPMENT_SLOT_FINGER2, 101137 },
+    { EQUIPMENT_SLOT_TRINKET1, 101135 },
+    { EQUIPMENT_SLOT_TRINKET2, 101138 },
+    { EQUIPMENT_SLOT_MAINHAND, 101142 },
+    { EQUIPMENT_SLOT_OFFHAND, 101143 }
+};
+
+SlotEquipmentMap const paladinEquipmentProtection =
+{
+    { EQUIPMENT_SLOT_HEAD, 101157 },
+    { EQUIPMENT_SLOT_NECK, 101159 },
+    { EQUIPMENT_SLOT_SHOULDERS, 101164 },
+    { EQUIPMENT_SLOT_BACK, 101154 },
+    { EQUIPMENT_SLOT_CHEST, 101153 },
+    { EQUIPMENT_SLOT_WRISTS, 101166 },
+    { EQUIPMENT_SLOT_HANDS, 101156 },
+    { EQUIPMENT_SLOT_WAIST, 101165 },
+    { EQUIPMENT_SLOT_LEGS, 101158 },
+    { EQUIPMENT_SLOT_FEET, 101155 },
+    { EQUIPMENT_SLOT_FINGER1, 101161 },
+    { EQUIPMENT_SLOT_FINGER2, 101162 },
+    { EQUIPMENT_SLOT_TRINKET1, 101160 },
+    { EQUIPMENT_SLOT_TRINKET2, 101163 },
+    { EQUIPMENT_SLOT_MAINHAND, 101144 },
+    { EQUIPMENT_SLOT_OFFHAND, 101145 }
+};
+
+SlotEquipmentMap const paladinEquipmentRetribution =
+{
+    { EQUIPMENT_SLOT_HEAD, 101123 },
+    { EQUIPMENT_SLOT_NECK, 101148 },
+    { EQUIPMENT_SLOT_SHOULDERS, 101125 },
+    { EQUIPMENT_SLOT_BACK, 101147 },
+    { EQUIPMENT_SLOT_CHEST, 101120 },
+    { EQUIPMENT_SLOT_WRISTS, 101127 },
+    { EQUIPMENT_SLOT_HANDS, 101122 },
+    { EQUIPMENT_SLOT_WAIST, 101126 },
+    { EQUIPMENT_SLOT_LEGS, 101124 },
+    { EQUIPMENT_SLOT_FEET, 101121 },
+    { EQUIPMENT_SLOT_FINGER1, 101149 },
+    { EQUIPMENT_SLOT_FINGER2, 101150 },
+    { EQUIPMENT_SLOT_TRINKET1, 101151 },
+    { EQUIPMENT_SLOT_TRINKET2, 101152 },
+    { EQUIPMENT_SLOT_MAINHAND, 101146 }
 };
 
 SlotEquipmentMap const rogueEquipmentAssassionation =
@@ -139,6 +198,65 @@ SlotEquipmentMap const warlockEquipment =
     { EQUIPMENT_SLOT_MAINHAND, 101277 }
 };
 
+SlotEquipmentMap const warriorEquipmentArms =
+{
+    { EQUIPMENT_SLOT_HEAD, 101282 },
+    { EQUIPMENT_SLOT_NECK, 101291 },
+    { EQUIPMENT_SLOT_SHOULDERS, 101284 },
+    { EQUIPMENT_SLOT_BACK, 101290 },
+    { EQUIPMENT_SLOT_CHEST, 101279 },
+    { EQUIPMENT_SLOT_WRISTS, 101286 },
+    { EQUIPMENT_SLOT_HANDS, 101281 },
+    { EQUIPMENT_SLOT_WAIST, 101285 },
+    { EQUIPMENT_SLOT_LEGS, 101283 },
+    { EQUIPMENT_SLOT_FEET, 101280 },
+    { EQUIPMENT_SLOT_FINGER1, 101292 },
+    { EQUIPMENT_SLOT_FINGER2, 101293 },
+    { EQUIPMENT_SLOT_TRINKET1, 101294 },
+    { EQUIPMENT_SLOT_TRINKET2, 101295 },
+    { EQUIPMENT_SLOT_MAINHAND, 101278 }
+};
+
+SlotEquipmentMap const warriorEquipmentFury =
+{
+    { EQUIPMENT_SLOT_HEAD, 101282 },
+    { EQUIPMENT_SLOT_NECK, 101291 },
+    { EQUIPMENT_SLOT_SHOULDERS, 101284 },
+    { EQUIPMENT_SLOT_BACK, 101290 },
+    { EQUIPMENT_SLOT_CHEST, 101279 },
+    { EQUIPMENT_SLOT_WRISTS, 101286 },
+    { EQUIPMENT_SLOT_HANDS, 101281 },
+    { EQUIPMENT_SLOT_WAIST, 101285 },
+    { EQUIPMENT_SLOT_LEGS, 101283 },
+    { EQUIPMENT_SLOT_FEET, 101280 },
+    { EQUIPMENT_SLOT_FINGER1, 101292 },
+    { EQUIPMENT_SLOT_FINGER2, 101293 },
+    { EQUIPMENT_SLOT_TRINKET1, 101294 },
+    { EQUIPMENT_SLOT_TRINKET2, 101295 },
+    { EQUIPMENT_SLOT_MAINHAND, 101287 },
+    { EQUIPMENT_SLOT_OFFHAND, 101287 }
+};
+
+SlotEquipmentMap const warriorEquipmentProtection =
+{
+    { EQUIPMENT_SLOT_HEAD, 101300 },
+    { EQUIPMENT_SLOT_NECK, 101302 },
+    { EQUIPMENT_SLOT_SHOULDERS, 101307 },
+    { EQUIPMENT_SLOT_BACK, 101297 },
+    { EQUIPMENT_SLOT_CHEST, 101296 },
+    { EQUIPMENT_SLOT_WRISTS, 101309 },
+    { EQUIPMENT_SLOT_HANDS, 101299 },
+    { EQUIPMENT_SLOT_WAIST, 101308 },
+    { EQUIPMENT_SLOT_LEGS, 101301 },
+    { EQUIPMENT_SLOT_FEET, 101298 },
+    { EQUIPMENT_SLOT_FINGER1, 101305 },
+    { EQUIPMENT_SLOT_FINGER2, 101304 },
+    { EQUIPMENT_SLOT_TRINKET1, 101303 },
+    { EQUIPMENT_SLOT_TRINKET2, 101306 },
+    { EQUIPMENT_SLOT_MAINHAND, 101288 },
+    { EQUIPMENT_SLOT_OFFHAND, 101289 }
+
+};
 enum CharSpecialization
 {
     CHAR_SPECIALIZATION_MAGE_ARCANE             = 62,
@@ -180,6 +298,12 @@ enum CharSpecialization
 #define CHARRACTER_BOOST_EQUIPED_ITEMS_MAIL_BODY "We've supplied you with a whole new set of high-level gear, but attached you'll find all the old items and equipment you once carried.\n\n - The WoW Dev Team"
 #define CHARRACTER_BOOST_EQUIPED_ITEMS_MAIL_SUBJECT "Character Boost"
 
+enum CharBoostMisc
+{
+    EMBERSILK_BAG_ID        = 54443,
+    PLATE_MAIL_ARMOR_SPELL  = 750
+};
+
 struct CharacterBoostData
 {
     CharacterBoostData() : charGuid(0), lowGuid(0), action(0), specialization(0), allianceFaction(false) { }
@@ -209,6 +333,8 @@ class CharacterBooster
         void _MailEquipedItems(SQLTransaction& trans) const;
         void _SendMail(SQLTransaction& trans, std::vector<uint32> const& items) const;
         uint32 _PrepareMail(SQLTransaction& trans, std::string const& subject, std::string const& body) const;
+        std::string _SetSpecialization(SQLTransaction& trans) const;
+        void _LearnSpells(SQLTransaction& trans, uint32 const* languageSpells) const;
 
         CharacterBoostData m_charBoostInfo;
         WorldSession* m_session;

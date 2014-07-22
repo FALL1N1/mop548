@@ -24,17 +24,26 @@ CharacterBooster::CharacterBooster(WorldSession* session) : m_session(session), 
 
 SlotEquipmentMap const* CharacterBooster::_GetCharBoostItems(std::vector<uint32>& itemsToMail) const
 {
+    for (uint8 i = 0; i < 4; i++)
+        itemsToMail.push_back(EMBERSILK_BAG_ID);
+
     switch (m_charBoostInfo.specialization)
     {
+        case CHAR_SPECIALIZATION_HUNTER_BEAST_MASTERY:
+        case CHAR_SPECIALIZATION_HUNTER_MARKSMANSHIP:
+        case CHAR_SPECIALIZATION_HUNTER_SURVIVAL:
+            return &hunterEquipment;
         case CHAR_SPECIALIZATION_MAGE_ARCANE:
         case CHAR_SPECIALIZATION_MAGE_FIRE:
         case CHAR_SPECIALIZATION_MAGE_FROST:
             itemsToMail.push_back(101081);
             return &mageEquipment;
-        case CHAR_SPECIALIZATION_HUNTER_BEAST_MASTERY:
-        case CHAR_SPECIALIZATION_HUNTER_MARKSMANSHIP:
-        case CHAR_SPECIALIZATION_HUNTER_SURVIVAL:
-            return &hunterEquipment;
+        case CHAR_SPECIALIZATION_PALADIN_HOLY:
+            return &paladinEquipmentHoly;
+        case CHAR_SPECIALIZATION_PALADIN_PROTECTION:
+            return &paladinEquipmentProtection;
+        case CHAR_SPECIALIZATION_PALADIN_RETRIBUTION:
+            return &paladinEquipmentRetribution;
         case CHAR_SPECIALIZATION_ROGUE_ASSASSINATION:
             return &rogueEquipmentAssassionation;
         case CHAR_SPECIALIZATION_ROGUE_COMBAT:
@@ -46,6 +55,12 @@ SlotEquipmentMap const* CharacterBooster::_GetCharBoostItems(std::vector<uint32>
         case CHAR_SPECIALIZATION_WARLOCK_DESTRUCTION:
             itemsToMail.push_back(101275);
             return &warlockEquipment;
+        case CHAR_SPECIALIZATION_WARRIOR_ARMS:
+            return &warriorEquipmentArms;
+        case CHAR_SPECIALIZATION_WARRIOR_FURY:
+            return &warriorEquipmentFury;
+        case CHAR_SPECIALIZATION_WARRIOR_PROTECTION:
+            return &warriorEquipmentProtection;
         default:
             return NULL;
     }
@@ -156,6 +171,73 @@ void CharacterBooster::_MailEquipedItems(SQLTransaction& trans) const
     trans->Append(stmt);
 }
 
+std::string CharacterBooster::_SetSpecialization(SQLTransaction& trans) const
+{
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_TALENT);
+    stmt->setUInt32(0, m_charBoostInfo.lowGuid);
+    if (PreparedQueryResult result = CharacterDatabase.Query(stmt))
+    {
+        do
+        {
+            uint32 spellId = (*result)[0].GetUInt32();
+            stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_SPELL_BY_SPELL);
+            stmt->setUInt32(0, spellId);
+            stmt->setUInt32(1, m_charBoostInfo.lowGuid);
+            trans->Append(stmt);
+        } while (result->NextRow());
+    }
+
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_TALENT);
+    stmt->setUInt32(0, m_charBoostInfo.lowGuid);
+    trans->Append(stmt);
+
+    std::ostringstream talentTree;
+    talentTree << m_charBoostInfo.specialization << " 0 ";
+    return talentTree.str();
+}
+
+void CharacterBooster::_LearnSpells(SQLTransaction& trans, uint32 const* languageSpells) const
+{
+    PreparedStatement* stmt;
+
+    if (languageSpells)
+    {
+        for (uint8 i = 0; i < PANDAREN_FACTION_LANGUAGE_COUNT; i++)
+        {
+            stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_SPELL);
+            stmt->setUInt32(0, m_charBoostInfo.lowGuid);
+            stmt->setUInt32(1, languageSpells[i]);
+            stmt->setBool(2, 1);
+            stmt->setBool(3, 0);
+            trans->Append(stmt);
+        }
+    }
+
+    if (ChrSpecializationEntry const* specEntry = sChrSpecializationStore.LookupEntry(m_charBoostInfo.specialization))
+    {
+        std::vector<uint32> spellsToLearn;
+        switch (specEntry->classId)
+        {
+            case CLASS_WARRIOR:
+            case CLASS_PALADIN:
+                spellsToLearn.push_back(PLATE_MAIL_ARMOR_SPELL);
+                break;
+            default:
+                return;
+        }
+
+        for (uint8 i = 0; i < spellsToLearn.size(); i++)
+        {
+            stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_SPELL);
+            stmt->setUInt32(0, m_charBoostInfo.lowGuid);
+            stmt->setUInt32(1, spellsToLearn[i]);
+            stmt->setBool(2, 1);
+            stmt->setBool(3, 0);
+            trans->Append(stmt);
+        }
+    }
+}
+
 void CharacterBooster::_HandleCharacterBoost()
 {
     uint32& lowGuid = m_charBoostInfo.lowGuid;
@@ -223,23 +305,12 @@ void CharacterBooster::_HandleCharacterBoost()
 
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHARACTER_FOR_BOOST);
     stmt->setUInt8(0, charRace);
-    stmt->setString(1, items.str());
-    stmt->setUInt32(2, lowGuid);
+    stmt->setString(1, _SetSpecialization(trans));
+    stmt->setString(2, items.str());
+    stmt->setUInt32(3, lowGuid);
     trans->Append(stmt);
 
-    if (languageSpells)
-    {
-        for (uint8 i = 0; i < PANDAREN_FACTION_LANGUAGE_COUNT; i++)
-        {
-            stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_SPELL);
-            stmt->setUInt32(0, lowGuid);
-            stmt->setUInt32(1, languageSpells[i]);
-            stmt->setBool(2, 1);
-            stmt->setBool(3, 0);
-            trans->Append(stmt);
-        }
-    }
-
+    _LearnSpells(trans, languageSpells);
     CharacterDatabase.CommitTransaction(trans);
     _SendCharBoostPacket(itemsToEquip);
 }
