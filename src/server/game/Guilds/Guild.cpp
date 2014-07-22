@@ -2077,8 +2077,8 @@ void Guild::HandleInviteMember(WorldSession* session, std::string const& name)
     data.WriteBit(newGuildGuid[2]);
     data.WriteBits(oldGuildName.length(), 7);
     data.WriteBit(newGuildGuid[7]);
+    data.FlushBits();
 
-    //data.FlushBits();
     data.WriteByteSeq(newGuildGuid[1]);
     data << (uint32)m_emblemInfo.GetBackgroundColor();
     data.WriteByteSeq(newGuildGuid[4]);
