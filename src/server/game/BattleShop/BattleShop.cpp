@@ -22,13 +22,28 @@
 
 CharacterBooster::CharacterBooster(WorldSession* session) : m_session(session), m_timer(0), m_boosting(false), m_sendPacket(false) { }
 
-SlotEquipmentMap const* CharacterBooster::_GetCharBoostItems(std::vector<uint32>& itemsToMail) const
+SlotEquipmentMap const* CharacterBooster::_GetCharBoostItems(std::vector<std::pair<uint32, uint32> >& itemsToMail) const
 {
-    for (uint8 i = 0; i < BOSSTED_BAG_COUNT; i++)
-        itemsToMail.push_back(EMBERSILK_BAG_ID);
+    for (uint8 i = 0; i < EMBERSILK_BAG_COUNT; i++)
+        itemsToMail.push_back(std::make_pair(EMBERSILK_BAG_ID, 1));
+
+    itemsToMail.push_back(std::make_pair(LEMON_FLAVOUR_PUDING_ID, LEMON_FLAVOUR_PUDING_COUNT));
 
     switch (m_charBoostInfo.specialization)
     {
+        case CHAR_SPECIALIZATION_DEATH_KNIGHT_BLOOD:
+            return &deathKnightEquipmentBlood;
+        case CHAR_SPECIALIZATION_DEATH_KNIGHT_FROST:
+            return &deathKnightEquipmentFrost;
+        case CHAR_SPECIALIZATION_DEATH_KNIGHT_UNHOLY:
+            return &deathKnightEquipmentUnholy;
+        case CHAR_SPECIALIZATION_DRUID_BALANCE:
+            return &druidEquipmentBalance;
+        case CHAR_SPECIALIZATION_DRUID_FERAL:
+        case CHAR_SPECIALIZATION_DRUID_GUARDIAN:
+            return &druidEquipmentFeral;
+        case CHAR_SPECIALIZATION_DRUID_RESTORATION:
+            return &druidEquipmentRestoration;
         case CHAR_SPECIALIZATION_HUNTER_BEAST_MASTERY:
         case CHAR_SPECIALIZATION_HUNTER_MARKSMANSHIP:
         case CHAR_SPECIALIZATION_HUNTER_SURVIVAL:
@@ -36,24 +51,43 @@ SlotEquipmentMap const* CharacterBooster::_GetCharBoostItems(std::vector<uint32>
         case CHAR_SPECIALIZATION_MAGE_ARCANE:
         case CHAR_SPECIALIZATION_MAGE_FIRE:
         case CHAR_SPECIALIZATION_MAGE_FROST:
-            itemsToMail.push_back(101081);
+            itemsToMail.push_back(std::make_pair(101081, 1));
             return &mageEquipment;
+        case CHAR_SPECIALIZATION_MONK_BREWMASTER:
+            return &monkEquipmentBrewmaster;
+        case CHAR_SPECIALIZATION_MONK_MISTWEAVER:
+            return &monkEquipmentMistweaver;
+        case CHAR_SPECIALIZATION_MONK_WINDWALKER:
+            return &monkEquipmentWindwalker;
         case CHAR_SPECIALIZATION_PALADIN_HOLY:
             return &paladinEquipmentHoly;
         case CHAR_SPECIALIZATION_PALADIN_PROTECTION:
             return &paladinEquipmentProtection;
         case CHAR_SPECIALIZATION_PALADIN_RETRIBUTION:
             return &paladinEquipmentRetribution;
+        case CHAR_SPECIALIZATION_PRIEST_DISCIPLINE:
+        case CHAR_SPECIALIZATION_PRIEST_HOLY:
+            itemsToMail.push_back(std::make_pair(101172, 1));
+            return &priestEquipmentDisciplineAndHoly;
+        case CHAR_SPECIALIZATION_PRIEST_SHADOW:
+            itemsToMail.push_back(std::make_pair(101172, 1));
+            return &priestEquipmentShadow;
         case CHAR_SPECIALIZATION_ROGUE_ASSASSINATION:
             return &rogueEquipmentAssassionation;
         case CHAR_SPECIALIZATION_ROGUE_COMBAT:
             return &rogueEquipmentCombat;
         case CHAR_SPECIALIZATION_ROGUE_SUBTLETY:
             return &rogueEquipmentCombat;
+        case CHAR_SPECIALIZATION_SHAMAN_ELEMENTAL:
+            return &shamanEquipmentElemental;
+        case CHAR_SPECIALIZATION_SHAMAN_ENHANCEMENT:
+            return &shamanEquipmentEnhancement;
+        case CHAR_SPECIALIZATION_SHAMAN_RESTORATION:
+            return &shamanEquipmentRestoration;
         case CHAR_SPECIALIZATION_WARLOCK_AFFLICTION:
         case CHAR_SPECIALIZATION_WARLOCK_DEMONOLOGY:
         case CHAR_SPECIALIZATION_WARLOCK_DESTRUCTION:
-            itemsToMail.push_back(101275);
+            itemsToMail.push_back(std::make_pair(101275, 1));
             return &warlockEquipment;
         case CHAR_SPECIALIZATION_WARRIOR_ARMS:
             return &warriorEquipmentArms;
@@ -118,7 +152,7 @@ uint32 CharacterBooster::_PrepareMail(SQLTransaction& trans, std::string const& 
     return mailId;
 }
 
-void CharacterBooster::_SendMail(SQLTransaction& trans, std::vector<uint32> const& items) const
+void CharacterBooster::_SendMail(SQLTransaction& trans, std::vector<std::pair<uint32, uint32> > const& items) const
 {
     if (items.empty())
         return;
@@ -128,7 +162,7 @@ void CharacterBooster::_SendMail(SQLTransaction& trans, std::vector<uint32> cons
 
     for (uint8 i = 0; i < items.size(); i++)
     {
-        if (Item* item = Item::CreateItem(items[i], 1, m_charBoostInfo.charGuid))
+        if (Item* item = Item::CreateItem(items[i].first, items[i].second, m_charBoostInfo.charGuid))
         {
             item->SaveToDB(trans);
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_MAIL_ITEM);
@@ -152,9 +186,17 @@ void CharacterBooster::_MailEquipedItems(SQLTransaction& trans) const
         return;
 
     uint32 mailId = _PrepareMail(trans, CHARRACTER_BOOST_EQUIPED_ITEMS_MAIL_SUBJECT, CHARRACTER_BOOST_EQUIPED_ITEMS_MAIL_BODY);
+    uint32 itemCount = 0;
 
     do
     {
+        // Item count is limited per mail
+        if (itemCount++ > 10)
+        {
+            itemCount = 0;
+            mailId = _PrepareMail(trans, CHARRACTER_BOOST_EQUIPED_ITEMS_MAIL_SUBJECT, CHARRACTER_BOOST_EQUIPED_ITEMS_MAIL_BODY);
+        }
+
         uint32 itemGuid = (*result)[0].GetUInt32();
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_MAIL_ITEM);
         stmt->setUInt32(0, mailId);
@@ -288,7 +330,7 @@ void CharacterBooster::_HandleCharacterBoost()
     if (!raceId)
         return;
 
-    std::vector<uint32> itemsToMail;
+    std::vector<std::pair<uint32, uint32> > itemsToMail;
     SlotEquipmentMap const* itemsToEquip = _GetCharBoostItems(itemsToMail);
     if (!itemsToEquip)
         return;
