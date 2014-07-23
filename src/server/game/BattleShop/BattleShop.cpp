@@ -277,7 +277,9 @@ void CharacterBooster::_LearnSpells(SQLTransaction& trans, uint8 const& raceId, 
         }
     }
 
-    std::vector<uint32> spellsToLearn;
+    std::vector<uint32> spellsToLearn(CharBoostSpells);
+    spellsToLearn.push_back(m_charBoostInfo.allianceFaction ? SWIFT_PURPLE_GRYPGON_SPELL : SWIFT_PURPLE_WIND_RIDER_SPELL);
+
     switch (classId)
     {
         case CLASS_WARRIOR:
@@ -285,7 +287,7 @@ void CharacterBooster::_LearnSpells(SQLTransaction& trans, uint8 const& raceId, 
             spellsToLearn.push_back(PLATE_MAIL_ARMOR_SPELL);
             break;
         default:
-            return;
+            break;
     }
 
     for (uint8 i = 0; i < spellsToLearn.size(); i++)
