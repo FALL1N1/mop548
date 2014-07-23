@@ -571,11 +571,24 @@ enum CharSpecialization
 
 enum CharBoostMisc
 {
-    EMBERSILK_BAG_ID            = 54443,
-    EMBERSILK_BAG_COUNT         = 4,
-    LEMON_FLAVOUR_PUDING_ID     = 108920,
-    LEMON_FLAVOUR_PUDING_COUNT  = 20,
-    PLATE_MAIL_ARMOR_SPELL      = 750
+    // items
+    EMBERSILK_BAG_ID                = 54443,
+    EMBERSILK_BAG_COUNT             = 4,
+    LEMON_FLAVOUR_PUDING_ID         = 108920,
+    LEMON_FLAVOUR_PUDING_COUNT      = 20,
+
+    // spells
+    PLATE_MAIL_ARMOR_SPELL          = 750,
+    SWIFT_PURPLE_WIND_RIDER_SPELL   = 32297,
+    SWIFT_PURPLE_GRYPGON_SPELL      = 32292
+};
+
+std::vector<uint32> const CharBoostSpells = 
+{
+    34091,  // Artisan Riding
+    54197,  // ColdWeather Flying
+    90267,  // Flight Master License
+    115913  // Wisdom of the Four Winds
 };
 
 struct CharacterBoostData
