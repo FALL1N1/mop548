@@ -317,9 +317,57 @@ uint8 CharacterBooster::_GetRace() const
     return charRace;
 }
 
+std::string CharacterBooster::_EquipItems(SQLTransaction& trans, SlotEquipmentMap const* itemsToEquip) const
+{
+    std::map<uint8, uint32>::const_iterator itr;
+    std::ostringstream items;
+    PreparedStatement* stmt;
+    for (uint8 i = 0; i < EQUIPMENT_SLOT_END; i++)
+    {
+        itr = itemsToEquip->find(i);
+        if (itr != itemsToEquip->end())
+        {
+            if (Item* item = Item::CreateItem(itr->second, 1, m_charBoostInfo.charGuid))
+            {
+                item->SaveToDB(trans);
+
+                stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_INVENTORY);
+                stmt->setUInt32(0, m_charBoostInfo.lowGuid);
+                stmt->setUInt32(1, 0);
+                stmt->setUInt8(2, itr->first);
+                stmt->setUInt32(3, item->GetGUIDLow());
+                trans->Append(stmt);
+
+                items << (itr->second) << " 0 ";
+            }
+            else
+                items << "0 0 ";
+        }
+        else
+            items << "0 0 ";
+    }
+
+    return items.str();
+}
+
+void CharacterBooster::_SaveBoostedChar(SQLTransaction& trans, std::string const& items, uint8 const& raceId, uint8 const& classId)
+{
+    float const* position = m_charBoostInfo.allianceFaction ? allianceStartPosition : hordeStartPosition;
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHARACTER_FOR_BOOST);
+    stmt->setUInt8(0, raceId);
+    stmt->setFloat(1, position[0]);
+    stmt->setFloat(2, position[1]);
+    stmt->setFloat(3, position[2]);
+    stmt->setFloat(4, position[3]);
+    stmt->setUInt16(5, VALE_OF_ETERNAL_BLOSSOMS_MAP_ID);
+    stmt->setString(6, _SetSpecialization(trans, classId));
+    stmt->setString(7, items);
+    stmt->setUInt32(8, m_charBoostInfo.lowGuid);
+    trans->Append(stmt);
+}
+
 void CharacterBooster::_HandleCharacterBoost()
 {
-    uint32& lowGuid = m_charBoostInfo.lowGuid;
     uint8 classId = 0;
 
     if (ChrSpecializationEntry const* specEntry = sChrSpecializationStore.LookupEntry(m_charBoostInfo.specialization))
@@ -337,46 +385,11 @@ void CharacterBooster::_HandleCharacterBoost()
     if (!itemsToEquip)
         return;
 
-    PreparedStatement* stmt;
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
     _MailEquipedItems(trans);
     _SendMail(trans, itemsToMail);
-
-    std::map<uint8, uint32>::const_iterator itr;
-    std::ostringstream items;
-    for (uint8 i = 0; i < EQUIPMENT_SLOT_END; i++)
-    {
-        itr = itemsToEquip->find(i);
-        if (itr != itemsToEquip->end())
-        {
-            if (Item* item = Item::CreateItem(itr->second, 1, m_charBoostInfo.charGuid))
-            {
-                item->SaveToDB(trans);
-
-                stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_INVENTORY);
-                stmt->setUInt32(0, lowGuid);
-                stmt->setUInt32(1, 0);
-                stmt->setUInt8(2, itr->first);
-                stmt->setUInt32(3, item->GetGUIDLow());
-                trans->Append(stmt);
-
-                items << (itr->second) << " 0 ";
-            }
-            else
-                items << "0 0 ";
-        }
-        else
-            items << "0 0 ";
-    }
-
-    stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHARACTER_FOR_BOOST);
-    stmt->setUInt8(0, raceId);
-    stmt->setString(1, _SetSpecialization(trans, classId));
-    stmt->setString(2, items.str());
-    stmt->setUInt32(3, lowGuid);
-    trans->Append(stmt);
-
     _LearnSpells(trans, raceId, classId);
+    _SaveBoostedChar(trans, _EquipItems(trans, itemsToEquip), raceId, classId);
     CharacterDatabase.CommitTransaction(trans);
     _SendCharBoostPacket(itemsToEquip);
 }
