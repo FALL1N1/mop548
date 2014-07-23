@@ -22213,7 +22213,7 @@ void Player::ProhibitSpellSchool(SpellSchoolMask idSchoolMask, uint32 unTimeMs)
     data.WriteBit(guid[3]);
     data.WriteBit(guid[1]);
     data.WriteBit(guid[5]);
-    size_t bitpos = data.bitwpos();
+    size_t countPos = data.bitwpos();
     data.WriteBits(0, 21);
     data.WriteBit(guid[2]);
     data.WriteBit(guid[4]);

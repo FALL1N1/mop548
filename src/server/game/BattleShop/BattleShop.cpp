@@ -119,7 +119,7 @@ void CharacterBooster::_SendCharBoostPacket(SlotEquipmentMap const* items)
     data.WriteByteSeq(guid[2]);
     data.WriteByteSeq(guid[6]);
     data.WriteByteSeq(guid[5]);
-    for (std::map<uint8, uint32>::const_iterator itr = items->begin(); itr != items->end(); itr++)
+    for (SlotEquipmentMap::const_iterator itr = items->begin(); itr != items->end(); itr++)
         data << (uint32)itr->second;
     data.WriteByteSeq(guid[0]);
     data.WriteByteSeq(guid[1]);
@@ -319,12 +319,12 @@ uint8 CharacterBooster::_GetRace() const
 
 std::string CharacterBooster::_EquipItems(SQLTransaction& trans, SlotEquipmentMap const* itemsToEquip) const
 {
-    std::map<uint8, uint32>::const_iterator itr;
+    SlotEquipmentMap::const_iterator itr;
     std::ostringstream items;
     PreparedStatement* stmt;
     for (uint8 i = 0; i < EQUIPMENT_SLOT_END; i++)
     {
-        itr = itemsToEquip->find(i);
+        itr = itemsToEquip->find((EquipmentSlots)i);
         if (itr != itemsToEquip->end())
         {
             if (Item* item = Item::CreateItem(itr->second, 1, m_charBoostInfo.charGuid))
