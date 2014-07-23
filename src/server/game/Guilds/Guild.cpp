@@ -161,7 +161,7 @@ inline void Guild::LogHolder::AddEvent(SQLTransaction& trans, LogEntry* entry)
 inline void Guild::LogHolder::WritePacket(WorldPacket& data) const
 {
     ByteBuffer buffer;
-    data.WriteBits(m_log.size(), 23);
+    data.WriteBits(m_log.size(), 21);
     for (GuildLog::const_iterator itr = m_log.begin(); itr != m_log.end(); ++itr)
         (*itr)->WritePacket(data, buffer);
 
@@ -205,51 +205,51 @@ void Guild::EventLogEntry::WritePacket(WorldPacket& data, ByteBuffer& content) c
     ObjectGuid guid1 = MAKE_NEW_GUID(m_playerGuid1, 0, HIGHGUID_PLAYER);
     ObjectGuid guid2 = MAKE_NEW_GUID(m_playerGuid2, 0, HIGHGUID_PLAYER);
 
-    data.WriteBit(guid1[2]);
+    data.WriteBit(guid1[6]);
+    data.WriteBit(guid1[4]);
+    data.WriteBit(guid2[5]);
+    data.WriteBit(guid2[1]);
+    data.WriteBit(guid2[3]);
+    data.WriteBit(guid2[0]);
+    data.WriteBit(guid2[4]);
     data.WriteBit(guid1[4]);
     data.WriteBit(guid2[7]);
-    data.WriteBit(guid2[6]);
-    data.WriteBit(guid1[3]);
-    data.WriteBit(guid2[3]);
-    data.WriteBit(guid2[5]);
-    data.WriteBit(guid1[7]);
-    data.WriteBit(guid1[5]);
     data.WriteBit(guid1[0]);
-    data.WriteBit(guid2[4]);
+    data.WriteBit(guid1[2]);
+    data.WriteBit(guid1[7]);
+    data.WriteBit(guid1[3]);
+    data.WriteBit(guid1[5]);
     data.WriteBit(guid2[2]);
-    data.WriteBit(guid2[0]);
-    data.WriteBit(guid2[1]);
-    data.WriteBit(guid1[1]);
-    data.WriteBit(guid1[6]);
+    data.WriteBit(guid2[6]);
 
-    content.WriteByteSeq(guid2[3]);
-    content.WriteByteSeq(guid2[2]);
-    content.WriteByteSeq(guid2[5]);
-
-    // New Rank
-    content << uint8(m_newRank);
-
-    content.WriteByteSeq(guid2[4]);
-    content.WriteByteSeq(guid1[0]);
-    content.WriteByteSeq(guid1[4]);
-
-    // Event timestamp
-    content << uint32(::time(NULL) - m_timestamp);
-
-    content.WriteByteSeq(guid1[7]);
-    content.WriteByteSeq(guid1[3]);
-    content.WriteByteSeq(guid2[0]);
-    content.WriteByteSeq(guid2[6]);
-    content.WriteByteSeq(guid2[7]);
     content.WriteByteSeq(guid1[5]);
+    content.WriteByteSeq(guid1[4]);
+    content.WriteByteSeq(guid2[6]);
+    content.WriteByteSeq(guid1[2]);
+    content.WriteByteSeq(guid2[4]);
 
     // Event type
     content << uint8(m_eventType);
 
-    content.WriteByteSeq(guid2[1]);
-    content.WriteByteSeq(guid1[2]);
-    content.WriteByteSeq(guid1[6]);
+    content.WriteByteSeq(guid2[0]);
+    content.WriteByteSeq(guid1[7]);
+    content.WriteByteSeq(guid1[3]);
+    content.WriteByteSeq(guid2[5]);
+    content.WriteByteSeq(guid2[2]);
+    content.WriteByteSeq(guid1[0]);
+
+    // Event timestamp
+    content << uint32(::time(NULL) - m_timestamp);
+
     content.WriteByteSeq(guid1[1]);
+    content.WriteByteSeq(guid1[6]);
+    content.WriteByteSeq(guid2[7]);
+    content.WriteByteSeq(guid2[1]);
+
+    // New Rank
+    content << uint8(m_newRank);
+
+    content.WriteByteSeq(guid2[3]);
 }
 
 // BankEventLogEntry
@@ -280,6 +280,7 @@ void Guild::BankEventLogEntry::SaveToDB(SQLTransaction& trans) const
 void Guild::BankEventLogEntry::WritePacket(WorldPacket& data, ByteBuffer& content) const
 {
     ObjectGuid logGuid = MAKE_NEW_GUID(m_playerGuid, 0, HIGHGUID_PLAYER);
+    ObjectGuid unkGuid = 0;
 
     bool hasItem = m_eventType == GUILD_BANK_LOG_DEPOSIT_ITEM || m_eventType == GUILD_BANK_LOG_WITHDRAW_ITEM ||
                    m_eventType == GUILD_BANK_LOG_MOVE_ITEM || m_eventType == GUILD_BANK_LOG_MOVE_ITEM2;
@@ -289,40 +290,43 @@ void Guild::BankEventLogEntry::WritePacket(WorldPacket& data, ByteBuffer& conten
     bool hasStack = (hasItem && m_itemStackCount > 1) || itemMoved;
 
     data.WriteBit(IsMoneyEvent());
-    data.WriteBit(logGuid[4]);
-    data.WriteBit(logGuid[1]);
-    data.WriteBit(hasItem);
-    data.WriteBit(hasStack);
+    data.WriteBit(logGuid[0]);
     data.WriteBit(logGuid[2]);
-    data.WriteBit(logGuid[5]);
     data.WriteBit(logGuid[3]);
     data.WriteBit(logGuid[6]);
-    data.WriteBit(logGuid[0]);
-    data.WriteBit(itemMoved);
+    data.WriteBit(logGuid[5]);
+    data.WriteBit(logGuid[4]);
+    data.WriteBit(hasStack);
+    data.WriteBit(hasItem);
     data.WriteBit(logGuid[7]);
+    data.WriteBit(logGuid[1]);
+    data.WriteBit(itemMoved);
 
-    content.WriteByteSeq(logGuid[6]);
     content.WriteByteSeq(logGuid[1]);
-    content.WriteByteSeq(logGuid[5]);
-    if (hasStack)
-        content << uint32(m_itemStackCount);
-
-    content << uint8(m_eventType);
-    content.WriteByteSeq(logGuid[2]);
-    content.WriteByteSeq(logGuid[4]);
-    content.WriteByteSeq(logGuid[0]);
     content.WriteByteSeq(logGuid[7]);
-    content.WriteByteSeq(logGuid[3]);
+
+    if (itemMoved)
+        content << uint8(m_destTabId);
+
+    content.WriteByteSeq(logGuid[2]);
+    content << uint32(time(NULL) - m_timestamp);
+    content << uint8(m_eventType);
+    content.WriteByteSeq(logGuid[0]);
+    content.WriteByteSeq(logGuid[4]);
+
     if (hasItem)
         content << uint32(m_itemOrMoney);
-
-    content << uint32(time(NULL) - m_timestamp);
 
     if (IsMoneyEvent())
         content << uint64(m_itemOrMoney);
 
-    if (itemMoved)
-        content << uint8(m_destTabId);
+    content.WriteByteSeq(logGuid[6]);
+
+    if (hasStack)
+        content << uint32(m_itemStackCount);
+
+    content.WriteByteSeq(logGuid[5]);
+    content.WriteByteSeq(logGuid[3]);
 }
 
 void Guild::NewsLogEntry::SaveToDB(SQLTransaction& trans) const
@@ -2532,7 +2536,7 @@ void Guild::HandleGuildPartyRequest(WorldSession* session)
 
 void Guild::SendEventLog(WorldSession* session) const
 {
-    WorldPacket data(SMSG_GUILD_EVENT_LOG_QUERY_RESULT, 1 + m_eventLog->GetSize() * (1 + 8 + 4));
+    WorldPacket data(SMSG_GUILD_EVENT_LOG_QUERY_RESULT, 3 + m_eventLog->GetSize() * (1 + 9 + 9 + 4 + 4));
     m_eventLog->WritePacket(data);
     session->SendPacket(&data);
     TC_LOG_DEBUG("guild", "SMSG_GUILD_EVENT_LOG_QUERY_RESULT [%s]", session->GetPlayerInfo().c_str());
@@ -2673,11 +2677,11 @@ void Guild::SendBankLog(WorldSession* session, uint8 tabId) const
     {
         LogHolder const* log = m_bankEventLog[tabId];
         WorldPacket data(SMSG_GUILD_BANK_LOG_QUERY_RESULT, log->GetSize() * (4 * 4 + 1) + 1 + 1);
+        data << uint32(tabId);
         data.WriteBit(GetLevel() >= 5 && tabId == GUILD_BANK_MAX_TABS);     // has Cash Flow perk
         log->WritePacket(data);
-        data << uint32(tabId);
-        //if (tabId == GUILD_BANK_MAX_TABS && hasCashFlow)
-        //    data << uint64(cashFlowContribution);
+        if (GetLevel() >= 5 && tabId == GUILD_BANK_MAX_TABS)
+            data << uint64(0);
         session->SendPacket(&data);
         TC_LOG_DEBUG("guild", "SMSG_GUILD_BANK_LOG_QUERY_RESULT [%s] TabId: %u", session->GetPlayerInfo().c_str(), tabId);
     }
@@ -3006,7 +3010,7 @@ void Guild::BroadcastToGuild(WorldSession* session, bool officerOnly, std::strin
     if (session && session->GetPlayer() && _HasRankRight(session->GetPlayer(), officerOnly ? GR_RIGHT_OFFCHATSPEAK : GR_RIGHT_GCHATSPEAK))
     {
         WorldPacket data;
-        ChatHandler::FillMessageData(&data, session, officerOnly ? CHAT_MSG_OFFICER : CHAT_MSG_GUILD, language, NULL, 0, msg.c_str(), NULL);
+        ChatHandler::BuildChatPacket(data, officerOnly ? CHAT_MSG_OFFICER : CHAT_MSG_GUILD, Language(language), session->GetPlayer(), NULL, msg);
         for (Members::const_iterator itr = m_members.begin(); itr != m_members.end(); ++itr)
             if (Player* player = itr->second->FindPlayer())
                 if (player->GetSession() && _HasRankRight(player, officerOnly ? GR_RIGHT_OFFCHATLISTEN : GR_RIGHT_GCHATLISTEN) &&
@@ -3020,7 +3024,7 @@ void Guild::BroadcastAddonToGuild(WorldSession* session, bool officerOnly, std::
     if (session && session->GetPlayer() && _HasRankRight(session->GetPlayer(), officerOnly ? GR_RIGHT_OFFCHATSPEAK : GR_RIGHT_GCHATSPEAK))
     {
         WorldPacket data;
-        ChatHandler::FillMessageData(&data, session, officerOnly ? CHAT_MSG_OFFICER : CHAT_MSG_GUILD, uint32(CHAT_MSG_ADDON), NULL, 0, msg.c_str(), NULL, prefix.c_str());
+        ChatHandler::BuildChatPacket(data, officerOnly ? CHAT_MSG_OFFICER : CHAT_MSG_GUILD, LANG_ADDON, session->GetPlayer(), NULL, msg, 0, "", DEFAULT_LOCALE, prefix);
         for (Members::const_iterator itr = m_members.begin(); itr != m_members.end(); ++itr)
             if (Player* player = itr->second->FindPlayer())
                 if (player->GetSession() && _HasRankRight(player, officerOnly ? GR_RIGHT_OFFCHATLISTEN : GR_RIGHT_GCHATLISTEN) &&

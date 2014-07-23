@@ -989,6 +989,11 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
         TC_LOG_DEBUG("network", "WORLD: Sent server info");
     }
 
+    data.Initialize(SMSG_PVP_SEASON, 4 + 4);
+    data << uint32(sWorld->getIntConfig(CONFIG_ARENA_SEASON_ID) - 1); // Old season
+    data << uint32(sWorld->getIntConfig(CONFIG_ARENA_SEASON_ID));     // Current season
+    SendPacket(&data);
+
     //QueryResult* result = CharacterDatabase.PQuery("SELECT guildid, rank FROM guild_member WHERE guid = '%u'", pCurrChar->GetGUIDLow());
     if (PreparedQueryResult resultGuild = holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_GUILD))
     {
@@ -1309,26 +1314,26 @@ void WorldSession::HandleCharRenameOpcode(WorldPacket& recvData)
     ObjectGuid guid;
     std::string unk;
     std::string newName;
-	
-	guid[6] = recvData.ReadBit();
-	guid[3] = recvData.ReadBit();
-	guid[0] = recvData.ReadBit();
+
+    guid[6] = recvData.ReadBit();
+    guid[3] = recvData.ReadBit();
+    guid[0] = recvData.ReadBit();
     recvData >> newName;
-	guid[1] = recvData.ReadBit();
-	guid[5] = recvData.ReadBit();
-	guid[7] = recvData.ReadBit();
-	guid[2] = recvData.ReadBit();
-	guid[4] = recvData.ReadBit();
-	
-	recvData.ReadByteSeq(guid[1]);
-	recvData.ReadByteSeq(guid[6]);
-	recvData.ReadByteSeq(guid[5]);
+    guid[1] = recvData.ReadBit();
+    guid[5] = recvData.ReadBit();
+    guid[7] = recvData.ReadBit();
+    guid[2] = recvData.ReadBit();
+    guid[4] = recvData.ReadBit();
+
+    recvData.ReadByteSeq(guid[1]);
+    recvData.ReadByteSeq(guid[6]);
+    recvData.ReadByteSeq(guid[5]);
     recvData >> unk;
-	recvData.ReadByteSeq(guid[2]);
-	recvData.ReadByteSeq(guid[4]);
-	recvData.ReadByteSeq(guid[3]);
-	recvData.ReadByteSeq(guid[7]);
-	recvData.ReadByteSeq(guid[0]);
+    recvData.ReadByteSeq(guid[2]);
+    recvData.ReadByteSeq(guid[4]);
+    recvData.ReadByteSeq(guid[3]);
+    recvData.ReadByteSeq(guid[7]);
+    recvData.ReadByteSeq(guid[0]);
 
     // prevent character rename to invalid name
     if (!normalizePlayerName(newName))
@@ -1638,28 +1643,28 @@ void WorldSession::HandleCharCustomize(WorldPacket& recvData)
     std::string newName;
     std::string unk;
     uint8 gender, skin, face, hairStyle, hairColor, facialHair;
-	
+
     recvData >> gender >> skin >> hairColor >> hairStyle >> facialHair >> face;
-	
-	guid[2] = recvData.ReadBit();
-	guid[6] = recvData.ReadBit();
-	guid[1] = recvData.ReadBit();
-	guid[0] = recvData.ReadBit();
-	guid[7] = recvData.ReadBit();
-	guid[5] = recvData.ReadBit();
+
+guid[2] = recvData.ReadBit();
+guid[6] = recvData.ReadBit();
+guid[1] = recvData.ReadBit();
+guid[0] = recvData.ReadBit();
+guid[7] = recvData.ReadBit();
+guid[5] = recvData.ReadBit();
     recvData >> newName;
-	guid[4] = recvData.ReadBit();
-	guid[3] = recvData.ReadBit();
-	
-	recvData.ReadByteSeq(guid[4]);
+guid[4] = recvData.ReadBit();
+guid[3] = recvData.ReadBit();
+
+recvData.ReadByteSeq(guid[4]);
     recvData >> unk;
-	recvData.ReadByteSeq(guid[0]);
-	recvData.ReadByteSeq(guid[2]);
-	recvData.ReadByteSeq(guid[6]);
-	recvData.ReadByteSeq(guid[5]);
-	recvData.ReadByteSeq(guid[3]);
-	recvData.ReadByteSeq(guid[1]);
-	recvData.ReadByteSeq(guid[7]);
+recvData.ReadByteSeq(guid[0]);
+recvData.ReadByteSeq(guid[2]);
+recvData.ReadByteSeq(guid[6]);
+recvData.ReadByteSeq(guid[5]);
+recvData.ReadByteSeq(guid[3]);
+recvData.ReadByteSeq(guid[1]);
+recvData.ReadByteSeq(guid[7]);
 
     if (!IsLegitCharacterForAccount(GUID_LOPART(guid)))
     {

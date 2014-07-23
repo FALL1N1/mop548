@@ -457,8 +457,10 @@ void WorldSession::HandleGuildPermissions(WorldPacket& /* recvPacket */)
 void WorldSession::HandleGuildBankerActivate(WorldPacket& recvPacket)
 {
     ObjectGuid guid;
+    bool sendAllSlots;
+
     guid[3] = recvPacket.ReadBit();
-    bool sendAllSlots = recvPacket.ReadBit();
+    sendAllSlots = recvPacket.ReadBit();
     guid[0] = recvPacket.ReadBit();
     guid[7] = recvPacket.ReadBit();
     guid[1] = recvPacket.ReadBit();
@@ -477,7 +479,7 @@ void WorldSession::HandleGuildBankerActivate(WorldPacket& recvPacket)
     recvPacket.ReadByteSeq(guid[3]);
 
     TC_LOG_DEBUG("guild", "CMSG_GUILD_BANKER_ACTIVATE [%s]: Go: [" UI64FMTD "] AllSlots: %u"
-        , GetPlayerInfo().c_str(), uint64(guid), sendAllSlots);
+        , GetPlayerInfo().c_str(), (uint64)guid, sendAllSlots);
 
     GameObject const* const go = GetPlayer()->GetGameObjectIfCanInteractWith(guid, GAMEOBJECT_TYPE_GUILD_BANK);
     if (!go)
@@ -514,8 +516,8 @@ void WorldSession::HandleGuildBankDepositMoney(WorldPacket& recvPacket)
 {
     ObjectGuid guid;
     uint64 money;
-    recvPacket >> money;
 
+    recvPacket >> money;
     guid[2] = recvPacket.ReadBit();
     guid[7] = recvPacket.ReadBit();
     guid[6] = recvPacket.ReadBit();
@@ -689,14 +691,37 @@ void WorldSession::HandleGuildBankBuyTab(WorldPacket& recvPacket)
 
 void WorldSession::HandleGuildBankUpdateTab(WorldPacket& recvPacket)
 {
-    uint64 guid;
-    uint8 tabId;
+    uint32 iconLen, nameLen;
     std::string name, icon;
+    ObjectGuid guid;
+    uint8 tabId;
 
-    recvPacket >> guid >> tabId >> name >> icon;
+    recvPacket >> tabId;
+    guid[5] = recvPacket.ReadBit();
+    iconLen = recvPacket.ReadBits(9);
+    guid[1] = recvPacket.ReadBit();
+    guid[4] = recvPacket.ReadBit();
+    guid[2] = recvPacket.ReadBit();
+    guid[7] = recvPacket.ReadBit();
+    guid[0] = recvPacket.ReadBit();
+    guid[6] = recvPacket.ReadBit();
+    guid[3] = recvPacket.ReadBit();
+    nameLen = recvPacket.ReadBits(7);
+
+    recvPacket.ReadByteSeq(guid[7]);
+    recvPacket.ReadByteSeq(guid[4]);
+    icon = recvPacket.ReadString(iconLen);
+    recvPacket.ReadByteSeq(guid[5]);
+    recvPacket.ReadByteSeq(guid[1]);
+    recvPacket.ReadByteSeq(guid[0]);
+    name = recvPacket.ReadString(nameLen);
+    recvPacket.ReadByteSeq(guid[2]);
+    recvPacket.ReadByteSeq(guid[3]);
+    recvPacket.ReadByteSeq(guid[6]);
+
 
     TC_LOG_DEBUG("guild", "CMSG_GUILD_BANK_UPDATE_TAB [%s]: Go: [" UI64FMTD "], TabId: %u, Name: %s, Icon: %s"
-        , GetPlayerInfo().c_str(), guid, tabId, name.c_str(), icon.c_str());
+        , GetPlayerInfo().c_str(), (uint64)guid, tabId, name.c_str(), icon.c_str());
     if (!name.empty() && !icon.empty())
         if (GetPlayer()->GetGameObjectIfCanInteractWith(guid, GAMEOBJECT_TYPE_GUILD_BANK))
             if (Guild* guild = GetPlayer()->GetGuild())
@@ -800,9 +825,9 @@ void WorldSession::HandleGuildSetRankPermissionsOpcode(WorldPacket& recvPacket)
     }
 
     recvPacket >> moneyPerDay;
+    recvPacket >> oldRights;
     recvPacket >> newRights;
     recvPacket >> newRankId;
-    recvPacket >> oldRights;
 
     uint32 nameLength = recvPacket.ReadBits(7);
     std::string rankName = recvPacket.ReadString(nameLength);

@@ -15713,6 +15713,9 @@ void Unit::WriteMovementInfo(WorldPacket& data, Movement::ExtraMovementStatusEle
             if (hasTransportData)
                 data.WriteByteSeq(tguid[element - MSETransportGuidByte0]);
             break;
+        case MSEHasCounter:
+            data.WriteBit(!m_movementCounter);
+            break;
         case MSEHasMovementFlags:
             data.WriteBit(!hasMovementFlags);
             break;
@@ -15837,11 +15840,13 @@ void Unit::WriteMovementInfo(WorldPacket& data, Movement::ExtraMovementStatusEle
             if (hasSplineElevation)
                 data << mi.splineElevation;
             break;
-        case MSECounterCount:
+        case MSEForcesCount:
             data.WriteBits(0, 22);
             break;
         case MSECounter:
-            data << m_movementCounter++;
+            if (m_movementCounter)
+                data << m_movementCounter;
+            m_movementCounter++;
             break;
         case MSEZeroBit:
             data.WriteBit(0);

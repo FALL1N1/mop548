@@ -3661,7 +3661,7 @@ enum ChatMsg
     
 };
 
-#define MAX_CHAT_MSG_TYPE 0x34
+#define MSG_NULL_ACTION 0x34
 
 enum ChatLinkColors
 {
