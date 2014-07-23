@@ -157,7 +157,7 @@ void CharacterBooster::_SendMail(SQLTransaction& trans, std::vector<std::pair<ui
     if (items.empty())
         return;
 
-    uint32 mailId = _PrepareMail(trans, "", "");
+    uint32 mailId = _PrepareMail(trans, CHARRACTER_BOOST_EQUIPED_ITEMS_MAIL_SUBJECT, CHARRACTER_BOOST_EQUIPED_ITEMS_MAIL_BODY);
     PreparedStatement* stmt = NULL;
 
     for (uint8 i = 0; i < items.size(); i++)
@@ -324,7 +324,7 @@ std::string CharacterBooster::_EquipItems(SQLTransaction& trans, SlotEquipmentMa
     PreparedStatement* stmt;
     for (uint8 i = 0; i < EQUIPMENT_SLOT_END; i++)
     {
-        itr = itemsToEquip->find((EquipmentSlots)i);
+        itr = itemsToEquip->find(i);
         if (itr != itemsToEquip->end())
         {
             if (Item* item = Item::CreateItem(itr->second, 1, m_charBoostInfo.charGuid))

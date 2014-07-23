@@ -20,7 +20,7 @@
 #pragma once
 #include "Player.h"
 
-typedef std::map<EquipmentSlots, uint32> SlotEquipmentMap;
+typedef std::map<uint8, uint32> SlotEquipmentMap;
 
 SlotEquipmentMap const deathKnightEquipmentBlood =
 {
