@@ -82,3 +82,6 @@ add_subdirectory(dep)
 
 # add core sources
 add_subdirectory(src)
+
+# force to build with c++11
+add_definitions(-std=c++11)
