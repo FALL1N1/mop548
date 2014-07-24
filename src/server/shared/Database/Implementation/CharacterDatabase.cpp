@@ -399,7 +399,7 @@ void CharacterDatabaseConnection::DoPrepareStatements()
                      "equipmentCache=?,knownTitles=?,actionBars=?,grantableLevels=?,online=? WHERE guid=?", CONNECTION_ASYNC);
     
     PrepareStatement(CHAR_UPD_CHARACTER_FOR_BOOST, "UPDATE characters SET race = ?, money = money + 1500000, level = 90, position_x = ?, position_y = ?, position_z = ?, orientation = ?, map = ?, talenttree = ?,"
-                    "trans_x = 0, trans_y = 0, trans_z = 0, transguid = 0, at_login = at_login & ~ ?, activespec = 0, equipmentCache = ? WHERE guid = ?", CONNECTION_ASYNC);
+                    "trans_x = 0, trans_y = 0, trans_z = 0, trans_o = 0, transguid = 0, at_login = at_login & ~ ?, activespec = 0, equipmentCache = ? WHERE guid = ?", CONNECTION_ASYNC);
     PrepareStatement(CHAR_UPD_ADD_AT_LOGIN_FLAG, "UPDATE characters SET at_login = at_login | ? WHERE guid = ?", CONNECTION_ASYNC);
     PrepareStatement(CHAR_UPD_REM_AT_LOGIN_FLAG, "UPDATE characters set at_login = at_login & ~ ? WHERE guid = ?", CONNECTION_ASYNC);
     PrepareStatement(CHAR_UPD_ALL_AT_LOGIN_FLAGS, "UPDATE characters SET at_login = at_login | ?", CONNECTION_ASYNC);
