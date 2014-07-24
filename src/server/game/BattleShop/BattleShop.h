@@ -57,8 +57,8 @@ SlotEquipmentMap const deathKnightEquipmentFrost =
     { EQUIPMENT_SLOT_FINGER2, 100989 },
     { EQUIPMENT_SLOT_TRINKET1, 100990 },
     { EQUIPMENT_SLOT_TRINKET2, 100991 },
-    { EQUIPMENT_SLOT_MAINHAND, 100976 },
-    { EQUIPMENT_SLOT_OFFHAND, 100976 }
+    { EQUIPMENT_SLOT_MAINHAND, 100985 },
+    { EQUIPMENT_SLOT_OFFHAND, 100985 }
 };
 
 SlotEquipmentMap const deathKnightEquipmentUnholy =

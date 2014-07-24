@@ -164,6 +164,7 @@ void CharacterBooster::_SendMail(SQLTransaction& trans, std::vector<std::pair<ui
     {
         if (Item* item = Item::CreateItem(items[i].first, items[i].second, m_charBoostInfo.charGuid))
         {
+            item->SetBinding(true);
             item->SaveToDB(trans);
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_MAIL_ITEM);
             stmt->setUInt32(0, mailId);
@@ -322,13 +323,14 @@ std::string CharacterBooster::_EquipItems(SQLTransaction& trans, SlotEquipmentMa
     SlotEquipmentMap::const_iterator itr;
     std::ostringstream items;
     PreparedStatement* stmt;
-    for (uint8 i = 0; i < EQUIPMENT_SLOT_END; i++)
+    for (uint8 i = 0; i < INVENTORY_SLOT_BAG_END; i++)
     {
         itr = itemsToEquip->find(i);
         if (itr != itemsToEquip->end())
         {
             if (Item* item = Item::CreateItem(itr->second, 1, m_charBoostInfo.charGuid))
             {
+                item->SetBinding(true);
                 item->SaveToDB(trans);
 
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_INVENTORY);
@@ -361,8 +363,9 @@ void CharacterBooster::_SaveBoostedChar(SQLTransaction& trans, std::string const
     stmt->setFloat(4, position[3]);
     stmt->setUInt16(5, VALE_OF_ETERNAL_BLOSSOMS_MAP_ID);
     stmt->setString(6, _SetSpecialization(trans, classId));
-    stmt->setString(7, items);
-    stmt->setUInt32(8, m_charBoostInfo.lowGuid);
+    stmt->setUInt16(7, AT_LOGIN_FIRST);
+    stmt->setString(8, items);
+    stmt->setUInt32(9, m_charBoostInfo.lowGuid);
     trans->Append(stmt);
 }
 
