@@ -154,7 +154,7 @@ void WorldSession::SendTaxiMenu(Creature* unit)
 	data.WriteBit(Guid[5]);
 	
 	data.WriteBits(TaxiMaskSize, 24);
-
+    data.FlushBits();
 	data.WriteByteSeq(Guid[0]);
 	data.WriteByteSeq(Guid[3]);
     data << uint32(curloc);
@@ -252,6 +252,7 @@ void WorldSession::HandleActivateTaxiExpressOpcode (WorldPacket& recvData)
     guid[6] = recvData.ReadBit();
     guid[7] = recvData.ReadBit();
     node_count = recvData.ReadBits(22);
+    printf("nodes_count [%u]\n", node_count);
     guid[2] = recvData.ReadBit();
     guid[0] = recvData.ReadBit();
     guid[4] = recvData.ReadBit();
