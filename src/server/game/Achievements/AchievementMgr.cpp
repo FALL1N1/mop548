@@ -22,6 +22,7 @@
 #include "ArenaTeamMgr.h"
 #include "Battleground.h"
 #include "CellImpl.h"
+#include "Chat.h"
 #include "Common.h"
 #include "DatabaseEnv.h"
 #include "DBCEnums.h"
@@ -50,120 +51,11 @@ namespace Trinity
         public:
             AchievementChatBuilder(Player const& player, ChatMsg msgtype, int32 textId, uint32 ach_id)
                 : i_player(player), i_msgtype(msgtype), i_textId(textId), i_achievementId(ach_id) { }
+
             void operator()(WorldPacket& data, LocaleConstant loc_idx)
             {
-                char const* text = sObjectMgr->GetTrinityString(i_textId, loc_idx);
-                std::string message = text ? text : "";
-                ObjectGuid groupGuid = 0;
-                ObjectGuid guildGuid = 0;
-                ObjectGuid playerGuid = i_player.GetGUID();
-
-                if (Group const* group = i_player.GetGroup())
-                    groupGuid = group->GetGUID();
-
-                if (Guild const* guild = sGuildMgr->GetGuildById(i_player.GetGuildId()))
-                    guildGuid = guild->GetGUID();
-
-                data.WriteBit(1); // unk bool
-                data.WriteBit(0); // unk bit
-                data.WriteBit(1); // unk bit
-                data.WriteBit(1); // is not channel
-                data.WriteBit(0); // unk bool
-                data.WriteBit(1); // unk bit
-                data.WriteBit((i_msgtype == CHAT_MSG_ACHIEVEMENT) ? 0 : 1); // unk bool
-                data.WriteBit(0); // unk bool
-
-                if (i_msgtype == CHAT_MSG_ACHIEVEMENT)
-                    data.WriteBits(0, 9);
-
-                data.WriteBit(groupGuid[0]);
-                data.WriteBit(groupGuid[1]);
-                data.WriteBit(groupGuid[5]);
-                data.WriteBit(groupGuid[4]);
-                data.WriteBit(groupGuid[3]);
-                data.WriteBit(groupGuid[2]);
-                data.WriteBit(groupGuid[6]);
-                data.WriteBit(groupGuid[7]);
-
-                data.WriteBit(0); // unk bit
-                data.WriteBit(playerGuid[7]);
-                data.WriteBit(playerGuid[6]);
-                data.WriteBit(playerGuid[1]);
-                data.WriteBit(playerGuid[4]);
-                data.WriteBit(playerGuid[0]);
-                data.WriteBit(playerGuid[2]);
-                data.WriteBit(playerGuid[3]);
-                data.WriteBit(playerGuid[5]);
-
-                data.WriteBit(0); // unk bit
-                data.WriteBit(1); // Dont send language
-                data.WriteBit(1); // unk bool
-                data.WriteBit(playerGuid[0]);
-                data.WriteBit(playerGuid[3]);
-                data.WriteBit(playerGuid[7]);
-                data.WriteBit(playerGuid[2]);
-                data.WriteBit(playerGuid[1]);
-                data.WriteBit(playerGuid[5]);
-                data.WriteBit(playerGuid[4]);
-                data.WriteBit(playerGuid[6]);
-
-                data.WriteBit(0); // unk bool
-                data.WriteBit(0); // unk bool
-                data.WriteBits(message.size(), 12);
-                data.WriteBit(1); // unk bool
-                data.WriteBit(0); // unk bool
-                data.WriteBit(0); // fake bit
-                data.WriteBit(guildGuid[2]);
-                data.WriteBit(guildGuid[5]);
-                data.WriteBit(guildGuid[7]);
-                data.WriteBit(guildGuid[4]);
-                data.WriteBit(guildGuid[0]);
-                data.WriteBit(guildGuid[1]);
-                data.WriteBit(guildGuid[3]);
-                data.WriteBit(guildGuid[6]);
-
-                data.FlushBits();
-                data.WriteByteSeq(guildGuid[4]);
-                data.WriteByteSeq(guildGuid[5]);
-                data.WriteByteSeq(guildGuid[7]);
-                data.WriteByteSeq(guildGuid[3]);
-                data.WriteByteSeq(guildGuid[2]);
-                data.WriteByteSeq(guildGuid[6]);
-                data.WriteByteSeq(guildGuid[0]);
-                data.WriteByteSeq(guildGuid[1]);
-
-                data.WriteByteSeq(playerGuid[4]);
-                data.WriteByteSeq(playerGuid[7]);
-                data.WriteByteSeq(playerGuid[1]);
-                data.WriteByteSeq(playerGuid[5]);
-                data.WriteByteSeq(playerGuid[0]);
-                data.WriteByteSeq(playerGuid[6]);
-                data.WriteByteSeq(playerGuid[2]);
-                data.WriteByteSeq(playerGuid[3]);
-
-                data << (uint8)i_msgtype;
-                data << (uint32)i_achievementId;
-                data.WriteByteSeq(groupGuid[1]);
-                data.WriteByteSeq(groupGuid[3]);
-                data.WriteByteSeq(groupGuid[4]);
-                data.WriteByteSeq(groupGuid[6]);
-                data.WriteByteSeq(groupGuid[0]);
-                data.WriteByteSeq(groupGuid[2]);
-                data.WriteByteSeq(groupGuid[5]);
-                data.WriteByteSeq(groupGuid[7]);
-
-                data.WriteByteSeq(playerGuid[2]);
-                data.WriteByteSeq(playerGuid[5]);
-                data.WriteByteSeq(playerGuid[3]);
-                data.WriteByteSeq(playerGuid[6]);
-                data.WriteByteSeq(playerGuid[7]);
-                data.WriteByteSeq(playerGuid[4]);
-                data.WriteByteSeq(playerGuid[1]);
-                data.WriteByteSeq(playerGuid[0]);
-
-                data << (int32)0;
-                data.WriteString(message);
-                data << (int32)0;
+                std::string text = sObjectMgr->GetTrinityString(i_textId, loc_idx);
+                ChatHandler::BuildChatPacket(data, i_msgtype, LANG_UNIVERSAL, &i_player, &i_player, text, i_achievementId);
             }
 
         private:
@@ -172,7 +64,8 @@ namespace Trinity
             int32 i_textId;
             uint32 i_achievementId;
     };
-}                                                           // namespace Trinity
+} // namespace Trinity
+
 
 bool AchievementCriteriaData::IsValid(AchievementCriteriaEntry const* criteria)
 {

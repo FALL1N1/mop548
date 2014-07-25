@@ -63,12 +63,6 @@ class DynamicObject : public WorldObject, public GridObject<DynamicObject>
         float GetRadius() const { return GetFloatValue(DYNAMICOBJECT_FIELD_RADIUS); }
         DynamicObjectType GetType() const { return DynamicObjectType(GetByteValue(DYNAMICOBJECT_FIELD_TYPE_AND_VISUAL_ID, 3) >> 4); }
 
-        void Say(int32 textId, uint32 language, uint64 targetGuid) { MonsterSay(textId, language, targetGuid); }
-        void Yell(int32 textId, uint32 language, uint64 targetGuid) { MonsterYell(textId, language, targetGuid); }
-        void TextEmote(int32 textId, uint64 targetGuid) { MonsterTextEmote(textId, targetGuid); }
-        void Whisper(int32 textId, uint64 receiver) { MonsterWhisper(textId, receiver); }
-        void YellToZone(int32 textId, uint32 language, uint64 targetGuid) { MonsterYellToZone(textId, language, targetGuid); }
-
     protected:
         Aura* _aura;
         Aura* _removedAura;

@@ -604,17 +604,12 @@ void Channel::Say(uint64 guid, std::string const& what, uint32 lang)
         return;
 
     uint8 chatTag = 0;
-    ObjectGuid groupGuid = 0;
-    ObjectGuid playerGuid = 0;
-    ObjectGuid guildGuid = 0;
+    bool isGM = false;
+
     if (Player* player = ObjectAccessor::FindPlayer(guid))
     {
         chatTag = player->GetChatTag();
-        playerGuid = player->GetGUID();
-        if (Group* group = player->GetGroup())
-            groupGuid = group->GetGUID();
-        if (Guild* guild = player->GetGuild())
-            guildGuid = guild->GetGUID();
+        isGM = player->GetSession()->HasPermission(rbac::RBAC_PERM_COMMAND_GM_CHAT);
     }
 
     // TODO: Add proper RBAC check
@@ -637,105 +632,8 @@ void Channel::Say(uint64 guid, std::string const& what, uint32 lang)
         return;
     }
 
-    WorldPacket data(SMSG_MESSAGECHAT, 34 + _name.size() + what.size());
-    data.WriteBit(1); // unk bool
-    data.WriteBit(0); // unk bit
-    data.WriteBit(1); // unk bit
-    data.WriteBit(0); // is not channel
-    data.WriteBit(0); // unk bool
-    data.WriteBit(1); // unk bit
-    data.WriteBit(1); // unk bool
-    data.WriteBit(0); // unk bool
-
-    data.WriteBit(groupGuid[0]);
-    data.WriteBit(groupGuid[1]);
-    data.WriteBit(groupGuid[5]);
-    data.WriteBit(groupGuid[4]);
-    data.WriteBit(groupGuid[3]);
-    data.WriteBit(groupGuid[2]);
-    data.WriteBit(groupGuid[6]);
-    data.WriteBit(groupGuid[7]);
-
-    data.WriteBit(0); // unk bit
-    data.WriteBit(playerGuid[7]);
-    data.WriteBit(playerGuid[6]);
-    data.WriteBit(playerGuid[1]);
-    data.WriteBit(playerGuid[4]);
-    data.WriteBit(playerGuid[0]);
-    data.WriteBit(playerGuid[2]);
-    data.WriteBit(playerGuid[3]);
-    data.WriteBit(playerGuid[5]);
-
-    data.WriteBit(0); // unk bit
-    data.WriteBit(1); // Dont send language
-    data.WriteBit(1); // unk bool
-    data.WriteBit(playerGuid[0]);
-    data.WriteBit(playerGuid[3]);
-    data.WriteBit(playerGuid[7]);
-    data.WriteBit(playerGuid[2]);
-    data.WriteBit(playerGuid[1]);
-    data.WriteBit(playerGuid[5]);
-    data.WriteBit(playerGuid[4]);
-    data.WriteBit(playerGuid[6]);
-
-    data.WriteBit(1); // unk bool
-    data.WriteBit(0); // unk bool
-    data.WriteBits(_name.size(), 7);
-    data.WriteBits(what.size(), 12);
-    data.WriteBit(1); // unk bool
-    data.WriteBit(0); // unk bool
-    data.WriteBit(0); // fake bit
-    data.WriteBit(guildGuid[2]);
-    data.WriteBit(guildGuid[5]);
-    data.WriteBit(guildGuid[7]);
-    data.WriteBit(guildGuid[4]);
-    data.WriteBit(guildGuid[0]);
-    data.WriteBit(guildGuid[1]);
-    data.WriteBit(guildGuid[3]);
-    data.WriteBit(guildGuid[6]);
-    
-    data.FlushBits();
-    data.WriteByteSeq(guildGuid[4]);
-    data.WriteByteSeq(guildGuid[5]);
-    data.WriteByteSeq(guildGuid[7]);
-    data.WriteByteSeq(guildGuid[3]);
-    data.WriteByteSeq(guildGuid[2]);
-    data.WriteByteSeq(guildGuid[6]);
-    data.WriteByteSeq(guildGuid[0]);
-    data.WriteByteSeq(guildGuid[1]);
-
-    data.WriteString(_name);
-    data.WriteByteSeq(playerGuid[4]);
-    data.WriteByteSeq(playerGuid[7]);
-    data.WriteByteSeq(playerGuid[1]);
-    data.WriteByteSeq(playerGuid[5]);
-    data.WriteByteSeq(playerGuid[0]);
-    data.WriteByteSeq(playerGuid[6]);
-    data.WriteByteSeq(playerGuid[2]);
-    data.WriteByteSeq(playerGuid[3]);
-
-    data << (uint8)CHAT_MSG_CHANNEL;
-    data.WriteByteSeq(groupGuid[1]);
-    data.WriteByteSeq(groupGuid[3]);
-    data.WriteByteSeq(groupGuid[4]);
-    data.WriteByteSeq(groupGuid[6]);
-    data.WriteByteSeq(groupGuid[0]);
-    data.WriteByteSeq(groupGuid[2]);
-    data.WriteByteSeq(groupGuid[5]);
-    data.WriteByteSeq(groupGuid[7]);
-
-    data.WriteByteSeq(playerGuid[2]);
-    data.WriteByteSeq(playerGuid[5]);
-    data.WriteByteSeq(playerGuid[3]);
-    data.WriteByteSeq(playerGuid[6]);
-    data.WriteByteSeq(playerGuid[7]);
-    data.WriteByteSeq(playerGuid[4]);
-    data.WriteByteSeq(playerGuid[1]);
-    data.WriteByteSeq(playerGuid[0]);
-
-    data << (int32)0;
-    data.WriteString(what);
-    data << (int32)0;
+    WorldPacket data;
+    ChatHandler::BuildChatPacket(data, CHAT_MSG_CHANNEL, Language(lang), guid, guid, what, chatTag, "", "", 0, isGM, _name);
 
     SendToAll(&data, !playersStore[guid].IsModerator() ? guid : false);
 }

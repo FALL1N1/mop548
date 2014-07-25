@@ -313,8 +313,8 @@ void WorldSession::HandleReadItem(WorldPacket& recvData)
     ObjectGuid Guid;
     uint8 bag, slot;
     recvData >> bag >> slot;
-	
-	Guid[2] = recvData.ReadBit();
+
+Guid[2] = recvData.ReadBit();
     Guid[1] = recvData.ReadBit();
     Guid[3] = recvData.ReadBit();
     Guid[7] = recvData.ReadBit();
@@ -322,7 +322,7 @@ void WorldSession::HandleReadItem(WorldPacket& recvData)
     Guid[4] = recvData.ReadBit();
     Guid[0] = recvData.ReadBit();
     Guid[5] = recvData.ReadBit();
-	
+
     recvData.ReadByteSeq(Guid[0]);
     recvData.ReadByteSeq(Guid[6]);
     recvData.ReadByteSeq(Guid[3]);
@@ -331,7 +331,7 @@ void WorldSession::HandleReadItem(WorldPacket& recvData)
     recvData.ReadByteSeq(Guid[7]);
     recvData.ReadByteSeq(Guid[4]);
     recvData.ReadByteSeq(Guid[2]);
-	
+
     Item* pItem = _player->GetItemByPos(bag, slot);
 
     if (pItem && pItem->GetTemplate()->PageText)
@@ -1797,6 +1797,7 @@ void WorldSession::SendReforgeResult(bool success)
 {
     WorldPacket data(SMSG_REFORGE_RESULT, 1);
     data.WriteBit(success);
+    data.FlushBits();
     SendPacket(&data);
 }
 
@@ -1808,7 +1809,7 @@ void WorldSession::HandleReforgeItemOpcode(WorldPacket& recvData)
     Player* player = GetPlayer();
 
     recvData >> slot >> reforgeEntry >> bag;
-	
+
     guid[1] = recvData.ReadBit();
     guid[0] = recvData.ReadBit();
     guid[5] = recvData.ReadBit();
@@ -1839,7 +1840,7 @@ void WorldSession::HandleReforgeItemOpcode(WorldPacket& recvData)
     if (!item)
     {
         TC_LOG_INFO("network", "WORLD: HandleReforgeItemOpcode - Player (Guid: %u Name: %s) tried to reforge an invalid/non-existant item.", player->GetGUIDLow(), player->GetName().c_str());
-		SendReforgeResult(false);
+        SendReforgeResult(false);
         return;
     }
 
