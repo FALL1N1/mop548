@@ -42,7 +42,7 @@ class npc_pet_mage_mirror_image : public CreatureScript
         {
             npc_pet_mage_mirror_imageAI(Creature* creature) : CasterAI(creature) { }
 
-            void InitializeAI() OVERRIDE
+            void InitializeAI() override
             {
                 CasterAI::InitializeAI();
                 Unit* owner = me->GetOwner();
@@ -57,7 +57,7 @@ class npc_pet_mage_mirror_image : public CreatureScript
             }
 
             // Do not reload Creature templates on evade mode enter - prevent visual lost
-            void EnterEvadeMode() OVERRIDE
+            void EnterEvadeMode() override
             {
                 if (me->IsInEvadeMode() || !me->IsAlive())
                     return;
@@ -73,7 +73,7 @@ class npc_pet_mage_mirror_image : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return new npc_pet_mage_mirror_imageAI(creature);
         }

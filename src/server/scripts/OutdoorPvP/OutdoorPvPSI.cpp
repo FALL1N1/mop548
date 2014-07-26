@@ -246,7 +246,7 @@ class OutdoorPvP_silithus : public OutdoorPvPScript
         {
         }
 
-        OutdoorPvP* GetOutdoorPvP() const OVERRIDE
+        OutdoorPvP* GetOutdoorPvP() const override
         {
             return new OutdoorPvPSI();
         }

@@ -74,7 +74,7 @@ class instance_deadmines : public InstanceMapScript
             uint32 PiratesDelay_Timer;
             uint64 uiSmiteChestGUID;
 
-            void Initialize() OVERRIDE
+            void Initialize() override
             {
                 FactoryDoorGUID = 0;
                 IronCladDoorGUID = 0;
@@ -88,7 +88,7 @@ class instance_deadmines : public InstanceMapScript
                 uiSmiteChestGUID = 0;
             }
 
-            virtual void Update(uint32 diff) OVERRIDE
+            virtual void Update(uint32 diff) override
             {
                 if (!IronCladDoorGUID || !DefiasCannonGUID || !DoorLeverGUID)
                     return;
@@ -190,7 +190,7 @@ class instance_deadmines : public InstanceMapScript
                     pDoorLever->SetUInt32Value(GAMEOBJECT_FIELD_FLAGS, 4);
             }
 
-            void OnGameObjectCreate(GameObject* go) OVERRIDE
+            void OnGameObjectCreate(GameObject* go) override
             {
                 switch (go->GetEntry())
                 {
@@ -202,7 +202,7 @@ class instance_deadmines : public InstanceMapScript
                 }
             }
 
-            void SetData(uint32 type, uint32 data) OVERRIDE
+            void SetData(uint32 type, uint32 data) override
             {
                 switch (type)
                 {
@@ -218,7 +218,7 @@ class instance_deadmines : public InstanceMapScript
                 }
             }
 
-            uint32 GetData(uint32 type) const OVERRIDE
+            uint32 GetData(uint32 type) const override
             {
                 switch (type)
                 {
@@ -229,7 +229,7 @@ class instance_deadmines : public InstanceMapScript
                 return 0;
             }
 
-            uint64 GetData64(uint32 data) const OVERRIDE
+            uint64 GetData64(uint32 data) const override
             {
                 switch (data)
                 {
@@ -266,7 +266,7 @@ class instance_deadmines : public InstanceMapScript
             }
         };
 
-        InstanceScript* GetInstanceScript(InstanceMap* map) const OVERRIDE
+        InstanceScript* GetInstanceScript(InstanceMap* map) const override
         {
             return new instance_deadmines_InstanceMapScript(map);
         }

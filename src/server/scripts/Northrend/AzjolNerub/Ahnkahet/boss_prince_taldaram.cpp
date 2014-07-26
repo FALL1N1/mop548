@@ -94,14 +94,14 @@ class boss_taldaram : public CreatureScript
                 me->SetDisableGravity(true);
             }
 
-            void Reset() OVERRIDE
+            void Reset() override
             {
                 _Reset();
                 _embraceTargetGUID = 0;
                 _embraceTakenDamage = 0;
             }
 
-            void EnterCombat(Unit* /*who*/) OVERRIDE
+            void EnterCombat(Unit* /*who*/) override
             {
                 _EnterCombat();
                 Talk(SAY_AGGRO);
@@ -111,7 +111,7 @@ class boss_taldaram : public CreatureScript
                 events.ScheduleEvent(EVENT_FLAME_SPHERE, 5000);
             }
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;
@@ -231,7 +231,7 @@ class boss_taldaram : public CreatureScript
                 DoMeleeAttackIfReady();
             }
 
-            void DamageTaken(Unit* /*doneBy*/, uint32& damage) OVERRIDE
+            void DamageTaken(Unit* /*doneBy*/, uint32& damage) override
             {
                 Unit* embraceTarget = GetEmbraceTarget();
 
@@ -247,13 +247,13 @@ class boss_taldaram : public CreatureScript
                 }
             }
 
-            void JustDied(Unit* /*killer*/) OVERRIDE
+            void JustDied(Unit* /*killer*/) override
             {
                 Talk(SAY_DEATH);
                 _JustDied();
             }
 
-            void KilledUnit(Unit* victim) OVERRIDE
+            void KilledUnit(Unit* victim) override
             {
                 if (victim->GetTypeId() != TYPEID_PLAYER)
                     return;
@@ -302,7 +302,7 @@ class boss_taldaram : public CreatureScript
             uint32 _embraceTakenDamage;
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return GetAhnKahetAI<boss_taldaramAI>(creature);
         }
@@ -319,7 +319,7 @@ class npc_taldaram_flamesphere : public CreatureScript
             {
             }
 
-            void Reset() OVERRIDE
+            void Reset() override
             {
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 //! HACK: Creature's can't have MOVEMENTFLAG_FLYING
@@ -332,15 +332,15 @@ class npc_taldaram_flamesphere : public CreatureScript
                 _despawnTimer = 10 * IN_MILLISECONDS;
             }
 
-            void EnterCombat(Unit* /*who*/) OVERRIDE { }
-            void MoveInLineOfSight(Unit* /*who*/) OVERRIDE { }
+            void EnterCombat(Unit* /*who*/) override { }
+            void MoveInLineOfSight(Unit* /*who*/) override { }
 
-            void JustDied(Unit* /*killer*/) OVERRIDE
+            void JustDied(Unit* /*killer*/) override
             {
                 DoCast(me, SPELL_FLAME_SPHERE_DEATH_EFFECT);
             }
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff) override
             {
                 if (_despawnTimer <= diff)
                     me->DisappearAndDie();
@@ -352,7 +352,7 @@ class npc_taldaram_flamesphere : public CreatureScript
             uint32 _despawnTimer;
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return new npc_taldaram_flamesphereAI(creature);
         }
@@ -363,7 +363,7 @@ class prince_taldaram_sphere : public GameObjectScript
     public:
         prince_taldaram_sphere() : GameObjectScript("prince_taldaram_sphere") { }
 
-        bool OnGossipHello(Player* /*player*/, GameObject* go) OVERRIDE
+        bool OnGossipHello(Player* /*player*/, GameObject* go) override
         {
             InstanceScript* instance = go->GetInstanceScript();
             if (!instance)

@@ -55,7 +55,7 @@ class npc_arete : public CreatureScript
 public:
     npc_arete() : CreatureScript("npc_arete") { }
 
-    bool OnGossipHello(Player* player, Creature* creature) OVERRIDE
+    bool OnGossipHello(Player* player, Creature* creature) override
     {
         if (creature->IsQuestGiver())
             player->PrepareQuestMenu(creature->GetGUID());
@@ -71,7 +71,7 @@ public:
         return true;
     }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) OVERRIDE
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
     {
         player->PlayerTalkClass->ClearMenus();
         switch (action)
@@ -132,7 +132,7 @@ class npc_squire_david : public CreatureScript
 public:
     npc_squire_david() : CreatureScript("npc_squire_david") { }
 
-    bool OnGossipHello(Player* player, Creature* creature) OVERRIDE
+    bool OnGossipHello(Player* player, Creature* creature) override
     {
         if (player->GetQuestStatus(QUEST_THE_ASPIRANT_S_CHALLENGE_H) == QUEST_STATUS_INCOMPLETE ||
             player->GetQuestStatus(QUEST_THE_ASPIRANT_S_CHALLENGE_A) == QUEST_STATUS_INCOMPLETE)//We need more info about it.
@@ -145,7 +145,7 @@ public:
         return true;
     }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) OVERRIDE
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
     {
         player->PlayerTalkClass->ClearMenus();
         if (action == GOSSIP_ACTION_INFO_DEF+1)
@@ -184,13 +184,13 @@ public:
         uint32 uiChargeTimer;
         uint32 uiShieldBreakerTimer;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             uiChargeTimer = 7000;
             uiShieldBreakerTimer = 10000;
         }
 
-        void MovementInform(uint32 uiType, uint32 /*uiId*/) OVERRIDE
+        void MovementInform(uint32 uiType, uint32 /*uiId*/) override
         {
             if (uiType != POINT_MOTION_TYPE)
                 return;
@@ -198,7 +198,7 @@ public:
             me->setFaction(14);
         }
 
-        void DamageTaken(Unit* pDoneBy, uint32& uiDamage) OVERRIDE
+        void DamageTaken(Unit* pDoneBy, uint32& uiDamage) override
         {
             if (uiDamage > me->GetHealth() && pDoneBy->GetTypeId() == TYPEID_PLAYER)
             {
@@ -211,7 +211,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 uiDiff) OVERRIDE
+        void UpdateAI(uint32 uiDiff) override
         {
             if (!UpdateVictim())
                 return;
@@ -232,7 +232,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_argent_valiantAI(creature);
     }
@@ -263,7 +263,7 @@ public:
             SetCombatMovement(false);
         }
 
-        void MoveInLineOfSight(Unit* who) OVERRIDE
+        void MoveInLineOfSight(Unit* who) override
 
         {
             if (me->GetAreaId() != AREA_SUNREAVER_PAVILION && me->GetAreaId() != AREA_SILVER_COVENANT_PAVILION)
@@ -283,7 +283,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_guardian_pavilionAI(creature);
     }
@@ -309,7 +309,7 @@ public:
     {
         npc_vereth_the_cunningAI(Creature* creature) : ScriptedAI(creature) { }
 
-        void MoveInLineOfSight(Unit* who) OVERRIDE
+        void MoveInLineOfSight(Unit* who) override
 
         {
             ScriptedAI::MoveInLineOfSight(who);
@@ -329,7 +329,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_vereth_the_cunningAI(creature);
     }
@@ -377,7 +377,7 @@ class npc_tournament_training_dummy : public CreatureScript
             EventMap events;
             bool isVulnerable;
 
-            void Reset() OVERRIDE
+            void Reset() override
             {
                 me->SetControlled(true, UNIT_STATE_STUNNED);
                 me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
@@ -398,7 +398,7 @@ class npc_tournament_training_dummy : public CreatureScript
                 events.ScheduleEvent(EVENT_DUMMY_RECAST_DEFEND, 5000);
             }
 
-            void EnterEvadeMode() OVERRIDE
+            void EnterEvadeMode() override
             {
                 if (!_EnterEvadeMode())
                     return;
@@ -406,13 +406,13 @@ class npc_tournament_training_dummy : public CreatureScript
                 Reset();
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& damage) OVERRIDE
+            void DamageTaken(Unit* /*attacker*/, uint32& damage) override
             {
                 damage = 0;
                 events.RescheduleEvent(EVENT_DUMMY_RESET, 10000);
             }
 
-            void SpellHit(Unit* caster, SpellInfo const* spell) OVERRIDE
+            void SpellHit(Unit* caster, SpellInfo const* spell) override
             {
                 switch (me->GetEntry())
                 {
@@ -442,7 +442,7 @@ class npc_tournament_training_dummy : public CreatureScript
                         isVulnerable = true;
             }
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff) override
             {
                 events.Update(diff);
 
@@ -484,11 +484,11 @@ class npc_tournament_training_dummy : public CreatureScript
                     me->SetControlled(true, UNIT_STATE_STUNNED);
             }
 
-            void MoveInLineOfSight(Unit* /*who*/)OVERRIDE { }
+            void MoveInLineOfSight(Unit* /*who*/)override { }
 
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return new npc_tournament_training_dummyAI(creature);
         }
@@ -609,7 +609,7 @@ public:
         uint64 guidMason[3];
         uint64 guidHalof;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             me->setRegeneratingHealth(false);
             DoCast(SPELL_THREAT_PULSE);
@@ -617,23 +617,23 @@ public:
             events.ScheduleEvent(EVENT_SPAWN, 3000);
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE { }
+        void EnterCombat(Unit* /*who*/) override { }
 
-        void MoveInLineOfSight(Unit* /*who*/) OVERRIDE { }
+        void MoveInLineOfSight(Unit* /*who*/) override { }
 
 
-        void JustSummoned(Creature* Summoned) OVERRIDE
+        void JustSummoned(Creature* Summoned) override
         {
             Summons.Summon(Summoned);
         }
 
-        void JustDied(Unit* /*killer*/) OVERRIDE
+        void JustDied(Unit* /*killer*/) override
         {
             Summons.DespawnAll();
             me->DespawnOrUnsummon();
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             events.Update(diff);
 
@@ -864,7 +864,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_blessed_bannerAI(creature);
     }
@@ -902,12 +902,12 @@ class npc_frostbrood_skytalon : public CreatureScript
 
             EventMap events;
 
-            void IsSummonedBy(Unit* summoner) OVERRIDE
+            void IsSummonedBy(Unit* summoner) override
             {
                 me->GetMotionMaster()->MovePoint(POINT_GRAB_DECOY, summoner->GetPositionX(), summoner->GetPositionY(), summoner->GetPositionZ());
             }
 
-            void MovementInform(uint32 type, uint32 id) OVERRIDE
+            void MovementInform(uint32 type, uint32 id) override
             {
                 if (type != POINT_MOTION_TYPE)
                     return;
@@ -918,7 +918,7 @@ class npc_frostbrood_skytalon : public CreatureScript
                             DoCast(summoner, SPELL_GRAB);
             }
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff) override
             {
                 VehicleAI::UpdateAI(diff);
                 events.Update(diff);
@@ -935,7 +935,7 @@ class npc_frostbrood_skytalon : public CreatureScript
                 }
             }
 
-            void SpellHit(Unit* /*caster*/, SpellInfo const* spell) OVERRIDE
+            void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
             {
                 switch (spell->Id)
                 {
@@ -950,7 +950,7 @@ class npc_frostbrood_skytalon : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return new npc_frostbrood_skytalonAI(creature);
         }
@@ -1000,7 +1000,7 @@ class npc_margrave_dhakar : public CreatureScript
         {
             npc_margrave_dhakarAI(Creature* creature) : ScriptedAI(creature) , _summons(me), _lichKingGuid(0) { }
 
-            void Reset() OVERRIDE
+            void Reset() override
             {
                 me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                 me->SetUInt32Value(UNIT_FIELD_NPC_EMOTESTATE, EMOTE_STATE_NONE);
@@ -1009,7 +1009,7 @@ class npc_margrave_dhakar : public CreatureScript
                 _summons.DespawnAll();
             }
 
-            void sGossipSelect(Player* player, uint32 sender, uint32 action) OVERRIDE
+            void sGossipSelect(Player* player, uint32 sender, uint32 action) override
             {
                 if (player->GetQuestStatus(QUEST_FLESH_GIANT_CHAMPION) == QUEST_STATUS_INCOMPLETE && !player->IsInCombat())
                 {
@@ -1021,7 +1021,7 @@ class npc_margrave_dhakar : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff) override
             {
                 _events.Update(diff);
 
@@ -1115,7 +1115,7 @@ class npc_margrave_dhakar : public CreatureScript
             uint64 _lichKingGuid;
     };
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_margrave_dhakarAI(creature);
     }
@@ -1130,7 +1130,7 @@ class npc_morbidus : public CreatureScript
         {
             npc_morbidusAI(Creature* creature) : ScriptedAI(creature) { }
 
-            void Reset() OVERRIDE
+            void Reset() override
             {
                 if (Creature* dhakar = me->FindNearestCreature(NPC_DHAKAR, 50.0f, true))
                     dhakar->AI()->Reset();
@@ -1142,7 +1142,7 @@ class npc_morbidus : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return new npc_morbidusAI(creature);
         }
