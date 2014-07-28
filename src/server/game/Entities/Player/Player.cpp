@@ -8234,7 +8234,7 @@ void Player::DuelComplete(DuelCompleteType type)
     TC_LOG_DEBUG("entities.unit", "Duel Complete %s %s", GetName().c_str(), duel->opponent->GetName().c_str());
 
     WorldPacket data(SMSG_DUEL_COMPLETE, 1);
-    data.WriteBit((type != DUEL_INTERRUPTED) ? 1 : 0);
+    data.WriteBit(type != DUEL_INTERRUPTED);
     data.FlushBits();
     GetSession()->SendPacket(&data);
 
@@ -8243,18 +8243,14 @@ void Player::DuelComplete(DuelCompleteType type)
 
     if (type != DUEL_INTERRUPTED)
     {
-        std::string opponentName = duel->opponent->GetName();
-        std::string playerName = GetName();
-
-        data.Initialize(SMSG_DUEL_WINNER, 30);      // we guess size
-        data.WriteBit(type == DUEL_WON ? 0 : 1);    // 0 = just won; 1 = fled
-        data.WriteBits(opponentName.length(), 6);
-        data.WriteBits(playerName.length(), 6);
-        data << uint32(0);                          // realmid?
-        data.WriteString(opponentName);
-        data << uint32(0);                          // realmid?
-        data.WriteString(playerName);
-
+        data.Initialize(SMSG_DUEL_WINNER, 1 + 20);          // we guess size
+        data.WriteBit(type != DUEL_WON);                    // 0 = just won; 1 = fled
+        data.WriteBits(duel->opponent->GetName().length(), 6);
+        data.WriteBits(GetName().length(), 6);
+        data << uint32(realmID);
+        data.WriteString(duel->opponent->GetName());
+        data << uint32(realmID);
+        data.WriteString(GetName());
         SendMessageToSet(&data, true);
     }
 
