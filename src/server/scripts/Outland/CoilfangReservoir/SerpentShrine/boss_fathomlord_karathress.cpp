@@ -104,7 +104,7 @@ class boss_fathomlord_karathress : public CreatureScript
 public:
     boss_fathomlord_karathress() : CreatureScript("boss_fathomlord_karathress") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new boss_fathomlord_karathressAI(creature);
     }
@@ -129,7 +129,7 @@ public:
 
         uint64 Advisors[MAX_ADVISORS];
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             CataclysmicBolt_Timer = 10000;
             Enrage_Timer = 600000;                              //10 minutes
@@ -203,12 +203,12 @@ public:
             instance->SetData(DATA_KARATHRESSEVENT, IN_PROGRESS);
         }
 
-        void KilledUnit(Unit* /*victim*/) OVERRIDE
+        void KilledUnit(Unit* /*victim*/) override
         {
             Talk(SAY_SLAY);
         }
 
-        void JustDied(Unit* /*killer*/) OVERRIDE
+        void JustDied(Unit* /*killer*/) override
         {
             Talk(SAY_DEATH);
 
@@ -219,12 +219,12 @@ public:
             me->SummonCreature(SEER_OLUM, OLUM_X, OLUM_Y, OLUM_Z, OLUM_O, TEMPSUMMON_TIMED_DESPAWN, 3600000);
         }
 
-        void EnterCombat(Unit* who) OVERRIDE
+        void EnterCombat(Unit* who) override
         {
             StartEvent(who);
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             //Only if not incombat check if the event is started
             if (!me->IsInCombat() && instance && instance->GetData(DATA_KARATHRESSEVENT))
@@ -312,7 +312,7 @@ class boss_fathomguard_sharkkis : public CreatureScript
 public:
     boss_fathomguard_sharkkis() : CreatureScript("boss_fathomguard_sharkkis") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new boss_fathomguard_sharkkisAI(creature);
     }
@@ -335,7 +335,7 @@ public:
 
         uint64 SummonedPet;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             LeechingThrow_Timer = 20000;
             TheBeastWithin_Timer = 30000;
@@ -356,7 +356,7 @@ public:
                 instance->SetData(DATA_KARATHRESSEVENT, NOT_STARTED);
         }
 
-        void JustDied(Unit* /*killer*/) OVERRIDE
+        void JustDied(Unit* /*killer*/) override
         {
             if (instance)
             {
@@ -365,7 +365,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit* who) OVERRIDE
+        void EnterCombat(Unit* who) override
         {
             if (instance)
             {
@@ -374,7 +374,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             //Only if not incombat check if the event is started
             if (!me->IsInCombat() && instance && instance->GetData(DATA_KARATHRESSEVENT))
@@ -459,7 +459,7 @@ class boss_fathomguard_tidalvess : public CreatureScript
 public:
     boss_fathomguard_tidalvess() : CreatureScript("boss_fathomguard_tidalvess") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new boss_fathomguard_tidalvessAI(creature);
     }
@@ -478,7 +478,7 @@ public:
         uint32 PoisonCleansing_Timer;
         uint32 Earthbind_Timer;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             FrostShock_Timer = 25000;
             Spitfire_Timer = 60000;
@@ -489,7 +489,7 @@ public:
                 instance->SetData(DATA_KARATHRESSEVENT, NOT_STARTED);
         }
 
-        void JustDied(Unit* /*killer*/) OVERRIDE
+        void JustDied(Unit* /*killer*/) override
         {
             if (instance)
             {
@@ -498,7 +498,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit* who) OVERRIDE
+        void EnterCombat(Unit* who) override
         {
             if (instance)
             {
@@ -508,7 +508,7 @@ public:
             DoCast(me, SPELL_WINDFURY_WEAPON);
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             //Only if not incombat check if the event is started
             if (!me->IsInCombat() && instance && instance->GetData(DATA_KARATHRESSEVENT))
@@ -582,7 +582,7 @@ class boss_fathomguard_caribdis : public CreatureScript
 public:
     boss_fathomguard_caribdis() : CreatureScript("boss_fathomguard_caribdis") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new boss_fathomguard_caribdisAI(creature);
     }
@@ -601,7 +601,7 @@ public:
         uint32 Heal_Timer;
         uint32 Cyclone_Timer;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             WaterBoltVolley_Timer = 35000;
             TidalSurge_Timer = 15000+rand()%5000;
@@ -612,7 +612,7 @@ public:
                 instance->SetData(DATA_KARATHRESSEVENT, NOT_STARTED);
         }
 
-        void JustDied(Unit* /*killer*/) OVERRIDE
+        void JustDied(Unit* /*killer*/) override
         {
             if (instance)
             {
@@ -621,7 +621,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit* who) OVERRIDE
+        void EnterCombat(Unit* who) override
         {
             if (instance)
             {
@@ -630,7 +630,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             //Only if not incombat check if the event is started
             if (!me->IsInCombat() && instance && instance->GetData(DATA_KARATHRESSEVENT))

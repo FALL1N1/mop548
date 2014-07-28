@@ -33,7 +33,7 @@ class bf_commandscript : public CommandScript
 public:
     bf_commandscript() : CommandScript("bf_commandscript") { }
 
-    ChatCommand* GetCommands() const OVERRIDE
+    ChatCommand* GetCommands() const override
     {
         static ChatCommand battlefieldcommandTable[] =
         {

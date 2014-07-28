@@ -76,7 +76,7 @@ class boss_vexallus : public CreatureScript
 public:
     boss_vexallus() : CreatureScript("boss_vexallus") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new boss_vexallusAI(creature);
     };
@@ -96,7 +96,7 @@ public:
         uint32 IntervalHealthAmount;
         bool Enraged;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             summons.DespawnAll();
             ChainLightningTimer = 8000;
@@ -109,19 +109,19 @@ public:
                 instance->SetData(DATA_VEXALLUS_EVENT, NOT_STARTED);
         }
 
-        void KilledUnit(Unit* /*victim*/) OVERRIDE
+        void KilledUnit(Unit* /*victim*/) override
         {
             Talk(SAY_KILL);
         }
 
-        void JustDied(Unit* /*killer*/) OVERRIDE
+        void JustDied(Unit* /*killer*/) override
         {
             summons.DespawnAll();
             if (instance)
                 instance->SetData(DATA_VEXALLUS_EVENT, DONE);
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE
+        void EnterCombat(Unit* /*who*/) override
         {
             Talk(SAY_AGGRO);
 
@@ -129,7 +129,7 @@ public:
                 instance->SetData(DATA_VEXALLUS_EVENT, IN_PROGRESS);
         }
 
-        void JustSummoned(Creature* summoned) OVERRIDE
+        void JustSummoned(Creature* summoned) override
         {
             if (Unit* temp = SelectTarget(SELECT_TARGET_RANDOM, 0))
                 summoned->GetMotionMaster()->MoveFollow(temp, 0, 0);
@@ -138,7 +138,7 @@ public:
             summoned->CastSpell(summoned, SPELL_ENERGY_BOLT, false, 0, 0, me->GetGUID());
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -212,7 +212,7 @@ class npc_pure_energy : public CreatureScript
 public:
     npc_pure_energy() : CreatureScript("npc_pure_energy") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_pure_energyAI(creature);
     };
@@ -224,9 +224,9 @@ public:
             me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
         }
 
-        void Reset() OVERRIDE { }
+        void Reset() override { }
 
-        void JustDied(Unit* slayer) OVERRIDE
+        void JustDied(Unit* slayer) override
         {
             if (Unit* temp = me->GetOwner())
             {
@@ -235,10 +235,10 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE { }
-        void MoveInLineOfSight(Unit* /*who*/) OVERRIDE { }
+        void EnterCombat(Unit* /*who*/) override { }
+        void MoveInLineOfSight(Unit* /*who*/) override { }
 
-        void AttackStart(Unit* /*who*/) OVERRIDE { }
+        void AttackStart(Unit* /*who*/) override { }
     };
 };
 

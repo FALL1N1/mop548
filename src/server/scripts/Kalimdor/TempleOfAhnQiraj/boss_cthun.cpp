@@ -153,7 +153,7 @@ class boss_eye_of_cthun : public CreatureScript
 public:
     boss_eye_of_cthun() : CreatureScript("boss_eye_of_cthun") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new eye_of_cthunAI(creature);
     }
@@ -185,7 +185,7 @@ public:
         float DarkGlareAngle;
         bool ClockWise;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             //Phase information
             PhaseTimer = 50000;                                 //First dark glare in 50 seconds
@@ -217,7 +217,7 @@ public:
                 pPortal->SetReactState(REACT_PASSIVE);
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE
+        void EnterCombat(Unit* /*who*/) override
         {
             DoZoneInCombat();
             if (instance)
@@ -232,7 +232,7 @@ public:
                         Spawned->AI()->AttackStart(target);
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             //Check if we have a target
             if (!UpdateVictim())
@@ -404,7 +404,7 @@ public:
             }
         }
 
-        void DamageTaken(Unit* /*done_by*/, uint32 &damage) OVERRIDE
+        void DamageTaken(Unit* /*done_by*/, uint32 &damage) override
         {
             //No instance
             if (!instance)
@@ -459,7 +459,7 @@ class boss_cthun : public CreatureScript
 public:
     boss_cthun() : CreatureScript("boss_cthun") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new cthunAI(creature);
     }
@@ -501,7 +501,7 @@ public:
         //Stomach map, bool = true then in stomach
         UNORDERED_MAP<uint64, bool> Stomach_Map;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             //One random wisper every 90 - 300 seconds
             WisperTimer = 90000;
@@ -534,7 +534,7 @@ public:
                 instance->SetData(DATA_CTHUN_PHASE, PHASE_NOT_STARTED);
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE
+        void EnterCombat(Unit* /*who*/) override
         {
             DoZoneInCombat();
         }
@@ -583,7 +583,7 @@ public:
             return (*j);
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             //Check if we have a target
             if (!UpdateVictim())
@@ -861,13 +861,13 @@ public:
             }
         }
 
-        void JustDied(Unit* /*killer*/) OVERRIDE
+        void JustDied(Unit* /*killer*/) override
         {
             if (instance)
                 instance->SetData(DATA_CTHUN_PHASE, PHASE_CTHUN_DONE);
         }
 
-        void DamageTaken(Unit* /*done_by*/, uint32 &damage) OVERRIDE
+        void DamageTaken(Unit* /*done_by*/, uint32 &damage) override
         {
             //No instance
             if (!instance)
@@ -897,7 +897,7 @@ public:
             }
         }
 
-        void DoAction(int32 param) OVERRIDE
+        void DoAction(int32 param) override
         {
             switch (param)
             {
@@ -915,7 +915,7 @@ class npc_eye_tentacle : public CreatureScript
 public:
     npc_eye_tentacle() : CreatureScript("npc_eye_tentacle") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new eye_tentacleAI(creature);
     }
@@ -937,13 +937,13 @@ public:
         uint32 KillSelfTimer;
         uint64 Portal;
 
-        void JustDied(Unit* /*killer*/) OVERRIDE
+        void JustDied(Unit* /*killer*/) override
         {
             if (Unit* p = Unit::GetUnit(*me, Portal))
                 p->Kill(p);
         }
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             //Mind flay half a second after we spawn
             MindflayTimer = 500;
@@ -952,12 +952,12 @@ public:
             KillSelfTimer = 35000;
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE
+        void EnterCombat(Unit* /*who*/) override
         {
             DoZoneInCombat();
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             //Check if we have a target
             if (!UpdateVictim())
@@ -990,7 +990,7 @@ class npc_claw_tentacle : public CreatureScript
 public:
     npc_claw_tentacle() : CreatureScript("npc_claw_tentacle") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new claw_tentacleAI(creature);
     }
@@ -1013,13 +1013,13 @@ public:
         uint32 EvadeTimer;
         uint64 Portal;
 
-        void JustDied(Unit* /*killer*/) OVERRIDE
+        void JustDied(Unit* /*killer*/) override
         {
             if (Unit* p = Unit::GetUnit(*me, Portal))
                 p->Kill(p);
         }
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             //First rupture should happen half a second after we spawn
             GroundRuptureTimer = 500;
@@ -1027,12 +1027,12 @@ public:
             EvadeTimer = 5000;
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE
+        void EnterCombat(Unit* /*who*/) override
         {
             DoZoneInCombat();
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             //Check if we have a target
             if (!UpdateVictim())
@@ -1100,7 +1100,7 @@ class npc_giant_claw_tentacle : public CreatureScript
 public:
     npc_giant_claw_tentacle() : CreatureScript("npc_giant_claw_tentacle") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new giant_claw_tentacleAI(creature);
     }
@@ -1124,13 +1124,13 @@ public:
         uint32 EvadeTimer;
         uint64 Portal;
 
-        void JustDied(Unit* /*killer*/) OVERRIDE
+        void JustDied(Unit* /*killer*/) override
         {
             if (Unit* p = Unit::GetUnit(*me, Portal))
                 p->Kill(p);
         }
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             //First rupture should happen half a second after we spawn
             GroundRuptureTimer = 500;
@@ -1139,12 +1139,12 @@ public:
             EvadeTimer = 5000;
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE
+        void EnterCombat(Unit* /*who*/) override
         {
             DoZoneInCombat();
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             //Check if we have a target
             if (!UpdateVictim())
@@ -1219,7 +1219,7 @@ class npc_giant_eye_tentacle : public CreatureScript
 public:
     npc_giant_eye_tentacle() : CreatureScript("npc_giant_eye_tentacle") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new giant_eye_tentacleAI(creature);
     }
@@ -1240,24 +1240,24 @@ public:
         uint32 BeamTimer;
         uint64 Portal;
 
-        void JustDied(Unit* /*killer*/) OVERRIDE
+        void JustDied(Unit* /*killer*/) override
         {
             if (Unit* p = Unit::GetUnit(*me, Portal))
                 p->Kill(p);
         }
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             //Green Beam half a second after we spawn
             BeamTimer = 500;
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE
+        void EnterCombat(Unit* /*who*/) override
         {
             DoZoneInCombat();
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             //Check if we have a target
             if (!UpdateVictim())
@@ -1283,7 +1283,7 @@ class npc_giant_flesh_tentacle : public CreatureScript
 public:
     npc_giant_flesh_tentacle() : CreatureScript("npc_giant_flesh_tentacle") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new flesh_tentacleAI(creature);
     }
@@ -1295,7 +1295,7 @@ public:
             SetCombatMovement(false);
         }
 
-        void JustDied(Unit* /*killer*/) OVERRIDE
+        void JustDied(Unit* /*killer*/) override
         {
             if (TempSummon* summon = me->ToTempSummon())
                 if (Unit* summoner = summon->GetSummoner())

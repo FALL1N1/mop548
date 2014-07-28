@@ -48,7 +48,7 @@ class boss_sartura : public CreatureScript
 public:
     boss_sartura() : CreatureScript("boss_sartura") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new boss_sarturaAI(creature);
     }
@@ -69,7 +69,7 @@ public:
         bool WhirlWind;
         bool AggroReset;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             WhirlWind_Timer = 30000;
             WhirlWindRandom_Timer = urand(3000, 7000);
@@ -85,22 +85,22 @@ public:
 
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE
+        void EnterCombat(Unit* /*who*/) override
         {
             Talk(SAY_AGGRO);
         }
 
-         void JustDied(Unit* /*killer*/) OVERRIDE
+         void JustDied(Unit* /*killer*/) override
          {
              Talk(SAY_DEATH);
          }
 
-         void KilledUnit(Unit* /*victim*/) OVERRIDE
+         void KilledUnit(Unit* /*victim*/) override
          {
              Talk(SAY_SLAY);
          }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             //Return since we have no target
             if (!UpdateVictim())
@@ -191,7 +191,7 @@ class npc_sartura_royal_guard : public CreatureScript
 public:
     npc_sartura_royal_guard() : CreatureScript("npc_sartura_royal_guard") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_sartura_royal_guardAI(creature);
     }
@@ -210,7 +210,7 @@ public:
         bool WhirlWind;
         bool AggroReset;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             WhirlWind_Timer = 30000;
             WhirlWindRandom_Timer = urand(3000, 7000);
@@ -223,11 +223,11 @@ public:
             AggroReset = false;
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE
+        void EnterCombat(Unit* /*who*/) override
         {
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             //Return since we have no target
             if (!UpdateVictim())

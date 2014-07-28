@@ -45,7 +45,7 @@ public:
     * @brief Returns the command structure for the system.
     */
 
-    ChatCommand* GetCommands() const OVERRIDE
+    ChatCommand* GetCommands() const override
     {
         static ChatCommand deserterInstanceCommandTable[] =
         {

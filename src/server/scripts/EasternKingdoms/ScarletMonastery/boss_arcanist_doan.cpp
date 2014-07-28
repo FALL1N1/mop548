@@ -48,7 +48,7 @@ class boss_arcanist_doan : public CreatureScript
 public:
     boss_arcanist_doan() : CreatureScript("boss_arcanist_doan") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new boss_arcanist_doanAI(creature);
     }
@@ -63,7 +63,7 @@ public:
         bool bCanDetonate;
         bool bShielded;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             Polymorph_Timer = 20000;
             AoESilence_Timer = 15000;
@@ -72,12 +72,12 @@ public:
             bShielded = false;
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE
+        void EnterCombat(Unit* /*who*/) override
         {
             Talk(SAY_AGGRO);
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
