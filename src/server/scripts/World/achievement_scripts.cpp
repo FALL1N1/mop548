@@ -145,7 +145,7 @@ class achievement_arena_kills : public AchievementCriteriaScript
             if (!source->InArena())
                 return false;
 
-            return source->GetBattleground()->GetArenaType() == _arenaType;
+            return source->GetBattleground()->GetRatedType() == _arenaType;
         }
 
     private:
@@ -304,9 +304,9 @@ void AddSC_achievement_scripts()
     new achievement_sickly_gazelle();
     new achievement_everything_counts();
     new achievement_bg_av_perfection();
-    new achievement_arena_kills("achievement_arena_2v2_kills", ARENA_TYPE_2v2);
-    new achievement_arena_kills("achievement_arena_3v3_kills", ARENA_TYPE_3v3);
-    new achievement_arena_kills("achievement_arena_5v5_kills", ARENA_TYPE_5v5);
+    new achievement_arena_kills("achievement_arena_2v2_kills", RATED_TYPE_2v2);
+    new achievement_arena_kills("achievement_arena_3v3_kills", RATED_TYPE_3v3);
+    new achievement_arena_kills("achievement_arena_5v5_kills", RATED_TYPE_5v5);
     new achievement_bg_sa_defense_of_ancients();
     new achievement_tilted();
     new achievement_not_even_a_scratch();

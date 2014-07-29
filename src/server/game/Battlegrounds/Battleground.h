@@ -24,6 +24,7 @@
 #include "SharedDefines.h"
 #include "DBCEnums.h"
 #include "WorldStateBuilder.h"
+#include "RatedInfo.h"
 
 class Creature;
 class GameObject;
@@ -198,14 +199,9 @@ enum ScoreType
     SCORE_SECONDARY_OBJECTIVES  = 17,
     //SOTA
     SCORE_DESTROYED_DEMOLISHER  = 18,
-    SCORE_DESTROYED_WALL        = 19
-};
-
-enum ArenaType
-{
-    ARENA_TYPE_2v2          = 2,
-    ARENA_TYPE_3v3          = 3,
-    ARENA_TYPE_5v5          = 5
+    SCORE_DESTROYED_WALL        = 19,
+    //RATED MATCHES
+    SCORE_PERSONAL_RATING_CHANGE = 20,
 };
 
 enum BattlegroundType
@@ -244,7 +240,7 @@ enum BattlegroundStartingEventsIds
 struct BattlegroundScore
 {
     BattlegroundScore() : KillingBlows(0), Deaths(0), HonorableKills(0), BonusHonor(0),
-        DamageDone(0), HealingDone(0)
+    DamageDone(0), HealingDone(0), PersonalRatingChange(0), MatchmakerRatingChange(0)
     { }
 
     virtual ~BattlegroundScore() { }                        //virtual destructor is used when deleting score from scores map
@@ -255,6 +251,8 @@ struct BattlegroundScore
     uint32 BonusHonor;
     uint32 DamageDone;
     uint32 HealingDone;
+    int32 PersonalRatingChange;
+    int32 MatchmakerRatingChange;
 };
 
 enum BGHonorMode
@@ -320,7 +318,7 @@ class Battleground
         uint32 GetMinPlayersPerTeam() const { return m_MinPlayersPerTeam; }
 
         int32 GetStartDelayTime() const     { return m_StartDelayTime; }
-        uint8 GetArenaType() const          { return m_ArenaType; }
+        RatedType GetRatedType() const      { return m_RatedType; }        
         uint8 GetWinner() const             { return m_Winner; }
         uint32 GetScriptId() const          { return ScriptId; }
         uint32 GetBonusHonorFromKill(uint32 kills) const;
@@ -343,7 +341,7 @@ class Battleground
         void SetMinPlayers(uint32 MinPlayers) { m_MinPlayers = MinPlayers; }
         void SetLevelRange(uint32 min, uint32 max) { m_LevelMin = min; m_LevelMax = max; }
         void SetRated(bool state)           { m_IsRated = state; }
-        void SetArenaType(uint8 type)       { m_ArenaType = type; }
+        void SetRatedType(RatedType ratedType)   { m_RatedType = ratedType; }
         void SetArenaorBGType(bool _isArena) { m_IsArena = _isArena; }
         void SetWinner(uint8 winner)        { m_Winner = winner; }
         void SetScriptId(uint32 scriptId)   { ScriptId = scriptId; }
@@ -365,9 +363,9 @@ class Battleground
         bool HasFreeSlots() const;
         uint32 GetFreeSlotsForTeam(uint32 Team) const;
 
-        bool isArena() const        { return m_IsArena; }
-        bool isBattleground() const { return !m_IsArena; }
-        bool isRated() const        { return m_IsRated; }
+        bool IsArena() const        { return m_IsArena; }
+        bool IsBattleground() const { return !m_IsArena; }
+        bool IsRated() const        { return m_IsRated; }
 
         typedef std::map<uint64, BattlegroundPlayer> BattlegroundPlayerMap;
         BattlegroundPlayerMap const& GetPlayers() const { return m_Players; }
@@ -458,16 +456,12 @@ class Battleground
                 ++m_PlayersCount[GetTeamIndexByTeamId(Team)];
         }
 
-        // used for rated arena battles
-        void SetArenaTeamIdForTeam(uint32 Team, uint32 ArenaTeamId) { m_ArenaTeamIds[GetTeamIndexByTeamId(Team)] = ArenaTeamId; }
-        uint32 GetArenaTeamIdForTeam(uint32 Team) const             { return m_ArenaTeamIds[GetTeamIndexByTeamId(Team)]; }
-        uint32 GetArenaTeamIdByIndex(uint32 index) const { return m_ArenaTeamIds[index]; }
-        void SetArenaTeamRatingChangeForTeam(uint32 Team, int32 RatingChange) { m_ArenaTeamRatingChanges[GetTeamIndexByTeamId(Team)] = RatingChange; }
-        int32 GetArenaTeamRatingChangeForTeam(uint32 Team) const    { return m_ArenaTeamRatingChanges[GetTeamIndexByTeamId(Team)]; }
-        int32 GetArenaTeamRatingChangeByIndex(uint32 index) const   { return m_ArenaTeamRatingChanges[index]; }
-        void SetArenaMatchmakerRating(uint32 Team, uint32 MMR){ m_ArenaTeamMMR[GetTeamIndexByTeamId(Team)] = MMR; }
-        uint32 GetArenaMatchmakerRating(uint32 Team) const          { return m_ArenaTeamMMR[GetTeamIndexByTeamId(Team)]; }
-        uint32 GetArenaMatchmakerRatingByIndex(uint32 index) const  { return m_ArenaTeamMMR[index]; }
+        // Rated Matches
+        uint32 GetTeamMatchmakerRating(uint32 Team) const { return m_TeamMMR[GetTeamIndexByTeamId(Team)]; }
+        void SetTeamMatchmakerRating(uint32 Team, uint32 MMR){ m_TeamMMR[GetTeamIndexByTeamId(Team)] = MMR; }
+        uint32 GetTeamMatchmakerRatingByIndex(uint32 index) const  { return m_TeamMMR[index]; }        
+
+        // Arenas
         void CheckArenaAfterTimerConditions();
         void CheckArenaWinConditions();
         void UpdateArenaWorldState();
@@ -598,7 +592,7 @@ class Battleground
         int32 m_EndTime;                                    // it is set to 120000 when bg is ending and it decreases itself
         uint32 m_LastResurrectTime;
         BattlegroundBracketId m_BracketId;
-        uint8  m_ArenaType;                                 // 2=2v2, 3=3v3, 5=5v5
+        RatedType m_RatedType;                              // (2v2 = 2, 3v3 = 3, 5v5 = 5, 10v10 = 10)
         bool   m_InBGFreeSlotQueue;                         // used to make sure that BG is only once inserted into the BattlegroundMgr.BGFreeSlotQueue[bgTypeId] deque
         bool   m_SetDeleteThis;                             // used for safe deletion of the bg after end / all players leave
         bool   m_IsArena;
@@ -653,13 +647,11 @@ class Battleground
         // Raid Group
         Group* m_BgRaids[BG_TEAMS_COUNT];                   // 0 - alliance, 1 - horde
 
+        uint32 m_TeamMMR[BG_TEAMS_COUNT];
+
         // Players count by team
         uint32 m_PlayersCount[BG_TEAMS_COUNT];
 
-        // Arena team ids by team
-        uint32 m_ArenaTeamIds[BG_TEAMS_COUNT];
-
-        int32 m_ArenaTeamRatingChanges[BG_TEAMS_COUNT];
         uint32 m_ArenaTeamMMR[BG_TEAMS_COUNT];
 
         // Limits

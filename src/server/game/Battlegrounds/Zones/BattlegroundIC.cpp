@@ -559,9 +559,13 @@ void BattlegroundIC::UpdateNodeWorldState(ICNodePoint* nodePoint)
     uint32 worldstate = nodePoint->worldStates[nodePoint->nodeState];
 
     // with this we are sure we dont bug the client
-    for (uint8 i = 0; i < 4; ++i)
-        UpdateWorldState(nodePoint->worldStates[i], 0);
+    for (uint8 i = 0; i < 5; ++i)
+    {
+        if (nodePoint->worldStates[i] == worldstate)
+            continue;
 
+        UpdateWorldState(nodePoint->worldStates[i], 0);
+    }
     UpdateWorldState(worldstate, 1);
 }
 

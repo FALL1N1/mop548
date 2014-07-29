@@ -18,9 +18,9 @@
  */
 
 #include "AchievementMgr.h"
-#include "ArenaTeam.h"
-#include "ArenaTeamMgr.h"
 #include "Battleground.h"
+#include "RatedMgr.h"
+#include "RatedInfo.h"
 #include "CellImpl.h"
 #include "Chat.h"
 #include "Common.h"
@@ -1046,7 +1046,7 @@ template<class T>
 void AchievementMgr<T>::CheckAllAchievementCriteria(Player* referencePlayer)
 {
     // suppress sending packets
-    for (uint32 i=0; i<ACHIEVEMENT_CRITERIA_TYPE_TOTAL; ++i)
+    for (uint32 i = 0; i < ACHIEVEMENT_CRITERIA_TYPE_TOTAL; ++i)
         UpdateAchievementCriteria(AchievementCriteriaTypes(i), 0, 0, 0, NULL, referencePlayer);
 }
 
@@ -1347,17 +1347,16 @@ void AchievementMgr<T>::UpdateAchievementCriteria(AchievementCriteriaTypes type,
                 }
                 else // login case
                 {
-                    for (uint32 arena_slot = 0; arena_slot < MAX_ARENA_SLOT; ++arena_slot)
+                    ASSERT(RatedInfo* rInfo = sRatedMgr->GetRatedInfo(referencePlayer->GetGUID()));
+
+                    for (uint8 arena_slot = 0; arena_slot < MAX_ARENA_SLOT; ++arena_slot)
                     {
-                        uint32 teamId = referencePlayer->GetArenaTeamId(arena_slot);
-                        if (!teamId)
+                        RatedType ratedType = RatedInfo::GetRatedTypeBySlot(arena_slot);
+                        if (!rratedType != reqTeamType)
                             continue;
 
-                        ArenaTeam* team = sArenaTeamMgr->GetArenaTeamById(teamId);
-                        if (!team || team->GetType() != reqTeamType)
-                            continue;
-
-                        SetCriteriaProgress(achievementCriteria, team->GetStats().Rating, referencePlayer, PROGRESS_HIGHEST);
+                        StatsBySlot const* stats = rInfo->GetStatsBySlot(ratedType);
+                        SetCriteriaProgress(achievementCriteria, stats->PersonalRating, referencePlayer, PROGRESS_HIGHEST);
                         break;
                     }
                 }
@@ -1377,21 +1376,18 @@ void AchievementMgr<T>::UpdateAchievementCriteria(AchievementCriteriaTypes type,
                 }
                 else // login case
                 {
+                    ASSERT(RatedInfo* rInfo = sRatedMgr->GetRatedInfo(referencePlayer->GetGUID()));
+
                     for (uint32 arena_slot = 0; arena_slot < MAX_ARENA_SLOT; ++arena_slot)
                     {
-                        uint32 teamId = referencePlayer->GetArenaTeamId(arena_slot);
-                        if (!teamId)
+                        RatedType ratedType = RatedInfo::GetRatedTypeBySlot(arena_slot);
+
+                        if (ratedType != reqTeamType)
                             continue;
 
-                        ArenaTeam* team = sArenaTeamMgr->GetArenaTeamById(teamId);
-                        if (!team || team->GetType() != reqTeamType)
-                            continue;
-
-                        if (ArenaTeamMember const* member = team->GetMember(referencePlayer->GetGUID()))
-                        {
-                            SetCriteriaProgress(achievementCriteria, member->PersonalRating, referencePlayer, PROGRESS_HIGHEST);
-                            break;
-                        }
+                        StatsBySlot const *stats = rInfo->GetStatsBySlot(ratedType);
+                        SetCriteriaProgress(achievementCriteria, stats->PersonalRating, referencePlayer, PROGRESS_HIGHEST);
+                        break;
                     }
                 }
                 break;
@@ -2518,7 +2514,7 @@ bool AchievementMgr<T>::RequirementsSatisfied(AchievementCriteriaEntry const* ac
                 if (achievIdByArenaSlot[j] == achievementCriteria->achievement)
                 {
                     Battleground* bg = referencePlayer->GetBattleground();
-                    if (!bg || !bg->isArena() || ArenaTeam::GetSlotByType(bg->GetArenaType()) != j)
+                    if (!bg || !bg->IsArena() || RatedInfo::GetRatedSlotByType(bg->GetRatedType()) != j)
                         notfit = true;
                     break;
                 }

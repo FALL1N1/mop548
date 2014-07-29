@@ -43,17 +43,17 @@ struct GroupQueueInfo                                       // stores informatio
 {
     std::map<uint64, PlayerQueueInfo*> Players;             // player queue info map
     uint32  Team;                                           // Player team (ALLIANCE/HORDE)
+    uint64  LeaderGUID;                                     // GUID of the group leader
     BattlegroundTypeId BgTypeId;                            // battleground type id
+    RatedType RatedType;                                    // 2v2, 3v3, 5v5, 10v10 or 0 when BG
     bool    IsRated;                                        // rated
-    uint8   ArenaType;                                      // 2v2, 3v3, 5v5 or 0 when BG
-    uint32  ArenaTeamId;                                    // team id if rated match
     uint32  JoinTime;                                       // time when group was added
     uint32  RemoveInviteTime;                               // time when we will remove invite for players in group
     uint32  IsInvitedToBGInstanceGUID;                      // was invited to certain BG
-    uint32  ArenaTeamRating;                                // if rated match, inited to the rating of the team
-    uint32  ArenaMatchmakerRating;                          // if rated match, inited to the rating of the team
+    uint32  TeamRating;                                     // if rated match, inited to the rating of the team
+    uint32  TeamMatchmakerRating;                           // if rated match, inited to the rating of the team
     uint32  OpponentsTeamRating;                            // for rated arena matches
-    uint32  OpponentsMatchmakerRating;                      // for rated arena matches
+    uint32  OpponentsTeamMatchmakerRating;                  // for rated arena matches
 };
 
 enum BattlegroundQueueGroupTypes
@@ -72,14 +72,14 @@ class BattlegroundQueue
         BattlegroundQueue();
         ~BattlegroundQueue();
 
-        void BattlegroundQueueUpdate(uint32 diff, BattlegroundTypeId bgTypeId, BattlegroundBracketId bracket_id, uint8 arenaType = 0, bool isRated = false, uint32 minRating = 0);
+        void BattlegroundQueueUpdate(uint32 diff, BattlegroundTypeId bgTypeId, BattlegroundBracketId bracket_id, RatedType ratedType = RATED_TYPE_NOT_RATED, bool isRated = false, uint32 minRating = 0);
         void UpdateEvents(uint32 diff);
 
         void FillPlayersToBG(Battleground* bg, BattlegroundBracketId bracket_id);
         bool CheckPremadeMatch(BattlegroundBracketId bracket_id, uint32 MinPlayersPerTeam, uint32 MaxPlayersPerTeam);
         bool CheckNormalMatch(Battleground* bg_template, BattlegroundBracketId bracket_id, uint32 minPlayers, uint32 maxPlayers);
         bool CheckSkirmishForSameFaction(BattlegroundBracketId bracket_id, uint32 minPlayersPerTeam);
-        GroupQueueInfo* AddGroup(Player* leader, Group* group, BattlegroundTypeId bgTypeId, PvPDifficultyEntry const*  bracketEntry, uint8 ArenaType, bool isRated, bool isPremade, uint32 ArenaRating, uint32 MatchmakerRating, uint32 ArenaTeamId = 0);
+        GroupQueueInfo* AddGroup(Player* leader, Group* group, BattlegroundTypeId bgTypeId, PvPDifficultyEntry const*  bracketEntry, RatedType ratedType, bool isRated, bool isPremade, uint32 ArenaRating, uint32 MatchmakerRating);
         void RemovePlayer(uint64 guid, bool decreaseInvitedCount);
         bool IsPlayerInvited(uint64 pl_guid, const uint32 bgInstanceGuid, const uint32 removeTime);
         bool GetPlayerGroupInfoData(uint64 guid, GroupQueueInfo* ginfo);
@@ -139,8 +139,8 @@ class BattlegroundQueue
 class BGQueueInviteEvent : public BasicEvent
 {
     public:
-        BGQueueInviteEvent(uint64 pl_guid, uint32 BgInstanceGUID, BattlegroundTypeId BgTypeId, uint8 arenaType, uint32 removeTime) :
-          m_PlayerGuid(pl_guid), m_BgInstanceGUID(BgInstanceGUID), m_BgTypeId(BgTypeId), m_ArenaType(arenaType), m_RemoveTime(removeTime)
+        BGQueueInviteEvent(uint64 pl_guid, uint32 BgInstanceGUID, BattlegroundTypeId BgTypeId, RatedType ratedType, uint32 removeTime) :
+          m_PlayerGuid(pl_guid), m_BgInstanceGUID(BgInstanceGUID), m_BgTypeId(BgTypeId), m_RatedType(ratedType), m_RemoveTime(removeTime)
           { }
         virtual ~BGQueueInviteEvent() { }
 
@@ -150,7 +150,7 @@ class BGQueueInviteEvent : public BasicEvent
         uint64 m_PlayerGuid;
         uint32 m_BgInstanceGUID;
         BattlegroundTypeId m_BgTypeId;
-        uint8  m_ArenaType;
+        RatedType m_RatedType;
         uint32 m_RemoveTime;
 };
 
