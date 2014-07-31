@@ -1268,10 +1268,10 @@ void Player::SendMirrorTimer(MirrorTimerType Type, uint32 MaxValue, uint32 Curre
             StopMirrorTimer(Type);
         return;
     }
-    WorldPacket data(SMSG_START_MIRROR_TIMER, (21));
+    WorldPacket data(SMSG_START_MIRROR_TIMER, 21);
     data << (uint32)Type;
-    data << CurrentValue;
     data << MaxValue;
+    data << CurrentValue;
     data << Regen;
     data << (uint8)0;
     data << (uint32)0;                                      // spell id
@@ -23760,6 +23760,7 @@ void Player::SendComboPoints()
         data.WriteBit(guid[1]);
         data.WriteBit(guid[2]);
         data.FlushBits();
+
         data.WriteByteSeq(guid[5]);
         data.WriteByteSeq(guid[6]);
         data.WriteByteSeq(guid[4]);
@@ -23769,6 +23770,7 @@ void Player::SendComboPoints()
         data << uint8(m_comboPoints);
         data.WriteByteSeq(guid[2]);
         data.WriteByteSeq(guid[1]);
+
         GetSession()->SendPacket(&data);
     }
 }
