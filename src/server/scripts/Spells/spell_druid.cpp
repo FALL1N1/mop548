@@ -31,12 +31,9 @@
 
 enum DruidSpells
 {
-
-
 };
 
 
 void AddSC_druid_spell_scripts()
 {
-    new spell_dru_innervate();
 }
