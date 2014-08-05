@@ -18,38 +18,26 @@
  */
 
 /*
- * Scripts for spells with SPELLFAMILY_PALADIN and SPELLFAMILY_GENERIC spells used by paladin players.
+ * Scripts for spells with SPELLFAMILY_DRUID and SPELLFAMILY_GENERIC spells used by druid players.
  * Ordered alphabetically using scriptname.
- * Scriptnames of files in this file should be prefixed with "spell_pal_".
+ * Scriptnames of files in this file should be prefixed with "spell_mon_".
  */
 
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
-#include "Group.h"
+#include "Containers.h"
 
-enum PaladinSpells
-{
-
-};
-
-enum MiscSpells
-{
-    SPELL_GENERIC_ARENA_DAMPENING                = 74410,
-    SPELL_GENERIC_BATTLEGROUND_DAMPENING         = 74411
-};
-
-enum PaladinSpellIcons
-{
-    PALADIN_ICON_ID_RETRIBUTION_AURA             = 555
-};
-
-
-
-
-
-void AddSC_paladin_spell_scripts()
+enum MonkSpells
 {
  
+};
+
+
+
+
+void AddSC_monk_spell_scripts()
+{
+
 }
