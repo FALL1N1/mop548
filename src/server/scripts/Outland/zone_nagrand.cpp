@@ -776,7 +776,7 @@ class npc_mogor : public CreatureScript
 public:
 	npc_mogor() : CreatureScript("npc_mogor") {}
 
-	CreatureAI* GetAI(Creature* creature) const OVERRIDE
+	CreatureAI* GetAI(Creature* creature) const override
 	{
 		return new npc_mogorAI(creature);
 	}
@@ -790,7 +790,7 @@ public:
 		EventMap events;
 		float x, y, z, o;
 
-		void UpdateAI(uint32 diff) OVERRIDE
+		void UpdateAI(uint32 diff) override
 		{
 			events.Update(diff);
 			UpdatePath(diff);
@@ -851,7 +851,7 @@ public:
 			DoMeleeAttackIfReady();
 		}
 
-		void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) OVERRIDE
+		void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
 		{
 			if ((me->GetHealthPct() < 40) && !healingwave)
 			{
@@ -860,9 +860,9 @@ public:
 			}
 		}
 
-		void JustRespawned() OVERRIDE{}
+		void JustRespawned() override{}
 
-		void JustReachedHome() OVERRIDE
+		void JustReachedHome() override
 		{
 			me->setFaction(FACTION_FRIENDLY);
 			me->SetReactState(REACT_PASSIVE);
@@ -873,7 +873,7 @@ public:
 				totem->DespawnOrUnsummon();
 		}
 
-		void Reset() OVERRIDE
+		void Reset() override
 		{
 			events.Reset();
 			healingwave = false;
@@ -906,7 +906,7 @@ public:
 
 		}
 
-		void EnterCombat(Unit* who) OVERRIDE
+		void EnterCombat(Unit* who) override
 		{
 			events.ScheduleEvent(EVENT_SUMMON_ICE_TOTEM, 2000);
 			events.ScheduleEvent(EVENT_FLAME_SHOCK, 5000);
@@ -924,7 +924,7 @@ public:
 
 		}
 
-		void SetData(uint32 type, uint32 data) OVERRIDE
+		void SetData(uint32 type, uint32 data) override
 		{
 			if (type == 14 && data == 14)
 			Talk(SAY_MOG_UNPOSSIBLE);
@@ -942,7 +942,7 @@ public:
 			}
 		}
 
-		void MovementInform(uint32 MovementType, uint32 Data) OVERRIDE
+		void MovementInform(uint32 MovementType, uint32 Data) override
 		{
 			MovepointReached(Data);
 			if (MovementType == POINT_MOTION_TYPE && Data == 4)
