@@ -57,7 +57,7 @@ class SmartAI : public CreatureAI
         void StopPath(uint32 DespawnTime = 0, uint32 quest = 0, bool fail = false);
         void EndPath(bool fail = false);
         void ResumePath();
-		void UpdatePath(const uint32 diff);
+        void UpdatePath(const uint32 diff);
         WayPoint* GetNextWayPoint();
         bool HasEscortState(uint32 uiEscortState) { return (mEscortState & uiEscortState); }
         void AddEscortState(uint32 uiEscortState) { mEscortState |= uiEscortState; }
