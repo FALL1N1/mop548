@@ -10069,7 +10069,7 @@ void Unit::Mount(uint32 mount, uint32 VehicleId, uint32 creatureEntry)
                 player->UnsummonPetTemporaryIfAny();
         }
 
-        player->SendMovementSetCollisionHeight(player->GetCollisionHeight(true), true);
+        player->SendMovementSetCollisionHeight(player->GetCollisionHeight(true));
     }
 
     RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_MOUNT);
@@ -10084,7 +10084,7 @@ void Unit::Dismount()
     RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_MOUNT);
 
     if (Player* thisPlayer = ToPlayer())
-        thisPlayer->SendMovementSetCollisionHeight(thisPlayer->GetCollisionHeight(false), false);
+        thisPlayer->SendMovementSetCollisionHeight(thisPlayer->GetCollisionHeight(false));
 
     ObjectGuid guid = GetGUID();
     WorldPacket data(SMSG_DISMOUNT, 8);
@@ -15640,6 +15640,7 @@ void Unit::WriteMovementInfo(WorldPacket& data, Movement::ExtraMovementStatusEle
 {
     MovementInfo const& mi = m_movementInfo;
 
+    bool hasMountDisplayId = GetUInt32Value(UNIT_FIELD_MOUNT_DISPLAY_ID) != 0;
     bool hasMovementFlags = GetUnitMovementFlags() != 0;
     bool hasMovementFlags2 = GetExtraUnitMovementFlags() != 0;
     bool hasTimestamp = true;
@@ -15716,6 +15717,9 @@ void Unit::WriteMovementInfo(WorldPacket& data, Movement::ExtraMovementStatusEle
         case MSEHasCounter:
             data.WriteBit(!m_movementCounter);
             break;
+        case MSEHasMountDisplayId:
+            data.WriteBit(!hasMountDisplayId);
+            break;
         case MSEHasMovementFlags:
             data.WriteBit(!hasMovementFlags);
             break;
@@ -15754,6 +15758,10 @@ void Unit::WriteMovementInfo(WorldPacket& data, Movement::ExtraMovementStatusEle
             break;
         case MSEHasSpline:
             data.WriteBit(hasSpline);
+            break;
+        case MSEMountDisplayId:
+            if (hasMountDisplayId)
+                data << GetUInt32Value(UNIT_FIELD_MOUNT_DISPLAY_ID);
             break;
         case MSEMovementFlags:
             if (hasMovementFlags)

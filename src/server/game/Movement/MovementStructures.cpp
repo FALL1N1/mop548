@@ -4512,7 +4512,7 @@ MovementStatusElements const MoveSetCollisionHeight[] =
     MSEHasGuidByte7,
     MSEHasGuidByte0,
     MSEHasGuidByte1,
-    MSEExtraElement,
+    MSEHasMountDisplayId,
     MSEHasGuidByte3,
     MSEZeroBit,
     MSEZeroBit,
@@ -4521,7 +4521,7 @@ MovementStatusElements const MoveSetCollisionHeight[] =
     MSEHasGuidByte5,
     MSEHasGuidByte4,
     MSEExtraElement,
-    MSEExtraElement,
+    MSEMountDisplayId,
     MSEGuidByte3,
     MSEGuidByte2,
     MSEGuidByte5,
@@ -5287,16 +5287,6 @@ void Movement::ExtraMovementStatusElement::ReadNextElement(ByteBuffer& packet)
         case MSEExtraInt8:
             packet >> Data.byteData;
             break;
-        case MSEExtraBool:
-            Data.boolData = packet.ReadBit();
-            break;
-        case MSEExtraNotBool:
-            Data.boolData = !packet.ReadBit();
-            break;
-        case MSEExtraBooledInt32:
-            if (Data.boolData)
-                packet >> Data.booledInt32;
-            break;
         default:
             ASSERT(PrintInvalidSequenceElement(element, __FUNCTION__));
             break;
@@ -5337,16 +5327,6 @@ void Movement::ExtraMovementStatusElement::WriteNextElement(ByteBuffer& packet)
             break;
         case MSEExtraInt8:
             packet << Data.byteData;
-            break;
-        case MSEExtraBool:
-            packet.WriteBit(Data.boolData);
-            break;
-        case MSEExtraNotBool:
-            packet.WriteBit(!Data.boolData);
-            break;
-        case MSEExtraBooledInt32:
-            if (Data.boolData)
-                packet << Data.booledInt32;
             break;
         default:
             ASSERT(PrintInvalidSequenceElement(element, __FUNCTION__));

@@ -27815,14 +27815,12 @@ void Player::SendMovementSetCanTransitionBetweenSwimAndFly(bool apply)
         SMSG_MOVE_UNSET_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY).Send();
 }
 
-void Player::SendMovementSetCollisionHeight(float height, bool mounted)
+void Player::SendMovementSetCollisionHeight(float height)
 {
-    static MovementStatusElements const extraElements[] = { MSEExtraNotBool, MSEExtraFloat, MSEExtraBooledInt32, MSEExtraFloat2 };
+    static MovementStatusElements const extraElements[] = { MSEExtraFloat, MSEExtraFloat2 };
     Movement::ExtraMovementStatusElement extra(extraElements);
     extra.Data.floatData = height;
     extra.Data.floatData2 = 1;
-    extra.Data.boolData = mounted;
-    extra.Data.booledInt32 = 0;
     Movement::PacketSender(this, NULL_OPCODE, SMSG_MOVE_SET_COLLISION_HEIGHT, SMSG_MOVE_UPDATE_COLLISION_HEIGHT, &extra).Send();
 }
 
