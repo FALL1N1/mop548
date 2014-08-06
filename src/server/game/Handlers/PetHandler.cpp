@@ -114,7 +114,7 @@ void WorldSession::HandlePetAction(WorldPacket& recvData)
 
     uint32 spellid = UNIT_ACTION_BUTTON_ACTION(data);
     uint8 flag = UNIT_ACTION_BUTTON_TYPE(data);             //delete = 0x07 CastSpell = C1
-    printf("Guid1 [%u]\tGuid2 [%u]\n", uint32(GUID_LOPART(guid1)), uint32(GUID_LOPART(guid2)));
+    printf("Guid1 [%u]\tGuid2 [%u]\tspellid [%u]\tflag[%u]\n", uint32(GUID_LOPART(guid1)), uint32(GUID_LOPART(guid2)), spellid, flag);
     
     // used also for charmed creature
     Unit* pet= ObjectAccessor::GetUnit(*_player, guid2);
@@ -146,7 +146,7 @@ void WorldSession::HandlePetAction(WorldPacket& recvData)
         return;
 
     if (GetPlayer()->m_Controlled.size() == 1)
-        HandlePetActionHelper(pet, guid1, spellid, flag, guid2, x, y, z);
+        HandlePetActionHelper(pet, guid2, spellid, flag, guid1, x, y, z);
     else
     {
         //If a pet is dismissed, m_Controlled will change
