@@ -389,7 +389,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
     bool hasGobjectRotation = flags & UPDATEFLAG_ROTATION;
     bool hasTransportPosition = flags & UPDATEFLAG_GO_TRANSPORT_POSITION;
     bool hasTarget = flags & UPDATEFLAG_HAS_TARGET;
-    bool hasVehicle = false; //flags & UPDATEFLAG_VEHICLE;
+    bool hasVehicle = flags & UPDATEFLAG_VEHICLE;
     bool hasAnimKits = false; //flags & UPDATEFLAG_ANIMKITS;
 
     bool hasFallData;
@@ -676,15 +676,12 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
         data->WriteByteSeq(victimGuid[4]);
     }
 
-    /*
     if (hasVehicle)
     {
         Unit const* self = ToUnit();
         *data << uint32(self->GetVehicleKit()->GetVehicleInfo()->m_ID);
         *data << float(self->GetOrientation());
     }
-    */
-
 
     if (hasStacionaryPostion)
     {
