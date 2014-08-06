@@ -114,20 +114,21 @@ void WorldSession::HandlePetAction(WorldPacket& recvData)
 
     uint32 spellid = UNIT_ACTION_BUTTON_ACTION(data);
     uint8 flag = UNIT_ACTION_BUTTON_TYPE(data);             //delete = 0x07 CastSpell = C1
-
+    printf("Guid1 [%u]\tGuid2 [%u]\n", uint32(GUID_LOPART(guid1)), uint32(GUID_LOPART(guid2)));
+    
     // used also for charmed creature
-    Unit* pet= ObjectAccessor::GetUnit(*_player, guid1);
+    Unit* pet= ObjectAccessor::GetUnit(*_player, guid2);
     TC_LOG_INFO("network", "HandlePetAction: Pet %u - flag: %u, spellid: %u, target: %u.", uint32(GUID_LOPART(guid1)), uint32(flag), spellid, uint32(GUID_LOPART(guid2)));
 
     if (!pet)
     {
-        TC_LOG_ERROR("network", "HandlePetAction: Pet (GUID: %u) doesn't exist for player %s (GUID: %u)", uint32(GUID_LOPART(guid1)), GetPlayer()->GetName().c_str(), GUID_LOPART(GetPlayer()->GetGUID()));
+        TC_LOG_ERROR("network", "HandlePetAction: Pet (GUID: %u) doesn't exist for player %s (GUID: %u)", uint32(GUID_LOPART(guid2)), GetPlayer()->GetName().c_str(), GUID_LOPART(GetPlayer()->GetGUID()));
         return;
     }
 
     if (pet != GetPlayer()->GetFirstControlled())
     {
-        TC_LOG_ERROR("network", "HandlePetAction: Pet (GUID: %u) does not belong to player %s (GUID: %u)", uint32(GUID_LOPART(guid1)), GetPlayer()->GetName().c_str(), GUID_LOPART(GetPlayer()->GetGUID()));
+        TC_LOG_ERROR("network", "HandlePetAction: Pet (GUID: %u) does not belong to player %s (GUID: %u)", uint32(GUID_LOPART(guid2)), GetPlayer()->GetName().c_str(), GUID_LOPART(GetPlayer()->GetGUID()));
         return;
     }
 

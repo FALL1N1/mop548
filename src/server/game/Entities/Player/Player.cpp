@@ -4112,7 +4112,7 @@ void Player::learnSpell(uint32 spell_id, bool dependent)
     bool active = disabled ? itr->second->active : true;
 
     bool learning = addSpell(spell_id, active, true, dependent, false);
-
+    bool petbar = false;
     // prevent duplicated entires in spell book, also not send if not in world (loading)
     if (learning && IsInWorld())
     {
@@ -4123,9 +4123,15 @@ void Player::learnSpell(uint32 spell_id, bool dependent)
         data.WriteBit(0);
 
         for (uint32 i = 0; i < spellCount; ++i)
+        {
             data << uint32(spell_id);
+            if (spell_id == 93322)
+                petbar = true;
+        }
 
         GetSession()->SendPacket(&data);
+        if (petbar)
+            PetSpellInitialize();
     }
 
     // learn all disabled higher ranks and required spells (recursive)
@@ -21131,6 +21137,7 @@ Pet* Player::GetPet() const
 
 void Player::RemovePet(Pet* pet, PetSaveMode mode, bool returnreagent)
 {
+    
     if (!pet)
         pet = GetPet();
 
@@ -21340,54 +21347,77 @@ void Player::SendOnCancelExpectedVehicleRideAura()
 
 void Player::PetSpellInitialize()
 {
+    Player* player = GetSession()->GetPlayer();
+
+    if (!player)
+        return;
+
     Pet* pet = GetPet();
 
     if (!pet)
         return;
+    
+    // ObjectGuid guid = pet->GetPetGUID();
+    ObjectGuid guid = player->GetPetGUID();
+
+    printf("pet->GetPetGUID() [%u]", pet->GetPetGUID());
 
     TC_LOG_DEBUG("entities.pet", "Pet Spells Groups");
 
     CharmInfo* charmInfo = pet->GetCharmInfo();
 
     WorldPacket data(SMSG_PET_SPELLS, 8+2+4+4+4*MAX_UNIT_ACTION_BAR_INDEX+1+1);
-    data << uint64(pet->GetGUID());
+
+    uint8 v5 = 0;
+    uint8 v6 = 0;
+    uint8 v7 = 0;
+
+    data.WriteBit(guid[7]);
+    data.WriteBit(guid[4]);
+
+    size_t v5_pos = data.bitwpos();
+    data.WriteBits(v5, 21);
+
+    size_t v6_pos = data.bitwpos();
+    data.WriteBits(v6, 22);
+
+    data.WriteBit(guid[2]);
+
+    size_t v7_pos = data.bitwpos();
+    data.WriteBits(v7, 20);
+
+    data.WriteBit(guid[5]);
+    data.WriteBit(guid[3]);
+    data.WriteBit(guid[6]);
+    data.WriteBit(guid[0]);
+    data.WriteBit(guid[1]);
+
+    /*
     data << uint16(pet->GetCreatureTemplate()->family);         // creature family (required for pet talents)
     data << uint32(pet->GetDuration());
     data << uint8(pet->GetReactState());
     data << uint8(charmInfo->GetCommandState());
     data << uint16(0); // Flags, mostly unknown
+    */
+    
+    // data.FlushBits();
 
     // action bar loop
     charmInfo->BuildActionBar(&data);
 
-    size_t spellsCountPos = data.wpos();
+    // size_t spellsCountPos = data.wpos();
 
     // spells count
-    uint8 addlist = 0;
-    data << uint8(addlist);                                 // placeholder
+    // uint8 addlist = 0;
+    // data << uint8(addlist);                                 // placeholder
 
-    if (pet->IsPermanentPetFor(this))
-    {
-        // spells loop
-        for (PetSpellMap::iterator itr = pet->m_spells.begin(); itr != pet->m_spells.end(); ++itr)
-        {
-            if (itr->second.state == PETSPELL_REMOVED)
-                continue;
-
-            data << uint32(MAKE_UNIT_ACTION_BUTTON(itr->first, itr->second.active));
-            ++addlist;
-        }
-    }
-
-    data.put<uint8>(spellsCountPos, addlist);
-
-    uint8 cooldownsCount = pet->m_CreatureSpellCooldowns.size() + pet->m_CreatureCategoryCooldowns.size();
-    data << uint8(cooldownsCount);
+    // uint8 cooldownsCount = pet->m_CreatureSpellCooldowns.size() + pet->m_CreatureCategoryCooldowns.size();
+    // data << uint8(cooldownsCount);
 
     time_t curTime = time(NULL);
-
     for (CreatureSpellCooldowns::const_iterator itr = pet->m_CreatureSpellCooldowns.begin(); itr != pet->m_CreatureSpellCooldowns.end(); ++itr)
     {
+        v7++;
         SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(itr->first);
         if (!spellInfo)
         {
@@ -21416,12 +21446,78 @@ void Player::PetSpellInitialize()
             data << uint32(0);
         }
     }
+    
+    data.PutBits(v7_pos, v7, 20);
+    
+    data.WriteByteSeq(guid[2]);
+
+    if (pet->IsPermanentPetFor(this))
+    {
+        // spells loop
+        for (PetSpellMap::iterator itr = pet->m_spells.begin(); itr != pet->m_spells.end(); ++itr)
+        {
+            if (itr->second.state == PETSPELL_REMOVED)
+                continue;
+
+            data << uint32(MAKE_UNIT_ACTION_BUTTON(itr->first, itr->second.active));
+            ++v6;
+        }
+    }
+
+    // data.put<uint8>(spellsCountPos, v6);
+    data.PutBits(v6_pos, v6, 22);
+
+    data.WriteByteSeq(guid[7]);
+    data.WriteByteSeq(guid[0]);
+    data.WriteByteSeq(guid[3]);
+
+    // data << uint16(GetTalentSpecialization(this->GetActiveSpec())); // (Specialization pet or player ?)
+    data << uint16(0); // (Specialization pet or player ?)
+
+    /*
+    
+            if (*(v4 + 68) > 0u) 
+            {
+                v13 = 0;
+                do
+                {
+                    v16 = 0;
+                    CDataStore__GetInt32(a2, &v16);
+                    *(v13 + *(v4 + 72) + 4) = v16;
+                    v19 = 0;
+                    CDataStore__GetInt8(a2, &v19);
+                    *(v13 + *(v4 + 72) + 8) = v19;
+                    v16 = 0;
+                    CDataStore__GetInt32(a2, &v16);
+                    v14 = *(v4 + 72);
+                    ++v18;
+                    *(v13 + v14) = v16;
+                    v13 += 12;
+                }
+                while (v18 < *(v4 + 68));
+                v12 = a2;
+            }
+    
+    */
+
+    data << uint16(pet->GetCreatureTemplate()->family);         // creature family (required for pet talents)
+    data.WriteByteSeq(guid[1]);
+    data.WriteByteSeq(guid[4]);
+    data.WriteByteSeq(guid[6]);
+
+    data << uint32(pet->GetReactState()); 
+    // data << uint32(charmInfo->GetCommandState());
+
+    data.WriteByteSeq(guid[5]);
+
+    data << uint32(pet->GetDuration());
 
     GetSession()->SendPacket(&data);
 }
 
 void Player::PossessSpellInitialize()
 {
+   
     Unit* charm = GetCharm();
     if (!charm)
         return;
@@ -21450,6 +21546,7 @@ void Player::PossessSpellInitialize()
 
 void Player::VehicleSpellInitialize()
 {
+    
     Creature* vehicle = GetVehicleCreatureBase();
     if (!vehicle)
         return;
