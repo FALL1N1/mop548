@@ -76,9 +76,11 @@ bool AreaTrigger::CreateAreaTrigger(uint32 guidlow, uint32 triggerEntry, Unit* c
     SetDuration(spell->GetDuration());
     SetObjectScale(1);
 
-    SetUInt32Value(DYNAMICOBJECT_FIELD_SPELL_ID, spell->Id);
-    SetUInt32Value(DYNAMICOBJECT_FIELD_TYPE_AND_VISUAL_ID, spell->SpellVisual[0]);
+    SetUInt64Value(AREATRIGGER_FIELD_CASTER, caster->GetGUID());
+    SetUInt32Value(AREATRIGGER_FIELD_SPELL_ID, spell->Id);
+    SetUInt32Value(AREATRIGGER_FIELD_SPELL_VISUAL_ID, spell->SpellVisual[0]);
     SetUInt32Value(AREATRIGGER_FIELD_DURATION, spell->GetDuration());
+    SetUInt32Value(AREATRIGGER_FIELD_EXPLICIT_SCALE, 1);
     //SetFloatValue(AREATRIGGER_FINAL_POS + 0, pos.GetPositionX());
     //SetFloatValue(AREATRIGGER_FINAL_POS + 1, pos.GetPositionY());
     //SetFloatValue(AREATRIGGER_FINAL_POS + 2, pos.GetPositionZ());

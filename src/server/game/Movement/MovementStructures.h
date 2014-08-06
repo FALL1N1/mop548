@@ -38,6 +38,7 @@ enum MovementStatusElements
     MSEHasGuidByte5,
     MSEHasGuidByte6,
     MSEHasGuidByte7,
+    MSEHasMountDisplayId,
     MSEHasMovementFlags,
     MSEHasMovementFlags2,
     MSEHasTimestamp,
@@ -69,6 +70,7 @@ enum MovementStatusElements
     MSEGuidByte5,
     MSEGuidByte6,
     MSEGuidByte7,
+    MSEMountDisplayId,
     MSEMovementFlags,
     MSEMovementFlags2,
     MSETimestamp,
@@ -110,10 +112,7 @@ enum MovementStatusElements
                         // Allowed internal elements are: GUID markers (not transport), MSEExtraFloat, MSEExtraInt8
     MSEExtraFloat,
     MSEExtraFloat2,
-    MSEExtraInt8,
-    MSEExtraBool,
-    MSEExtraNotBool,
-    MSEExtraBooledInt32,
+    MSEExtraInt8
 };
 
 namespace Movement
@@ -136,8 +135,6 @@ namespace Movement
             float floatData;
             float floatData2;
             int8  byteData;
-            bool boolData;
-            int32 booledInt32;
         } Data;
 
     protected:
