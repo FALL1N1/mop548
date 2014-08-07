@@ -140,7 +140,7 @@ void WorldSession::SendTaxiMenu(Creature* unit)
     TC_LOG_DEBUG("network", "WORLD: CMSG_TAXINODE_STATUS_QUERY %u ", curloc);
     ObjectGuid Guid = unit->GetGUID();
 
-    WorldPacket data(SMSG_SHOWTAXINODES, (4 + 8 + 4 + 8 * 4));
+    WorldPacket data(SMSG_SHOWTAXINODES, (4 + 8 + 4 + 4 * 4));
     data.WriteBit(1); //unk
     data.WriteBit(Guid[3]);
     data.WriteBit(Guid[0]);
