@@ -153,7 +153,7 @@ void OpcodeTable::InitializeClientTable()
     DEFINE_OPCODE_HANDLER(CMSG_CANCEL_MOUNT_AURA,                  0x10E3, STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleCancelMountAuraOpcode        ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(CMSG_CANCEL_QUEUED_SPELL,                0x0000, STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                        );
     DEFINE_OPCODE_HANDLER(CMSG_CANCEL_TEMP_ENCHANTMENT,            0x0000, STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleCancelTempEnchantmentOpcode  );
-    DEFINE_OPCODE_HANDLER(CMSG_CANCEL_TRADE,                       0x1941, STATUS_LOGGEDIN_OR_RECENTLY_LOGGOUT, PROCESS_THREADUNSAFE, &WorldSession::HandleCancelTradeOpcode            ); // 5.4.8 18414
+    DEFINE_OPCODE_HANDLER(CMSG_CANCEL_TRADE,                       0x1941, STATUS_LOGGEDIN_OR_RECENTLY_LOGGOUT, PROCESS_THREADUNSAFE, &WorldSession::HandleCancelTradeOpcode); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(CMSG_CAST_SPELL,                         0x0206, STATUS_LOGGEDIN,  PROCESS_THREADSAFE,   &WorldSession::HandleCastSpellOpcode              ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(CMSG_CHANGEPLAYER_DIFFICULTY,            0x0000, STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                        );
     DEFINE_OPCODE_HANDLER(CMSG_CHANGE_SEATS_ON_CONTROLLED_VEHICLE, 0x0000, STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleChangeSeatsOnControlledVehicle);
@@ -421,11 +421,11 @@ void OpcodeTable::InitializeClientTable()
     DEFINE_OPCODE_HANDLER(CMSG_PET_ABANDON,                        0x0000, STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandlePetAbandon                   );
     DEFINE_OPCODE_HANDLER(CMSG_PET_ACTION,                         0x025B, STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandlePetAction                    );
     DEFINE_OPCODE_HANDLER(CMSG_PET_CANCEL_AURA,                    0x0000, STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandlePetCancelAuraOpcode          );
-    DEFINE_OPCODE_HANDLER(CMSG_PET_CAST_SPELL,                     0x12E9, STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandlePetCastSpellOpcode           );
-    DEFINE_OPCODE_HANDLER(CMSG_PET_LEARN_TALENT,                   0x1463, STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandlePetLearnTalent               );
+    DEFINE_OPCODE_HANDLER(CMSG_PET_CAST_SPELL,                     0x044D, STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandlePetCastSpellOpcode           );
+    DEFINE_OPCODE_HANDLER(CMSG_PET_LEARN_TALENT,                   0x1463, STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandlePetLearnTalent               );
     DEFINE_OPCODE_HANDLER(CMSG_PET_NAME_QUERY,                     0x1C62, STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandlePetNameQuery                 ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(CMSG_PET_RENAME,                         0x0000, STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandlePetRename                    );
-    DEFINE_OPCODE_HANDLER(CMSG_PET_SET_ACTION,                     0x07CB, STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandlePetSetAction                 );
+    DEFINE_OPCODE_HANDLER(CMSG_PET_SET_ACTION,                     0x12E9, STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandlePetSetAction                 );
     DEFINE_OPCODE_HANDLER(CMSG_PET_SPELL_AUTOCAST,                 0x0000, STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandlePetSpellAutocastOpcode       );
     DEFINE_OPCODE_HANDLER(CMSG_PET_STOP_ATTACK,                    0x0000, STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandlePetStopAttack                );
     DEFINE_OPCODE_HANDLER(CMSG_PING,                               0x0012, STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_EarlyProccess               ); // 5.4.8 18414
@@ -643,7 +643,7 @@ void OpcodeTable::InitializeServerTable()
     DEFINE_OPCODE_HANDLER(SMSG_ACHIEVEMENT_DELETED,                0x0000, STATUS_UNHANDLED);
     DEFINE_OPCODE_HANDLER(SMSG_ACHIEVEMENT_EARNED,                 0x080B, STATUS_NEVER    ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(SMSG_ACTION_BUTTONS,                     0x081A, STATUS_NEVER    ); // 5.4.8 18414
-    DEFINE_OPCODE_HANDLER(SMSG_ACTIVATETAXIREPLY,                  0x02A7, STATUS_NEVER    ); // 5.4.8 18414 this one is wrong 0x1043
+    DEFINE_OPCODE_HANDLER(SMSG_ACTIVATETAXIREPLY,                  0x02A7, STATUS_NEVER    ); // 5.4.8 18414 this one is wrong 0x1043 or 0x02A7
     DEFINE_OPCODE_HANDLER(SMSG_ADDON_INFO,                         0x160A, STATUS_NEVER    ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(SMSG_ADD_RUNE_POWER,                     0x0000, STATUS_UNHANDLED);
     DEFINE_OPCODE_HANDLER(SMSG_AI_REACTION,                        0x06AF, STATUS_NEVER    ); // 5.4.8 18414
@@ -1109,7 +1109,7 @@ void OpcodeTable::InitializeServerTable()
     DEFINE_OPCODE_HANDLER(SMSG_PET_ACTION_SOUND,                   0x15E2, STATUS_NEVER    );
     DEFINE_OPCODE_HANDLER(SMSG_PET_ADDED,                          0x123A, STATUS_UNHANDLED);
     DEFINE_OPCODE_HANDLER(SMSG_PET_BROKEN,                         0x0000, STATUS_UNHANDLED);
-    DEFINE_OPCODE_HANDLER(SMSG_PET_CAST_FAILED,                    0x149B, STATUS_UNHANDLED);
+    DEFINE_OPCODE_HANDLER(SMSG_PET_CAST_FAILED,                    0x149B, STATUS_NEVER    );
     DEFINE_OPCODE_HANDLER(SMSG_PET_DISMISS_SOUND,                  0x1ABB, STATUS_NEVER    );
     DEFINE_OPCODE_HANDLER(SMSG_PET_GUIDS,                          0x1227, STATUS_UNHANDLED);
     DEFINE_OPCODE_HANDLER(SMSG_PET_LEARNED_SPELL,                  0x0282, STATUS_NEVER    );

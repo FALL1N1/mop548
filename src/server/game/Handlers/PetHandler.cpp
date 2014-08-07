@@ -59,34 +59,34 @@ void WorldSession::HandleDismissCritter(WorldPacket& recvData)
 
 void WorldSession::HandlePetAction(WorldPacket& recvData)
 {
-    ObjectGuid guid1;
+    ObjectGuid guid1; // tag guid
     uint32 data;
-    ObjectGuid guid2;
+    ObjectGuid guid2; // pet guid
     float x, y, z;
-    // recvData >> guid1;                                     //pet guid
+
     recvData >> data;
-    // recvData >> guid2;                                     //tag guid
+
     // Position
     recvData >> x;
     recvData >> y;
     recvData >> z;
 
-    guid2[1] = recvData.ReadBit(); // 25    1               This are test counts to check errors. I will remove them later
-    guid2[0] = recvData.ReadBit(); // 24    0
-    guid2[6] = recvData.ReadBit(); // 30    6
-    guid2[7] = recvData.ReadBit(); // 31    7
-    guid2[5] = recvData.ReadBit(); // 29    5
-    guid1[7] = recvData.ReadBit();          // 23   7
-    guid2[2] = recvData.ReadBit(); // 26    2
-    guid2[3] = recvData.ReadBit(); // 27    3
-    guid1[6] = recvData.ReadBit();          // 22   6
-    guid1[3] = recvData.ReadBit();          // 19   3
-    guid1[0] = recvData.ReadBit();          // 16   0
-    guid1[2] = recvData.ReadBit();          // 18   2
-    guid1[5] = recvData.ReadBit();          // 21   5
-    guid2[4] = recvData.ReadBit(); // 28    4
-    guid1[4] = recvData.ReadBit();          // 20   4
-    guid1[1] = recvData.ReadBit();          // 17   1
+    guid2[1] = recvData.ReadBit();
+    guid2[0] = recvData.ReadBit();
+    guid2[6] = recvData.ReadBit();
+    guid2[7] = recvData.ReadBit();
+    guid2[5] = recvData.ReadBit();
+    guid1[7] = recvData.ReadBit();
+    guid2[2] = recvData.ReadBit();
+    guid2[3] = recvData.ReadBit();
+    guid1[6] = recvData.ReadBit();
+    guid1[3] = recvData.ReadBit();
+    guid1[0] = recvData.ReadBit();
+    guid1[2] = recvData.ReadBit();
+    guid1[5] = recvData.ReadBit();
+    guid2[4] = recvData.ReadBit();
+    guid1[4] = recvData.ReadBit();
+    guid1[1] = recvData.ReadBit();
 
 
 
@@ -114,11 +114,10 @@ void WorldSession::HandlePetAction(WorldPacket& recvData)
 
     uint32 spellid = UNIT_ACTION_BUTTON_ACTION(data);
     uint8 flag = UNIT_ACTION_BUTTON_TYPE(data);             //delete = 0x07 CastSpell = C1
-    printf("Guid1 [%u]\tGuid2 [%u]\tspellid [%u]\tflag[%u]\n", uint32(GUID_LOPART(guid1)), uint32(GUID_LOPART(guid2)), spellid, flag);
     
     // used also for charmed creature
     Unit* pet= ObjectAccessor::GetUnit(*_player, guid2);
-    TC_LOG_INFO("network", "HandlePetAction: Pet %u - flag: %u, spellid: %u, target: %u.", uint32(GUID_LOPART(guid1)), uint32(flag), spellid, uint32(GUID_LOPART(guid2)));
+    TC_LOG_INFO("network", "HandlePetAction: Pet %u - flag: %u, spellid: %u, target: %u.", uint32(GUID_LOPART(guid2)), uint32(flag), spellid, uint32(GUID_LOPART(guid1)));
 
     if (!pet)
     {
@@ -155,7 +154,7 @@ void WorldSession::HandlePetAction(WorldPacket& recvData)
             if ((*itr)->GetEntry() == pet->GetEntry() && (*itr)->IsAlive())
                 controlled.push_back(*itr);
         for (std::vector<Unit*>::iterator itr = controlled.begin(); itr != controlled.end(); ++itr)
-            HandlePetActionHelper(*itr, guid1, spellid, flag, guid2, x, y, z);
+            HandlePetActionHelper(*itr, guid2, spellid, flag, guid1, x, y, z);
     }
 }
 
@@ -582,6 +581,7 @@ void WorldSession::HandlePetSetAction(WorldPacket& recvData)
         recvData >> position[i];
         recvData >> data[i];
     }
+/*
     petguid[2] = recvData.ReadBit();
     petguid[6] = recvData.ReadBit();
     petguid[0] = recvData.ReadBit();
@@ -599,6 +599,24 @@ void WorldSession::HandlePetSetAction(WorldPacket& recvData)
     recvData.ReadByteSeq(petguid[3]);
     recvData.ReadByteSeq(petguid[6]);
     recvData.ReadByteSeq(petguid[4]);
+    */
+    petguid[1] = recvData.ReadBit();
+    petguid[0] = recvData.ReadBit();
+    petguid[5] = recvData.ReadBit();
+    petguid[3] = recvData.ReadBit();
+    petguid[2] = recvData.ReadBit();
+    petguid[7] = recvData.ReadBit();
+    petguid[6] = recvData.ReadBit();
+    petguid[4] = recvData.ReadBit();
+
+    recvData.ReadByteSeq(petguid[5]);
+    recvData.ReadByteSeq(petguid[6]);
+    recvData.ReadByteSeq(petguid[7]);
+    recvData.ReadByteSeq(petguid[3]);
+    recvData.ReadByteSeq(petguid[2]);
+    recvData.ReadByteSeq(petguid[1]);
+    recvData.ReadByteSeq(petguid[4]);
+    recvData.ReadByteSeq(petguid[0]);
 
     // recvData >> petguid;
 
@@ -857,14 +875,41 @@ void WorldSession::HandlePetSpellAutocastOpcode(WorldPacket& recvPacket)
 
 void WorldSession::HandlePetCastSpellOpcode(WorldPacket& recvPacket)
 {
-    TC_LOG_DEBUG("network", "WORLD: CMSG_PET_CAST_SPELL");
 
+    TC_LOG_DEBUG("network", "WORLD: CMSG_PET_CAST_SPELL");
+    /*
     uint64 guid;
     uint8  castCount;
     uint32 spellId;
     uint8  castFlags;
 
     recvPacket >> guid >> castCount >> spellId >> castFlags;
+    */
+    ObjectGuid guid;
+    uint32 spellId;
+    uint32 unk_1;
+    uint8  castFlags = 0;
+    uint8  castCount = 0;
+
+    recvPacket >> spellId >> unk_1;
+
+    guid[1] = recvPacket.ReadBit();
+    guid[0] = recvPacket.ReadBit();
+    guid[5] = recvPacket.ReadBit();
+    guid[3] = recvPacket.ReadBit();
+    guid[2] = recvPacket.ReadBit();
+    guid[7] = recvPacket.ReadBit();
+    guid[6] = recvPacket.ReadBit();
+    guid[4] = recvPacket.ReadBit();
+
+    recvPacket.ReadByteSeq(guid[5]);
+    recvPacket.ReadByteSeq(guid[6]);
+    recvPacket.ReadByteSeq(guid[7]);
+    recvPacket.ReadByteSeq(guid[3]);
+    recvPacket.ReadByteSeq(guid[2]);
+    recvPacket.ReadByteSeq(guid[1]);
+    recvPacket.ReadByteSeq(guid[4]);
+    recvPacket.ReadByteSeq(guid[0]);
 
     TC_LOG_DEBUG("network", "WORLD: CMSG_PET_CAST_SPELL, guid: " UI64FMTD ", castCount: %u, spellId %u, castFlags %u", guid, castCount, spellId, castFlags);
 
