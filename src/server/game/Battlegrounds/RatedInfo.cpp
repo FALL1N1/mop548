@@ -98,7 +98,7 @@ void RatedInfo::SaveToDB(RatedType ratedType)
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_RATED_BATTLEGROUND_STATS);
 
-    StatsBySlot* stats = const_cast<StatsBySlot*>(GetStatsBySlot(ratedType));
+    StatsBySlot const* stats = GetStatsBySlot(ratedType);
     stmt->setUInt16(0, GUID_LOPART(GetGUID()));
     stmt->setUInt8 (1, GetRatedSlotByType(ratedType));
     stmt->setUInt16(2, stats->WeekGames);

@@ -1347,12 +1347,12 @@ void AchievementMgr<T>::UpdateAchievementCriteria(AchievementCriteriaTypes type,
                 }
                 else // login case
                 {
-                    ASSERT(RatedInfo* rInfo = sRatedMgr->GetRatedInfo(referencePlayer->GetGUID()));
+                    RatedInfo* rInfo = sRatedMgr->GetRatedInfo(referencePlayer->GetGUID());
 
                     for (uint8 arena_slot = 0; arena_slot < MAX_ARENA_SLOT; ++arena_slot)
                     {
                         RatedType ratedType = RatedInfo::GetRatedTypeBySlot(arena_slot);
-                        if (!rratedType != reqTeamType)
+                        if (!ratedType != reqTeamType)
                             continue;
 
                         StatsBySlot const* stats = rInfo->GetStatsBySlot(ratedType);
@@ -1376,7 +1376,7 @@ void AchievementMgr<T>::UpdateAchievementCriteria(AchievementCriteriaTypes type,
                 }
                 else // login case
                 {
-                    ASSERT(RatedInfo* rInfo = sRatedMgr->GetRatedInfo(referencePlayer->GetGUID()));
+                    RatedInfo* rInfo = sRatedMgr->GetRatedInfo(referencePlayer->GetGUID());
 
                     for (uint32 arena_slot = 0; arena_slot < MAX_ARENA_SLOT; ++arena_slot)
                     {
