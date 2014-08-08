@@ -36,13 +36,7 @@ RatedInfo::RatedInfo(uint64 guid) : m_guid(guid)
         StatsBySlot* statsBySlot = new StatsBySlot(type);        
 
         statsBySlot->PersonalRating     = sWorld->getIntConfig(CONFIG_ARENA_START_RATING);
-        statsBySlot->MatchMakerRating   = uint16(0);
-        statsBySlot->SeasonBest         = uint16(0);
-        statsBySlot->SeasonGames        = uint16(0);
-        statsBySlot->SeasonWins         = uint16(0);
-        statsBySlot->WeekBest           = uint16(0);
-        statsBySlot->WeekGames          = uint16(0);
-        statsBySlot->WeekWins           = uint16(0);
+        statsBySlot->MatchMakerRating   = sWorld->getIntConfig(CONFIG_ARENA_START_MATCHMAKER_RATING);
 
         m_ratedStats[RatedType(i)] = statsBySlot;
     }
@@ -102,7 +96,7 @@ void RatedInfo::SaveToDB(RatedType ratedType)
 
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
 
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_CHARACTER_RATED_BATTLEGROUND_STATS);
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_RATED_BATTLEGROUND_STATS);
 
     StatsBySlot* stats = const_cast<StatsBySlot*>(GetStatsBySlot(ratedType));
     stmt->setUInt16(0, GUID_LOPART(GetGUID()));
@@ -114,7 +108,7 @@ void RatedInfo::SaveToDB(RatedType ratedType)
     stmt->setUInt16(6, stats->SeasonWins);
     stmt->setUInt16(7, stats->SeasonBest);
     stmt->setUInt16(8, stats->PersonalRating);
-    stmt->setUInt32(9, stats->MatchMakerRating);
+    stmt->setUInt16(9, stats->MatchMakerRating);
     trans->Append(stmt);
 
     CharacterDatabase.CommitTransaction(trans);

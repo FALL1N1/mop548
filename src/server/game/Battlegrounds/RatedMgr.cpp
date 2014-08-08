@@ -74,9 +74,11 @@ void RatedMgr::LoadRatedInfo()
 {
     uint32 oldMSTime = getMSTime();
 
+    // Delete incorrect gargage
     CharacterDatabase.Execute("DELETE FROM character_rated_stats crbs LEFT JOIN characters c ON crbs.guid = c.guid WHERE c.guid IS NULL");
 
-    QueryResult result = CharacterDatabase.Query("SELECT guid, slot, weekGames, weekWins, weeekBest, seasonGames, seasonWins, seasonBest, personalRating, matchmakerRating FROM character_rated_stats ORDER by guid ASC");
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_RATED_BATTLEGROUND_STATS);
+    PreparedQueryResult result = CharacterDatabase.Query(stmt);
 
     if (!result)
     {
