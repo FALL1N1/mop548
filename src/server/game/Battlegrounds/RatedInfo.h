@@ -22,9 +22,6 @@
 #define RATEDINFO_H
 
 #include "Define.h"
-#include "QueryResult.h"
-#include <list>
-#include <string>
 #include <map>
 
 #define MAX_ARENA_SLOT 3

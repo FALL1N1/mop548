@@ -41,19 +41,19 @@ struct PlayerQueueInfo                                      // stores informatio
 
 struct GroupQueueInfo                                       // stores information about the group in queue (also used when joined as solo!)
 {
-    std::map<uint64, PlayerQueueInfo*> Players;             // player queue info map
-    uint32  Team;                                           // Player team (ALLIANCE/HORDE)
-    uint64  LeaderGUID;                                     // GUID of the group leader
-    BattlegroundTypeId BgTypeId;                            // battleground type id
-    RatedType RatedType;                                    // 2v2, 3v3, 5v5, 10v10 or 0 when BG
-    bool    IsRated;                                        // rated
-    uint32  JoinTime;                                       // time when group was added
-    uint32  RemoveInviteTime;                               // time when we will remove invite for players in group
-    uint32  IsInvitedToBGInstanceGUID;                      // was invited to certain BG
-    uint32  TeamRating;                                     // if rated match, inited to the rating of the team
-    uint32  TeamMatchmakerRating;                           // if rated match, inited to the rating of the team
-    uint32  OpponentsTeamRating;                            // for rated arena matches
-    uint32  OpponentsTeamMatchmakerRating;                  // for rated arena matches
+    std::map<uint64, PlayerQueueInfo*> players;             // player queue info map
+    uint32  team;                                           // Player team (ALLIANCE/HORDE)
+    uint64  leaderGUID;                                     // GUID of the group leader
+    BattlegroundTypeId bgTypeId;                            // battleground type id
+    RatedType ratedType;                               // 2v2, 3v3, 5v5, 10v10 or 0 when BG
+    bool    isRated;                                        // rated
+    uint32  joinTime;                                       // time when group was added
+    uint32  removeInviteTime;                               // time when we will remove invite for players in group
+    uint32  isInvitedToBGInstanceGUID;                      // was invited to certain BG
+    uint32  teamRating;                                     // if rated match, inited to the rating of the team
+    uint32  teamMatchmakerRating;                           // if rated match, inited to the rating of the team
+    uint32  opponentsTeamRating;                            // for rated arena matches
+    uint32  opponentsTeamMatchmakerRating;                  // for rated arena matches
 };
 
 enum BattlegroundQueueGroupTypes
