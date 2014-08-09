@@ -2392,20 +2392,64 @@ void Spell::EffectDispel(SpellEffIndex effIndex)
     if (success_list.empty())
         return;
 
-    WorldPacket dataSuccess(SMSG_SPELLDISPELLOG, 8+8+4+1+4+success_list.size()*5);
-    // Send packet header
-    dataSuccess.append(unitTarget->GetPackGUID());         // Victim GUID
-    dataSuccess.append(m_caster->GetPackGUID());           // Caster GUID
-    dataSuccess << uint32(m_spellInfo->Id);                // dispel spell id
-    dataSuccess << uint8(0);                               // not used
-    dataSuccess << uint32(success_list.size());            // count
+    ObjectGuid targetGuid = unitTarget->GetGUID();
+    ObjectGuid casterGuid = m_caster->GetGUID();
+    WorldPacket dataSuccess(SMSG_SPELLDISPELLOG, 8+8+4+1+4+success_list.size()*8);
+    dataSuccess.WriteBit(targetGuid[2]);
+    dataSuccess.WriteBit(casterGuid[4]);
+    dataSuccess.WriteBit(targetGuid[6]);
+    dataSuccess.WriteBit(casterGuid[5]);
+    dataSuccess.WriteBit(0); // Fake bit
+    dataSuccess.WriteBit(0); // Fake bit
+    dataSuccess.WriteBit(targetGuid[5]);
+    dataSuccess.WriteBit(targetGuid[7]);
+    dataSuccess.WriteBit(targetGuid[4]);
+    dataSuccess.WriteBit(targetGuid[0]);
+    dataSuccess.WriteBit(targetGuid[1]);
+    dataSuccess.WriteBits(success_list.size(), 22);
+    dataSuccess.WriteBit(casterGuid[0]);
+
+    // No Idea what this is
+    for (uint32 i = 0; i < success_list.size(); ++i)
+    {
+        dataSuccess.WriteBit(0);
+        dataSuccess.WriteBit(0);
+        dataSuccess.WriteBit(0);
+    }
+
+    dataSuccess.WriteBit(casterGuid[3]);
+    dataSuccess.WriteBit(casterGuid[2]);
+    dataSuccess.WriteBit(targetGuid[3]);
+    dataSuccess.WriteBit(casterGuid[1]);
+    dataSuccess.WriteBit(casterGuid[7]);
+    dataSuccess.WriteBit(casterGuid[6]);
+
     for (DispelChargesList::iterator itr = success_list.begin(); itr != success_list.end(); ++itr)
     {
         // Send dispelled spell info
         dataSuccess << uint32(itr->first->GetId());              // Spell Id
-        dataSuccess << uint8(0);                        // 0 - dispelled !=0 cleansed
+        dataSuccess << uint32(0);                        // 0 - dispelled !=0 cleansed
         unitTarget->RemoveAurasDueToSpellByDispel(itr->first->GetId(), m_spellInfo->Id, itr->first->GetCasterGUID(), m_caster, itr->second);
     }
+
+    dataSuccess.WriteByteSeq(casterGuid[4]);
+    dataSuccess.WriteByteSeq(targetGuid[3]);
+    dataSuccess.WriteByteSeq(casterGuid[6]);
+    dataSuccess.WriteByteSeq(casterGuid[0]);
+    dataSuccess.WriteByteSeq(targetGuid[5]);
+    dataSuccess.WriteByteSeq(targetGuid[1]);
+    dataSuccess.WriteByteSeq(casterGuid[3]);
+    dataSuccess.WriteByteSeq(casterGuid[2]);
+    dataSuccess.WriteByteSeq(casterGuid[1]);
+    dataSuccess.WriteByteSeq(casterGuid[5]);
+    dataSuccess.WriteByteSeq(targetGuid[0]);
+    dataSuccess << uint32(m_spellInfo->Id); // dispel spell id
+    dataSuccess.WriteByteSeq(targetGuid[7]);
+    dataSuccess.WriteByteSeq(targetGuid[6]);
+    dataSuccess.WriteByteSeq(targetGuid[2]);
+    dataSuccess.WriteByteSeq(casterGuid[7]);
+    dataSuccess.WriteByteSeq(targetGuid[4]);
+
     m_caster->SendMessageToSet(&dataSuccess, true);
 
     // On success dispel
