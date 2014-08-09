@@ -21454,13 +21454,13 @@ void Player::VehicleSpellInitialize()
     uint8 cooldownCount = vehicle->m_CreatureSpellCooldowns.size();
 
     ObjectGuid guid = vehicle->GetGUID(); // 56-63
-    WorldPacket data(SMSG_PET_SPELLS, 8 + 1 + 4 * 10 + 1 + 1 + cooldownCount * (4 + 2 + 4 + 4));
+    WorldPacket data(SMSG_PET_SPELLS, 8 + 4 * 10 + 2 + 1 + 1 + 4 + 4 + cooldownCount * (4 + 4 + 2 + 4));
     data.WriteBit(guid[7]);
     data.WriteBit(guid[4]);
     data.WriteBits(0, 21); // unk, probably nothing with vehicles
     data.WriteBits(0, 22); // unk, probably nothing with vehicles
     data.WriteBit(guid[2]);
-    data.WriteBits(vehicle->m_CreatureSpellCooldowns.size(), 20);
+    data.WriteBits(cooldownCount, 20);
     data.WriteBit(guid[5]);
     data.WriteBit(guid[3]);
     data.WriteBit(guid[6]);
@@ -21508,19 +21508,20 @@ void Player::VehicleSpellInitialize()
         }
 
         time_t cooldown = (itr->second > now) ? (itr->second - now) * IN_MILLISECONDS : 0;
-        data << uint32(itr->first);                 // spell ID
 
         CreatureSpellCooldowns::const_iterator categoryitr = vehicle->m_CreatureCategoryCooldowns.find(spellInfo->GetCategory());
         if (categoryitr != vehicle->m_CreatureCategoryCooldowns.end())
         {
             time_t categoryCooldown = (categoryitr->second > now) ? (categoryitr->second - now) * IN_MILLISECONDS : 0;
             data << uint32(cooldown);                   // spell cooldown
+            data << uint32(itr->first);                 // spell ID
             data << uint16(spellInfo->GetCategory());   // spell category
             data << uint32(categoryCooldown);           // category cooldown
         }
         else
         {
             data << uint32(cooldown);
+            data << uint32(0);
             data << uint16(0);
             data << uint32(0);
         }
@@ -21530,15 +21531,15 @@ void Player::VehicleSpellInitialize()
     data.WriteByteSeq(guid[7]);
     data.WriteByteSeq(guid[0]);
     data.WriteByteSeq(guid[3]);
-    data << uint16(0); // Pet Family ( always 0 for vehicles)
     data << uint8(vehicle->GetReactState()); // React State
     data << uint8(0); // Command State
+    data << uint16(0); // Pet Family, always 0 for vehicles
     data.WriteByteSeq(guid[1]);
     data.WriteByteSeq(guid[4]);
     data.WriteByteSeq(guid[6]);
     data << uint32(vehicle->IsSummon() ? vehicle->ToTempSummon()->GetTimer() : 0);
     data.WriteByteSeq(guid[5]);
-    data << uint32(0x101); // Seems to be always 257(0x101) for vehicles
+    data << uint32(0x101); // Seems to be always 257 (0x101) for vehicles
 
     GetSession()->SendPacket(&data);
 }
