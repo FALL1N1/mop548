@@ -207,7 +207,7 @@ class CharacterCreateInfo
 class WorldSession
 {
     public:
-        WorldSession(uint32 id, WorldSocket* sock, AccountTypes sec, uint8 expansion, time_t mute_time, LocaleConstant locale, uint32 recruiter, bool isARecruiter);
+        WorldSession(uint32 id, WorldSocket* sock, AccountTypes sec, uint8 expansion, time_t mute_time, LocaleConstant locale, uint32 recruiter, bool isARecruiter, bool hasBoost);
         ~WorldSession();
 
         bool PlayerLoading() const { return m_playerLoading; }
@@ -387,6 +387,10 @@ class WorldSession
         // Recruit-A-Friend Handling
         uint32 GetRecruiterId() const { return recruiterId; }
         bool IsARecruiter() const { return isRecruiter; }
+
+        // Boost
+        bool HasBoost() const { return m_hasBoost; }
+        void SetBoosting(bool boost) { m_hasBoost = boost; }
 
         z_stream_s* GetCompressionStream() { return _compressionStream; }
 
@@ -1092,6 +1096,7 @@ class WorldSession
         bool _filterAddonMessages;
         uint32 recruiterId;
         bool isRecruiter;
+        bool m_hasBoost;
         ACE_Based::LockedQueue<WorldPacket*, ACE_Thread_Mutex> _recvQueue;
         time_t timeLastWhoCommand;
         z_stream_s* _compressionStream;

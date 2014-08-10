@@ -1433,6 +1433,13 @@ void WorldSession::HandlePlayedTime(WorldPacket& recvData)
 
 void WorldSession::HandleBattleCharBoost(WorldPacket& recvData)
 {
+    if (!HasBoost())
+    {
+        TC_LOG_ERROR("network", "WorldSession::HandleBattleCharBoost called, but player has not allowed boost");
+        recvData.rfinish();
+        return;
+    }
+
     ObjectGuid playerGuid, guid;
     uint32 charInfo = 0;
     bool hasCharInfo = false;

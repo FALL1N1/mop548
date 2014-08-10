@@ -272,8 +272,8 @@ void CharacterBooster::_LearnSpells(SQLTransaction& trans, uint8 const& raceId, 
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_SPELL);
             stmt->setUInt32(0, m_charBoostInfo.lowGuid);
             stmt->setUInt32(1, languageSpells[i]);
-            stmt->setBool(2, 1);
-            stmt->setBool(3, 0);
+            stmt->setBool(2, true);
+            stmt->setBool(3, false);
             trans->Append(stmt);
         }
     }
@@ -296,8 +296,8 @@ void CharacterBooster::_LearnSpells(SQLTransaction& trans, uint8 const& raceId, 
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_SPELL);
         stmt->setUInt32(0, m_charBoostInfo.lowGuid);
         stmt->setUInt32(1, spellsToLearn[i]);
-        stmt->setBool(2, 1);
-        stmt->setBool(3, 0);
+        stmt->setBool(2, true);
+        stmt->setBool(3, false);
         trans->Append(stmt);
     }
 }
@@ -369,6 +369,16 @@ void CharacterBooster::_SaveBoostedChar(SQLTransaction& trans, std::string const
     trans->Append(stmt);
 }
 
+void CharacterBooster::_UnsetBoost() const
+{
+    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_BOOST);
+    stmt->setBool(0, false);
+    stmt->setUInt32(1, m_session->GetAccountId());
+    LoginDatabase.Execute(stmt);
+
+    m_session->SetBoosting(false);
+}
+
 void CharacterBooster::_HandleCharacterBoost()
 {
     uint8 classId = 0;
@@ -394,6 +404,7 @@ void CharacterBooster::_HandleCharacterBoost()
     _LearnSpells(trans, raceId, classId);
     _SaveBoostedChar(trans, _EquipItems(trans, itemsToEquip), raceId, classId);
     CharacterDatabase.CommitTransaction(trans);
+    _UnsetBoost();
     _SendCharBoostPacket(itemsToEquip);
 }
 
