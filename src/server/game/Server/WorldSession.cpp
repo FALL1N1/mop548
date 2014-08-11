@@ -698,7 +698,7 @@ void WorldSession::SetBoosting(bool boost, bool saveToDB)
         return;
 
     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_BOOST);
-    stmt->setBool(0, false);
+    stmt->setBool(0, boost);
     stmt->setUInt32(1, _accountId);
     LoginDatabase.Execute(stmt);
 }
