@@ -690,6 +690,19 @@ const char *WorldSession::GetTrinityString(int32 entry) const
     return sObjectMgr->GetTrinityString(entry, GetSessionDbLocaleIndex());
 }
 
+void WorldSession::SetBoosting(bool boost, bool saveToDB)
+{
+    m_hasBoost = boost;
+
+    if (!saveToDB)
+        return;
+
+    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_BOOST);
+    stmt->setBool(0, false);
+    stmt->setUInt32(1, _accountId);
+    LoginDatabase.Execute(stmt);
+}
+
 void WorldSession::Handle_NULL(WorldPacket& recvPacket)
 {
     TC_LOG_ERROR("network.opcode", "Received unhandled opcode %s from %s"

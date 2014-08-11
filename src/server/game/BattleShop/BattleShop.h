@@ -645,7 +645,6 @@ class CharacterBooster
         void _SaveBoostedChar(SQLTransaction& trans, std::string const& items, uint8 const& raceId, uint8 const& classId);
         void _SendMail(SQLTransaction& trans, std::vector<std::pair<uint32, uint32> > const& items) const;
         void _SendCharBoostPacket(SlotEquipmentMap const* items);
-        void _UnsetBoost() const;
 
         CharacterBoostData m_charBoostInfo;
         WorldSession* m_session;

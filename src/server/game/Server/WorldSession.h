@@ -390,7 +390,7 @@ class WorldSession
 
         // Boost
         bool HasBoost() const { return m_hasBoost; }
-        void SetBoosting(bool boost) { m_hasBoost = boost; }
+        void SetBoosting(bool boost, bool saveToDB = true);
 
         z_stream_s* GetCompressionStream() { return _compressionStream; }
 
