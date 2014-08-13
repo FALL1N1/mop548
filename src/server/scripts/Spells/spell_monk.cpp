@@ -31,6 +31,7 @@
 
 enum MonkSpells
 {
+    SPELL_MONK_CRACKLING_JADE_LIGHTNING_CHANNEL     = 117952,
     SPELL_MONK_CRACKLING_JADE_LIGHTNING_HIDDEN_CD   = 117953,
     SPELL_MONK_CRACKLING_JADE_LIGHTNING_AURA        = 117959,
     SPELL_MONK_CRACKLING_JADE_LIGHTNING_KNOCKBACK   = 117962,
@@ -54,11 +55,12 @@ public:
             return true;
         }
 
-        void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        void OnApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
         {
             if (GetCaster())
             {
                 GetCaster()->CastSpell(GetCaster(), SPELL_MONK_CRACKLING_JADE_LIGHTNING_AURA, true);
+                GetCaster()->CastSpell(GetCaster(), SPELL_MONK_CRACKLING_JADE_LIGHTNING_AURA, true, NULL, aurEff);
                 GetCaster()->CastSpell(GetCaster(), SPELL_MONK_CRACKLING_JADE_LIGHTNING_CHI_PROC, true);
             }
         }
@@ -74,8 +76,8 @@ public:
 
         void Register() override
         {
-            AfterEffectApply += AuraEffectRemoveFn(spell_monk_crackling_jade_lightning_AuraScript::OnApply, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
-            AfterEffectRemove += AuraEffectRemoveFn(spell_monk_crackling_jade_lightning_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
+            OnEffectApply += AuraEffectRemoveFn(spell_monk_crackling_jade_lightning_AuraScript::OnApply, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
+            OnEffectRemove += AuraEffectRemoveFn(spell_monk_crackling_jade_lightning_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
         }
     };
 
@@ -104,7 +106,15 @@ public:
 
         bool CheckProc(ProcEventInfo& /*eventInfo*/)
         {
-            return !GetTarget()->HasAura(SPELL_MONK_CRACKLING_JADE_LIGHTNING_HIDDEN_CD);
+            if (GetTarget()->HasAura(SPELL_MONK_CRACKLING_JADE_LIGHTNING_HIDDEN_CD))
+                return false;
+
+            // Just prevention against buggers
+            Spell* currentChanneledSpell = GetTarget()->GetCurrentSpell(CURRENT_CHANNELED_SPELL);
+            if (!currentChanneledSpell || currentChanneledSpell->GetSpellInfo()->Id != SPELL_MONK_CRACKLING_JADE_LIGHTNING_CHANNEL)
+                return false;
+
+            return true;
         }
 
         void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
