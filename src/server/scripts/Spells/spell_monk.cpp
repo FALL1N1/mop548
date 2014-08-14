@@ -36,6 +36,8 @@ enum MonkSpells
     SPELL_MONK_CRACKLING_JADE_LIGHTNING_AURA        = 117959,
     SPELL_MONK_CRACKLING_JADE_LIGHTNING_KNOCKBACK   = 117962,
     SPELL_MONK_CRACKLING_JADE_LIGHTNING_CHI_PROC    = 123332,
+    SPELL_MONK_FORTIFYING_BREW_AURA                 = 120954,
+    SPELL_MONK_GLYPH_OF_FORTIFYING_BREW             = 124997
 };
 
 // 117952 - Crackling Jade Lightning
@@ -136,8 +138,55 @@ public:
     }
 };
 
+class spell_monk_fortifying_brew : public SpellScriptLoader
+{
+public:
+    spell_monk_fortifying_brew() : SpellScriptLoader("spell_monk_fortifying_brew") { }
+
+    class spell_monk_fortifying_brew_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_monk_fortifying_brew_SpellScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_MONK_FORTIFYING_BREW_AURA) || !sSpellMgr->GetSpellInfo(SPELL_MONK_GLYPH_OF_FORTIFYING_BREW))
+                return false;
+            return true;
+        }
+
+        void HandleOnHit(SpellEffIndex /*effIndex*/)
+        {
+            if (Unit* target = GetHitUnit())
+            {
+                int32 bp0 = GetEffectValue();
+                int32 bp1 = -bp0;
+
+                if (Aura* aura = target->GetAura(SPELL_MONK_GLYPH_OF_FORTIFYING_BREW))
+                {
+                    bp0 -= aura->GetEffect(EFFECT_1)->GetAmount();
+                    bp1 -= aura->GetEffect(EFFECT_0)->GetAmount();
+                }
+
+                bp0 = CalculatePct(target->GetMaxHealth(), bp0);
+                target->CastCustomSpell(target, SPELL_MONK_FORTIFYING_BREW_AURA, &bp0, &bp1, NULL, true);
+            }
+        }
+
+        void Register() override
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_monk_fortifying_brew_SpellScript::HandleOnHit, EFFECT_0, SPELL_EFFECT_DUMMY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_monk_fortifying_brew_SpellScript();
+    }
+};
+
 void AddSC_monk_spell_scripts()
 {
     new spell_monk_crackling_jade_lightning();
     new spell_monk_crackling_jade_lightning_aura();
+    new spell_monk_fortifying_brew();
 }

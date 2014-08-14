@@ -12,3 +12,8 @@ INSERT INTO `spell_proc_event` (`entry`, `SchoolMask`, `SpellFamilyName`, `Spell
 DELETE FROM `spell_linked_spell` WHERE `spell_trigger` = 115546;
 INSERT INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `comment`) VALUES
 (115546, 116189, 0, "Provoke");
+
+-- Fortyfing Brew
+DELETE FROM `spell_script_names` WHERE `spell_id`=115203;
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(115203, 'spell_monk_fortifying_brew');
