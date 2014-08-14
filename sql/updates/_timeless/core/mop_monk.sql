@@ -17,3 +17,12 @@ INSERT INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `comm
 DELETE FROM `spell_script_names` WHERE `spell_id`=115203;
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (115203, 'spell_monk_fortifying_brew');
+
+-- Breath of Fire
+DELETE FROM `spell_script_names` WHERE `spell_id` = 115181;
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(115181, "spell_monk_breath_of_fire");
+
+DELETE FROM `spell_bonus_data` WHERE `entry` = 115181;
+INSERT INTO `spell_bonus_data` VALUES
+(115181, 0, 0, 0.3626 , 0, "Monk - Breath of Fire");

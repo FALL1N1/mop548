@@ -37,7 +37,11 @@ enum MonkSpells
     SPELL_MONK_CRACKLING_JADE_LIGHTNING_KNOCKBACK   = 117962,
     SPELL_MONK_CRACKLING_JADE_LIGHTNING_CHI_PROC    = 123332,
     SPELL_MONK_FORTIFYING_BREW_AURA                 = 120954,
-    SPELL_MONK_GLYPH_OF_FORTIFYING_BREW             = 124997
+    SPELL_MONK_GLYPH_OF_FORTIFYING_BREW             = 124997,
+    SPELL_MONK_BREATH_OF_FIRE_PERIODIC              = 123725,
+    SPELL_MONK_BREATH_OF_FIRE_CONFUSE               = 123393,
+    SPELL_MONK_GLYPH_OF_BREATH_OF_FIRE              = 123394,
+    SPELL_MONK_DIZZYING_HAZE                        = 115180,
 };
 
 // 117952 - Crackling Jade Lightning
@@ -184,9 +188,51 @@ public:
     }
 };
 
+class spell_monk_breath_of_fire : public SpellScriptLoader
+{
+public:
+    spell_monk_breath_of_fire() : SpellScriptLoader("spell_monk_breath_of_fire") { }
+
+    class spell_monk_breath_of_fire_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_monk_breath_of_fire_SpellScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_MONK_BREATH_OF_FIRE_PERIODIC) || !sSpellMgr->GetSpellInfo(SPELL_MONK_DIZZYING_HAZE))
+                return false;
+            return true;
+        }
+
+        void HandleOnHit(SpellEffIndex /*effIndex*/)
+        {
+            if (!GetHitUnit())
+                return;
+
+            if (GetHitUnit()->HasAura(SPELL_MONK_DIZZYING_HAZE))
+            {
+                GetCaster()->CastSpell(GetHitUnit(), SPELL_MONK_BREATH_OF_FIRE_PERIODIC, true);
+                if (GetCaster()->HasAura(SPELL_MONK_GLYPH_OF_BREATH_OF_FIRE))
+                    GetCaster()->CastSpell(GetHitUnit(), SPELL_MONK_BREATH_OF_FIRE_CONFUSE, true);
+            }
+        }
+
+        void Register() override
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_monk_breath_of_fire_SpellScript::HandleOnHit, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_monk_breath_of_fire_SpellScript();
+    }
+};
+
 void AddSC_monk_spell_scripts()
 {
     new spell_monk_crackling_jade_lightning();
     new spell_monk_crackling_jade_lightning_aura();
     new spell_monk_fortifying_brew();
+    new spell_monk_breath_of_fire();
 }
