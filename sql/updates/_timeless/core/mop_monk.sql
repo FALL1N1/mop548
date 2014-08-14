@@ -26,3 +26,8 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 DELETE FROM `spell_bonus_data` WHERE `entry` = 115181;
 INSERT INTO `spell_bonus_data` VALUES
 (115181, 0, 0, 0.3626 , 0, "Monk - Breath of Fire");
+
+-- Legacy of the Emperor
+DELETE FROM `spell_script_names` WHERE `spell_id` = 115921;
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(115921, "spell_monk_legacy_of_the_emperor");

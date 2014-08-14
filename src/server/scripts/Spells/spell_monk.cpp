@@ -42,6 +42,7 @@ enum MonkSpells
     SPELL_MONK_BREATH_OF_FIRE_CONFUSE               = 123393,
     SPELL_MONK_GLYPH_OF_BREATH_OF_FIRE              = 123394,
     SPELL_MONK_DIZZYING_HAZE                        = 115180,
+    SPELL_MONK_LEGACY_OF_THE_EMPEROR_RAID           = 117666,
 };
 
 // 117952 - Crackling Jade Lightning
@@ -229,10 +230,50 @@ public:
     }
 };
 
+class spell_monk_legacy_of_the_emperor : public SpellScriptLoader
+{
+public:
+    spell_monk_legacy_of_the_emperor() : SpellScriptLoader("spell_monk_legacy_of_the_emperor") { }
+
+    class spell_monk_legacy_of_the_emperor_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_monk_legacy_of_the_emperor_SpellScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_MONK_LEGACY_OF_THE_EMPEROR_RAID))
+                return false;
+            return true;
+        }
+
+        void HandleDummy(SpellEffIndex /*effIndex*/)
+        {
+            if (!GetHitUnit())
+                return;
+
+            if (GetCaster()->IsInRaidWith(GetHitUnit()))
+                GetCaster()->CastSpell(GetCaster(), SPELL_MONK_LEGACY_OF_THE_EMPEROR_RAID, true);
+            else
+                GetCaster()->CastSpell(GetHitUnit(), GetEffectValue(), true);
+        }
+
+        void Register() override
+        {
+            OnEffectHit += SpellEffectFn(spell_monk_legacy_of_the_emperor_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_monk_legacy_of_the_emperor_SpellScript();
+    }
+};
+
 void AddSC_monk_spell_scripts()
 {
     new spell_monk_crackling_jade_lightning();
     new spell_monk_crackling_jade_lightning_aura();
     new spell_monk_fortifying_brew();
     new spell_monk_breath_of_fire();
+    new spell_monk_legacy_of_the_emperor();
 }
