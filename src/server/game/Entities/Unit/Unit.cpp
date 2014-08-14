@@ -11640,8 +11640,22 @@ bool Unit::IsInFeralForm() const
 bool Unit::IsInDisallowedMountForm() const
 {
     ShapeshiftForm form = GetShapeshiftForm();
-    return form != FORM_NONE && form != FORM_BATTLESTANCE && form != FORM_BERSERKERSTANCE && form != FORM_DEFENSIVESTANCE &&
-        form != FORM_SHADOW && form != FORM_STEALTH && form != FORM_UNDEAD;
+    switch (form)
+    {
+        case FORM_NONE:
+        case FORM_WISE_SERPENT:
+        case FORM_STURDY_OX:
+        case FORM_FIERCE_TIGER:
+        case FORM_BATTLESTANCE:
+        case FORM_BERSERKERSTANCE:
+        case FORM_DEFENSIVESTANCE:
+        case FORM_SHADOW:
+        case FORM_STEALTH:
+        case FORM_UNDEAD:
+            return false;
+        default:
+            return true;
+    }
 }
 
 /*#######################################
