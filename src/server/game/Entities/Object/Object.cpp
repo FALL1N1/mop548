@@ -310,7 +310,8 @@ void Object::DestroyForPlayer(Player* target, bool onDeath) const
 
     WorldPacket data(SMSG_DESTROY_OBJECT, 2 + 8);
     ObjectGuid guid(GetGUID());
-
+    
+    // BuildOutOfRangeUpdateBlock(GetGUID());
     data.WriteBit(guid[3]);
     data.WriteBit(guid[2]);
     data.WriteBit(guid[4]);

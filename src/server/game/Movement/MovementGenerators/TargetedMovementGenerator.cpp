@@ -98,6 +98,9 @@ void TargetedMovementGeneratorMedium<T, D>::_setTargetLocation(T* owner, bool up
     {
         // Cant reach target
         i_recalculateTravel = true;
+        if (!evadeTimer)
+            evadeTimer = 10000;
+        failedCounter++;
         return;
     }
 
@@ -160,6 +163,20 @@ bool TargetedMovementGeneratorMedium<T, D>::DoUpdate(T* owner, uint32 time_diff)
             targetMoved = !i_target->IsWithinDist3d(dest.x, dest.y, dest.z, allowed_dist);
         else
             targetMoved = !i_target->IsWithinDist2d(dest.x, dest.y, allowed_dist);
+    }
+
+    if (evadeTimer)
+    {
+        if (evadeTimer <= time_diff)
+        {
+            if ((failedCounter >= 30) && (owner->GetTypeId() == TYPEID_UNIT) && owner->IsAIEnabled)
+                owner->ToCreature()->AI()->EnterEvadeMode();
+
+            failedCounter = 0;
+            evadeTimer = 0;
+        }
+        else
+            evadeTimer -= time_diff;
     }
 
     if (i_recalculateTravel || targetMoved)

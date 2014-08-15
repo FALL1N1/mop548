@@ -1110,7 +1110,7 @@ class TradeData
     public:                                                 // constructors
         TradeData(Player* player, Player* trader) :
             m_player(player),  m_trader(trader), m_accepted(false), m_acceptProccess(false),
-            m_money(0), m_spell(0), m_spellCastItem(0) { memset(m_items, 0, TRADE_SLOT_COUNT * sizeof(uint64)); }
+            m_money(0), m_spell(0), m_spellCastItem(0), m_slot(0), m_tradeNum(0) { memset(m_items, 0, TRADE_SLOT_COUNT * sizeof(uint64)); }
 
         Player* GetTrader() const { return m_trader; }
         TradeData* GetTraderData() const;
@@ -1131,6 +1131,11 @@ class TradeData
 
         bool IsAccepted() const { return m_accepted; }
         void SetAccepted(bool state, bool crosssend = false);
+
+        int8 getSlot() { return m_slot; }
+        void setSlot(int8 slot) { m_slot = slot; }
+        uint32 getTradeNum() { return m_tradeNum; }
+        void setTradeNum(uint32 slot) { m_tradeNum = slot; }
 
         bool IsInAcceptProcess() const { return m_acceptProccess; }
         void SetInAcceptProcess(bool state) { m_acceptProccess = state; }
@@ -1153,6 +1158,10 @@ class TradeData
         uint64     m_spellCastItem;                         // applied spell casted by item use
 
         uint64     m_items[TRADE_SLOT_COUNT];               // traded items from m_player side including non-traded slot
+
+        int8       m_slot;                                  // Getting the curent slot
+        uint32     m_tradeNum;                              // Saveing the trade number off all the traders
+
 };
 
 struct ResurrectionData

@@ -237,10 +237,10 @@ class WorldSession
         bool HasPermission(uint32 permissionId);
         void LoadPermissions();
         void InvalidateRBACData(); // Used to force LoadPermissions at next HasPermission check
-
         AccountTypes GetSecurity() const { return _security; }
         uint32 GetAccountId() const { return _accountId; }
         Player* GetPlayer() const { return _player; }
+
         std::string const& GetPlayerName() const;
         std::string GetPlayerInfo() const;
 
@@ -297,9 +297,10 @@ class WorldSession
         void SendBattleGroundList(uint64 guid, BattlegroundTypeId bgTypeId = BATTLEGROUND_RB);
 
         void SendTradeStatus(TradeStatus status);
+
         void SendUpdateTrade(bool trader_data = true);
         void SendCancelTrade();
-
+        
         void SendPetitionQueryOpcode(uint64 petitionguid);
 
         // Spell

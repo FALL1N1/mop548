@@ -34,7 +34,9 @@ enum MageSpells
     SPELL_MAGE_CONJURE_REFRESHMENT_TABLE_R1 = 120056,
     SPELL_MAGE_CONJURE_REFRESHMENT_TABLE_R2 = 120055,
     SPELL_MAGE_CONJURE_REFRESHMENT_TABLE_R3 = 120054,
-    SPELL_MAGE_CONJURE_REFRESHMENT_TABLE_R4 = 120053
+    SPELL_MAGE_CONJURE_REFRESHMENT_TABLE_R4 = 120053,
+    SPELL_MAGE_CAUTERIZE_DAMAGE             = 87023,
+    SPELL_MAGE_CAUTERIZED                   = 87024
 };
 
 enum MageIcons
@@ -157,8 +159,70 @@ public:
     }
 };
 
+// 86949 Cauterize talent aura
+class spell_mage_cauterize : public SpellScriptLoader
+{
+public:
+    spell_mage_cauterize() : SpellScriptLoader("spell_mage_cauterize") {}
+
+    class spell_mage_cauterize_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_mage_cauterize_AuraScript);
+
+        bool Validate(SpellInfo const* /*spellEntry*/)
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_CAUTERIZE_DAMAGE))
+                return false;
+            if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_CAUTERIZED))
+                return false;
+            return true;
+        }
+
+        bool Load()
+        {
+            if (GetCaster()->GetTypeId() != TYPEID_PLAYER)
+                return false;
+            return true;
+        }
+
+        void Absorb(AuraEffect* aurEff, DamageInfo & dmgInfo, uint32 & absorbAmount)
+        {
+            Unit * caster = GetCaster();
+
+            if (!caster)
+                return;
+
+            absorbAmount = 0;
+
+            if (caster->ToPlayer()->HasAura(SPELL_MAGE_CAUTERIZED))
+                return;
+
+            int32 remainingHealth = caster->GetHealth() - dmgInfo.GetDamage();
+
+            if (remainingHealth <= 0)
+            {
+                absorbAmount = dmgInfo.GetDamage();
+                int32 cauterizeHeal = caster->CountPctFromMaxHealth(50) - caster->GetHealth();
+                caster->CastCustomSpell(caster, SPELL_MAGE_CAUTERIZE_DAMAGE, NULL, &cauterizeHeal, NULL, true, NULL, aurEff);
+                caster->CastSpell(caster, SPELL_MAGE_CAUTERIZED, true);
+            }
+        }
+
+        void Register()
+        {
+            OnEffectAbsorb += AuraEffectAbsorbFn(spell_mage_cauterize_AuraScript::Absorb, EFFECT_0);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_mage_cauterize_AuraScript();
+    }
+};
+
 void AddSC_mage_spell_scripts()
 {
     new spell_mage_conjure_refreshment();
     new spell_mage_conjure_refreshment_table();
+    new spell_mage_cauterize();
 }
