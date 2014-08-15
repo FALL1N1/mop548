@@ -47,9 +47,13 @@ void WorldSession::SendTradeStatus(TradeStatus status)
     {
     case TRADE_STATUS_INITIATED: // (2) is correct
             data.FlushBits();
-            data << uint32(_player->GetGUIDLow()); // Must bee the same on both sides .. un sure what it start with and how high it can go. but its a a Uint32 so it can bee high maby need to do a buffer for this that keeps track of the numbers used.
-            _player->GetTradeData()->setTradeNum(_player->GetGUIDLow()); // This might bee one way of doing it.
-            get_trade->GetTradeData()->setTradeNum(_player->GetGUIDLow()); // It must bee the same number on thease 2.
+            if (_player->GetTradeData()->getTradeNum() == 0)
+            {
+                // data << uint32(_player->GetTradeData()->getTradeNum()); // Must bee the same on both sides .. un sure what it start with and how high it can go. but its a a Uint32 so it can bee high maby need to do a buffer for this that keeps track of the numbers used.
+                _player->GetTradeData()->setTradeNum(_player->GetGUIDLow()); // This might bee one way of doing it.
+                get_trade->GetTradeData()->setTradeNum(_player->GetGUIDLow()); // It must bee the same number on thease 2.
+            }
+            data << uint32(_player->GetTradeData()->getTradeNum());
             break;
         case TRADE_STATUS_ACCEPTED: // (14) is correct
             data.FlushBits();
@@ -59,6 +63,8 @@ void WorldSession::SendTradeStatus(TradeStatus status)
             data.WriteBit(0); // unk
             data.FlushBits();
             _player->GetTradeData()->SetAccepted(false);
+            _player->GetTradeData()->setTradeNum(0);
+            get_trade->GetTradeData()->setTradeNum(0);
             // data.FlushBits();
             break;
         // case TRADE_STATUS_ONLY_CONJURED:
