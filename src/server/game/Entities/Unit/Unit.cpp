@@ -545,7 +545,8 @@ bool Unit::HasVisionObscured(Unit const* target) const
                 return true;
         }
     }
-    else if (!targetStateAuras.empty()) // target has this type of aura but caster not
+    
+    if (casterStateAuras.size() != targetStateAuras.size()) // same count is handled with caster auras
     {
         for (Unit::AuraEffectList::const_iterator i = targetStateAuras.begin(); i != targetStateAuras.end(); ++i)
             if (!(*i)->GetCaster() || !IsFriendlyTo((*i)->GetCaster()))
