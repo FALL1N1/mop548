@@ -16213,18 +16213,75 @@ void Unit::SendChangeCurrentVictimOpcode(HostileReference* pHostileReference)
     if (!getThreatManager().isThreatListEmpty())
     {
         uint32 count = getThreatManager().getThreatList().size();
+        ThreatContainer::StorageType const &tlist = getThreatManager().getThreatList();
+        ObjectGuid guid = GetGUID();
+        ObjectGuid newHighestGuid = pHostileReference->getUnitGuid();
 
         TC_LOG_DEBUG("entities.unit", "WORLD: Send SMSG_HIGHEST_THREAT_UPDATE Message");
         WorldPacket data(SMSG_HIGHEST_THREAT_UPDATE, 8 + 8 + count * 8);
-        data.append(GetPackGUID());
-        data.appendPackGUID(pHostileReference->getUnitGuid());
-        data << uint32(count);
-        ThreatContainer::StorageType const &tlist = getThreatManager().getThreatList();
+        data.WriteBit(guid[3]);
+        data.WriteBit(guid[0]);
+        data.WriteBit(newHighestGuid[3]);
+        data.WriteBit(newHighestGuid[6]);
+        data.WriteBit(newHighestGuid[1]);
+        data.WriteBit(guid[5]);
+        data.WriteBit(guid[1]);
+        data.WriteBit(guid[6]);
+        data.WriteBit(newHighestGuid[2]);
+        data.WriteBit(newHighestGuid[5]);
+        data.WriteBit(guid[7]);
+        data.WriteBit(guid[4]);
+        data.WriteBit(newHighestGuid[4]);
+        data.WriteBits(count, 21);
+
         for (ThreatContainer::StorageType::const_iterator itr = tlist.begin(); itr != tlist.end(); ++itr)
         {
-            data.appendPackGUID((*itr)->getUnitGuid());
-            data << uint32((*itr)->getThreat());
+            ObjectGuid guid2 = (*itr)->getUnitGuid();
+            data.WriteBit(guid2[6]);
+            data.WriteBit(guid2[1]);
+            data.WriteBit(guid2[0]);
+            data.WriteBit(guid2[2]);
+            data.WriteBit(guid2[7]);
+            data.WriteBit(guid2[4]);
+            data.WriteBit(guid2[3]);
+            data.WriteBit(guid2[5]);
         }
+
+        data.WriteBit(newHighestGuid[7]);
+        data.WriteBit(newHighestGuid[0]);
+        data.WriteBit(guid[2]);
+        data.WriteByteSeq(newHighestGuid[4]);
+
+        for (ThreatContainer::StorageType::const_iterator itr = tlist.begin(); itr != tlist.end(); ++itr)
+        {
+            ObjectGuid guid2 = (*itr)->getUnitGuid();
+            data.WriteByteSeq(guid2[6]);
+            data << uint32((*itr)->getThreat());
+            data.WriteByteSeq(guid2[4]);
+            data.WriteByteSeq(guid2[0]);
+            data.WriteByteSeq(guid2[3]);
+            data.WriteByteSeq(guid2[5]);
+            data.WriteByteSeq(guid2[2]);
+            data.WriteByteSeq(guid2[1]);
+            data.WriteByteSeq(guid2[7]);
+        }
+
+        data.WriteByteSeq(guid[3]);
+        data.WriteByteSeq(newHighestGuid[5]);
+        data.WriteByteSeq(guid[2]);
+        data.WriteByteSeq(newHighestGuid[1]);
+        data.WriteByteSeq(newHighestGuid[0]);
+        data.WriteByteSeq(newHighestGuid[2]);
+        data.WriteByteSeq(guid[6]);
+        data.WriteByteSeq(guid[1]);
+        data.WriteByteSeq(newHighestGuid[7]);
+        data.WriteByteSeq(guid[0]);
+        data.WriteByteSeq(guid[4]);
+        data.WriteByteSeq(guid[7]);
+        data.WriteByteSeq(newHighestGuid[3]);
+        data.WriteByteSeq(newHighestGuid[6]);
+        data.WriteByteSeq(guid[5]);
+
         SendMessageToSet(&data, false);
     }
 }
