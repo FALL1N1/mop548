@@ -516,6 +516,45 @@ void Unit::UpdateInterruptMask()
             m_interruptMask |= spell->m_spellInfo->ChannelInterruptFlags;
 }
 
+bool Unit::HasVisionObscured(Unit const* target) const
+{
+    if (!target)
+        return false;
+
+    Unit::AuraEffectList const& casterStateAuras = GetAuraEffectsByType(SPELL_AURA_INTERFERE_TARGETTING);
+    Unit::AuraEffectList const& targetStateAuras = target->GetAuraEffectsByType(SPELL_AURA_INTERFERE_TARGETTING);
+    if (!casterStateAuras.empty())
+    {
+        for (Unit::AuraEffectList::const_iterator i = casterStateAuras.begin(); i != casterStateAuras.end(); ++i)
+        {
+            // caster is friendly to Aura caster => No restrictions
+            if ((*i)->GetCaster() && IsFriendlyTo((*i)->GetCaster()))
+                continue;
+
+            bool failCast = true;
+            for (Unit::AuraEffectList::const_iterator j = targetStateAuras.begin(); j != targetStateAuras.end(); ++j)
+            {
+                if (((*i)->GetId() == (*j)->GetId()) && ((*i)->GetCasterGUID() == (*i)->GetCasterGUID()))
+                {
+                    failCast = false;
+                    break;
+                }
+            }
+
+            if (failCast)
+                return true;
+        }
+    }
+    else if (!targetStateAuras.empty()) // target has this type of aura but caster not
+    {
+        for (Unit::AuraEffectList::const_iterator i = targetStateAuras.begin(); i != targetStateAuras.end(); ++i)
+            if (!(*i)->GetCaster() || !IsFriendlyTo((*i)->GetCaster()))
+                return true;
+    }
+
+    return false;
+}
+
 bool Unit::HasAuraTypeWithFamilyFlags(AuraType auraType, uint32 familyName, uint32 familyFlags) const
 {
     if (!HasAuraType(auraType))
