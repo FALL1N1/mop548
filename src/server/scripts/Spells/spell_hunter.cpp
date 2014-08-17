@@ -37,6 +37,7 @@ enum HunterSpells
     SPELL_HUNTER_SERPENT_STING              = 1978,
     SPELL_HUNTER_GENERIC_ENERGIZE_FOCUS     = 91954,
     SPELL_HUNTER_CHIMERA_SHOT_HEAL          = 53353,
+    SPELL_HUNTER_STEADY_SHOT_FOCUS          = 77443,
 };
 
 class spell_hun_cobra_shot : public SpellScriptLoader
@@ -114,8 +115,42 @@ public:
     }
 };
 
+class spell_hun_steady_shot : public SpellScriptLoader
+{
+public:
+    spell_hun_steady_shot() : SpellScriptLoader("spell_hun_steady_shot") { }
+
+    class spell_hun_steady_shot_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_hun_steady_shot_SpellScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_HUNTER_STEADY_SHOT_FOCUS))
+                return false;
+            return true;
+        }
+
+        void HandleDummy(SpellEffIndex /*effIndex*/)
+        {
+            GetCaster()->CastSpell(GetCaster(), SPELL_HUNTER_STEADY_SHOT_FOCUS, true);
+        }
+
+        void Register() override
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_hun_steady_shot_SpellScript::HandleDummy, EFFECT_2, SPELL_EFFECT_DUMMY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_hun_steady_shot_SpellScript();
+    }
+};
+
 void AddSC_hunter_spell_scripts()
 {
     new spell_hun_cobra_shot();
     new spell_hun_chimera_shot();
+    new spell_hun_steady_shot();
 }
