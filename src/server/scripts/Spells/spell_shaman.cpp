@@ -32,8 +32,7 @@
 
 enum ShamanSpells
 {
-
-
+    SPELL_FLAME_SHOCK               = 8050,
 };
 
 enum ShamanSpellIcons
@@ -42,11 +41,41 @@ enum ShamanSpellIcons
     SHAMAN_ICON_ID_SHAMAN_LAVA_FLOW             = 3087
 };
 
+class spell_sha_lava_burst : public SpellScriptLoader
+{
+public:
+    spell_sha_lava_burst() : SpellScriptLoader("spell_sha_lava_burst") { }
 
+    class spell_sha_lava_burst_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_sha_lava_burst_SpellScript);
 
+        void RecalculateDamage(SpellEffIndex /*effIndex*/)
+        {
+            if (!GetHitUnit())
+                return;
+
+            if (AuraEffect *aurEff = GetHitUnit()->GetAuraEffect(SPELL_FLAME_SHOCK, EFFECT_2, GetCaster()->GetGUID()))
+            {
+                int32 damage = GetHitDamage();
+                AddPct(damage, aurEff->GetAmount());
+                SetHitDamage(damage);
+            }
+        }
+
+        void Register() override
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_sha_lava_burst_SpellScript::RecalculateDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_sha_lava_burst_SpellScript();
+    }
+};
 
 void AddSC_shaman_spell_scripts()
 {
- 
- 
+    new spell_sha_lava_burst();
 }
