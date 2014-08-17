@@ -36,6 +36,7 @@ enum HunterSpells
 {
     SPELL_HUNTER_SERPENT_STING              = 1978,
     SPELL_HUNTER_GENERIC_ENERGIZE_FOCUS     = 91954,
+    SPELL_HUNTER_CHIMERA_SHOT_HEAL          = 53353,
 };
 
 class spell_hun_cobra_shot : public SpellScriptLoader
@@ -77,7 +78,44 @@ public:
     }
 };
 
+class spell_hun_chimera_shot : public SpellScriptLoader
+{
+public:
+    spell_hun_chimera_shot() : SpellScriptLoader("spell_hun_chimera_shot") { }
+
+    class spell_hun_chimera_shot_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_hun_chimera_shot_SpellScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_HUNTER_CHIMERA_SHOT_HEAL) || !sSpellMgr->GetSpellInfo(SPELL_HUNTER_SERPENT_STING))
+                return false;
+            return true;
+        }
+
+        void HandleScriptEffect(SpellEffIndex /*effIndex*/)
+        {
+            GetCaster()->CastSpell(GetCaster(), SPELL_HUNTER_CHIMERA_SHOT_HEAL, true);
+
+            if (Aura* aur = GetHitUnit()->GetAura(SPELL_HUNTER_SERPENT_STING, GetCaster()->GetGUID()))
+                aur->SetDuration(aur->GetSpellInfo()->GetMaxDuration(), true);
+        }
+
+        void Register() override
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_hun_chimera_shot_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_hun_chimera_shot_SpellScript();
+    }
+};
+
 void AddSC_hunter_spell_scripts()
 {
     new spell_hun_cobra_shot();
+    new spell_hun_chimera_shot();
 }
