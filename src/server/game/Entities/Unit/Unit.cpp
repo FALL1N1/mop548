@@ -522,7 +522,8 @@ bool Unit::HasVisionObscured(Unit const* target) const
         return false;
 
     Unit::AuraEffectList const& casterStateAuras = GetAuraEffectsByType(SPELL_AURA_INTERFERE_TARGETTING);
-    Unit::AuraEffectList const& targetStateAuras = target->GetAuraEffectsByType(SPELL_AURA_INTERFERE_TARGETTING);
+    Unit::AuraEffectList targetStateAuras = target->GetAuraEffectsByType(SPELL_AURA_INTERFERE_TARGETTING);
+
     if (!casterStateAuras.empty())
     {
         for (Unit::AuraEffectList::const_iterator i = casterStateAuras.begin(); i != casterStateAuras.end(); ++i)
@@ -537,16 +538,17 @@ bool Unit::HasVisionObscured(Unit const* target) const
                 if (((*i)->GetId() == (*j)->GetId()) && ((*i)->GetCasterGUID() == (*i)->GetCasterGUID()))
                 {
                     failCast = false;
+                    targetStateAuras.erase(j);
                     break;
                 }
             }
 
-            if (failCast)
+            if (failCast) // caster has some aura that target not
                 return true;
         }
     }
     
-    if (casterStateAuras.size() != targetStateAuras.size()) // same count is handled with caster auras
+    if (!targetStateAuras.empty()) // target has some aura that caster not
     {
         for (Unit::AuraEffectList::const_iterator i = targetStateAuras.begin(); i != targetStateAuras.end(); ++i)
             if (!(*i)->GetCaster() || !IsFriendlyTo((*i)->GetCaster()))
