@@ -43,6 +43,7 @@ enum MonkSpells
     SPELL_MONK_GLYPH_OF_BREATH_OF_FIRE              = 123394,
     SPELL_MONK_DIZZYING_HAZE                        = 115180,
     SPELL_MONK_LEGACY_OF_THE_EMPEROR_RAID           = 117666,
+    SPELL_MONK_LEGACY_OF_THE_EMPEROR_ALLY           = 117667,
 };
 
 // 117952 - Crackling Jade Lightning
@@ -254,12 +255,12 @@ public:
             if (GetCaster()->IsInRaidWith(GetHitUnit()))
                 GetCaster()->CastSpell(GetCaster(), SPELL_MONK_LEGACY_OF_THE_EMPEROR_RAID, true);
             else
-                GetCaster()->CastSpell(GetHitUnit(), GetEffectValue(), true);
+                GetCaster()->CastSpell(GetHitUnit(), SPELL_MONK_LEGACY_OF_THE_EMPEROR_ALLY, true);
         }
 
         void Register() override
         {
-            OnEffectHit += SpellEffectFn(spell_monk_legacy_of_the_emperor_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            OnEffectHitTarget += SpellEffectFn(spell_monk_legacy_of_the_emperor_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
         }
     };
 
