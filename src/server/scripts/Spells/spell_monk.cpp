@@ -44,6 +44,7 @@ enum MonkSpells
     SPELL_MONK_DIZZYING_HAZE                        = 115180,
     SPELL_MONK_LEGACY_OF_THE_EMPEROR_RAID           = 117666,
     SPELL_MONK_LEGACY_OF_THE_EMPEROR_ALLY           = 117667,
+    SPELL_MONK_EXPEL_HARM_AREA_DMG                  = 115129,
 };
 
 // 117952 - Crackling Jade Lightning
@@ -270,6 +271,36 @@ public:
     }
 };
 
+class spell_monk_expel_harm : public SpellScriptLoader
+{
+public:
+    spell_monk_expel_harm() : SpellScriptLoader("spell_monk_expel_harm") { }
+
+    class spell_monk_expel_harm_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_monk_expel_harm_SpellScript);
+
+        void DealAreaDamage()
+        {
+            if (!GetHitUnit())
+                return;
+
+            int32 dmg = GetHitHeal() / 2;
+            GetHitUnit()->CastCustomSpell(SPELL_MONK_EXPEL_HARM_AREA_DMG, SPELLVALUE_BASE_POINT0, dmg, GetHitUnit(), true);
+        }
+
+        void Register() override
+        {
+            AfterHit += SpellHitFn(spell_monk_expel_harm_SpellScript::DealAreaDamage);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_monk_expel_harm_SpellScript();
+    }
+};
+
 void AddSC_monk_spell_scripts()
 {
     new spell_monk_crackling_jade_lightning();
@@ -277,4 +308,5 @@ void AddSC_monk_spell_scripts()
     new spell_monk_fortifying_brew();
     new spell_monk_breath_of_fire();
     new spell_monk_legacy_of_the_emperor();
+    new spell_monk_expel_harm();
 }
