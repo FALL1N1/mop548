@@ -332,6 +332,7 @@ void WorldSession::HandlePetActionHelper(Unit* pet, uint64 guid1, uint32 spellid
 
                 case REACT_DEFENSIVE:                       //recovery
                 case REACT_AGGRESSIVE:                      //activete
+                case REACT_ASSIST:                          //assist
                     if (pet->GetTypeId() == TYPEID_UNIT)
                         pet->ToCreature()->SetReactState(ReactStates(spellid));
                     break;
@@ -572,7 +573,6 @@ void WorldSession::HandlePetSetAction(WorldPacket& recvData)
     uint8  count;
 
     count = (recvData.size() == 24) ? 2 : 1;
-
     uint32 position[2];
     uint32 data[2];
 
@@ -693,7 +693,7 @@ void WorldSession::HandlePetSetAction(WorldPacket& recvData)
             _player->GetName().c_str(), position[i], spell_id, uint32(act_state));
 
         //if it's act for spell (en/disable/cast) and there is a spell given (0 = remove spell) which pet doesn't know, don't add
-        if (!((act_state == ACT_ENABLED || act_state == ACT_DISABLED || act_state == ACT_PASSIVE) && spell_id && !pet->HasSpell(spell_id)))
+        if (!((act_state == ACT_ENABLED || act_state == ACT_DISABLED || act_state == ACT_PASSIVE || act_state == ACT_ASSIST) && spell_id && !pet->HasSpell(spell_id)))
         {
             if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spell_id))
             {

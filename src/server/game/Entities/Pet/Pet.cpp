@@ -435,6 +435,9 @@ void Pet::SavePetToDB(PetSaveMode mode)
             stmt->setUInt8(2, uint8(PET_SAVE_LAST_STABLE_SLOT));
             trans->Append(stmt);
         }
+        
+        if (owner->getLevel() < 10)
+            SetReactState(REACT_DEFENSIVE);
 
         // save pet
         std::ostringstream ss;

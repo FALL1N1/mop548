@@ -3308,7 +3308,7 @@ void Player::GiveLevel(uint8 level)
     {
         if (!HasSpell(*iter))
         {
-            if (*iter == 93322 && !HasSpell(93322))
+            if (*iter == 93322 && level > 9)
                 CastSpell(this, 93322, true);
             learnSpell(*iter, true);
         }
@@ -21261,10 +21261,11 @@ void Player::PetSpellInitialize()
     if (!pet)
         return;
     
+    if (player->getLevel() < 10) // Protection against cheaters
+        return;
+
     // ObjectGuid guid = pet->GetPetGUID();
     ObjectGuid guid = player->GetPetGUID();
-
-    printf("pet->GetPetGUID() [%u]", pet->GetPetGUID());
 
     TC_LOG_DEBUG("entities.pet", "Pet Spells Groups");
 

@@ -1076,6 +1076,7 @@ private:
 enum ActiveStates
 {
     ACT_PASSIVE  = 0x01,                                    // 0x01 - passive
+    ACT_ASSIST   = 0x03,                                    // 0x03 - assist
     ACT_DISABLED = 0x81,                                    // 0x80 - castable
     ACT_ENABLED  = 0xC1,                                    // 0x40 | 0x80 - auto cast + castable
     ACT_COMMAND  = 0x07,                                    // 0x01 | 0x02 | 0x04
@@ -1087,7 +1088,8 @@ enum ReactStates
 {
     REACT_PASSIVE    = 0,
     REACT_DEFENSIVE  = 1,
-    REACT_AGGRESSIVE = 2
+    REACT_AGGRESSIVE = 2,
+    REACT_ASSIST     = 3
 };
 
 enum CommandStates
