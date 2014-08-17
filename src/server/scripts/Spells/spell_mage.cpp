@@ -36,7 +36,8 @@ enum MageSpells
     SPELL_MAGE_CONJURE_REFRESHMENT_TABLE_R3 = 120054,
     SPELL_MAGE_CONJURE_REFRESHMENT_TABLE_R4 = 120053,
     SPELL_MAGE_CAUTERIZE_DAMAGE             = 87023,
-    SPELL_MAGE_CAUTERIZED                   = 87024
+    SPELL_MAGE_CAUTERIZED                   = 87024,
+    SPELL_MAGE_TEMPORAL_RIPPLES             = 115611
 };
 
 enum MageIcons
@@ -146,14 +147,14 @@ public:
                 caster->CastSpell(caster, SPELL_MAGE_CONJURE_REFRESHMENT_TABLE_R4, true);
         }
 
-        void Register()
+        void Register() override
         {
             // Before cast because of shared cooldown between triggering and casted spells
             BeforeCast += SpellCastFn(spell_mage_conjure_refreshment_table_SpellScript::HandleBeforeCast);
         }
     };
 
-    SpellScript* GetSpellScript() const
+    SpellScript* GetSpellScript() const override
     {
         return new spell_mage_conjure_refreshment_table_SpellScript();
     }
@@ -178,7 +179,7 @@ public:
             return true;
         }
 
-        bool Load()
+        bool Load() override
         {
             if (GetCaster()->GetTypeId() != TYPEID_PLAYER)
                 return false;
@@ -208,21 +209,109 @@ public:
             }
         }
 
-        void Register()
+        void Register() override
         {
             OnEffectAbsorb += AuraEffectAbsorbFn(spell_mage_cauterize_AuraScript::Absorb, EFFECT_0);
         }
     };
 
-    AuraScript* GetAuraScript() const
+    AuraScript* GetAuraScript() const override
     {
         return new spell_mage_cauterize_AuraScript();
     }
 };
+
+// 11426 - Ice Barrier
+class spell_mage_ice_barrier : public SpellScriptLoader
+{
+public:
+    spell_mage_ice_barrier() : SpellScriptLoader("spell_mage_ice_barrier") { }
+
+    class spell_mage_ice_barrier_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_mage_ice_barrier_AuraScript);
+
+        void CalculateAmount(AuraEffect const * /*aurEff*/, int32 & amount, bool & canBeRecalculated)
+        {
+            canBeRecalculated = false;
+            if (Unit* caster = GetCaster())
+            {
+                int32 sp = caster->SpellBaseDamageBonusDone(GetSpellInfo()->GetSchoolMask());
+                // 330% SP bonus
+                sp *= 3.3;
+                amount += sp;
+            }
+        }
+
+        void Register() override
+        {
+            DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_mage_ice_barrier_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+        }
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_mage_ice_barrier_AuraScript();
+    }
+};
+
+//115610 Temporal Shield
+class spell_mage_temporal_shield : public SpellScriptLoader
+{
+public:
+    spell_mage_temporal_shield() :SpellScriptLoader("spell_mage_temporal_shield") { }
+
+    class spell_mage_temporal_shield_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_mage_temporal_shield_AuraScript);
+
+        int32 damagetaken = 0;
+
+        bool Validate(SpellInfo const* /*spellEntry*/) override
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_TEMPORAL_RIPPLES))
+                return false;
+            return true;
+        }
+
+        void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+        {
+            PreventDefaultAction();
+
+            damagetaken += eventInfo.GetDamageInfo()->GetDamage();
+        }
+
+        void AfterRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+        {
+            if (Unit* owner = GetUnitOwner())
+            {
+                if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
+                    return;
+
+                damagetaken = damagetaken / 3 - (owner->getLevel() - 1); //Because of dbc BasePoints
+                owner->CastCustomSpell(owner, SPELL_MAGE_TEMPORAL_RIPPLES, &damagetaken, NULL, NULL, true, NULL, aurEff);
+            }
+        }
+
+        void Register() override
+        {
+            OnEffectProc += AuraEffectProcFn(spell_mage_temporal_shield_AuraScript::HandleProc, EFFECT_1, SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN);
+            OnEffectRemove += AuraEffectRemoveFn(spell_mage_temporal_shield_AuraScript::AfterRemove, EFFECT_1, SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN, AURA_EFFECT_HANDLE_REAL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_mage_temporal_shield_AuraScript();
+    }
+};
+
 
 void AddSC_mage_spell_scripts()
 {
     new spell_mage_conjure_refreshment();
     new spell_mage_conjure_refreshment_table();
     new spell_mage_cauterize();
+    new spell_mage_ice_barrier();
+    new spell_mage_temporal_shield();
 }

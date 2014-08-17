@@ -516,6 +516,48 @@ void Unit::UpdateInterruptMask()
             m_interruptMask |= spell->m_spellInfo->ChannelInterruptFlags;
 }
 
+bool Unit::HasVisionObscured(Unit const* target) const
+{
+    if (!target)
+        return false;
+
+    Unit::AuraEffectList const& casterStateAuras = GetAuraEffectsByType(SPELL_AURA_INTERFERE_TARGETTING);
+    Unit::AuraEffectList targetStateAuras = target->GetAuraEffectsByType(SPELL_AURA_INTERFERE_TARGETTING);
+
+    if (!casterStateAuras.empty())
+    {
+        for (Unit::AuraEffectList::const_iterator i = casterStateAuras.begin(); i != casterStateAuras.end(); ++i)
+        {
+            // caster is friendly to Aura caster => No restrictions
+            if ((*i)->GetCaster() && IsFriendlyTo((*i)->GetCaster()))
+                continue;
+
+            bool failCast = true;
+            for (Unit::AuraEffectList::const_iterator j = targetStateAuras.begin(); j != targetStateAuras.end(); ++j)
+            {
+                if (((*i)->GetId() == (*j)->GetId()) && ((*i)->GetCasterGUID() == (*i)->GetCasterGUID()))
+                {
+                    failCast = false;
+                    targetStateAuras.erase(j);
+                    break;
+                }
+            }
+
+            if (failCast) // caster has some aura that target not
+                return true;
+        }
+    }
+    
+    if (!targetStateAuras.empty()) // target has some aura that caster not
+    {
+        for (Unit::AuraEffectList::const_iterator i = targetStateAuras.begin(); i != targetStateAuras.end(); ++i)
+            if (!(*i)->GetCaster() || !IsFriendlyTo((*i)->GetCaster()))
+                return true;
+    }
+
+    return false;
+}
+
 bool Unit::HasAuraTypeWithFamilyFlags(AuraType auraType, uint32 familyName, uint32 familyFlags) const
 {
     if (!HasAuraType(auraType))
@@ -16173,18 +16215,75 @@ void Unit::SendChangeCurrentVictimOpcode(HostileReference* pHostileReference)
     if (!getThreatManager().isThreatListEmpty())
     {
         uint32 count = getThreatManager().getThreatList().size();
+        ThreatContainer::StorageType const &tlist = getThreatManager().getThreatList();
+        ObjectGuid guid = GetGUID();
+        ObjectGuid newHighestGuid = pHostileReference->getUnitGuid();
 
         TC_LOG_DEBUG("entities.unit", "WORLD: Send SMSG_HIGHEST_THREAT_UPDATE Message");
         WorldPacket data(SMSG_HIGHEST_THREAT_UPDATE, 8 + 8 + count * 8);
-        data.append(GetPackGUID());
-        data.appendPackGUID(pHostileReference->getUnitGuid());
-        data << uint32(count);
-        ThreatContainer::StorageType const &tlist = getThreatManager().getThreatList();
+        data.WriteBit(guid[3]);
+        data.WriteBit(guid[0]);
+        data.WriteBit(newHighestGuid[3]);
+        data.WriteBit(newHighestGuid[6]);
+        data.WriteBit(newHighestGuid[1]);
+        data.WriteBit(guid[5]);
+        data.WriteBit(guid[1]);
+        data.WriteBit(guid[6]);
+        data.WriteBit(newHighestGuid[2]);
+        data.WriteBit(newHighestGuid[5]);
+        data.WriteBit(guid[7]);
+        data.WriteBit(guid[4]);
+        data.WriteBit(newHighestGuid[4]);
+        data.WriteBits(count, 21);
+
         for (ThreatContainer::StorageType::const_iterator itr = tlist.begin(); itr != tlist.end(); ++itr)
         {
-            data.appendPackGUID((*itr)->getUnitGuid());
-            data << uint32((*itr)->getThreat());
+            ObjectGuid guid2 = (*itr)->getUnitGuid();
+            data.WriteBit(guid2[6]);
+            data.WriteBit(guid2[1]);
+            data.WriteBit(guid2[0]);
+            data.WriteBit(guid2[2]);
+            data.WriteBit(guid2[7]);
+            data.WriteBit(guid2[4]);
+            data.WriteBit(guid2[3]);
+            data.WriteBit(guid2[5]);
         }
+
+        data.WriteBit(newHighestGuid[7]);
+        data.WriteBit(newHighestGuid[0]);
+        data.WriteBit(guid[2]);
+        data.WriteByteSeq(newHighestGuid[4]);
+
+        for (ThreatContainer::StorageType::const_iterator itr = tlist.begin(); itr != tlist.end(); ++itr)
+        {
+            ObjectGuid guid2 = (*itr)->getUnitGuid();
+            data.WriteByteSeq(guid2[6]);
+            data << uint32((*itr)->getThreat());
+            data.WriteByteSeq(guid2[4]);
+            data.WriteByteSeq(guid2[0]);
+            data.WriteByteSeq(guid2[3]);
+            data.WriteByteSeq(guid2[5]);
+            data.WriteByteSeq(guid2[2]);
+            data.WriteByteSeq(guid2[1]);
+            data.WriteByteSeq(guid2[7]);
+        }
+
+        data.WriteByteSeq(guid[3]);
+        data.WriteByteSeq(newHighestGuid[5]);
+        data.WriteByteSeq(guid[2]);
+        data.WriteByteSeq(newHighestGuid[1]);
+        data.WriteByteSeq(newHighestGuid[0]);
+        data.WriteByteSeq(newHighestGuid[2]);
+        data.WriteByteSeq(guid[6]);
+        data.WriteByteSeq(guid[1]);
+        data.WriteByteSeq(newHighestGuid[7]);
+        data.WriteByteSeq(guid[0]);
+        data.WriteByteSeq(guid[4]);
+        data.WriteByteSeq(guid[7]);
+        data.WriteByteSeq(newHighestGuid[3]);
+        data.WriteByteSeq(newHighestGuid[6]);
+        data.WriteByteSeq(guid[5]);
+
         SendMessageToSet(&data, false);
     }
 }
@@ -16691,25 +16790,25 @@ bool Unit::SetHover(bool enable, bool packetOnly /*= false*/)
 void Unit::SendSetPlayHoverAnim(bool enable)
 {
     ObjectGuid guid = GetGUID();
-    WorldPacket data(SMSG_SET_PLAY_HOVER_ANIM, 10);
-    data.WriteBit(guid[4]);
-    data.WriteBit(guid[0]);
-    data.WriteBit(guid[1]);
-    data.WriteBit(enable);
+    WorldPacket data(SMSG_SET_PLAY_HOVER_ANIM, 8 + 1);
     data.WriteBit(guid[3]);
-    data.WriteBit(guid[7]);
-    data.WriteBit(guid[5]);
-    data.WriteBit(guid[2]);
     data.WriteBit(guid[6]);
+    data.WriteBit(guid[1]);
+    data.WriteBit(guid[4]);
+    data.WriteBit(guid[5]);
+    data.WriteBit(guid[0]);
+    data.WriteBit(enable);
+    data.WriteBit(guid[2]);
+    data.WriteBit(guid[7]);
 
-    data.WriteByteSeq(guid[3]);
-    data.WriteByteSeq(guid[2]);
-    data.WriteByteSeq(guid[1]);
-    data.WriteByteSeq(guid[7]);
-    data.WriteByteSeq(guid[0]);
     data.WriteByteSeq(guid[5]);
-    data.WriteByteSeq(guid[4]);
+    data.WriteByteSeq(guid[1]);
     data.WriteByteSeq(guid[6]);
+    data.WriteByteSeq(guid[2]);
+    data.WriteByteSeq(guid[3]);
+    data.WriteByteSeq(guid[0]);
+    data.WriteByteSeq(guid[4]);
+    data.WriteByteSeq(guid[7]);
 
     SendMessageToSet(&data, true);
 }

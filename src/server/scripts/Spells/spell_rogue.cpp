@@ -30,17 +30,41 @@
 
 enum RogueSpells
 {
-
+    SPELL_ROGUE_SMOKE_BOMB          = 88611
 };
 
-enum RogueSpellIcons
+class spell_rog_smoke_bomb : public SpellScriptLoader
 {
-    ICON_ROGUE_IMPROVED_RECUPERATE                  = 4819
-};
+public:
+    spell_rog_smoke_bomb() : SpellScriptLoader("spell_rog_smoke_bomb") { }
 
+    class spell_rog_smoke_bomb_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_rog_smoke_bomb_AuraScript);
+
+        void EffectPeriodic(AuraEffect const* /*aurEff*/)
+        {
+            if (DynamicObject* dynObject = GetCaster()->GetDynObject(GetSpellInfo()->Id))
+            {
+                float x, y, z;
+                dynObject->GetPosition(x, y, z);
+                GetCaster()->CastSpell(x, y, z, SPELL_ROGUE_SMOKE_BOMB, true);
+            }
+        }
+
+        void Register()
+        {
+            OnEffectPeriodic += AuraEffectPeriodicFn(spell_rog_smoke_bomb_AuraScript::EffectPeriodic, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_rog_smoke_bomb_AuraScript();
+    }
+};
 
 void AddSC_rogue_spell_scripts()
 {
-
-
+    new spell_rog_smoke_bomb();
 }
