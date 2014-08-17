@@ -34,12 +34,50 @@
 
 enum HunterSpells
 {
-
+    SPELL_HUNTER_SERPENT_STING              = 1978,
+    SPELL_HUNTER_GENERIC_ENERGIZE_FOCUS     = 91954,
 };
 
+class spell_hun_cobra_shot : public SpellScriptLoader
+{
+public:
+    spell_hun_cobra_shot() : SpellScriptLoader("spell_hun_cobra_shot") { }
 
+    class spell_hun_cobra_shot_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_hun_cobra_shot_SpellScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_HUNTER_GENERIC_ENERGIZE_FOCUS) || !sSpellMgr->GetSpellInfo(SPELL_HUNTER_SERPENT_STING))
+                return false;
+            return true;
+        }
+
+        void HandleScriptEffect(SpellEffIndex /*effIndex*/)
+        {
+            GetCaster()->CastSpell(GetCaster(), SPELL_HUNTER_GENERIC_ENERGIZE_FOCUS, true);
+
+            if (Aura* aura = GetHitUnit()->GetAura(SPELL_HUNTER_SERPENT_STING, GetCaster()->GetGUID()))
+            {
+                int32 newDuration = aura->GetDuration() + GetEffectValue() * IN_MILLISECONDS;
+                aura->SetDuration(std::min(newDuration, aura->GetMaxDuration()), true);
+            }
+        }
+
+        void Register() override
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_hun_cobra_shot_SpellScript::HandleScriptEffect, EFFECT_2, SPELL_EFFECT_SCRIPT_EFFECT);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_hun_cobra_shot_SpellScript();
+    }
+};
 
 void AddSC_hunter_spell_scripts()
 {
-
+    new spell_hun_cobra_shot();
 }

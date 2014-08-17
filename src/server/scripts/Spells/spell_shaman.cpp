@@ -50,6 +50,13 @@ public:
     {
         PrepareSpellScript(spell_sha_lava_burst_SpellScript);
 
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_FLAME_SHOCK))
+                return false;
+            return true;
+        }
+
         void RecalculateDamage(SpellEffIndex /*effIndex*/)
         {
             if (!GetHitUnit())

@@ -280,13 +280,21 @@ public:
     {
         PrepareSpellScript(spell_monk_expel_harm_SpellScript);
 
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_MONK_EXPEL_HARM_AREA_DMG))
+                return false;
+            return true;
+        }
+
         void DealAreaDamage()
         {
             if (!GetHitUnit())
                 return;
 
             int32 dmg = GetHitHeal() / 2;
-            GetHitUnit()->CastCustomSpell(SPELL_MONK_EXPEL_HARM_AREA_DMG, SPELLVALUE_BASE_POINT0, dmg, GetHitUnit(), true);
+            if (dmg > 0)
+                GetHitUnit()->CastCustomSpell(SPELL_MONK_EXPEL_HARM_AREA_DMG, SPELLVALUE_BASE_POINT0, dmg, GetHitUnit(), true);
         }
 
         void Register() override
