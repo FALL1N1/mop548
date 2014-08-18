@@ -164,6 +164,13 @@ public:
     {
         PrepareSpellScript(spell_hun_camouflage_SpellScript);
 
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_HUNTER_CAMOUFLAGE))
+                return false;
+            return true;
+        }
+
         void HandleEffect(SpellEffIndex /*effIndex*/)
         {
             Aura* playerAura = GetCaster()->AddAura(SPELL_HUNTER_CAMOUFLAGE, GetCaster());
@@ -186,7 +193,7 @@ public:
             }
         }
 
-        void Register()
+        void Register() override
         {
             OnEffectHitTarget += SpellEffectFn(spell_hun_camouflage_SpellScript::HandleEffect, EFFECT_0, SPELL_EFFECT_DUMMY);
         }
@@ -207,9 +214,18 @@ public:
     {
         PrepareAuraScript(spell_hun_camouflage_aura_AuraScript);
 
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_HUNTER_GLYPH_OF_CAMOUFLAGE_STEALTH) || !sSpellMgr->GetSpellInfo(SPELL_HUNTER_GLYPH_OF_CAMOUFLAGE) ||
+                !sSpellMgr->GetSpellInfo(SPELL_HUNTER_CAMOUFLAGE_VISUAL) || !sSpellMgr->GetSpellInfo(SPELL_HUNTER_CAMOUFLAGE_DUMMY) ||
+                !sSpellMgr->GetSpellInfo(SPELL_HUNTER_CAMOUFLAGE_STEALTH))
+                return false;
+            return true;
+        }
+
         void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
-            if (GetTarget()->HasAura(SPELL_HUNTER_GLYPH_OF_CAMOUFLAGE))
+            if (GetTarget()->HasAura(SPELL_HUNTER_GLYPH_OF_CAMOUFLAGE) || (GetTarget()->GetOwner() && GetTarget()->GetOwner()->HasAura(SPELL_HUNTER_GLYPH_OF_CAMOUFLAGE)))
                 GetTarget()->CastSpell(GetTarget(), SPELL_HUNTER_GLYPH_OF_CAMOUFLAGE_STEALTH, true);
 
             GetTarget()->CastSpell(GetTarget(), SPELL_HUNTER_CAMOUFLAGE_VISUAL, true);
@@ -224,10 +240,10 @@ public:
 
             if (Player* player = GetTarget()->ToPlayer())
                 if (Pet* playerPet = player->GetPet())
-                    playerPet->RemoveAura(SPELL_HUNTER_CAMOUFLAGE);
+                    playerPet->RemoveAura(GetId());
         }
 
-        void Register()
+        void Register() override
         {
             OnEffectApply += AuraEffectApplyFn(spell_hun_camouflage_aura_AuraScript::OnApply, EFFECT_2, SPELL_AURA_MOD_CAMOUFLAGE, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
             OnEffectRemove += AuraEffectApplyFn(spell_hun_camouflage_aura_AuraScript::OnRemove, EFFECT_2, SPELL_AURA_MOD_CAMOUFLAGE, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
@@ -249,18 +265,44 @@ public:
     {
         PrepareAuraScript(spell_hun_camouflage_visual_AuraScript);
 
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_HUNTER_GLYPH_OF_CAMOUFLAGE) || !sSpellMgr->GetSpellInfo(SPELL_HUNTER_GLYPH_OF_CAMOUFLAGE_STEALTH) ||
+                !sSpellMgr->GetSpellInfo(SPELL_HUNTER_CAMOUFLAGE_STEALTH))
+                return false;
+            return true;
+        }
+
+        bool Load() override
+        {
+            Unit* target = GetUnitOwner();
+            _hasGlyph = false;
+
+            if (!target)
+                return false;
+
+            _hasGlyph = target->HasAura(SPELL_HUNTER_GLYPH_OF_CAMOUFLAGE) || (target->GetOwner() && target->GetOwner()->HasAura(SPELL_HUNTER_GLYPH_OF_CAMOUFLAGE));
+            return true;
+        }
+
         void EffectPeriodic(AuraEffect const* /*aurEff*/)
         {
-            if (GetTarget()->HasAura(SPELL_HUNTER_GLYPH_OF_CAMOUFLAGE) && !GetTarget()->HasAura(SPELL_HUNTER_GLYPH_OF_CAMOUFLAGE_STEALTH))
-                GetTarget()->CastSpell(GetTarget(), SPELL_HUNTER_GLYPH_OF_CAMOUFLAGE_STEALTH, true);
+            if (_hasGlyph)
+            {
+                if (!GetTarget()->HasAura(SPELL_HUNTER_GLYPH_OF_CAMOUFLAGE_STEALTH))
+                    GetTarget()->CastSpell(GetTarget(), SPELL_HUNTER_GLYPH_OF_CAMOUFLAGE_STEALTH, true);
+            }
             else if (!GetTarget()->isMoving() && !GetTarget()->HasAura(SPELL_HUNTER_CAMOUFLAGE_STEALTH))
                 GetTarget()->CastSpell(GetTarget(), SPELL_HUNTER_CAMOUFLAGE_STEALTH, true);
         }
 
-        void Register()
+        void Register() override
         {
             OnEffectPeriodic += AuraEffectPeriodicFn(spell_hun_camouflage_visual_AuraScript::EffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
         }
+
+        private:
+            bool _hasGlyph;
     };
 
     AuraScript* GetAuraScript() const
