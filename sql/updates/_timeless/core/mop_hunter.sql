@@ -12,3 +12,16 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 DELETE FROM `spell_script_names` WHERE `spell_id` = 56641;
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (56641, "spell_hun_steady_shot");
+
+-- Camouflage
+DELETE FROM `spell_script_names` WHERE `spell_id`=51753 OR `ScriptName`='spell_hun_camouflage';
+INSERT INTO `spell_script_names` VALUES
+(51753,'spell_hun_camouflage');
+
+DELETE FROM `spell_script_names` WHERE `spell_id`=51755 OR `ScriptName`='spell_hun_camouflage_aura';
+INSERT INTO `spell_script_names` VALUES
+(51755,'spell_hun_camouflage_aura');
+
+DELETE FROM `spell_script_names` WHERE `spell_id`=80326 OR `ScriptName`='spell_hun_camouflage_visual';
+INSERT INTO `spell_script_names` VALUES
+(80326,'spell_hun_camouflage_visual');
