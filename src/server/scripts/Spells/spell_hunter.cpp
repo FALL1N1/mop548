@@ -184,7 +184,6 @@ public:
                         petAura->SetDuration(GetEffectValue() * IN_MILLISECONDS);
                 }
             }
-
         }
 
         void Register()
