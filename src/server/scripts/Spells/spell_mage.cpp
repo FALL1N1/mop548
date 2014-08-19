@@ -335,7 +335,7 @@ public:
             if (!caster)
                 return;
 
-            int32 fullabsorb = caster->SpellBaseDamageBonusDone(GetSpellInfo()->GetSchoolMask())*GetSpellInfo()->Effects[1].BasePoints / 100;
+            uint32 fullabsorb = caster->SpellBaseDamageBonusDone(GetSpellInfo()->GetSchoolMask())*GetSpellInfo()->Effects[1].BasePoints / 100;
 
             absorbAmount = (fullabsorb <= dmgInfo.GetDamage()*GetSpellInfo()->Effects[2].BasePoints / 100) ? fullabsorb : dmgInfo.GetDamage()*GetSpellInfo()->Effects[2].BasePoints / 100;
 
