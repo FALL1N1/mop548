@@ -15065,6 +15065,7 @@ uint32 Unit::GetCombatRatingDamageReduction(CombatRating cr, float rate, float c
     return CalculatePct(damage, percent);
 }
 
+#define SPELL_DRUID_INCARNATION_AURA 106731
 uint32 Unit::GetModelForForm(ShapeshiftForm form) const
 {
     if (GetTypeId() == TYPEID_PLAYER)
@@ -15375,23 +15376,35 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form) const
                 return 20872;
             case FORM_FLIGHT_EPIC:
                 if (Player::TeamForRace(getRace()) == ALLIANCE)
-                    return (getRace() == RACE_WORGEN ? 37729 : 21243);
+                    return (getRace() == RACE_WORGEN) ? 37729 : 21243;
                 if (getRace() == RACE_TROLL)
                     return 37730;
                 return 21244;
             case FORM_MOONKIN:
                 if (Player::TeamForRace(getRace()) == ALLIANCE)
-                    return (getRace() == RACE_WORGEN ? 37173 : 15374);
-                if (getRace() == RACE_TROLL)
-                    return 37174;
-                return 15375;
+                {
+                    if (getRace() == RACE_WORGEN)
+                        return HasAura(SPELL_DRUID_INCARNATION_AURA) ? 43787 : 37173;
 
+                    return HasAura(SPELL_DRUID_INCARNATION_AURA) ? 43790 : 15374;
+                }
+
+                if (getRace() == RACE_TROLL)
+                    return HasAura(SPELL_DRUID_INCARNATION_AURA) ? 43789 : 37174;
+
+                return HasAura(SPELL_DRUID_INCARNATION_AURA) ? 43786 : 15375;
+            case FORM_TRAVEL:
+                if (HasAura(131113)) // Glyph of the Cheetah
+                    return 918;
+                return (Player::TeamForRace(getRace()) == ALLIANCE) ? 40816 : 45339;
             case FORM_GHOSTWOLF:
                 if (HasAura(58135)) // Glyph of Arctic Wolf
                     return 27312;
+            case FORM_AQUA:
+                if (HasAura(114333)) // Glyph of the Orca
+                    return 40815;
             case FORM_TREE:
-                if (HasAura(95212)) // Glyph of the Treant
-                    return 9590;
+                return (Player::TeamForRace(getRace()) == ALLIANCE) ? 37165 : 37163;
             default:
                 break;
         }
