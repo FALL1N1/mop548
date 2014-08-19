@@ -7705,9 +7705,18 @@ bool Unit::Attack(Unit* victim, bool meleeAttack)
     if (!IsAlive() || !victim->IsInWorld() || !victim->IsAlive())
         return false;
 
-    // player cannot attack in mount state
-    if (GetTypeId() == TYPEID_PLAYER && IsMounted())
-        return false;
+    if (GetTypeId() == TYPEID_PLAYER)
+    {
+        // player cannot attack in mount state
+        if (IsMounted())
+            return false;
+    }
+    else
+    {
+        // evading creatures cannot attack
+        if (HasUnitState(UNIT_STATE_EVADE))
+            return false;
+    }
 
     if (HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED))
         return false;
