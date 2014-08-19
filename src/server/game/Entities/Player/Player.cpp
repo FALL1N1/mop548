@@ -4057,7 +4057,7 @@ bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent
     return active && !disabled && !superceded_old;
 }
 
-void Player::AddTemporarySpell(uint32 spellId)
+void Player::AddTemporarySpell(uint32 spellId, bool sendPacket /*false*/)
 {
     PlayerSpellMap::iterator itr = m_spells.find(spellId);
     // spell already added - do not do anything
@@ -4069,9 +4069,20 @@ void Player::AddTemporarySpell(uint32 spellId)
     newspell->dependent = false;
     newspell->disabled  = false;
     m_spells[spellId]   = newspell;
+
+    if (sendPacket)
+    {
+        WorldPacket data(SMSG_LEARNED_SPELL, 8);
+        data.WriteBits(1, 22); // count
+        data.WriteBit(0);
+        data.FlushBits();
+        data << uint32(spellId);
+
+        GetSession()->SendPacket(&data);
+    }
 }
 
-void Player::RemoveTemporarySpell(uint32 spellId)
+void Player::RemoveTemporarySpell(uint32 spellId, bool sendPacket /*false*/)
 {
     PlayerSpellMap::iterator itr = m_spells.find(spellId);
     // spell already not in list - do not do anything
@@ -4082,6 +4093,15 @@ void Player::RemoveTemporarySpell(uint32 spellId)
         return;
     delete itr->second;
     m_spells.erase(itr);
+
+    if (sendPacket)
+    {
+        WorldPacket data(SMSG_REMOVED_SPELL, 8);
+        data.WriteBits(1, 22); // Count
+        data.FlushBits();
+        data << uint32(spellId);
+        GetSession()->SendPacket(&data);
+    }
 }
 
 bool Player::IsNeedCastPassiveSpellAtLearn(SpellInfo const* spellInfo) const
@@ -4124,6 +4144,7 @@ void Player::learnSpell(uint32 spell_id, bool dependent)
 
         data.WriteBits(spellCount, 22);
         data.WriteBit(0);
+        data.FlushBits();
 
         for (uint32 i = 0; i < spellCount; ++i)
         {
@@ -4366,6 +4387,7 @@ void Player::removeSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
     {
         WorldPacket data(SMSG_REMOVED_SPELL, 7);
         data.WriteBits(1, 22); // Count
+        data.FlushBits();
         data << uint32(spell_id);
         GetSession()->SendPacket(&data);
     }
