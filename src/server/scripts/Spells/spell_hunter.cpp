@@ -34,7 +34,7 @@
 
 enum HunterSpells
 {
-    SPELL_HUNTER_SERPENT_STING                  = 1978,
+    SPELL_HUNTER_SERPENT_STING                  = 118253,
     SPELL_HUNTER_GENERIC_ENERGIZE_FOCUS         = 91954,
     SPELL_HUNTER_CHIMERA_SHOT_HEAL              = 53353,
     SPELL_HUNTER_STEADY_SHOT_FOCUS              = 77443,

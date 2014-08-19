@@ -87,8 +87,8 @@ public:
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
             for (uint8 i = 0; i < MAX_CONJURE_REFRESHMENT_SPELLS; ++i)
-            if (!sSpellMgr->GetSpellInfo(_conjureData[i].spellId))
-                return false;
+                if (!sSpellMgr->GetSpellInfo(_conjureData[i].spellId))
+                    return false;
             return true;
         }
 
