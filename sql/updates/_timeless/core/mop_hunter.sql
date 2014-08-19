@@ -25,3 +25,9 @@ INSERT INTO `spell_script_names` VALUES
 DELETE FROM `spell_script_names` WHERE `spell_id`=80326 OR `ScriptName`='spell_hun_camouflage_visual';
 INSERT INTO `spell_script_names` VALUES
 (80326,'spell_hun_camouflage_visual');
+
+-- Talent Narrow Escape and Prohaste
+DELETE FROM `spell_script_names` WHERE `spell_id` IN (781, 115928);
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(781, "spell_hun_disengage"),
+(115928, "spell_hun_narrow_escape");

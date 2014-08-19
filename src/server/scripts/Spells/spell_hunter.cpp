@@ -43,8 +43,12 @@ enum HunterSpells
     SPELL_HUNTER_CAMOUFLAGE_STEALTH             = 80325,
     SPELL_HUNTER_CAMOUFLAGE_VISUAL              = 80326,
     SPELL_HUNTER_GLYPH_OF_CAMOUFLAGE            = 119449,
-    SPELL_HUNTER_GLYPH_OF_CAMOUFLAGE_STEALTH    = 119450
-
+    SPELL_HUNTER_GLYPH_OF_CAMOUFLAGE_STEALTH    = 119450,
+    SPELL_HUNTER_NARROW_ESCAPE_TALENT           = 109298,
+    SPELL_HUNTER_NARROW_ESCAPE_DUMMY            = 115928,
+    SPELL_HUNTER_NARROW_ESCAPT_MISSILE          = 128405,
+    SPELL_HUNTER_POSTHASTE_TALENT               = 109215,
+    SPELL_HUNTER_POSTHASTE                      = 118922,
 };
 
 class spell_hun_cobra_shot : public SpellScriptLoader
@@ -311,6 +315,78 @@ public:
     }
 };
 
+class spell_hun_disengage : public SpellScriptLoader
+{
+public:
+    spell_hun_disengage() : SpellScriptLoader("spell_hun_disengage") { }
+
+    class spell_hun_disengage_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_hun_disengage_SpellScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_HUNTER_NARROW_ESCAPE_TALENT) || !sSpellMgr->GetSpellInfo(SPELL_HUNTER_NARROW_ESCAPE_DUMMY))
+                return false;
+            return true;
+        }
+
+        void HandleAfterHit()
+        {
+            if (GetCaster()->HasAura(SPELL_HUNTER_NARROW_ESCAPE_TALENT))
+                GetCaster()->CastSpell(GetCaster(), SPELL_HUNTER_NARROW_ESCAPE_DUMMY, true);
+            if (GetCaster()->HasAura(SPELL_HUNTER_POSTHASTE_TALENT))
+                GetCaster()->CastSpell(GetCaster(), SPELL_HUNTER_POSTHASTE, true);
+        }
+
+        void Register() override
+        {
+            AfterHit += SpellHitFn(spell_hun_disengage_SpellScript::HandleAfterHit);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_hun_disengage_SpellScript();
+    }
+};
+
+class spell_hun_narrow_escape : public SpellScriptLoader
+{
+public:
+    spell_hun_narrow_escape() : SpellScriptLoader("spell_hun_narrow_escape") { }
+
+    class spell_hun_narrow_escape_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_hun_narrow_escape_SpellScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_HUNTER_NARROW_ESCAPT_MISSILE))
+                return false;
+            return true;
+        }
+
+        void HandleDummy(SpellEffIndex /*effIndex*/)
+        {
+            if (!GetHitUnit())
+                return;
+
+            GetCaster()->CastSpell(GetHitUnit(), SPELL_HUNTER_NARROW_ESCAPT_MISSILE, true);
+        }
+
+        void Register() override
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_hun_narrow_escape_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_hun_narrow_escape_SpellScript();
+    }
+};
+
 void AddSC_hunter_spell_scripts()
 {
     new spell_hun_cobra_shot();
@@ -319,4 +395,6 @@ void AddSC_hunter_spell_scripts()
     new spell_hun_camouflage();
     new spell_hun_camouflage_aura();
     new spell_hun_camouflage_visual();
+    new spell_hun_disengage();
+    new spell_hun_narrow_escape();
 }
