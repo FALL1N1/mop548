@@ -1208,6 +1208,8 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
             break;
         case FORM_TRAVEL:
             spellId = 5419;
+            if (!apply || (target->HasAura(114338) /*Glyph of the Stag*/ && !target->HasAura(131113) /* Glyph of the Cheetah*/))
+                spellId2 = 115034;
             break;
         case FORM_AQUA:
             spellId = 5421;
