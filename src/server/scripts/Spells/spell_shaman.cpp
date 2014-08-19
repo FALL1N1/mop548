@@ -32,7 +32,9 @@
 
 enum ShamanSpells
 {
-    SPELL_FLAME_SHOCK               = 8050,
+    SPELL_SHAMAN_FLAME_SHOCK                = 8050,
+    SPELL_SHAMAN_FROZEN_POWER_TALENT        = 63374,
+    SPELL_SHAMAN_FREEZE                     = 63685,
 };
 
 enum ShamanSpellIcons
@@ -52,7 +54,7 @@ public:
 
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_FLAME_SHOCK))
+            if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_FLAME_SHOCK))
                 return false;
             return true;
         }
@@ -62,7 +64,7 @@ public:
             if (!GetHitUnit())
                 return;
 
-            if (AuraEffect *aurEff = GetHitUnit()->GetAuraEffect(SPELL_FLAME_SHOCK, EFFECT_2, GetCaster()->GetGUID()))
+            if (AuraEffect *aurEff = GetHitUnit()->GetAuraEffect(SPELL_SHAMAN_FLAME_SHOCK, EFFECT_2, GetCaster()->GetGUID()))
             {
                 int32 damage = GetHitDamage();
                 AddPct(damage, aurEff->GetAmount());
@@ -82,7 +84,44 @@ public:
     }
 };
 
+class spell_sha_frost_shock : public SpellScriptLoader
+{
+public:
+    spell_sha_frost_shock() : SpellScriptLoader("spell_sha_frost_shock") { }
+
+    class spell_sha_frost_shock_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_sha_frost_shock_SpellScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_FROZEN_POWER_TALENT) || !sSpellMgr->GetSpellInfo(SPELL_SHAMAN_FREEZE))
+                return false;
+            return true;
+        }
+
+        void ApplyFreeze()
+        {
+            if (!GetHitUnit())
+                return;
+
+            if (GetCaster()->HasAura(SPELL_SHAMAN_FROZEN_POWER_TALENT))
+                GetCaster()->CastSpell(GetHitUnit(), SPELL_SHAMAN_FREEZE, true);
+        }
+
+        void Register() override
+        {
+            AfterHit += SpellHitFn(spell_sha_frost_shock_SpellScript::ApplyFreeze);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_sha_frost_shock_SpellScript();
+    }
+};
 void AddSC_shaman_spell_scripts()
 {
     new spell_sha_lava_burst();
+    new spell_sha_frost_shock();
 }
