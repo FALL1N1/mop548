@@ -31,9 +31,51 @@
 
 enum DruidSpells
 {
+    SPELL_DRUID_TREANT_FORM = 114282
 };
 
+class spell_druid_glyph_of_the_treant : public SpellScriptLoader
+{
+public:
+    spell_druid_glyph_of_the_treant() : SpellScriptLoader("spell_druid_glyph_of_the_treant") { }
+
+    class spell_druid_glyph_of_the_treant_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_druid_glyph_of_the_treant_AuraScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_DRUID_TREANT_FORM))
+                return false;
+            return true;
+        }
+
+        void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+            if (Player* player = GetTarget()->ToPlayer())
+                player->AddTemporarySpell(SPELL_DRUID_TREANT_FORM, true);
+        }
+
+        void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+            if (Player* player = GetTarget()->ToPlayer())
+                player->RemoveTemporarySpell(SPELL_DRUID_TREANT_FORM, true);
+        }
+
+        void Register() override
+        {
+            OnEffectApply += AuraEffectApplyFn(spell_druid_glyph_of_the_treant_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+            OnEffectRemove += AuraEffectApplyFn(spell_druid_glyph_of_the_treant_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_druid_glyph_of_the_treant_AuraScript();
+    }
+};
 
 void AddSC_druid_spell_scripts()
 {
+    new spell_druid_glyph_of_the_treant();
 }
