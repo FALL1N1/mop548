@@ -1807,7 +1807,8 @@ class Player : public Unit, public GridObject<Player>
         void AddMItem(Item* it);
         bool RemoveMItem(uint32 id);
 
-        void SendOnCancelExpectedVehicleRideAura();
+        void SendPlayerVehicleData(uint32 vehicleId);
+        void SendOnCancelExpectedVehicleRideAura() const;
         void PetSpellInitialize();
         void CharmSpellInitialize();
         void PossessSpellInitialize();

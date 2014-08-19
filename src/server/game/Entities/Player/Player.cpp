@@ -21265,7 +21265,35 @@ bool Player::RemoveMItem(uint32 id)
     return mMitems.erase(id) ? true : false;
 }
 
-void Player::SendOnCancelExpectedVehicleRideAura()
+void Player::SendPlayerVehicleData(uint32 vehicleId)
+{
+    ObjectGuid guid = GetGUID();
+    WorldPacket data(SMSG_PLAYER_VEHICLE_DATA, 8 + 4 + 4);
+    data.WriteBit(guid[0]);
+    data.WriteBit(guid[6]);
+    data.WriteBit(guid[1]);
+    data.WriteBit(guid[3]);
+    data.WriteBit(guid[7]);
+    data.WriteBit(guid[4]);
+    data.WriteBit(guid[5]);
+    data.WriteBit(guid[2]);
+
+    data.WriteByteSeq(guid[6]);
+    data.WriteByteSeq(guid[7]);
+    data.WriteByteSeq(guid[0]);
+    data.WriteByteSeq(guid[3]);
+    data << uint32(vehicleId);
+    data << uint32(m_movementCounter);
+    data.WriteByteSeq(guid[1]);
+    data.WriteByteSeq(guid[5]);
+    data.WriteByteSeq(guid[2]);
+    data.WriteByteSeq(guid[4]);
+
+    m_movementCounter++;
+    SendMessageToSet(&data, true);
+}
+
+void Player::SendOnCancelExpectedVehicleRideAura() const
 {
     WorldPacket data(SMSG_ON_CANCEL_EXPECTED_RIDE_VEHICLE_AURA, 0);
     GetSession()->SendPacket(&data);
