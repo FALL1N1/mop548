@@ -73,7 +73,6 @@ public:
 
             if (GetCaster()->HasAura(SPELL_PRIEST_BODY_AND_SOUL_TALENT))
                 GetCaster()->CastSpell(GetHitUnit(), SPELL_PRIEST_BODY_AND_SOUL_SPEED, true);
-
         }
 
         void Register() override
@@ -196,9 +195,37 @@ public:
     }
 };
 
+class spell_pri_twist_of_fate : public SpellScriptLoader
+{
+public:
+    spell_pri_twist_of_fate() : SpellScriptLoader("spell_pri_twist_of_fate") { }
+
+    class spell_pri_twist_of_fate_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_pri_twist_of_fate_AuraScript);
+
+        bool CheckProc(ProcEventInfo& eventInfo)
+        {
+            uint32 reqHp = GetSpellInfo()->Effects[EFFECT_0].BasePoints;
+            return eventInfo.GetActionTarget()->GetHealthPct() < reqHp;
+        }
+
+        void Register() override
+        {
+            DoCheckProc += AuraCheckProcFn(spell_pri_twist_of_fate_AuraScript::CheckProc);
+        }
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_pri_twist_of_fate_AuraScript();
+    }
+};
+
 void AddSC_priest_spell_scripts()
 {
     new spell_pri_power_word_shield();
     new spell_pri_leap_of_faith();
     new spell_pri_angelic_bulwark();
+    new spell_pri_twist_of_fate();
 }
