@@ -35,6 +35,9 @@ enum ShamanSpells
     SPELL_SHAMAN_FLAME_SHOCK                = 8050,
     SPELL_SHAMAN_FROZEN_POWER_TALENT        = 63374,
     SPELL_SHAMAN_FREEZE                     = 63685,
+    SPELL_SHAMAN_EARTHQUAKE                 = 61882,
+    SPELL_SHAMAN_EARTHQUAKE_DAMAGE          = 77478,
+    SPELL_SHAMAN_EARTHQUAKE_STUN            = 77505,
 };
 
 enum ShamanSpellIcons
@@ -120,8 +123,89 @@ public:
         return new spell_sha_frost_shock_SpellScript();
     }
 };
+
+class spell_sha_earthquake : public SpellScriptLoader
+{
+public:
+    spell_sha_earthquake() : SpellScriptLoader("spell_sha_earthquake") { }
+
+    class spell_sha_earthquake_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_sha_earthquake_AuraScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_EARTHQUAKE_DAMAGE))
+                return false;
+            return true;
+        }
+
+        void OnPeriodic(AuraEffect const* aurEff)
+        {
+            if (!GetCaster())
+                return;
+
+            if (DynamicObject* dynamicObject = GetCaster()->GetDynObject(SPELL_SHAMAN_EARTHQUAKE))
+            {
+                float x, y, z;
+                dynamicObject->GetPosition(x, y, z);
+                GetCaster()->CastSpell(x, y, z, SPELL_SHAMAN_EARTHQUAKE_DAMAGE, true);
+            }
+        }
+
+        void Register() override
+        {
+            OnEffectPeriodic += AuraEffectPeriodicFn(spell_sha_earthquake_AuraScript::OnPeriodic, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
+        }
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_sha_earthquake_AuraScript();
+    }
+};
+
+class spell_sha_earthquake_damage : public SpellScriptLoader
+{
+public:
+    spell_sha_earthquake_damage() : SpellScriptLoader("spell_sha_earthquake_damage") { }
+
+    class spell_sha_earthquake_damage_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_sha_earthquake_damage_SpellScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_EARTHQUAKE_STUN))
+                return false;
+            return true;
+        }
+
+        void HandleScriptEffect(SpellEffIndex /*effIndex*/)
+        {
+            if (!GetHitUnit() || GetHitUnit()->HasAura(SPELL_SHAMAN_EARTHQUAKE_STUN))
+                return;
+
+            if (roll_chance_i(GetEffectValue()))
+                GetCaster()->AddAura(SPELL_SHAMAN_EARTHQUAKE_STUN, GetHitUnit());
+        }
+
+        void Register() override
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_sha_earthquake_damage_SpellScript::HandleScriptEffect, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_sha_earthquake_damage_SpellScript();
+    }
+};
+
 void AddSC_shaman_spell_scripts()
 {
     new spell_sha_lava_burst();
     new spell_sha_frost_shock();
+    new spell_sha_earthquake();
+    new spell_sha_earthquake_damage();
 }
