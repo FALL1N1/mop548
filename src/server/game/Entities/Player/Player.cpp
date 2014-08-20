@@ -26682,7 +26682,7 @@ void Player::BuildPlayerTalentsInfoData(WorldPacket* data)
         }
 
         data->PutBits(wpos[i], talentCount, 23);
-        *data << uint32(GetTalentSpecialization(GetActiveSpec()));
+        *data << uint32(GetTalentSpecialization(i));
     }
 
     delete[] wpos;
