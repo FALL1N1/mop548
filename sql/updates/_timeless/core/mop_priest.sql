@@ -2,7 +2,7 @@
 DELETE FROM `spell_script_names` WHERE `spell_id` IN (17, 73325);
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (17, "spell_pri_power_word_shield"),
-(73325, "spell_monk_crackling_jade_lightning_aura");
+(73325, "spell_pri_leap_of_faith");
 
 -- Angelic Bulwark
 DELETE FROM `spell_script_names` WHERE `spell_id` = 108945;
