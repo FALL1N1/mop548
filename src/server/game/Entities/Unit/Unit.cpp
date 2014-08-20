@@ -15081,17 +15081,17 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form) const
                     {
                         case 7: // Violet
                         case 8:
-                            return 29405;
+                            return HasAura(SPELL_DRUID_INCARNATION_AURA) ? 43764 : 29405;
                         case 3: // Light Blue
-                            return 29406;
+                            return HasAura(SPELL_DRUID_INCARNATION_AURA) ? 43763 : 29406;
                         case 0: // Green
                         case 1: // Light Green
                         case 2: // Dark Green
-                            return 29407;
+                            return HasAura(SPELL_DRUID_INCARNATION_AURA) ? 43762 : 29407;
                         case 4: // White
-                            return 29408;
+                            return HasAura(SPELL_DRUID_INCARNATION_AURA) ? 43765 : 29408;
                         default: // original - Dark Blue
-                            return 892;
+                            return HasAura(SPELL_DRUID_INCARNATION_AURA) ? 43761 : 892;
                     }
                 }
                 else if (getRace() == RACE_TROLL)
@@ -15101,19 +15101,19 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form) const
                     {
                         case 0: // Red
                         case 1:
-                            return 33668;
+                            return HasAura(SPELL_DRUID_INCARNATION_AURA) ? 43776 : 33668;
                         case 2: // Yellow
                         case 3:
-                            return 33667;
+                            return HasAura(SPELL_DRUID_INCARNATION_AURA) ? 43778 : 33667;
                         case 4: // Blue
                         case 5:
                         case 6:
-                            return 33666;
+                            return HasAura(SPELL_DRUID_INCARNATION_AURA) ? 43773 : 33666;
                         case 7: // Purple
                         case 10:
-                            return 33665;
+                            return HasAura(SPELL_DRUID_INCARNATION_AURA) ? 43775 : 33665;
                         default: // original - white
-                            return 33669;
+                            return HasAura(SPELL_DRUID_INCARNATION_AURA) ? 43777 : 33669;
                     }
                 }
                 else if (getRace() == RACE_WORGEN)
@@ -15126,17 +15126,17 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form) const
                         switch (skinColor)
                         {
                             case 1: // Brown
-                                return 33662;
+                                return HasAura(SPELL_DRUID_INCARNATION_AURA) ? 43781 : 33662;
                             case 2: // Black
                             case 7:
-                                return 33661;
+                                return HasAura(SPELL_DRUID_INCARNATION_AURA) ? 43780 : 33661;
                             case 4: // yellow
-                                return 33664;
+                                return HasAura(SPELL_DRUID_INCARNATION_AURA) ? 43784 : 33664;
                             case 3: // White
                             case 5:
-                                return 33663;
+                                return HasAura(SPELL_DRUID_INCARNATION_AURA) ? 43785 : 33663;
                             default: // original - Gray
-                                return 33660;
+                                return HasAura(SPELL_DRUID_INCARNATION_AURA) ? 43782 : 33660;
                         }
                     }
                     // Female
@@ -15146,17 +15146,17 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form) const
                         {
                             case 5: // Brown
                             case 6:
-                                return 33662;
+                                return HasAura(SPELL_DRUID_INCARNATION_AURA) ? 43781 : 33662;
                             case 7: // Black
                             case 8:
-                                return 33661;
+                                return HasAura(SPELL_DRUID_INCARNATION_AURA) ? 43780 : 33661;
                             case 3: // yellow
                             case 4:
-                                return 33664;
+                                return HasAura(SPELL_DRUID_INCARNATION_AURA) ? 43784 : 33664;
                             case 2: // White
-                                return 33663;
+                                return HasAura(SPELL_DRUID_INCARNATION_AURA) ? 43785 : 33663;
                             default: // original - Gray
-                                return 33660;
+                                return HasAura(SPELL_DRUID_INCARNATION_AURA) ? 43782 : 33660;
                         }
                     }
                 }
@@ -15173,24 +15173,24 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form) const
                             case 13:
                             case 14:
                             case 18: // Completly White
-                                return 29409;
+                                return HasAura(SPELL_DRUID_INCARNATION_AURA) ? 43769 : 29409;
                             case 9: // Light Brown
                             case 10:
                             case 11:
-                                return 29410;
+                                return HasAura(SPELL_DRUID_INCARNATION_AURA) ? 43770 : 29410;
                             case 6: // Brown
                             case 7:
                             case 8:
-                                return 29411;
+                                return HasAura(SPELL_DRUID_INCARNATION_AURA) ? 43768 : 29411;
                             case 0: // Dark
                             case 1:
                             case 2:
                             case 3: // Dark Grey
                             case 4:
                             case 5:
-                                return 29412;
+                                return HasAura(SPELL_DRUID_INCARNATION_AURA) ? 43766 : 29412;
                             default: // original - Grey
-                                return 8571;
+                                return HasAura(SPELL_DRUID_INCARNATION_AURA) ? 43767 : 8571;
                         }
                     }
                     // Female
@@ -15199,27 +15199,27 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form) const
                         switch (skinColor)
                         {
                             case 10: // White
-                                return 29409;
+                                return HasAura(SPELL_DRUID_INCARNATION_AURA) ? 43769 : 29409;
                             case 6: // Light Brown
                             case 7:
-                                return 29410;
+                                return HasAura(SPELL_DRUID_INCARNATION_AURA) ? 43770 : 29410;
                             case 4: // Brown
                             case 5:
-                                return 29411;
+                                return HasAura(SPELL_DRUID_INCARNATION_AURA) ? 43768 : 29411;
                             case 0: // Dark
                             case 1:
                             case 2:
                             case 3:
-                                return 29412;
+                                return HasAura(SPELL_DRUID_INCARNATION_AURA) ? 43766 : 29412;
                             default: // original - Grey
-                                return 8571;
+                                return HasAura(SPELL_DRUID_INCARNATION_AURA) ? 43767 : 8571;
                         }
                     }
                 }
                 else if (Player::TeamForRace(getRace()) == ALLIANCE)
-                    return 892;
+                    return HasAura(SPELL_DRUID_INCARNATION_AURA) ? 43761 : 892;
                 else
-                    return 8571;
+                    return HasAura(SPELL_DRUID_INCARNATION_AURA) ? 43767 : 8571;
             case FORM_BEAR:
                 // Based on Hair color
                 if (getRace() == RACE_NIGHTELF)
