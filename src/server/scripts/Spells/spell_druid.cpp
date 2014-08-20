@@ -84,7 +84,7 @@ public:
 class spell_druid_incarnation : public SpellScriptLoader
 {
 public:
-    spell_druid_incarnation() : SpellScriptLoader("spell_druid_incarnation") { }
+    spell_druid_incarnation(const char* name, AuraType auraType) : SpellScriptLoader(name), _auraType(auraType) { }
 
     class spell_druid_incarnation_AuraScript : public AuraScript
     {
@@ -103,16 +103,16 @@ public:
             switch (GetSpellInfo()->Id)
             {
                 case SPELL_DRUID_INCARNATION_KING_OF_THE_JUNGLE:
-                    spellId = SPELL_DRUID_CAT_FORM;
-                    form = FORM_CAT;
+                    _spellId = SPELL_DRUID_CAT_FORM;
+                    _form = FORM_CAT;
                     break;
                 case SPELL_DRUID_INCARNATION_CHOSEN_OF_ELUNE:
-                    spellId = SPELL_DRUID_MOONKIN_FORM;
-                    form = FORM_MOONKIN;
+                    _spellId = SPELL_DRUID_MOONKIN_FORM;
+                    _form = FORM_MOONKIN;
                     break;
                 case SPELL_DRUID_INCARNATION_SON_OF_URSOC:
-                    spellId = SPELL_DRUID_BEAR_FORM;
-                    form = FORM_BEAR;
+                    _spellId = SPELL_DRUID_BEAR_FORM;
+                    _form = FORM_BEAR;
                     break;
                 default:
                     return false;
@@ -123,47 +123,47 @@ public:
 
         void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
-            if (GetTarget()->GetShapeshiftForm() != form)
-                GetTarget()->CastSpell(GetTarget(), spellId, true);
-            else if (uint32 modelId = GetTarget()->GetModelForForm(form))
+            if (GetTarget()->GetShapeshiftForm() != _form)
+                GetTarget()->CastSpell(GetTarget(), _spellId, true);
+            else if (uint32 modelId = GetTarget()->GetModelForForm(_form))
                 GetTarget()->SetDisplayId(modelId);
         }
 
         void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
-            if (GetTarget()->GetShapeshiftForm() == form)
-                if (uint32 modelId = GetTarget()->GetModelForForm(form))
+            if (GetTarget()->GetShapeshiftForm() == _form)
+                if (uint32 modelId = GetTarget()->GetModelForForm(_form))
                     GetTarget()->SetDisplayId(modelId);
         }
 
         void Register() override
         {
-            // KING OF THE JUNGLE
-            AfterEffectApply += AuraEffectApplyFn(spell_druid_incarnation_AuraScript::AfterApply, EFFECT_0, SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
-            AfterEffectRemove += AuraEffectApplyFn(spell_druid_incarnation_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
-
-            // CHOSEN OF ELUNE
-            AfterEffectApply += AuraEffectApplyFn(spell_druid_incarnation_AuraScript::AfterApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
-            AfterEffectRemove += AuraEffectApplyFn(spell_druid_incarnation_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
-
-            // SON OF URSOC
-            AfterEffectApply += AuraEffectApplyFn(spell_druid_incarnation_AuraScript::AfterApply, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
-            AfterEffectRemove += AuraEffectApplyFn(spell_druid_incarnation_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+            AfterEffectApply += AuraEffectApplyFn(spell_druid_incarnation_AuraScript::AfterApply, EFFECT_0, _auraType, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+            AfterEffectRemove += AuraEffectApplyFn(spell_druid_incarnation_AuraScript::AfterRemove, EFFECT_0, _auraType, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
         }
 
         private:
-            uint32 spellId;
-            ShapeshiftForm form;
+            AuraType _auraType;
+            uint32 _spellId;
+            ShapeshiftForm _form;
+
+        public:
+            spell_druid_incarnation_AuraScript(AuraType auraType) : _auraType(auraType) { }
     };
 
     AuraScript* GetAuraScript() const
     {
-        return new spell_druid_incarnation_AuraScript();
+        return new spell_druid_incarnation_AuraScript(_auraType);
     }
+
+    private:
+        AuraType _auraType;
 };
 
 void AddSC_druid_spell_scripts()
 {
     new spell_druid_glyph_of_the_treant();
-    new spell_druid_incarnation();
+    new spell_druid_incarnation("spell_druid_incarnation_king_of_the_jungle", SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS);
+    new spell_druid_incarnation("spell_druid_incarnation_chosen_of_elune", SPELL_AURA_DUMMY);
+    new spell_druid_incarnation("spell_druid_incarnation_son_of_ursoc", SPELL_AURA_ADD_PCT_MODIFIER);
 }
