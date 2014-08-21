@@ -55,6 +55,7 @@ bool UpdateData::BuildPacket(WorldPacket* packet)
 
     if (!m_outOfRangeGUIDs.empty())
     {
+       
         *packet << uint8(UPDATETYPE_OUT_OF_RANGE_OBJECTS);
         *packet << uint32(m_outOfRangeGUIDs.size());
         

@@ -99,7 +99,7 @@ bool WorldSessionFilter::Process(WorldPacket* packet)
 }
 
 /// WorldSession constructor
-WorldSession::WorldSession(uint32 id, WorldSocket* sock, AccountTypes sec, uint8 expansion, time_t mute_time, LocaleConstant locale, uint32 recruiter, bool isARecruiter):
+WorldSession::WorldSession(uint32 id, WorldSocket* sock, AccountTypes sec, uint8 expansion, time_t mute_time, LocaleConstant locale, uint32 recruiter, bool isARecruiter, bool hasBoost):
     m_muteTime(mute_time),
     m_timeOutTime(0),
     AntiDOS(this),
@@ -124,6 +124,7 @@ WorldSession::WorldSession(uint32 id, WorldSocket* sock, AccountTypes sec, uint8
     _filterAddonMessages(false),
     recruiterId(recruiter),
     isRecruiter(isARecruiter),
+    m_hasBoost(hasBoost),
     timeLastWhoCommand(0),
     _RBACData(NULL)
 {
@@ -813,87 +814,6 @@ void WorldSession::SendAccountDataTimes(uint32 mask)
 
     data << uint32(mask);
     data << uint32(time(NULL)); // Server time
-
-    SendPacket(&data);
-}
-
-void WorldSession::SendBattlePayDistributionUpdate(uint64 playerGuid, int8 bonusId, int32 bonusFlag, int32 textId, std::string const& bonusText, std::string const& bonusText2)
-{
-    ObjectGuid guid = GUID_LOPART(playerGuid);
-    ObjectGuid guid2 = 0;
-
-    WorldPacket data(SMSG_BATTLE_PAY_DISTRIBUTION_UPDATE, 8 + 4 + 8 + bonusText.length() + bonusText2.length() + 8 + 1 + 4 + 4 + 8 + 4 + 4 + 4);
-    data.WriteBit(guid2[5]);
-    data.WriteBit(guid2[0]);
-    data.WriteBit(1); // unkBool
-    data.WriteBit(guid2[1]);
-    data.WriteBit(guid[4]);
-    data.WriteBit(guid[7]);
-    data.WriteBit(guid[0]);
-    data.WriteBit(0);
-    data.WriteBit(guid[1]);
-    data.WriteBit(guid[2]);
-    // if (unkBool)
-    // {
-        data.WriteBits(1, 2);
-        data.WriteBits(0, 20);
-        data.WriteBit(1); // bool4
-        // if (bool4)
-        // {
-            data.WriteBits(0, 10);
-            data.WriteBit(0);
-            data.WriteBits(bonusText2.length(), 10);
-            data.WriteBit(0);
-            data.WriteBit(0);
-            data.WriteBits(bonusText.length(), 13);
-            data.WriteBit(0); // bool11
-        // }
-    // }
-
-    data.WriteBit(guid2[7]);
-    data.WriteBit(guid[6]);
-    data.WriteBit(guid2[2]);
-    data.WriteBit(guid[5]);
-    data.WriteBit(guid2[3]);
-    data.WriteBit(guid2[6]);
-    data.WriteBit(guid[3]);
-    data.WriteBit(guid2[4]);
-    data.FlushBits();
-
-    // if (unkBool)
-    // {
-        data << int32(0);
-        data << int64(0);
-        data.WriteString(bonusText);
-        data.WriteString(bonusText2);
-        // if (bool11)
-            //data << int32(0);
-        data << int64(0);
-        data << int8(bonusId);
-        data << int32(0);
-    // }
-
-    data << int32(textId);
-    data.WriteByteSeq(guid[4]);
-    data << int64(0);
-    data.WriteByteSeq(guid[1]);
-    data.WriteByteSeq(guid[5]);
-    data.WriteByteSeq(guid2[2]);
-    data.WriteByteSeq(guid2[4]);
-    data.WriteByteSeq(guid2[1]);
-    data.WriteByteSeq(guid2[0]);
-    data << int32(0);
-    data.WriteByteSeq(guid2[7]);
-    data.WriteByteSeq(guid[0]);
-    data.WriteByteSeq(guid[7]);
-    data << int32(0);
-    data << int32(bonusFlag);
-    data.WriteByteSeq(guid[6]);
-    data.WriteByteSeq(guid2[5]);
-    data.WriteByteSeq(guid2[6]);
-    data.WriteByteSeq(guid2[3]);
-    data.WriteByteSeq(guid[3]);
-    data.WriteByteSeq(guid[2]);
 
     SendPacket(&data);
 }

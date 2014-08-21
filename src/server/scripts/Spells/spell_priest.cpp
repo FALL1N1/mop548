@@ -31,8 +31,11 @@
 
 enum PriestSpells
 {
-
-
+    SPELL_PRIEST_BODY_AND_SOUL_TALENT       = 64129,
+    SPELL_PRIEST_BODY_AND_SOUL_SPEED        = 65081,
+    SPELL_PRIEST_LEAP_OF_FAITH_JUMP         = 92832,
+    SPELL_PRIEST_ANGELIC_BULWARK_ABSORB     = 114214,
+    SPELL_PRIEST_ANGELIC_BULWARK_HIDDEN_CD  = 114216,
 };
 
 enum PriestSpellIcons
@@ -47,10 +50,182 @@ enum MiscSpells
     SPELL_GEN_REPLENISHMENT                         = 57669
 };
 
+class spell_pri_power_word_shield : public SpellScriptLoader
+{
+public:
+    spell_pri_power_word_shield() : SpellScriptLoader("spell_pri_power_word_shield") { }
 
+    class spell_pri_power_word_shield_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_pri_power_word_shield_SpellScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_PRIEST_BODY_AND_SOUL_TALENT) || !sSpellMgr->GetSpellInfo(SPELL_PRIEST_BODY_AND_SOUL_SPEED))
+                return false;
+            return true;
+        }
+
+        void HandleOnHit()
+        {
+            if (!GetHitUnit())
+                return;
+
+            if (GetCaster()->HasAura(SPELL_PRIEST_BODY_AND_SOUL_TALENT))
+                GetCaster()->CastSpell(GetHitUnit(), SPELL_PRIEST_BODY_AND_SOUL_SPEED, true);
+        }
+
+        void Register() override
+        {
+            OnHit += SpellHitFn(spell_pri_power_word_shield_SpellScript::HandleOnHit);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_pri_power_word_shield_SpellScript();
+    }
+};
+
+class spell_pri_leap_of_faith : public SpellScriptLoader
+{
+public:
+    spell_pri_leap_of_faith() : SpellScriptLoader("spell_pri_leap_of_faith") { }
+
+    class spell_pri_leap_of_faith_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_pri_leap_of_faith_SpellScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_PRIEST_BODY_AND_SOUL_TALENT) || !sSpellMgr->GetSpellInfo(SPELL_PRIEST_BODY_AND_SOUL_SPEED)
+                || !sSpellMgr->GetSpellInfo(SPELL_PRIEST_LEAP_OF_FAITH_JUMP))
+                return false;
+            return true;
+        }
+
+        void HandleScript(SpellEffIndex /*effIndex*/)
+        {
+            if (!GetHitUnit())
+                return;
+
+            GetHitUnit()->CastSpell(GetCaster(), SPELL_PRIEST_LEAP_OF_FAITH_JUMP, true);
+        }
+
+        void HandleOnHit()
+        {
+            if (!GetHitUnit())
+                return;
+
+            if (GetCaster()->HasAura(SPELL_PRIEST_BODY_AND_SOUL_TALENT))
+                GetCaster()->CastSpell(GetHitUnit(), SPELL_PRIEST_BODY_AND_SOUL_SPEED, true);
+
+        }
+
+        void Register() override
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_pri_leap_of_faith_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            OnHit += SpellHitFn(spell_pri_leap_of_faith_SpellScript::HandleOnHit);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_pri_leap_of_faith_SpellScript();
+    }
+};
+
+class spell_pri_angelic_bulwark : public SpellScriptLoader
+{
+public:
+    spell_pri_angelic_bulwark() : SpellScriptLoader("spell_pri_angelic_bulwark") { }
+
+    class spell_pri_angelic_bulwark_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_pri_angelic_bulwark_AuraScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_PRIEST_ANGELIC_BULWARK_HIDDEN_CD) || !sSpellMgr->GetSpellInfo(SPELL_PRIEST_ANGELIC_BULWARK_ABSORB))
+                return false;
+            return true;
+        }
+
+        bool Load() override
+        {
+            reqHealthPct = (uint32)GetSpellInfo()->Effects[EFFECT_0].BasePoints;
+            return true;
+        }
+
+        bool CheckProc(ProcEventInfo& /*eventInfo*/)
+        {
+            if (!GetOwner() || !GetOwner()->ToUnit())
+                return false;
+
+            if (GetOwner()->ToUnit()->HasAura(SPELL_PRIEST_ANGELIC_BULWARK_HIDDEN_CD))
+                return false;
+
+            return GetOwner()->ToUnit()->GetHealthPct() < reqHealthPct;
+        }
+
+        void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+        {
+            Unit* owner = GetOwner() != NULL ? GetOwner()->ToUnit() : NULL;
+            if (!owner)
+                return;
+
+            int32 healthPct = GetSpellInfo()->Effects[1].BasePoints;
+            int32 bp = CalculatePct(owner->GetMaxHealth(), healthPct);
+            owner->CastCustomSpell(SPELL_PRIEST_ANGELIC_BULWARK_ABSORB, SPELLVALUE_BASE_POINT0, bp, owner, true);
+            owner->CastSpell(owner, SPELL_PRIEST_ANGELIC_BULWARK_HIDDEN_CD, true);
+        }
+
+        void Register() override
+        {
+            DoCheckProc += AuraCheckProcFn(spell_pri_angelic_bulwark_AuraScript::CheckProc);
+            OnEffectProc += AuraEffectProcFn(spell_pri_angelic_bulwark_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+        }
+
+        uint32 reqHealthPct;
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_pri_angelic_bulwark_AuraScript();
+    }
+};
+
+class spell_pri_twist_of_fate : public SpellScriptLoader
+{
+public:
+    spell_pri_twist_of_fate() : SpellScriptLoader("spell_pri_twist_of_fate") { }
+
+    class spell_pri_twist_of_fate_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_pri_twist_of_fate_AuraScript);
+
+        bool CheckProc(ProcEventInfo& eventInfo)
+        {
+            uint32 reqHp = GetSpellInfo()->Effects[EFFECT_0].BasePoints;
+            return eventInfo.GetActionTarget()->GetHealthPct() < reqHp;
+        }
+
+        void Register() override
+        {
+            DoCheckProc += AuraCheckProcFn(spell_pri_twist_of_fate_AuraScript::CheckProc);
+        }
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_pri_twist_of_fate_AuraScript();
+    }
+};
 
 void AddSC_priest_spell_scripts()
 {
- 
- 
+    new spell_pri_power_word_shield();
+    new spell_pri_leap_of_faith();
+    new spell_pri_angelic_bulwark();
+    new spell_pri_twist_of_fate();
 }

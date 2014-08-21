@@ -381,7 +381,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleModMeleeSpeedPct,                          //319 SPELL_AURA_MOD_MELEE_HASTE_3
     &AuraEffect::HandleAuraModRangedHaste,                        //320 SPELL_AURA_MOD_RANGED_HASTE_2
     &AuraEffect::HandleNULL,                                      //321 SPELL_AURA_321
-    &AuraEffect::HandleNULL,                                      //322 SPELL_AURA_INTERFERE_TARGETTING
+    &AuraEffect::HandleNoImmediateEffect,                         //322 SPELL_AURA_INTERFERE_TARGETTING
     &AuraEffect::HandleUnused,                                    //323 unused (4.3.4)
     &AuraEffect::HandleNULL,                                      //324 SPELL_AURA_324
     &AuraEffect::HandleUnused,                                    //325 unused (4.3.4)
@@ -1208,6 +1208,8 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
             break;
         case FORM_TRAVEL:
             spellId = 5419;
+            if (!apply || (target->HasAura(114338) /*Glyph of the Stag*/ && !target->HasAura(131113) /* Glyph of the Cheetah*/))
+                spellId2 = 115034;
             break;
         case FORM_AQUA:
             spellId = 5421;
@@ -5328,10 +5330,7 @@ void AuraEffect::HandleAuraSetVehicle(AuraApplication const* aurApp, uint8 mode,
     if (target->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    WorldPacket data(SMSG_PLAYER_VEHICLE_DATA, target->GetPackGUID().size()+4);
-    data.appendPackGUID(target->GetGUID());
-    data << uint32(apply ? vehicleId : 0);
-    target->SendMessageToSet(&data, true);
+    target->ToPlayer()->SendPlayerVehicleData(apply ? vehicleId : 0);
 
     if (apply)
         target->ToPlayer()->SendOnCancelExpectedVehicleRideAura();

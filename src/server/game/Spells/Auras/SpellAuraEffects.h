@@ -315,6 +315,12 @@ namespace Trinity
                 SpellInfo const* spellProtoA = aurEffA->GetSpellInfo();
                 SpellInfo const* spellProtoB = aurEffB->GetSpellInfo();
 
+                // Flameglow
+                if (spellProtoA->Id == 140468)
+                    return true;
+                if (spellProtoB->Id == 140468)
+                    return false;
+
                 // Wards
                 if ((spellProtoA->SpellFamilyName == SPELLFAMILY_MAGE) ||
                     (spellProtoA->SpellFamilyName == SPELLFAMILY_WARLOCK))

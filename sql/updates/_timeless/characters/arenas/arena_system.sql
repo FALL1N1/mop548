@@ -1,10 +1,10 @@
-DROP TABLE `arena_team_member` IF EXISTS;
-DROP TABLE `arena_team` IF EXISTS;
-DROP TABLE `arena_teams_stats2` IF EXISTS;
-DROP TABLE `character_rated_stats` IF EXISTS;
+DROP TABLE IF EXISTS `arena_team_member`;
+DROP TABLE IF EXISTS `arena_team`;
+DROP TABLE IF EXISTS `arena_teams_stats2`;
+DROP TABLE IF EXISTS `character_rated_stats`;
 CREATE TABLE `character_rated_stats` (
 	`guid` INT(10) UNSIGNED NOT NULL DEFAULT '0',
-	`type` TINYINT(3) UNSIGNED NOT NULL DEFAULT '0',
+	`slot` TINYINT(3) UNSIGNED NOT NULL DEFAULT '0',
 	`weekGames` SMALLINT(5) UNSIGNED NOT NULL DEFAULT '0',
 	`weekWins` SMALLINT(5) UNSIGNED NOT NULL DEFAULT '0',
 	`weekBest` SMALLINT(5) UNSIGNED NOT NULL DEFAULT '0',
