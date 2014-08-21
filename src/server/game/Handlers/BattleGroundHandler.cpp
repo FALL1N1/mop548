@@ -710,6 +710,7 @@ void WorldSession::HandleBattlemasterJoinArena(WorldPacket& recvData)
     // no group found, error
     if (!grp)
         return;
+
     if (grp->GetLeaderGUID() != _player->GetGUID())
         return;
 
@@ -834,48 +835,25 @@ void WorldSession::HandleRequestPvpReward(WorldPacket& /*recvData*/)
 void WorldSession::HandleRequestRatedStats(WorldPacket& /*recvData*/)
 {
     TC_LOG_DEBUG("network", "WORLD: CMSG_REQUEST_RATED_STATS");
+    
+    RatedInfo* rInfo = sRatedMgr->GetRatedInfo(_player->GetGUID());
 
     WorldPacket data(SMSG_RATED_STATS, 128);    
-    
-    // 2vs2 arenas
-    data << uint32(0);
-    data << uint32(0);
-    data << uint32(0); // games?
-    data << uint32(0); // current rating
-    data << uint32(0); // wins
-    data << uint32(0);
-    data << uint32(0);
-    data << uint32(0);
 
-    // 3vs3 arenas
-    data << uint32(0);
-    data << uint32(0);
-    data << uint32(0);
-    data << uint32(0);
-    data << uint32(0);
-    data << uint32(0);
-    data << uint32(0);
-    data << uint32(0);
+    for (uint8 i = 0; i < MAX_RATED_SLOT; ++i)
+    {
+        RatedType ratedType = RatedInfo::GetRatedTypeBySlot(i);
 
-    // 5vs5 arenas
-    data << uint32(0);
-    data << uint32(0);
-    data << uint32(0);
-    data << uint32(0);
-    data << uint32(0);
-    data << uint32(0);
-    data << uint32(0);
-    data << uint32(0);
-
-    // Rated Battlegrounds
-    data << uint32(0);
-    data << uint32(0);
-    data << uint32(0);
-    data << uint32(0);
-    data << uint32(0);
-    data << uint32(0);
-    data << uint32(0);
-    data << uint32(0);
+        StatsBySlot const *stats = rInfo->GetStatsBySlot(ratedType);        
+        data << uint32(stats->WeekGames);
+        data << uint32(stats->WeekBest);
+        data << uint32(stats->WeekWins); // games?
+        data << uint32(stats->SeasonGames); // current rating
+        data << uint32(stats->SeasonBest); // wins
+        data << uint32(stats->SeasonWins);
+        data << uint32(stats->PersonalRating);
+        data << uint32(stats->MatchMakerRating);
+    }
 
     SendPacket(&data);
 }
