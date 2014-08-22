@@ -32,6 +32,14 @@
 #include "DB2Stores.h"
 #include <vector>
 
+struct CriteriaProgress
+{
+    uint64 counter;
+    time_t date;                                            // latest update time.
+    uint64 CompletedGUID;                                   // GUID of the player that completed this criteria (guild achievements)
+    bool changed;
+};
+
 void WorldSession::HandleSplitItemOpcode(WorldPacket& recvData)
 {
     //TC_LOG_DEBUG("network", "WORLD: CMSG_SPLIT_ITEM");
@@ -931,7 +939,7 @@ void WorldSession::HandleBuyBankSlotOpcode(WorldPacket& recvData)
     TC_LOG_DEBUG("network", "WORLD: CMSG_BUY_BANK_SLOT");
 
     ObjectGuid guid;
-
+    bool timedCompleted = 1;
     guid[7] = recvData.ReadBit();
     guid[6] = recvData.ReadBit();
     guid[1] = recvData.ReadBit();
@@ -949,7 +957,7 @@ void WorldSession::HandleBuyBankSlotOpcode(WorldPacket& recvData)
     recvData.ReadByteSeq(guid[2]);
     recvData.ReadByteSeq(guid[0]);
     recvData.ReadByteSeq(guid[4]);
-
+    
     // cheating protection
     /* not critical if "cheated", and check skip allow by slots in bank windows open by .bank command.
     Creature* creature = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_BANKER);
@@ -968,18 +976,60 @@ void WorldSession::HandleBuyBankSlotOpcode(WorldPacket& recvData)
     TC_LOG_INFO("network", "PLAYER: Buy bank bag slot, slot number = %u", slot);
 
     BankBagSlotPricesEntry const* slotEntry = sBankBagSlotPricesStore.LookupEntry(slot);
+    AchievementCriteriaEntry const* entry = sAchievementCriteriaStore.LookupEntry(uint32(ACHIEVEMENT_CRITERIA_TYPE_BUY_BANK_SLOT));
+    CriteriaProgress* progress = new CriteriaProgress;
+    
+    // BankBagSlotPricesEntry const* slotEntry = sBankBagSlotPricesStore.LookupEntry(slot);
+    // AchievementCriteriaEntry const* entry = ACHIEVEMENT_CRITERIA_TYPE_BUY_BANK_SLOT;
+    
+    // _player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BUY_BANK_SLOT, slot, 0, NULL);
+    guid = _player->GetGUID();
+    uint32 timeElapsed = 0;
+    
+    progress->counter = (uint64)slot;
+    progress->changed = true;
+    progress->date = time(NULL); // set the date to the latest update.
 
-    WorldPacket data(SMSG_BUY_BANK_SLOT_RESULT, 4);
+    WorldPacket data(SMSG_CRITERIA_UPDATE, 8 + 4 + 4 + 8 + 4 + 4 + 8);
+    data.WriteBit(guid[4]);
+    data.WriteBit(guid[6]);
+    data.WriteBit(guid[2]);
+    data.WriteBit(guid[3]);
+    data.WriteBit(guid[7]);
+    data.WriteBit(guid[1]);
+    data.WriteBit(guid[5]);
+    data.WriteBit(guid[0]);
+    data.FlushBits();
+
+    data.WriteByteSeq(guid[3]);
+    data.WriteByteSeq(guid[6]);
+    data.WriteByteSeq(guid[2]);
+    data << uint32(entry->ID);
+
+    if (!entry->timeLimit)
+        data << uint32(0);
+    else
+        data << uint32(timedCompleted ? 0 : 1); // this are some flags, 1 is for keeping the counter at 0 in client
+
+    data.WriteByteSeq(guid[5]);
+    data.WriteByteSeq(guid[1]);
+    data.AppendPackedTime(progress->date);
+    data.WriteByteSeq(guid[4]);
+    data << uint32(timeElapsed); // time elapsed in seconds, always these 2 are similars
+    data << uint32(timeElapsed);
+    data.WriteByteSeq(guid[7]);
+    data.WriteByteSeq(guid[0]);
+    data << (uint64)progress->counter;
 
     if (!slotEntry)
     {
-        data << uint32(ERR_BANKSLOT_FAILED_TOO_MANY);
-        SendPacket(&data);
+    //    data << uint32(ERR_BANKSLOT_FAILED_TOO_MANY);
+    //    SendPacket(&data);
         return;
     }
 
     uint32 price = slotEntry->price;
-
+    /*
     if (!_player->HasEnoughMoney(uint64(price)))
     {
         data << uint32(ERR_BANKSLOT_INSUFFICIENT_FUNDS);
@@ -991,9 +1041,9 @@ void WorldSession::HandleBuyBankSlotOpcode(WorldPacket& recvData)
     _player->ModifyMoney(-int64(price));
 
      data << uint32(ERR_BANKSLOT_OK);
-     SendPacket(&data);
-
-    _player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BUY_BANK_SLOT);
+     */
+    SendPacket(&data);
+    // _player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BUY_BANK_SLOT);
 }
 
 void WorldSession::HandleAutoBankItemOpcode(WorldPacket& recvPacket)

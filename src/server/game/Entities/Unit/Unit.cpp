@@ -2157,6 +2157,8 @@ void Unit::SendMeleeAttackStart(Unit* victim)
     data.WriteBit(attackerGuid[2]);
     data.WriteBit(victimGuid[0]);
 
+    data.FlushBits();
+
     data.WriteByteSeq(attackerGuid[5]);
     data.WriteByteSeq(attackerGuid[0]);
     data.WriteByteSeq(victimGuid[5]);
@@ -12456,7 +12458,7 @@ void CharmInfo::SetPetNumber(uint32 petnumber, bool statwindow)
 void CharmInfo::LoadPetActionBar(const std::string& data)
 {
     InitPetActionBar();
-
+    printf("Loading Pet Bar !!\n");
     Tokenizer tokens(data, ' ');
 
     if (tokens.size() != (ACTION_BAR_INDEX_END-ACTION_BAR_INDEX_START) * 2)

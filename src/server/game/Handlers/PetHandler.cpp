@@ -114,7 +114,7 @@ void WorldSession::HandlePetAction(WorldPacket& recvData)
 
     uint32 spellid = UNIT_ACTION_BUTTON_ACTION(data);
     uint8 flag = UNIT_ACTION_BUTTON_TYPE(data);             //delete = 0x07 CastSpell = C1
-    
+
     // used also for charmed creature
     Unit* pet= ObjectAccessor::GetUnit(*_player, guid2);
     TC_LOG_INFO("network", "HandlePetAction: Pet %u - flag: %u, spellid: %u, target: %u.", uint32(GUID_LOPART(guid2)), uint32(flag), spellid, uint32(GUID_LOPART(guid1)));
@@ -145,7 +145,9 @@ void WorldSession::HandlePetAction(WorldPacket& recvData)
         return;
 
     if (GetPlayer()->m_Controlled.size() == 1)
+    {
         HandlePetActionHelper(pet, guid2, spellid, flag, guid1, x, y, z);
+    }
     else
     {
         //If a pet is dismissed, m_Controlled will change
@@ -156,6 +158,7 @@ void WorldSession::HandlePetAction(WorldPacket& recvData)
         for (std::vector<Unit*>::iterator itr = controlled.begin(); itr != controlled.end(); ++itr)
             HandlePetActionHelper(*itr, guid2, spellid, flag, guid1, x, y, z);
     }
+
 }
 
 void WorldSession::HandlePetStopAttack(WorldPacket &recvData)
@@ -333,8 +336,13 @@ void WorldSession::HandlePetActionHelper(Unit* pet, uint64 guid1, uint32 spellid
                 case REACT_DEFENSIVE:                       //recovery
                 case REACT_AGGRESSIVE:                      //activete
                 case REACT_ASSIST:                          //assist
+                    printf("Now we are checking for it to bee something in REACT\n");
                     if (pet->GetTypeId() == TYPEID_UNIT)
+                    {
+                        printf("Its a TYPID_UNIT !! \n");
                         pet->ToCreature()->SetReactState(ReactStates(spellid));
+                    
+                    }
                     break;
             }
             break;
@@ -454,6 +462,7 @@ void WorldSession::HandlePetActionHelper(Unit* pet, uint64 guid1, uint32 spellid
         default:
             TC_LOG_ERROR("network", "WORLD: unknown PET flag Action %i and spellid %i.", uint32(flag), spellid);
     }
+    printf("Flag [%u] SpellId [%u]\n", flag, spellid);
 }
 
 void WorldSession::HandlePetNameQuery(WorldPacket& recvData)
@@ -568,7 +577,7 @@ bool WorldSession::CheckStableMaster(uint64 guid)
 void WorldSession::HandlePetSetAction(WorldPacket& recvData)
 {
     TC_LOG_INFO("network", "HandlePetSetAction. CMSG_PET_SET_ACTION");
-
+    printf("Setting PetBar !!\n");
     ObjectGuid petguid;
     uint8  count;
 
@@ -581,25 +590,7 @@ void WorldSession::HandlePetSetAction(WorldPacket& recvData)
         recvData >> position[i];
         recvData >> data[i];
     }
-/*
-    petguid[2] = recvData.ReadBit();
-    petguid[6] = recvData.ReadBit();
-    petguid[0] = recvData.ReadBit();
-    petguid[5] = recvData.ReadBit();
-    petguid[1] = recvData.ReadBit();
-    petguid[3] = recvData.ReadBit();
-    petguid[7] = recvData.ReadBit();
-    petguid[4] = recvData.ReadBit();
 
-    recvData.ReadByteSeq(petguid[1]);
-    recvData.ReadByteSeq(petguid[2]);
-    recvData.ReadByteSeq(petguid[5]);
-    recvData.ReadByteSeq(petguid[7]);
-    recvData.ReadByteSeq(petguid[0]);
-    recvData.ReadByteSeq(petguid[3]);
-    recvData.ReadByteSeq(petguid[6]);
-    recvData.ReadByteSeq(petguid[4]);
-    */
     petguid[1] = recvData.ReadBit();
     petguid[0] = recvData.ReadBit();
     petguid[5] = recvData.ReadBit();
@@ -653,7 +644,7 @@ void WorldSession::HandlePetSetAction(WorldPacket& recvData)
         // ignore attempt to remove command|reaction buttons (not possible at normal case)
         if (act_state == ACT_COMMAND || act_state == ACT_REACTION)
         {
-            if (count == 1)
+           if (count == 1)
                 return;
 
             move_command = true;
@@ -693,7 +684,7 @@ void WorldSession::HandlePetSetAction(WorldPacket& recvData)
             _player->GetName().c_str(), position[i], spell_id, uint32(act_state));
 
         //if it's act for spell (en/disable/cast) and there is a spell given (0 = remove spell) which pet doesn't know, don't add
-        if (!((act_state == ACT_ENABLED || act_state == ACT_DISABLED || act_state == ACT_PASSIVE || act_state == ACT_ASSIST) && spell_id && !pet->HasSpell(spell_id)))
+        if (!((act_state == ACT_ENABLED || act_state == ACT_DISABLED || act_state == ACT_PASSIVE) && spell_id && !pet->HasSpell(spell_id)))
         {
             if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spell_id))
             {
@@ -891,7 +882,7 @@ void WorldSession::HandlePetCastSpellOpcode(WorldPacket& recvPacket)
     uint8  castFlags = 0;
     uint8  castCount = 0;
 
-    recvPacket >> spellId >> unk_1;
+    recvPacket >> unk_1 >> spellId;
 
     guid[1] = recvPacket.ReadBit();
     guid[0] = recvPacket.ReadBit();

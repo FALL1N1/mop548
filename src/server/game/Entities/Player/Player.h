@@ -1859,6 +1859,7 @@ class Player : public Unit, public GridObject<Player>
         void BuildPetTalentsInfoData(WorldPacket* data);
         void SendTalentsInfoData();
         bool LearnTalent(uint16 talentId);
+        bool LearnPetTalentTree(uint16 talentId);
         void LearnPetTalent(uint64 petGuid, uint32 talentId, uint32 talentRank);
         bool AddTalent(uint32 spellId, uint8 spec, bool learning);
         bool HasTalent(uint32 spell_id, uint8 spec) const;

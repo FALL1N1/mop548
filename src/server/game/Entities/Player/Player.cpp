@@ -20854,8 +20854,27 @@ void Player::SendAttackSwingBadFacingAttack()
 
 void Player::SendAutoRepeatCancel(Unit* target)
 {
-    WorldPacket data(SMSG_CANCEL_AUTO_REPEAT, target->GetPackGUID().size());
-    data.append(target->GetPackGUID());                     // may be it's target guid
+    WorldPacket data(SMSG_CANCEL_AUTO_REPEAT, 8);
+    ObjectGuid guid = target->GetGUID();
+    data.WriteBit(guid[1]);
+    data.WriteBit(guid[3]);
+    data.WriteBit(guid[0]);
+    data.WriteBit(guid[4]);
+    data.WriteBit(guid[6]);
+    data.WriteBit(guid[7]);
+    data.WriteBit(guid[5]);
+    data.WriteBit(guid[2]);
+    
+    data.WriteByteSeq(guid[7]);
+    data.WriteByteSeq(guid[6]);
+    data.WriteByteSeq(guid[2]);
+    data.WriteByteSeq(guid[5]);
+    data.WriteByteSeq(guid[0]);
+    data.WriteByteSeq(guid[4]);
+    data.WriteByteSeq(guid[1]);
+    data.WriteByteSeq(guid[3]);
+
+    // data.append(target->GetPackGUID());                     // may be it's target guid
     GetSession()->SendPacket(&data);
 }
 
@@ -21041,7 +21060,8 @@ Pet* Player::GetPet() const
 
 void Player::RemovePet(Pet* pet, PetSaveMode mode, bool returnreagent)
 {
-    
+    printf("--{ Player::RemovePet }--\n");
+
     if (!pet)
         pet = GetPet();
 
@@ -21251,6 +21271,8 @@ void Player::SendOnCancelExpectedVehicleRideAura()
 
 void Player::PetSpellInitialize()
 {
+    printf("--{ Player::PetSpellInitialize }--\n");
+
     Player* player = GetSession()->GetPlayer();
 
     if (!player)
@@ -21297,6 +21319,8 @@ void Player::PetSpellInitialize()
     data.WriteBit(guid[0]);
     data.WriteBit(guid[1]);
 
+    // data.FlushBits();
+
     /*
     data << uint16(pet->GetCreatureTemplate()->family);         // creature family (required for pet talents)
     data << uint32(pet->GetDuration());
@@ -21305,8 +21329,6 @@ void Player::PetSpellInitialize()
     data << uint16(0); // Flags, mostly unknown
     */
     
-    // data.FlushBits();
-
     // action bar loop
     charmInfo->BuildActionBar(&data);
 
@@ -21355,9 +21377,9 @@ void Player::PetSpellInitialize()
     data.PutBits(v7_pos, v7, 20);
     
     data.WriteByteSeq(guid[2]);
-
-    if (pet->IsPermanentPetFor(this))
-    {
+    
+    //if (pet->IsPermanentPetFor(this))
+    //{
         // spells loop
         for (PetSpellMap::iterator itr = pet->m_spells.begin(); itr != pet->m_spells.end(); ++itr)
         {
@@ -21367,8 +21389,8 @@ void Player::PetSpellInitialize()
             data << uint32(MAKE_UNIT_ACTION_BUTTON(itr->first, itr->second.active));
             ++v6;
         }
-    }
-
+    //}
+    
     // data.put<uint8>(spellsCountPos, v6);
     data.PutBits(v6_pos, v6, 22);
 
@@ -21377,7 +21399,7 @@ void Player::PetSpellInitialize()
     data.WriteByteSeq(guid[3]);
 
     // data << uint16(GetTalentSpecialization(this->GetActiveSpec())); // (Specialization pet or player ?)
-    data << uint16(0); // (Specialization pet or player ?)
+    data << uint16(12); // (Specialization pet or player ?)
 
     /*
     
@@ -21410,7 +21432,7 @@ void Player::PetSpellInitialize()
     data.WriteByteSeq(guid[4]);
     data.WriteByteSeq(guid[6]);
 
-    data << uint32(pet->GetReactState()); 
+    data << uint32(charmInfo->GetCommandState()); // pet->GetReactState();
     // data << uint32(charmInfo->GetCommandState());
 
     data.WriteByteSeq(guid[5]);
@@ -21451,7 +21473,8 @@ void Player::PossessSpellInitialize()
 
 void Player::VehicleSpellInitialize()
 {
-    
+    printf("--{ Player::VehicleSpellInitialize }--\n");
+
     Creature* vehicle = GetVehicleCreatureBase();
     if (!vehicle)
         return;
@@ -21551,6 +21574,7 @@ void Player::VehicleSpellInitialize()
 
 void Player::CharmSpellInitialize()
 {
+    printf("--{ Player::CharmSpellInitialize }--\n");
     Unit* charm = GetFirstControlled();
     if (!charm)
         return;
@@ -21605,6 +21629,7 @@ void Player::CharmSpellInitialize()
 
 void Player::SendRemoveControlBar()
 {
+    printf("--{ Player::SendRemoveControlBar }--\n");
     WorldPacket data(SMSG_PET_SPELLS, 8);
     data << uint64(0);
     GetSession()->SendPacket(&data);
@@ -26377,6 +26402,54 @@ void Player::CompletedAchievement(AchievementEntry const* entry)
 }
 
 bool Player::LearnTalent(uint16 talentId)
+{
+    TalentEntry const* talentInfo = sTalentStore.LookupEntry(talentId);
+
+    if (!talentInfo)
+        return false;
+
+    uint32 maxTalentRow = GetUInt32Value(PLAYER_FIELD_MAX_TALENT_TIERS);
+
+    // prevent learn talent for different class (cheating)
+    if (talentInfo->playerClass != getClass())
+        return false;
+
+    // check if we have enough talent points
+    if (talentInfo->Row > maxTalentRow)
+        return false;
+
+    // Check if player doesnt have any spell in selected collumn
+    for (uint32 i = 0; i < sTalentStore.GetNumRows(); i++)
+    {
+        if (TalentEntry const* talent = sTalentStore.LookupEntry(i))
+        {
+            if (talentInfo->Row == talent->Row && HasSpell(talent->SpellId))
+                return false;
+        }
+    }
+
+    // spell not set in talent.dbc
+    uint32 spellid = talentInfo->SpellId;
+    if (spellid == 0)
+    {
+        TC_LOG_ERROR("entities.player", "Talent.dbc have for talent: %u spell id = 0", talentId);
+        return false;
+    }
+
+    // already known
+    if (HasSpell(spellid))
+        return false;
+
+    if (!AddTalent(spellid, GetActiveSpec(), true))
+        return false;
+
+    learnSpell(spellid, false);
+
+    TC_LOG_INFO("misc", "TalentID: %u Spell: %u Spec: %u\n", talentId, spellid, GetActiveSpec());
+    return true;
+}
+
+bool Player::LearnPetTalentTree(uint16 talentId)
 {
     TalentEntry const* talentInfo = sTalentStore.LookupEntry(talentId);
 

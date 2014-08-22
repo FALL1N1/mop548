@@ -60,16 +60,32 @@ void WorldSession::HandleLearnTalentOpcode(WorldPacket& recvData)
     uint32 talentCount = recvData.ReadBits(23);
     uint16 talentId;
     bool anythingLearned = false;
-
+    // uint16 Temp[30];
     for (int i = 0; i != talentCount; i++)
     {
         recvData >> talentId;
         if (_player->LearnTalent(talentId))
             anythingLearned = true;
+    //    Temp[i] = talentId;
     }
 
     if (anythingLearned)
         _player->SendTalentsInfoData();
+    /*
+    Pet* pet = _player->GetPet();
+    if (!pet)
+        return;
+
+    for (int i = 0; i != talentCount; i++)
+    {
+        talentId = Temp[i];
+        if (_player->LearnPetTalentTree(talentId))
+            anythingLearned = true;
+        // if (_player->LearnPetTalent(pet->GetGUID, uint32(talentId), 1)
+        //    anythingLearned = true;
+
+    }
+    */
 }
 
 void WorldSession::HandleLearnPreviewTalents(WorldPacket& recvPacket)
@@ -80,8 +96,32 @@ void WorldSession::HandleLearnPreviewTalents(WorldPacket& recvPacket)
 void WorldSession::HandleTalentWipeConfirmOpcode(WorldPacket& recvData)
 {
     TC_LOG_DEBUG("network", "MSG_TALENT_WIPE_CONFIRM");
-    uint64 guid;
-    recvData >> guid;
+    ObjectGuid guid;
+    uint8 unk_1;
+    uint32 unk_2;
+
+    guid[5] = recvData.ReadBit();
+    guid[7] = recvData.ReadBit();
+    guid[3] = recvData.ReadBit();
+    guid[2] = recvData.ReadBit();
+    guid[1] = recvData.ReadBit();
+    guid[0] = recvData.ReadBit();
+    guid[4] = recvData.ReadBit();
+    guid[6] = recvData.ReadBit();
+
+    recvData.ReadByteSeq(guid[1]);
+    recvData.ReadByteSeq(guid[0]);
+
+    recvData >> unk_1;
+
+    recvData.ReadByteSeq(guid[7]);
+    recvData.ReadByteSeq(guid[3]);
+    recvData.ReadByteSeq(guid[2]);
+    recvData.ReadByteSeq(guid[5]);
+    recvData.ReadByteSeq(guid[6]);
+    recvData.ReadByteSeq(guid[4]);
+
+    recvData >> unk_2;
 
     Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_TRAINER);
     if (!unit)
