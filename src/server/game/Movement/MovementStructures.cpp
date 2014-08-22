@@ -4170,23 +4170,23 @@ MovementStatusElements const SplineMoveSetRunBackSpeed[] =
 
 MovementStatusElements const SplineMoveSetSwimSpeed[] =
 {
+    MSEHasGuidByte5,
+    MSEHasGuidByte6,
+    MSEHasGuidByte7,
+    MSEHasGuidByte3,
     MSEHasGuidByte4,
     MSEHasGuidByte2,
-    MSEHasGuidByte5,
-    MSEHasGuidByte0,
-    MSEHasGuidByte7,
-    MSEHasGuidByte6,
-    MSEHasGuidByte3,
     MSEHasGuidByte1,
-    MSEGuidByte5,
-    MSEGuidByte6,
-    MSEGuidByte1,
-    MSEGuidByte0,
-    MSEGuidByte2,
+    MSEHasGuidByte0,
     MSEGuidByte4,
-    MSEExtraElement,
+    MSEGuidByte1,
+    MSEGuidByte6,
     MSEGuidByte7,
     MSEGuidByte3,
+    MSEExtraElement,
+    MSEGuidByte5,
+    MSEGuidByte0,
+    MSEGuidByte2,
     MSEEnd,
 };
 
@@ -4214,23 +4214,23 @@ MovementStatusElements const SplineMoveSetSwimBackSpeed[] =
 
 MovementStatusElements const SplineMoveSetTurnRate[] =
 {
-    MSEHasGuidByte2,
-    MSEHasGuidByte4,
-    MSEHasGuidByte6,
-    MSEHasGuidByte1,
-    MSEHasGuidByte3,
     MSEHasGuidByte5,
     MSEHasGuidByte7,
+    MSEHasGuidByte4,
     MSEHasGuidByte0,
-    MSEExtraElement,
+    MSEHasGuidByte1,
+    MSEHasGuidByte6,
+    MSEHasGuidByte3,
+    MSEHasGuidByte2,
     MSEGuidByte1,
-    MSEGuidByte5,
-    MSEGuidByte3,
-    MSEGuidByte2,
     MSEGuidByte7,
-    MSEGuidByte4,
+    MSEExtraElement,
     MSEGuidByte6,
     MSEGuidByte0,
+    MSEGuidByte4,
+    MSEGuidByte2,
+    MSEGuidByte5,
+    MSEGuidByte3,
     MSEEnd,
 };
 
@@ -5503,12 +5503,12 @@ MovementStatusElements const* GetMovementStatusElementsSequence(Opcodes opcode)
         //    return SplineMoveSetRunSpeed;
         case SMSG_SPLINE_MOVE_SET_RUN_BACK_SPEED:
             return SplineMoveSetRunBackSpeed;
-        //case SMSG_SPLINE_MOVE_SET_SWIM_SPEED:
-        //    return SplineMoveSetSwimSpeed;
+        case SMSG_SPLINE_MOVE_SET_SWIM_SPEED:
+            return SplineMoveSetSwimSpeed;
         //case SMSG_SPLINE_MOVE_SET_SWIM_BACK_SPEED:
         //    return SplineMoveSetSwimBackSpeed;
-        //case SMSG_SPLINE_MOVE_SET_TURN_RATE:
-        //    return SplineMoveSetTurnRate;
+        case SMSG_SPLINE_MOVE_SET_TURN_RATE:
+            return SplineMoveSetTurnRate;
         case SMSG_SPLINE_MOVE_SET_FLIGHT_SPEED:
             return SplineMoveSetFlightSpeed;
         case SMSG_SPLINE_MOVE_SET_FLIGHT_BACK_SPEED:

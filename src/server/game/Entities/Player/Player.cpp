@@ -4057,7 +4057,7 @@ bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent
     return active && !disabled && !superceded_old;
 }
 
-void Player::AddTemporarySpell(uint32 spellId)
+void Player::AddTemporarySpell(uint32 spellId, bool sendPacket /*false*/)
 {
     PlayerSpellMap::iterator itr = m_spells.find(spellId);
     // spell already added - do not do anything
@@ -4069,9 +4069,20 @@ void Player::AddTemporarySpell(uint32 spellId)
     newspell->dependent = false;
     newspell->disabled  = false;
     m_spells[spellId]   = newspell;
+
+    if (sendPacket)
+    {
+        WorldPacket data(SMSG_LEARNED_SPELL, 8);
+        data.WriteBits(1, 22); // count
+        data.WriteBit(0);
+        data.FlushBits();
+        data << uint32(spellId);
+
+        GetSession()->SendPacket(&data);
+    }
 }
 
-void Player::RemoveTemporarySpell(uint32 spellId)
+void Player::RemoveTemporarySpell(uint32 spellId, bool sendPacket /*false*/)
 {
     PlayerSpellMap::iterator itr = m_spells.find(spellId);
     // spell already not in list - do not do anything
@@ -4082,6 +4093,15 @@ void Player::RemoveTemporarySpell(uint32 spellId)
         return;
     delete itr->second;
     m_spells.erase(itr);
+
+    if (sendPacket)
+    {
+        WorldPacket data(SMSG_REMOVED_SPELL, 8);
+        data.WriteBits(1, 22); // Count
+        data.FlushBits();
+        data << uint32(spellId);
+        GetSession()->SendPacket(&data);
+    }
 }
 
 bool Player::IsNeedCastPassiveSpellAtLearn(SpellInfo const* spellInfo) const
@@ -4124,6 +4144,7 @@ void Player::learnSpell(uint32 spell_id, bool dependent)
 
         data.WriteBits(spellCount, 22);
         data.WriteBit(0);
+        data.FlushBits();
 
         for (uint32 i = 0; i < spellCount; ++i)
         {
@@ -4366,6 +4387,7 @@ void Player::removeSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
     {
         WorldPacket data(SMSG_REMOVED_SPELL, 7);
         data.WriteBits(1, 22); // Count
+        data.FlushBits();
         data << uint32(spell_id);
         GetSession()->SendPacket(&data);
     }
@@ -21263,7 +21285,35 @@ bool Player::RemoveMItem(uint32 id)
     return mMitems.erase(id) ? true : false;
 }
 
-void Player::SendOnCancelExpectedVehicleRideAura()
+void Player::SendPlayerVehicleData(uint32 vehicleId)
+{
+    ObjectGuid guid = GetGUID();
+    WorldPacket data(SMSG_PLAYER_VEHICLE_DATA, 8 + 4 + 4);
+    data.WriteBit(guid[0]);
+    data.WriteBit(guid[6]);
+    data.WriteBit(guid[1]);
+    data.WriteBit(guid[3]);
+    data.WriteBit(guid[7]);
+    data.WriteBit(guid[4]);
+    data.WriteBit(guid[5]);
+    data.WriteBit(guid[2]);
+
+    data.WriteByteSeq(guid[6]);
+    data.WriteByteSeq(guid[7]);
+    data.WriteByteSeq(guid[0]);
+    data.WriteByteSeq(guid[3]);
+    data << uint32(vehicleId);
+    data << uint32(m_movementCounter);
+    data.WriteByteSeq(guid[1]);
+    data.WriteByteSeq(guid[5]);
+    data.WriteByteSeq(guid[2]);
+    data.WriteByteSeq(guid[4]);
+
+    m_movementCounter++;
+    SendMessageToSet(&data, true);
+}
+
+void Player::SendOnCancelExpectedVehicleRideAura() const
 {
     WorldPacket data(SMSG_ON_CANCEL_EXPECTED_RIDE_VEHICLE_AURA, 0);
     GetSession()->SendPacket(&data);
@@ -26705,7 +26755,7 @@ void Player::BuildPlayerTalentsInfoData(WorldPacket* data)
         }
 
         data->PutBits(wpos[i], talentCount, 23);
-        *data << uint32(GetTalentSpecialization(GetActiveSpec()));
+        *data << uint32(GetTalentSpecialization(i));
     }
 
     delete[] wpos;

@@ -2,7 +2,7 @@
 DELETE FROM `spell_script_names` WHERE `spell_id` IN (117952, 117959);
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (117952, "spell_monk_crackling_jade_lightning"),
-(117959, "spell_monk_crackling_jade_lightning");
+(117959, "spell_monk_crackling_jade_lightning_aura");
 
 DELETE FROM `spell_proc_event` WHERE `entry` = 117959;
 INSERT INTO `spell_proc_event` (`entry`, `SchoolMask`, `SpellFamilyName`, `SpellFamilyMask0`, `SpellFamilyMask1`, `SpellFamilyMask2`, `SpellFamilyMask3`, `procFlags`, `procEx`, `ppmRate`, `CustomChance`, `Cooldown`) VALUES
@@ -13,7 +13,7 @@ DELETE FROM `spell_linked_spell` WHERE `spell_trigger` = 115546;
 INSERT INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `comment`) VALUES
 (115546, 116189, 0, "Provoke");
 
--- Fortyfing Brew
+-- Fortifying Brew
 DELETE FROM `spell_script_names` WHERE `spell_id`=115203;
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (115203, 'spell_monk_fortifying_brew');
@@ -31,3 +31,8 @@ INSERT INTO `spell_bonus_data` VALUES
 DELETE FROM `spell_script_names` WHERE `spell_id` = 115921;
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (115921, "spell_monk_legacy_of_the_emperor");
+
+-- Expel Harm
+DELETE FROM `spell_script_names` WHERE `spell_id` = 115072;
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(115072, "spell_monk_expel_harm");

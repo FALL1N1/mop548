@@ -25,3 +25,12 @@
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "Pet.h"
+
+enum MonkPetSpells
+{
+};
+
+
+void AddSC_monk_pet_scripts()
+{
+}
