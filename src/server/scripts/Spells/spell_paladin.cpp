@@ -45,11 +45,61 @@ enum PaladinSpellIcons
     PALADIN_ICON_ID_RETRIBUTION_AURA             = 555
 };
 
+enum HolyShockSpells
+{
+    SPELL_HOLY_SHOCK = 20473,
+    SPELL_HOLY_SHOCK_DMG = 25912,
+    SPELL_HOLY_SHOCK_HEAL = 25914,
+    SPELL_HOLY_SHOCK_ADD_HOLY_POWER = 148976
+
+};
+class spell_pri_holy_shock : public SpellScriptLoader
+{
+public:
+    spell_pri_holy_shock() : SpellScriptLoader("spell_pri_holy_shock") { }
+
+    class spell_pri_holy_shock_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_pri_holy_shock_SpellScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_HOLY_SHOCK) || !sSpellMgr->GetSpellInfo(SPELL_HOLY_SHOCK))
+                return false;
+            return true;
+        }
+
+
+        void HandleDummyHitTarget(SpellEffIndex /*effIndex*/)
+        {
+            // make caster cast a spell on a unit target of effect
+            if (Unit* target = GetHitUnit())
+            {
+                if (target->IsFriendlyTo(GetCaster()))
+                    GetCaster()->CastSpell(target, SPELL_HOLY_SHOCK_HEAL, true);
+                else
+                    GetCaster()->CastSpell(target, SPELL_HOLY_SHOCK_DMG, true);
+                
+                GetCaster()->CastSpell(GetCaster(), SPELL_HOLY_SHOCK_ADD_HOLY_POWER, true);
+            }
+        }
+
+        void Register() override
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_pri_holy_shock_SpellScript::HandleDummyHitTarget, EFFECT_0, SPELL_EFFECT_DUMMY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_pri_holy_shock_SpellScript();
+    }
+};
 
 
 
 
 void AddSC_paladin_spell_scripts()
 {
- 
+    new spell_pri_holy_shock();
 }
