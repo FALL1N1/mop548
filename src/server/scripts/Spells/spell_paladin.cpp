@@ -53,18 +53,18 @@ enum HolyShockSpells
     SPELL_HOLY_SHOCK_ADD_HOLY_POWER = 148976
 
 };
-class spell_pri_holy_shock : public SpellScriptLoader
+class spell_pal_holy_shock : public SpellScriptLoader
 {
 public:
-    spell_pri_holy_shock() : SpellScriptLoader("spell_pri_holy_shock") { }
+    spell_pal_holy_shock() : SpellScriptLoader("spell_pal_holy_shock") { }
 
-    class spell_pri_holy_shock_SpellScript : public SpellScript
+    class spell_pal_holy_shock_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_pri_holy_shock_SpellScript);
+        PrepareSpellScript(spell_pal_holy_shock_SpellScript);
 
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_HOLY_SHOCK) || !sSpellMgr->GetSpellInfo(SPELL_HOLY_SHOCK))
+            if (!sSpellMgr->GetSpellInfo(SPELL_HOLY_SHOCK))
                 return false;
             return true;
         }
@@ -86,13 +86,13 @@ public:
 
         void Register() override
         {
-            OnEffectHitTarget += SpellEffectFn(spell_pri_holy_shock_SpellScript::HandleDummyHitTarget, EFFECT_0, SPELL_EFFECT_DUMMY);
+            OnEffectHitTarget += SpellEffectFn(spell_pal_holy_shock_SpellScript::HandleDummyHitTarget, EFFECT_0, SPELL_EFFECT_DUMMY);
         }
     };
 
     SpellScript* GetSpellScript() const override
     {
-        return new spell_pri_holy_shock_SpellScript();
+        return new spell_pal_holy_shock_SpellScript();
     }
 };
 
@@ -101,5 +101,5 @@ public:
 
 void AddSC_paladin_spell_scripts()
 {
-    new spell_pri_holy_shock();
+    new spell_pal_holy_shock();
 }
