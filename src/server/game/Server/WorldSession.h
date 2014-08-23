@@ -604,7 +604,6 @@ class WorldSession
         void HandleGuildRequestMaxDailyXP(WorldPacket& recvPacket);
         void HandleGuildRequestChallengeUpdate(WorldPacket& recvPacket);
         void HandleAutoDeclineGuildInvites(WorldPacket& recvPacket);
-        void HandleRequestGuildCriteriaData(WorldPacket& recvPacket);
 
         void HandleGuildFinderAddApplication(WorldPacket& recvPacket);
         void HandleGuildFinderBrowse(WorldPacket& recvPacket);
