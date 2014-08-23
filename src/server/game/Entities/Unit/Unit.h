@@ -2157,6 +2157,8 @@ class Unit : public WorldObject
         void SetLastDamagedTime(time_t val) { _lastDamagedTime = val; }
 
         uint32 GetMovementCounter() const { return m_movementCounter; }
+        void SetAutoattackOverrideSpell(SpellInfo const* spellInfo) { m_overrideAutoattackSpellInfo = spellInfo; }
+        void SetAutoattackOverrideRange(uint32 range) { m_overrideAutoattackRange = range; }
 
     protected:
         explicit Unit (bool isWorldObject);
@@ -2192,6 +2194,8 @@ class Unit : public WorldObject
         uint32 m_transform;
 
         Spell* m_currentSpells[CURRENT_MAX_SPELL];
+        SpellInfo const* m_overrideAutoattackSpellInfo;
+        uint32 m_overrideAutoattackRange;
 
         AuraMap m_ownedAuras;
         AuraApplicationMap m_appliedAuras;
