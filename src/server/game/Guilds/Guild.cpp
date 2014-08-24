@@ -2597,9 +2597,15 @@ void Guild::SendNewsUpdate(WorldSession* session)
 
 void Guild::SendGuildCriteriaData(WorldSession* session, uint32 achievementID)
 {
-    AchievementCriteriaEntryList const* criterias = sAchievementMgr->GetAchievementCriteriaByAchievement(achievementID);
-    if (!session || !criterias)
+    // TODO: FIX ME!!! Sovak breaks me :-/
+    AchievementCriteriaEntryList const* criterias = NULL;/**sAchievementMgr->GetAchievementCriteriaByAchievement(achievementID);*/
+    if (!criterias)
+    {
+        WorldPacket data(SMSG_GUILD_CRITERIA_DATA, 3);
+        data.WriteBits(0, 21);
+        session->SendPacket(&data);
         return;
+    }
     
     static CriteriaProgress defaultCriteria = { 0, 0, 0, false };
     CriteriaProgress const* criteria;    

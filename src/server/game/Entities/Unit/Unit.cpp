@@ -202,6 +202,7 @@ Unit::Unit(bool isWorldObject) :
     for (uint8 i = 0; i < MAX_GAMEOBJECT_SLOT; ++i)
         m_ObjectSlot[i] = 0;
 
+    m_overrideAutoattackSpellInfo = 0;
     m_auraUpdateIterator = m_ownedAuras.end();
 
     m_interruptMask = 0;
@@ -1864,9 +1865,12 @@ void Unit::AttackerStateUpdate (Unit* victim, WeaponAttackType attType, bool ext
     if (attType != BASE_ATTACK && attType != OFF_ATTACK)
         return;                                             // ignore ranged case
 
+
     // melee attack spell casted at main hand attack only - no normal melee dmg dealt
     if (attType == BASE_ATTACK && m_currentSpells[CURRENT_MELEE_SPELL] && !extra)
         m_currentSpells[CURRENT_MELEE_SPELL]->cast();
+    else if (m_overrideAutoattackSpellInfo)
+        CastSpell(victim, m_overrideAutoattackSpellInfo, false);
     else
     {
         // attack can be redirected to another target
@@ -8711,7 +8715,7 @@ void Unit::SendEnergizeSpellLog(Unit* victim, uint32 spellId, int32 damage, Powe
     /*if (hasPower)
     {
         data << UInt32();
-    
+
         for (var i = 0; i < count; ++i)
         {
             data << Int32();
