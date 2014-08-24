@@ -2539,7 +2539,7 @@ bool AchievementMgr<T>::RequirementsSatisfied(CriteriaEntry const* achievementCr
                 if (achievIdByArenaSlot[j] == achievementCriteria->achievement)
                 {
                     Battleground* bg = referencePlayer->GetBattleground();
-                    if (!bg || !bg->isArena() || ArenaTeam::GetSlotByType(bg->GetArenaType()) != j)
+                    if (!bg || !bg->IsArena() || RatedInfo::GetRatedSlotByType(bg->GetRatedType()) != j)
                         notfit = true;
                     break;
                 }
