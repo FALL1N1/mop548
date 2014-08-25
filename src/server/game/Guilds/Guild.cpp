@@ -3911,7 +3911,7 @@ void Guild::_SendBankContentUpdate(uint8 tabId, SlotIds slots) const
 
             data.WriteBit(0);                                                       // Locked
             data.WriteBits(enchants, 21);
-            tabData << uint32(tabItem ? tabItem->GetEnchantmentId(EnchantmentSlot(0)) : 0);
+            tabData << uint32(tabItem ? tabItem->GetEnchantmentId(EnchantmentSlot(PERM_ENCHANTMENT_SLOT)) : 0);
             tabData << uint32(0);                                                   // Size size - mods
             tabData << uint32(tabItem ? tabItem->GetEntry() : 0);
             tabData << uint32(tabItem ? abs(tabItem->GetSpellCharges()) : 0);       // Spell charges
@@ -4029,7 +4029,7 @@ void Guild::SendBankList(WorldSession* session, uint8 tabId, bool withContent, b
 
                     data.WriteBit(0);                                           // Locked
                     data.WriteBits(enchants, 21);
-                    contentData << uint32(tabItem->GetEnchantmentId(EnchantmentSlot(0)));
+                    contentData << uint32(tabItem->GetEnchantmentId(EnchantmentSlot(PERM_ENCHANTMENT_SLOT)));
                     contentData << uint32(0);                                   // some weird string length
                     contentData << uint32(tabItem->GetEntry());
                     contentData << uint32(abs(tabItem->GetSpellCharges()));     // Spell charges
