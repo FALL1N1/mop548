@@ -3888,8 +3888,6 @@ void Guild::_SendBankContentUpdate(uint8 tabId, SlotIds slots) const
 
         for (SlotIds::const_iterator itr = slots.begin(); itr != slots.end(); ++itr)
         {
-            data.WriteBit(0);
-
             Item const* tabItem = tab->GetItem(*itr);
             uint32 enchants = 0;
             tabData << uint32(0);
@@ -4010,8 +4008,6 @@ void Guild::SendBankList(WorldSession* session, uint8 tabId, bool withContent, b
             {
                 if (Item* tabItem = tab->GetItem(slotId))
                 {
-                    data.WriteBit(0);
-
                     uint32 enchants = 0;
                     contentData << uint32(0);
                     contentData << uint32(0);
