@@ -636,7 +636,6 @@ void Guild::BankTab::SendText(Guild const* guild, WorldSession* session) const
     }
 }
 
-
 void Guild::Member::_SetProfessions(Player const* player)
 {
     if (!m_professions.empty())
