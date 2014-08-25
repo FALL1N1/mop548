@@ -615,9 +615,12 @@ bool Guild::BankTab::SetItem(SQLTransaction& trans, uint8 slotId, Item* item)
 
 void Guild::BankTab::SendText(Guild const* guild, WorldSession* session) const
 {
-    WorldPacket data(SMSG_GUILD_BANK_QUERY_TEXT_RESULT, 1 + m_text.size() + 1);
-    data.WriteBits(m_text.length(), 14);
+    WorldPacket data(SMSG_GUILD_BANK_QUERY_TEXT_RESULT, 4 + 2 + m_text.size());
     data << uint32(m_tabId);
+
+    data.WriteBits(m_text.length(), 14);
+    data.FlushBits();
+
     data.WriteString(m_text);
 
     if (session)
@@ -632,6 +635,7 @@ void Guild::BankTab::SendText(Guild const* guild, WorldSession* session) const
         guild->BroadcastPacket(&data);
     }
 }
+
 
 void Guild::Member::_SetProfessions(Player const* player)
 {
@@ -1881,16 +1885,31 @@ void Guild::HandleSetBankTabInfo(WorldSession* session, uint8 tabId, std::string
     if (!tab)
     {
         TC_LOG_ERROR("guild", "Guild::HandleSetBankTabInfo: Player %s trying to change bank tab info from unexisting tab %d.",
-                       session->GetPlayerInfo().c_str(), tabId);
+            session->GetPlayerInfo().c_str(), tabId);
         return;
     }
 
-    char aux[2];
-    sprintf(aux, "%u", tabId);
+    if (!_HasRankRight(session->GetPlayer(), GR_RIGHT_MODIFY_BANK_TAB))
+    {
+        TC_LOG_ERROR("guild", "Guild::HandleSetBankTabInfo: Player %s is trying to modify bank tab info but doesn't have permission!",
+            session->GetPlayerInfo().c_str());
+        return;
+    }
 
     tab->SetInfo(name, icon);
-    _BroadcastEvent(GE_BANK_TAB_UPDATED, 0, aux, name.c_str(), icon.c_str());
+
+    WorldPacket data(SMSG_GUILD_EVENT_BANK_TAB_MODIFIED, 2 + 4 + name.size() + icon.size());
+    data.WriteBits(icon.size(), 9);
+    data.WriteBits(name.size(), 7);
+    data.FlushBits();
+
+    data.WriteString(name);
+    data << uint32(tabId);
+    data.WriteString(icon);
+
+    BroadcastPacket(&data);
 }
+
 
 void Guild::HandleSetMemberNote(WorldSession* session, std::string const& note, ObjectGuid guid, bool isPublic)
 {
@@ -1984,7 +2003,7 @@ void Guild::HandleBuyBankTab(WorldSession* session, uint8 tabId)
     }
 
     _CreateNewBankTab();
-    WorldPacket data(SMSG_GUILD_BANK_BUY_TAB, 0);
+    WorldPacket data(SMSG_GUILD_EVENT_BANK_TAB_ADDED, 0);
     BroadcastPacket(&data);
 
     SendPermissions(session); /// Hack to force client to update permissions
@@ -2413,7 +2432,7 @@ void Guild::HandleSwitchRank(uint8 rankId, bool up)
 
 void Guild::_SendGuildMoney() const
 {
-    WorldPacket data(SMSG_GUILD_BANK_MONEY, 8);
+    WorldPacket data(SMSG_GUILD_EVENT_BANK_MONEY_CHANGED, 8);
     data << m_bankMoney;
     BroadcastPacket(&data);
 }
@@ -3862,7 +3881,7 @@ void Guild::_SendBankContentUpdate(uint8 tabId, SlotIds slots) const
         WorldPacket data(SMSG_GUILD_BANK_LIST, 1200);
         data << uint32(tabId);
         data << uint64(m_bankMoney);
-        size_t rempos = data.wpos();
+        size_t pos = data.wpos();
         data << uint32(0);                                      // Item withdraw amount, will be filled later
         data.WriteBit(0);
         data.WriteBits(0, 21);                                  // Tab count
@@ -3875,11 +3894,11 @@ void Guild::_SendBankContentUpdate(uint8 tabId, SlotIds slots) const
             Item const* tabItem = tab->GetItem(*itr);
             uint32 enchants = 0;
             tabData << uint32(0);
-            tabData << uint32(tabItem ? tabItem->GetItemSuffixFactor() : 0);        // SuffixFactor
+            tabData << uint32(0);
 
             if (tabItem)
             {
-                for (uint32 ench = 0; ench < MAX_ENCHANTMENT_SLOT; ++ench)
+                for (uint32 ench = 1; ench < MAX_ENCHANTMENT_SLOT; ++ench)
                 {
                     if (uint32 enchantId = tabItem->GetEnchantmentId(EnchantmentSlot(ench)))
                     {
@@ -3890,15 +3909,16 @@ void Guild::_SendBankContentUpdate(uint8 tabId, SlotIds slots) const
                 }
             }
 
+            data.WriteBit(0);                                                       // Locked
             data.WriteBits(enchants, 21);
             tabData << uint32(tabItem ? tabItem->GetEnchantmentId(EnchantmentSlot(0)) : 0);
-            tabData << uint32(0);                                                   // some weird string length
+            tabData << uint32(0);                                                   // Size size - mods
             tabData << uint32(tabItem ? tabItem->GetEntry() : 0);
             tabData << uint32(tabItem ? abs(tabItem->GetSpellCharges()) : 0);       // Spell charges
             tabData << uint32(tabItem ? tabItem->GetCount() : 0);                   // ITEM_FIELD_STACK_COUNT
             tabData << uint32(*itr);                                                // Slot ID
             tabData << uint32(tabItem ? tabItem->GetItemRandomPropertyId() : 0);
-            tabData << uint32(0);
+            tabData << uint32(tabItem ? tabItem->GetItemSuffixFactor() : 0);        // SuffixFactor
         }
 
         data.FlushBits();
@@ -3907,12 +3927,16 @@ void Guild::_SendBankContentUpdate(uint8 tabId, SlotIds slots) const
             data.append(tabData);
 
         for (Members::const_iterator itr = m_members.begin(); itr != m_members.end(); ++itr)
+        {
             if (_MemberHasTabRights(itr->second->GetGUID(), tabId, GUILD_BANK_RIGHT_VIEW_TAB))
+            {
                 if (Player* player = itr->second->FindPlayer())
                 {
-                    data.put<uint32>(rempos, uint32(_GetMemberRemainingSlots(itr->second, tabId)));
+                    data.put<uint32>(pos, uint32(_GetMemberRemainingSlots(itr->second, tabId)));
                     player->GetSession()->SendPacket(&data);
                 }
+            }
+        }
 
         TC_LOG_DEBUG("guild", "WORLD: Sent (SMSG_GUILD_BANK_LIST)");
     }
@@ -3991,9 +4015,9 @@ void Guild::SendBankList(WorldSession* session, uint8 tabId, bool withContent, b
 
                     uint32 enchants = 0;
                     contentData << uint32(0);
-                    contentData << uint32(tabItem->GetItemSuffixFactor());      // SuffixFactor
+                    contentData << uint32(0);
 
-                    for (uint32 ench = 0; ench < MAX_ENCHANTMENT_SLOT; ++ench)
+                    for (uint32 ench = 1; ench < MAX_ENCHANTMENT_SLOT; ++ench)
                     {
                         if (uint32 enchantId = tabItem->GetEnchantmentId(EnchantmentSlot(ench)))
                         {
@@ -4003,6 +4027,7 @@ void Guild::SendBankList(WorldSession* session, uint8 tabId, bool withContent, b
                         }
                     }
 
+                    data.WriteBit(0);                                           // Locked
                     data.WriteBits(enchants, 21);
                     contentData << uint32(tabItem->GetEnchantmentId(EnchantmentSlot(0)));
                     contentData << uint32(0);                                   // some weird string length
@@ -4011,7 +4036,7 @@ void Guild::SendBankList(WorldSession* session, uint8 tabId, bool withContent, b
                     contentData << uint32(tabItem->GetCount());                 // ITEM_FIELD_STACK_COUNT
                     contentData << uint32(slotId);
                     contentData << uint32(tabItem->GetItemRandomPropertyId());
-                    contentData << uint32(0);
+                    contentData << uint32(tabItem->GetItemSuffixFactor());      // SuffixFactor
                 }
             }
         }
@@ -4255,4 +4280,28 @@ void Guild::GiveReputationToMember(uint32 reputation, Player* player)
     player->GetReputationMgr().ModifyReputation(sFactionStore.LookupEntry(GUILD_FACTION_ID), reputation);
     member->AddReputation(reputation);
     SendGuildReputationWeeklyCap(member);
+}
+
+void Guild::HandleSetBankTabNote(WorldSession* session, uint32 tabId, std::string note)
+{
+    BankTab* bankTab = GetBankTab(tabId);
+    if (!bankTab)
+    {
+        TC_LOG_ERROR("guild", "Guild::HandleSetBankTabNote: Player %s is trying to modify bank tab note for non existing tab %d.",
+            session->GetPlayerInfo().c_str(), tabId);
+        return;
+    }
+
+    if (!_HasRankRight(session->GetPlayer(), GR_RIGHT_MODIFY_BANK_TAB))
+    {
+        TC_LOG_ERROR("guild", "Guild::HandleSetBankTabNote: Player %s is trying to modify a bank tab note but doesn't have permission!",
+            session->GetPlayerInfo().c_str());
+        return;
+    }
+
+    bankTab->SetText(note);
+
+    WorldPacket data(SMSG_GUILD_EVENT_BANK_TAB_TEXT_CHANGED, 4);
+    data << tabId;
+    BroadcastPacket(&data);
 }
