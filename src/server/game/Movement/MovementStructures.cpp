@@ -4959,25 +4959,25 @@ MovementStatusElements const MoveUnsetHover[] =
     MSEEnd,
 };
 
-MovementStatusElements const MoveWaterWalk[] =
+MovementStatusElements const MoveWaterWalk[] = // 5.4.8 18414
 {
-    MSEHasGuidByte4,
-    MSEHasGuidByte7,
-    MSEHasGuidByte6,
-    MSEHasGuidByte0,
-    MSEHasGuidByte1,
-    MSEHasGuidByte3,
-    MSEHasGuidByte5,
     MSEHasGuidByte2,
-    MSEGuidByte0,
-    MSEGuidByte5,
-    MSEGuidByte2,
-    MSECounter,
-    MSEGuidByte7,
-    MSEGuidByte3,
+    MSEHasGuidByte0,
+    MSEHasGuidByte4,
+    MSEHasGuidByte5,
+    MSEHasGuidByte3,
+    MSEHasGuidByte7,
+    MSEHasGuidByte1,
+    MSEHasGuidByte6,
     MSEGuidByte4,
+    MSEGuidByte7,
+    MSEGuidByte0,
     MSEGuidByte1,
     MSEGuidByte6,
+    MSEGuidByte2,
+    MSEGuidByte3,
+    MSEGuidByte5,
+    MSECounter,
     MSEEnd,
 };
 
@@ -5573,8 +5573,8 @@ MovementStatusElements const* GetMovementStatusElementsSequence(Opcodes opcode)
         //    return MoveSetHover;
         //case SMSG_MOVE_UNSET_HOVER:
         //    return MoveUnsetHover;
-        //case SMSG_MOVE_WATER_WALK:
-        //    return MoveWaterWalk;
+        case SMSG_MOVE_WATER_WALK:
+            return MoveWaterWalk;
         case SMSG_MOVE_LAND_WALK:
             return MoveLandWalk;
         //case SMSG_MOVE_FEATHER_FALL:
