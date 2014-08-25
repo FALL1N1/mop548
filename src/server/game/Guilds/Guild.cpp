@@ -3975,7 +3975,8 @@ void Guild::SendBankList(WorldSession* session, uint8 tabId, bool withContent, b
     data << uint32(tabId);
     data << uint64(m_bankMoney);
     data << uint32(_GetMemberRemainingSlots(member, tabId));
-    data.WriteBit(0); // unk bit
+    data.WriteBit(withContent && withTabInfo);
+
     uint32 itemCount = 0;
     if (withContent && _MemberHasTabRights(session->GetPlayer()->GetGUID(), tabId, GUILD_BANK_RIGHT_VIEW_TAB))
         if (BankTab const* tab = GetBankTab(tabId))
