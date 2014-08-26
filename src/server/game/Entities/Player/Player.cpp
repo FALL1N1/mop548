@@ -5236,8 +5236,26 @@ void Player::DeleteOldCharacters(uint32 keepDays)
 */
 void Player::BuildPlayerRepop()
 {
-    WorldPacket data(SMSG_PRE_RESURRECT, GetPackGUID().size());
-    data.append(GetPackGUID());
+    ObjectGuid guid = GetGUID();
+    WorldPacket data(SMSG_PRE_RESURRECT, 8);
+    data.WriteBit(guid[1]);
+    data.WriteBit(guid[7]);
+    data.WriteBit(guid[5]);
+    data.WriteBit(guid[2]);
+    data.WriteBit(guid[6]);
+    data.WriteBit(guid[0]);
+    data.WriteBit(guid[3]);
+    data.WriteBit(guid[4]);
+
+    data.WriteByteSeq(guid[5]);
+    data.WriteByteSeq(guid[1]);
+    data.WriteByteSeq(guid[7]);
+    data.WriteByteSeq(guid[0]);
+    data.WriteByteSeq(guid[4]);
+    data.WriteByteSeq(guid[6]);
+    data.WriteByteSeq(guid[2]);
+    data.WriteByteSeq(guid[3]);
+
     GetSession()->SendPacket(&data);
 
     if (getRace() == RACE_NIGHTELF)
@@ -15007,6 +15025,7 @@ void Player::PrepareGossipMenu(WorldObject* source, uint32 menuId /*= 0*/, bool 
                     canTalk = false;                       // added in special mode
                     break;
                 case GOSSIP_OPTION_SPIRITHEALER:
+                    printf("\nGOSSIP_OPTION_SPIRITHEALER !! isDead() => %u\n\n", isDead());
                     if (!isDead())
                         canTalk = false;
                     break;
