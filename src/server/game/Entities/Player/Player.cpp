@@ -21365,21 +21365,16 @@ void Player::PetSpellInitialize()
 {
     printf("--{ Player::PetSpellInitialize }--\n");
 
-    Player* player = GetSession()->GetPlayer();
-
-    if (!player)
-        return;
-
     Pet* pet = GetPet();
 
     if (!pet)
         return;
     
-    if (player->getLevel() < 10) // Protection against cheaters
+    if (getLevel() < 10) // Protection against cheaters
         return;
 
     // ObjectGuid guid = pet->GetPetGUID();
-    ObjectGuid guid = player->GetPetGUID();
+    ObjectGuid guid = GetPetGUID();
 
     TC_LOG_DEBUG("entities.pet", "Pet Spells Groups");
 
