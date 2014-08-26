@@ -101,7 +101,7 @@ SlotEquipmentMap const* CharacterBooster::_GetCharBoostItems(std::vector<std::pa
     }
 }
 
-void CharacterBooster::_SendCharBoostPacket(SlotEquipmentMap const* items)
+void CharacterBooster::_SendCharBoostPacket(SlotEquipmentMap const* items) const
 {
     ObjectGuid guid = m_charBoostInfo.charGuid;
     WorldPacket data(SMSG_BATTLE_CHAR_BOOST_ITEMS, 8 + 3 + items->size());
@@ -353,7 +353,7 @@ std::string CharacterBooster::_EquipItems(SQLTransaction& trans, SlotEquipmentMa
     return items.str();
 }
 
-void CharacterBooster::_SaveBoostedChar(SQLTransaction& trans, std::string const& items, uint8 const& raceId, uint8 const& classId)
+void CharacterBooster::_SaveBoostedChar(SQLTransaction& trans, std::string const& items, uint8 const& raceId, uint8 const& classId) const
 {
     float const* position = m_charBoostInfo.allianceFaction ? allianceStartPosition : hordeStartPosition;
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHARACTER_FOR_BOOST);
@@ -370,7 +370,7 @@ void CharacterBooster::_SaveBoostedChar(SQLTransaction& trans, std::string const
     trans->Append(stmt);
 }
 
-void CharacterBooster::_HandleCharacterBoost()
+void CharacterBooster::_HandleCharacterBoost() const
 {
     uint8 classId = 0;
 
