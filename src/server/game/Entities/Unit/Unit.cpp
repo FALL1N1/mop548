@@ -3154,6 +3154,12 @@ void Unit::_AddAura(UnitAura* aura, Unit* caster)
     if (aura->IsRemoved())
         return;
 
+    // register casted aura
+    if (!caster)
+        caster = ObjectAccessor::GetObjectInOrOutOfWorld(aura->GetCasterGUID(), (Unit*)NULL);
+    if (caster)
+        caster->GetCastedAuras().push_back(aura);
+
     aura->SetIsSingleTarget(caster && (aura->GetSpellInfo()->IsSingleTarget() || aura->HasEffectType(SPELL_AURA_CONTROL_VEHICLE)));
     if (aura->IsSingleTarget())
     {
@@ -3416,6 +3422,13 @@ void Unit::RemoveOwnedAura(AuraMap::iterator &i, AuraRemoveMode removeMode)
 
     m_ownedAuras.erase(i);
     m_removedAuras.push_back(aura);
+
+    // unregister casted aura
+    Unit* caster = aura->GetCaster();
+    if (!caster)
+        caster = ObjectAccessor::GetObjectInOrOutOfWorld(aura->GetCasterGUID(), (Unit*)NULL);
+    if (caster)
+        caster->GetCastedAuras().remove(aura);
 
     // Unregister single target aura
     if (aura->IsSingleTarget())
