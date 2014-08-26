@@ -1069,8 +1069,12 @@ void WorldSession::HandleAddonRegisteredPrefixesOpcode(WorldPacket& recvPacket)
     TC_LOG_DEBUG("network", "WORLD: Received CMSG_ADDON_REGISTERED_PREFIXES");
 
     // This is always sent after CMSG_UNREGISTER_ALL_ADDON_PREFIXES
+    uint32 count = recvPacket.ReadBits(9);
+    uint32 count_2 = recvPacket.ReadBits(8);
+    uint32 count_3 = recvPacket.ReadBits(5);
 
-    uint32 count = recvPacket.ReadBits(25);
+    printf("count 1 [%u]\tcount 2 [%u]\tcount 3 [%u]\n",count, count_2, count_3);
+    // uint32 count = recvPacket.ReadBits(25);
 
     if (count > REGISTERED_ADDON_PREFIX_SOFTCAP)
     {
@@ -1080,6 +1084,7 @@ void WorldSession::HandleAddonRegisteredPrefixesOpcode(WorldPacket& recvPacket)
         return;
     }
 
+    /*
     std::vector<uint8> lengths(count);
     for (uint32 i = 0; i < count; ++i)
         lengths[i] = recvPacket.ReadBits(5);
@@ -1092,8 +1097,12 @@ void WorldSession::HandleAddonRegisteredPrefixesOpcode(WorldPacket& recvPacket)
         _filterAddonMessages = false;
         return;
     }
-
+    */
+    for (uint32 i = 0; i < count_2; ++i)
+        _registeredAddonPrefixes.push_back(recvPacket.ReadString(count));
     _filterAddonMessages = true;
+    
+
 }
 
 void WorldSession::SetPlayer(Player* player)

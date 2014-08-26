@@ -1777,6 +1777,8 @@ class Unit : public WorldObject
         AuraEffectList const& GetAuraEffectsByType(AuraType type) const { return m_modAuras[type]; }
         AuraList      & GetSingleCastAuras()       { return m_scAuras; }
         AuraList const& GetSingleCastAuras() const { return m_scAuras; }
+        AuraList      & GetCastedAuras()       { return m_castedAuras; }
+        AuraList const& GetCastedAuras() const { return m_castedAuras; }
 
         AuraEffect* GetAuraEffect(uint32 spellId, uint8 effIndex, uint64 casterGUID = 0) const;
         AuraEffect* GetAuraEffectOfRankedSpell(uint32 spellId, uint8 effIndex, uint64 casterGUID = 0) const;
@@ -2205,7 +2207,8 @@ class Unit : public WorldObject
 
         AuraEffectList m_modAuras[TOTAL_AURAS];
         AuraList m_scAuras;                        // casted singlecast auras
-        AuraApplicationList m_interruptableAuras;             // auras which have interrupt mask applied on unit
+        AuraList m_castedAuras;                    // all casted auras
+        AuraApplicationList m_interruptableAuras;  // auras which have interrupt mask applied on unit
         AuraStateAurasMap m_auraStateAuras;        // Used for improve performance of aura state checks on aura apply/remove
         uint32 m_interruptMask;
 

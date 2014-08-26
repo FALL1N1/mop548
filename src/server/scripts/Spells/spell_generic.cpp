@@ -3113,6 +3113,9 @@ class spell_gen_spirit_healer_res : public SpellScriptLoader
                     data.WriteBit(guid[2]);
                     data.WriteBit(guid[3]);
                     data.WriteBit(guid[0]);
+                    
+                    data.FlushBits();
+
                     data.WriteByteSeq(guid[0]);
                     data.WriteByteSeq(guid[4]);
                     data.WriteByteSeq(guid[2]);
@@ -3120,7 +3123,8 @@ class spell_gen_spirit_healer_res : public SpellScriptLoader
                     data.WriteByteSeq(guid[7]);
                     data.WriteByteSeq(guid[6]);
                     data.WriteByteSeq(guid[5]);
-                    data.WriteByteSeq(guid[1]);                   
+                    data.WriteByteSeq(guid[1]);
+                    
                     originalCaster->GetSession()->SendPacket(&data);
                 }
             }
