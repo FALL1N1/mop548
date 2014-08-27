@@ -1275,10 +1275,10 @@ void Player::SendMirrorTimer(MirrorTimerType Type, uint32 MaxValue, uint32 Curre
     WorldPacket data(SMSG_START_MIRROR_TIMER, 21);
     data << MaxValue;
     data << CurrentValue;
-    data << (uint32)Type;
+    data << uint32(Type);
     data << Regen;
-    data << (uint8)0;
-    data << (uint32)703;                                      // spell id 465, 703
+    data << uint8(0);
+    data << uint32(703);             // spell id 465 is 2 minutes of breath, 703 is 3 minutes of breath.
     GetSession()->SendPacket(&data);
 }
 
