@@ -37,7 +37,8 @@ enum DruidSpells
     SPELL_DRUID_INCARNATION_SON_OF_URSOC        = 102558,
     SPELL_DRUID_CAT_FORM                        = 768,
     SPELL_DRUID_MOONKIN_FORM                    = 24858,
-    SPELL_DRUID_BEAR_FORM                       = 5487
+    SPELL_DRUID_BEAR_FORM                       = 5487,
+    SPELL_DRUID_GLYPH_OF_STARS                  = 114301
 };
 
 class spell_druid_glyph_of_the_treant : public SpellScriptLoader
@@ -132,8 +133,14 @@ public:
         void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
             if (GetTarget()->GetShapeshiftForm() == _form)
+            {
                 if (uint32 modelId = GetTarget()->GetModelForForm(_form))
                     GetTarget()->SetDisplayId(modelId);
+
+                if (GetSpellInfo()->Id == SPELL_DRUID_INCARNATION_CHOSEN_OF_ELUNE)
+                    if (AuraEffect* aurEff = GetTarget()->GetAuraEffect(SPELL_DRUID_GLYPH_OF_STARS, EFFECT_0))
+                        GetTarget()->CastSpell(GetTarget(), aurEff->GetAmount(), true);
+            }
         }
 
         void Register() override

@@ -11732,6 +11732,8 @@ bool Unit::IsInDisallowedMountForm() const
         case FORM_STEALTH:
         case FORM_UNDEAD:
             return false;
+        case FORM_MOONKIN:
+            return !HasAura(114302); /*Astral Form allows mount*/
         default:
             return true;
     }
