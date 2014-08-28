@@ -15114,9 +15114,9 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form) const
                     switch (hairColor)
                     {
                         case 7: // Violet
-                        case 8:
                             return HasAura(SPELL_DRUID_INCARNATION_KING_OF_THE_JUNGLE) ? 43764 : 29405;
                         case 3: // Light Blue
+                        case 5:
                             return HasAura(SPELL_DRUID_INCARNATION_KING_OF_THE_JUNGLE) ? 43763 : 29406;
                         case 0: // Green
                         case 1: // Light Green
@@ -15264,15 +15264,18 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form) const
                         case 0: // Green
                         case 1: // Light Green
                         case 2: // Dark Green
-                            return HasAura(SPELL_DRUID_INCARNATION_SON_OF_URSOC) ? 43759 : 29413; // 29415? (43757)
+                            return HasAura(SPELL_DRUID_INCARNATION_SON_OF_URSOC) ? 43759 : 29413;
                         case 6: // Dark Blue
                             return HasAura(SPELL_DRUID_INCARNATION_SON_OF_URSOC) ? 43756 : 29414;
                         case 4: // White
                             return HasAura(SPELL_DRUID_INCARNATION_SON_OF_URSOC) ? 43760 : 29416;
                         case 3: // Light Blue
+                        case 5:
+                            return HasAura(SPELL_DRUID_INCARNATION_SON_OF_URSOC) ? 43757 : 29415;
+                        case 7:
                             return HasAura(SPELL_DRUID_INCARNATION_SON_OF_URSOC) ? 43758 : 29417;
                         default: // original - Violet
-                            return HasAura(SPELL_DRUID_INCARNATION_SON_OF_URSOC) ? 43758 : 2281; // looks same model as Light Blue
+                            return HasAura(SPELL_DRUID_INCARNATION_SON_OF_URSOC) ? 43758 : 2281;
                     }
                 }
                 else if (getRace() == RACE_TROLL)
