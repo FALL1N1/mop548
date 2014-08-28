@@ -139,11 +139,28 @@ void WorldSession::HandleChangeSeatsOnControlledVehicle(WorldPacket& recvData)
     }
 }
 
-void WorldSession::HandleEnterPlayerVehicle(WorldPacket& data)
+void WorldSession::HandleEnterPlayerVehicle(WorldPacket& recvData)
 {
-    // Read guid
-    uint64 guid;
-    data >> guid;
+    TC_LOG_DEBUG("network", "WORLD: Recvd CMSG_PLAYER_VEHICLE_ENTER");
+
+    ObjectGuid guid;
+    guid[5] = recvData.ReadBit();
+    guid[7] = recvData.ReadBit();
+    guid[3] = recvData.ReadBit();
+    guid[0] = recvData.ReadBit();
+    guid[2] = recvData.ReadBit();
+    guid[4] = recvData.ReadBit();
+    guid[6] = recvData.ReadBit();
+    guid[1] = recvData.ReadBit();
+
+    recvData.ReadByteSeq(guid[5]);
+    recvData.ReadByteSeq(guid[3]);
+    recvData.ReadByteSeq(guid[1]);
+    recvData.ReadByteSeq(guid[2]);
+    recvData.ReadByteSeq(guid[7]);
+    recvData.ReadByteSeq(guid[0]);
+    recvData.ReadByteSeq(guid[6]);
+    recvData.ReadByteSeq(guid[4]);
 
     if (Player* player = ObjectAccessor::FindPlayer(guid))
     {
