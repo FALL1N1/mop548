@@ -15418,6 +15418,9 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form) const
                     return 37730;
                 return 21244;
             case FORM_MOONKIN:
+                if (HasAura(114301) && !HasAura(SPELL_DRUID_INCARNATION_CHOSEN_OF_ELUNE)) // Glyph of Stars
+                    return GetNativeDisplayId();
+
                 if (Player::TeamForRace(getRace()) == ALLIANCE)
                 {
                     if (getRace() == RACE_WORGEN)
