@@ -226,7 +226,7 @@ void BattlegroundMgr::BuildBattlegroundStatusPacket(WorldPacket* data, Battlegro
             *data << uint8(bg->GetMinLevel());          // MinLevel
             data->WriteByteSeq(bgGuid[0]);
             *data << uint32(Time1);                     // Join Time
-            *data << uint8(bg->IsRated() ? ratedType : 1); // PremadeSize
+            *data << uint8(0);                          // unk (former premade size)
             data->WriteByteSeq(bgGuid[1]);
             *data << uint32(GetMSTimeDiffToNow(Time2)); // Time since joined
             data->WriteByteSeq(bgGuid[7]);
@@ -267,7 +267,7 @@ void BattlegroundMgr::BuildBattlegroundStatusPacket(WorldPacket* data, Battlegro
             data->WriteByteSeq(playerGuid[1]);
             data->WriteByteSeq(bgGuid[1]);
             data->WriteByteSeq(playerGuid[2]);
-            *data << uint8(bg->IsRated() ? ratedType : 1); // Player count, 1 for bgs, 2-3-5 for arena (2v2, 3v3, 5v5)
+            *data << uint8(0);                          // unk (former premade size)
             *data << uint32(QueueSlot);                 // Queue slot
             // *data << uint32(role);
             *data << uint32(bg->GetClientInstanceID()); // Client Instance ID
@@ -340,7 +340,7 @@ void BattlegroundMgr::BuildBattlegroundStatusPacket(WorldPacket* data, Battlegro
             data->WriteByteSeq(bgGuid[4]);
             *data << uint32(bg->GetClientInstanceID()); // Client Instance ID or faction ?
             data->WriteByteSeq(playerGuid[2]);
-            *data << uint8(bg->IsRated() ? ratedType : 1); // Player count, 1 for bgs, 2-3-5 for arena (2v2, 3v3, 5v5)
+            *data << uint8(0);                          // Unknown (former premade size)
             *data << uint32(0);                         // Id
             data->WriteByteSeq(bgGuid[3]);
             data->WriteByteSeq(bgGuid[0]);
@@ -354,17 +354,18 @@ void BattlegroundMgr::BuildBattlegroundStatusPacket(WorldPacket* data, Battlegro
 void BattlegroundMgr::BuildPvpLogDataPacket(WorldPacket* data, Battleground* bg)
 {
     ByteBuffer buff;
-    uint8 isArena = bg->IsArena();
 
     data->Initialize(SMSG_PVP_LOG_DATA, (1 + 1 + 4 + 40 * bg->GetPlayerScoresSize()));
 
     *data << uint8(bg->GetPlayersCountByTeam(ALLIANCE));
     *data << uint8(bg->GetPlayersCountByTeam(HORDE));
 
-    data->WriteBit(bg->GetStatus() == STATUS_WAIT_LEAVE);    // If Ended
-    data->WriteBit(0);                                       // Unk Some player stuff
-    data->WriteBit(0);                                       // isRated
+    data->WriteBit(bg->GetStatus() == STATUS_WAIT_LEAVE);       // If Ended
+    data->WriteBit(0);                                          // Unk Some player stuff
 
+    // placeholder for unk some player stuff 
+
+    data->WriteBit(bg->IsRated());                              // isRated
     data->WriteBits(bg->GetPlayerScoresSize(), 19);
 
     for (Battleground::BattlegroundScoreMap::const_iterator itr = bg->GetPlayerScoresBegin(); itr != bg->GetPlayerScoresEnd(); ++itr)
@@ -381,22 +382,22 @@ void BattlegroundMgr::BuildPvpLogDataPacket(WorldPacket* data, Battleground* bg)
 
         data->WriteBit(playerGUID[6]);
         data->WriteBit(player->GetBGTeam() == HORDE ? 0 : 1);
-        data->WriteBit(0);              // Rating Change
+        data->WriteBit(0);                                          // Rating Change
         data->WriteBit(playerGUID[0]);
-        data->WriteBit(0);              // MMR Change
+        data->WriteBit(0);                                          // MMR Change
         data->WriteBit(playerGUID[7]);
-        data->WriteBit(0);              // PreMatch MMR
+        data->WriteBit(0);                                          // PreMatch MMR
         data->WriteBit(playerGUID[3]);
-        data->WriteBit(0);              // Prematch Rating
+        data->WriteBit(0);                                          // Prematch Rating
         data->WriteBit(playerGUID[4]);
         data->WriteBit(playerGUID[1]);
 
-        buff << uint32(score->HealingDone);             // healing done
+        buff << uint32(score->HealingDone);
         buff.WriteByteSeq(playerGUID[4]);
         buff.WriteByteSeq(playerGUID[5]);
         buff.WriteByteSeq(playerGUID[2]);
 
-        if (!isArena)
+        if (!bg->IsArena())
         {
             buff << uint32(score->Deaths);
             buff << uint32(score->HonorableKills);
@@ -404,7 +405,7 @@ void BattlegroundMgr::BuildPvpLogDataPacket(WorldPacket* data, Battleground* bg)
         }
 
         buff.WriteByteSeq(playerGUID[3]);
-        buff << uint32(score->DamageDone);              // damage done
+        buff << uint32(score->DamageDone);
         buff << uint32(score->KillingBlows);
         buff.WriteByteSeq(playerGUID[1]);
         buff.WriteByteSeq(playerGUID[6]);
@@ -412,7 +413,7 @@ void BattlegroundMgr::BuildPvpLogDataPacket(WorldPacket* data, Battleground* bg)
         buff.WriteByteSeq(playerGUID[0]);
         buff << int32(player->GetTalentSpecialization(player->GetActiveSpec()));
 
-        switch (bg->GetTypeID(true))                             // Custom values
+        switch (bg->GetTypeID(true))                                                        // Custom values
         {
             case BATTLEGROUND_RB:
                 switch (bg->GetMapId())
@@ -520,33 +521,25 @@ void BattlegroundMgr::BuildPvpLogDataPacket(WorldPacket* data, Battleground* bg)
         }
 
         data->WriteBit(player->IsInWorld());
-        data->WriteBit(!isArena);
+        data->WriteBit(!bg->IsArena());
         data->WriteBit(playerGUID[5]);
         data->WriteBit(playerGUID[2]);
     }
 
-
-    /*if (isRated)                                             // arena
-    {
-        // it seems this must be according to BG_WINNER_A/H and _NOT_ BG_TEAM_A/H
-        for (int8 i = 0; i < BG_TEAMS_COUNT; ++i)
-        {
-            int32 rating_change = bg->GetArenaTeamRatingChangeByIndex(i);
-
-            uint32 pointsLost = rating_change < 0 ? -rating_change : 0;
-            uint32 pointsGained = rating_change > 0 ? rating_change : 0;
-            uint32 MatchmakerRating = bg->GetArenaMatchmakerRatingByIndex(i);
-
-            *data << uint32(MatchmakerRating);              // Matchmaking Value
-            *data << uint32(pointsLost);                    // Rating Lost
-            *data << uint32(pointsGained);                  // Rating gained
-
-            TC_LOG_DEBUG("bg.battleground", "rating change: %d", rating_change);
-        }
-    }*/
-
     data->FlushBits();
     data->append(buff);
+
+    if (bg->IsRated())
+    {
+        *data << int32(0);  // unk (negative value)
+        *data << int32(0);  // unk (negative value)
+        *data << int32(0);  // Players team MMR
+        *data << int32(-1); // unk - always -1
+        *data << int32(-1); // unk - always -1
+        *data << int32(0);  // Enemys team MMR
+
+        TC_LOG_DEBUG("bg.battleground", "rating change: %d", 0);
+    }
 
     if (bg->GetStatus() == STATUS_WAIT_LEAVE)
         *data << uint8(bg->GetWinner());
