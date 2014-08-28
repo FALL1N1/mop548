@@ -1231,7 +1231,7 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
         case FORM_MOONKIN:
             spellId = 24905;
             spellId2 = 24907;
-            if (!apply || target->HasAura(114301) /*Glyph of Stars*/)
+            if (!apply || (target->HasAura(114301) /*Glyph of Stars*/ && !target->HasAura(102560) /*Incarnation - Chosen of Elun*/))
                 spellId3 = 114302; // Astral Form
             break;
         case FORM_FLIGHT:
