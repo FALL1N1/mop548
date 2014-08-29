@@ -4871,6 +4871,50 @@ MovementStatusElements const SplineMoveUnroot[] = // 5.4.8 18414
     MSEEnd,
 };
 
+MovementStatusElements const MoveGravityDisable[] = // 5.4.8 18414
+{
+    MSEHasGuidByte6,
+    MSEHasGuidByte1,
+    MSEHasGuidByte3,
+    MSEHasGuidByte7,
+    MSEHasGuidByte4,
+    MSEHasGuidByte2,
+    MSEHasGuidByte5,
+    MSEHasGuidByte0,
+    MSEGuidByte5,
+    MSEGuidByte2,
+    MSEGuidByte1,
+    MSEGuidByte6,
+    MSEGuidByte0,
+    MSECounter,
+    MSEGuidByte3,
+    MSEGuidByte4,
+    MSEGuidByte7,
+    MSEEnd,
+};
+
+MovementStatusElements const MoveGravityEnable[] =
+{
+    MSEHasGuidByte3,
+    MSEHasGuidByte0,
+    MSEHasGuidByte7,
+    MSEHasGuidByte1,
+    MSEHasGuidByte5,
+    MSEHasGuidByte2,
+    MSEHasGuidByte6,
+    MSEHasGuidByte4,
+    MSEGuidByte3,
+    MSEGuidByte2,
+    MSEGuidByte1,
+    MSEGuidByte7,
+    MSEGuidByte6,
+    MSEGuidByte0,
+    MSEGuidByte4,
+    MSECounter,
+    MSEGuidByte5,
+    MSEEnd,
+};
+
 MovementStatusElements const MoveSetCanFly[] = // 5.4.8 18414
 {
     MSEHasGuidByte6,
@@ -5565,6 +5609,10 @@ MovementStatusElements const* GetMovementStatusElementsSequence(Opcodes opcode)
         //    return SplineMoveRoot;
         case SMSG_SPLINE_MOVE_UNROOT:
             return SplineMoveUnroot;
+        case SMSG_MOVE_GRAVITY_DISABLE:
+            return MoveGravityDisable;
+        case SMSG_MOVE_GRAVITY_ENABLE:
+            return MoveGravityEnable;
         case SMSG_MOVE_SET_CAN_FLY:
             return MoveSetCanFly;
         case SMSG_MOVE_UNSET_CAN_FLY:
