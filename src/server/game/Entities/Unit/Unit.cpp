@@ -2578,7 +2578,6 @@ SpellMissInfo Unit::SpellHitResult(Unit* victim, SpellInfo const* spellInfo, boo
             return SPELL_MISS_REFLECT;
         }
     }
-
     switch (spellInfo->DmgClass)
     {
         case SPELL_DAMAGE_CLASS_RANGED:
@@ -13738,8 +13737,8 @@ bool Unit::IsTriggeredAtSpellProcEvent(Unit* victim, Aura* aura, SpellInfo const
                 item = player->GetUseableItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
             else if (attType == OFF_ATTACK)
                 item = player->GetUseableItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
-            else
-                item = player->GetUseableItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_RANGED);
+            else if (attType == RANGED_ATTACK)
+                item = player->GetUseableItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND); // OLD EQUIPMENT_SLOT_RANGED
 
             if (player->IsInFeralForm())
                 return false;

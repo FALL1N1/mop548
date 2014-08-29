@@ -5231,8 +5231,9 @@ void Spell::TakeAmmo()
         {
             if (pItem->GetMaxStackCount() == 1)
             {
+                // I hope this is correct for know or else we need to get a check on which slot did the throw.
                 // decrease durability for non-stackable throw weapon
-                m_caster->ToPlayer()->DurabilityPointLossForEquipSlot(EQUIPMENT_SLOT_RANGED);
+                m_caster->ToPlayer()->DurabilityPointLossForEquipSlot(EQUIPMENT_SLOT_OFFHAND);
             }
             else
             {
