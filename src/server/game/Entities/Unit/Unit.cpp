@@ -539,7 +539,7 @@ bool Unit::HasVisionObscured(Unit const* target) const
                 if (((*i)->GetId() == (*j)->GetId()) && ((*i)->GetCasterGUID() == (*i)->GetCasterGUID()))
                 {
                     failCast = false;
-                    targetStateAuras.erase(j);
+                    j = targetStateAuras.erase(j);
                     break;
                 }
             }
