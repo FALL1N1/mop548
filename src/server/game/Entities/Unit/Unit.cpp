@@ -534,7 +534,7 @@ bool Unit::HasVisionObscured(Unit const* target) const
                 continue;
 
             bool failCast = true;
-            for (Unit::AuraEffectList::const_iterator j = targetStateAuras.begin(); j != targetStateAuras.end(); ++j)
+            for (Unit::AuraEffectList::iterator j = targetStateAuras.begin(); j != targetStateAuras.end(); ++j)
             {
                 if (((*i)->GetId() == (*j)->GetId()) && ((*i)->GetCasterGUID() == (*i)->GetCasterGUID()))
                 {
