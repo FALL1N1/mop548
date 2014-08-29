@@ -251,7 +251,7 @@ class AchievementMgr
         void CompletedAchievement(AchievementEntry const* entry, Player* referencePlayer);
         void CheckAllAchievementCriteria(Player* referencePlayer);
         void SendAllAchievementData(Player* receiver) const;
-        void SendAchievementInfo(Player* receiver, uint32 achievementId = 0) const;
+        void SendAchievementInfo(Player* receiver, uint32 achievementId = 0);
         bool HasAchieved(uint32 achievementId) const;
         T* GetOwner() const { return _owner; }
         CriteriaProgress* GetCriteriaProgress(uint32 criteriaID);

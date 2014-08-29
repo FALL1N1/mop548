@@ -1999,8 +1999,8 @@ void WorldSession::HandleGuildAchievementProgressQuery(WorldPacket& recvData)
     uint32 achievementId;
     recvData >> achievementId;
 
-    if (Guild* guild = GetPlayer()->GetGuild())
-        guild->SendGuildCriteriaData(this, achievementId);
+    if (Guild* guild = _player->GetGuild())
+        guild->GetAchievementMgr().SendAchievementInfo(_player, achievementId);
 }
 
 void WorldSession::HandleWorldStateUITimerUpdate(WorldPacket& /*recvData*/)

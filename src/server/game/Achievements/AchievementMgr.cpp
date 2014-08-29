@@ -2117,7 +2117,7 @@ void AchievementMgr<Guild>::SendAllAchievementData(Player* receiver) const
 }
 
 template<>
-void AchievementMgr<Player>::SendAchievementInfo(Player* receiver, uint32 /*achievementId = 0 */) const
+void AchievementMgr<Player>::SendAchievementInfo(Player* receiver, uint32 /*achievementId = 0 */)
 {
     ObjectGuid guid = GetOwner()->GetGUID();
     ObjectGuid counter;
@@ -2231,114 +2231,96 @@ void AchievementMgr<Player>::SendAchievementInfo(Player* receiver, uint32 /*achi
 }
 
 template<>
-void AchievementMgr<Guild>::SendAchievementInfo(Player* receiver, uint32 achievementId /*= 0*/) const
+void AchievementMgr<Guild>::SendAchievementInfo(Player* receiver, uint32 achievementId /*= 0*/)
 {
-    /*AchievementEntry const* achievement = sAchievementStore.LookupEntry(achievementId);
+    AchievementEntry const* achievement = sAchievementStore.LookupEntry(achievementId);
 
     if (!achievement)
     {
-    // send empty packet
-    WorldPacket data(SMSG_GUILD_CRITERIA_DATA, 3);
-    data.WriteBits(0, 21);
-    receiver->GetSession()->SendPacket(&data);
-    return;
+        // send empty packet
+        WorldPacket data(SMSG_GUILD_CRITERIA_DATA, 3);
+        data.WriteBits(0, 19);
+        data.FlushBits();
+        receiver->GetSession()->SendPacket(&data);
+        return;
     }
 
-    CriteriaTreeEntry const* criteriaTree = sCriteriaTreeStore.LookupEntry(achievement->criteriaTreeID);
-
-    if (!criteriaTree)
+    AchievementCriteriaEntryList criterias;
+    AchievementCriteriaTreeList const* list = sAchievementMgr->GetSubCriteriaTreeById(achievement->criteriaTreeID);
+    for (AchievementCriteriaTreeList::const_iterator iter = list->begin(); iter != list->end(); iter++)
     {
-    // send empty packet
-    WorldPacket data(SMSG_GUILD_CRITERIA_DATA, 3);
-    data.WriteBits(0, 21);
-    receiver->GetSession()->SendPacket(&data);
-    return;
+        if (CriteriaEntry const* cr = sCriteriaStore.LookupEntry((*iter)->criteriaID))
+            criterias.push_back(cr);
     }
 
-    //will send response to criteria progress request
-    AchievementCriteriaEntryList const* criteria = criteriaTreeList
-    if (!criteria)
-    {
-    // send empty packet
-    WorldPacket data(SMSG_GUILD_CRITERIA_DATA, 3);
-    data.WriteBits(0, 21);
-    receiver->GetSession()->SendPacket(&data);
-    return;
-    }
-
+    static CriteriaProgress defaultCriteria = { 0, 0, 0, false };
+    CriteriaProgress const* criteria;
     ObjectGuid counter;
-    ObjectGuid guid;
-    uint32 numCriteria = 0;
-    ByteBuffer criteriaData(criteria->size() * (8 + 8 + 4 + 4 + 4));
-    ByteBuffer criteriaBits(criteria->size() * (8 + 8) / 8);
-    for (AchievementCriteriaEntryList::const_iterator itr = criteria->begin(); itr != criteria->end(); ++itr)
-    {
-    uint32 criteriaId = (*itr)->ID;
-    CriteriaProgressMap::const_iterator progress = m_criteriaProgress.find(criteriaId);
-    if (progress == m_criteriaProgress.end())
-    continue;
+    ObjectGuid counter2 = 0;
+    ByteBuffer criteriaData(criterias.size() * (8 + 8 + 4 + 4 + 4 + 4 + 4));
+    uint32 completed;
 
-    ++numCriteria;
+    WorldPacket data(SMSG_GUILD_CRITERIA_DATA, 3 + criterias.size() * (8 + 8 + 4 + 4 + 4 + 4 + 4));
+    data.WriteBits(criterias.size(), 19);
+
+    for (AchievementCriteriaEntryList::const_iterator itr = criterias.begin(); itr != criterias.end(); itr++)
+    {
+        criteria = GetCriteriaProgress((*itr)->ID);
+
+        if (!criteria)
+        {
+            criteria = &defaultCriteria;
+            completed = 0;
+        }
+        else
+            completed = 1;
+
+        counter = criteria->counter;
+
+        data.WriteBit(counter2[2]);
+        data.WriteBit(counter2[4]);
+        data.WriteBit(counter2[6]);
+        data.WriteBit(counter[0]);
+        data.WriteBit(counter2[7]);
+        data.WriteBit(counter[2]);
+        data.WriteBit(counter[5]);
+        data.WriteBit(counter[1]);
+        data.WriteBit(counter[4]);
+        data.WriteBit(counter2[0]);
+        data.WriteBit(counter2[3]);
+        data.WriteBit(counter[7]);
+        data.WriteBit(counter[6]);
+        data.WriteBit(counter2[1]);
+        data.WriteBit(counter[3]);
+        data.WriteBit(counter2[5]);
+
+        criteriaData.WriteByteSeq(counter2[1]);
+        criteriaData.WriteByteSeq(counter[5]);
+        criteriaData.WriteByteSeq(counter2[6]);
+        criteriaData << (uint32)(*itr)->ID;
+        criteriaData.WriteByteSeq(counter[6]);
+        criteriaData << (uint32)criteria->date;
+        criteriaData << (uint32)criteria->date;
+        criteriaData.WriteByteSeq(counter2[3]);
+        criteriaData.WriteByteSeq(counter[0]);
+        criteriaData.WriteByteSeq(counter2[7]);
+        criteriaData.WriteByteSeq(counter[4]);
+        criteriaData.WriteByteSeq(counter[2]);
+        criteriaData.WriteByteSeq(counter[3]);
+        criteriaData.WriteByteSeq(counter2[4]);
+        criteriaData.WriteByteSeq(counter[1]);
+        criteriaData.WriteByteSeq(counter2[5]);
+        criteriaData.WriteByteSeq(counter2[0]);
+        criteriaData << (uint32)completed;
+        criteriaData.WriteByteSeq(counter2[2]);
+        criteriaData.WriteByteSeq(counter[7]);
+        criteriaData << (uint32)criteria->date;
     }
 
-    criteriaBits.WriteBits(numCriteria, 21);
-
-    for (AchievementCriteriaEntryList::const_iterator itr = criteria->begin(); itr != criteria->end(); ++itr)
-    {
-    uint32 criteriaId = (*itr)->ID;
-    CriteriaProgressMap::const_iterator progress = m_criteriaProgress.find(criteriaId);
-    if (progress == m_criteriaProgress.end())
-    continue;
-
-    counter = progress->second.counter;
-    guid = progress->second.CompletedGUID;
-
-    criteriaBits.WriteBit(counter[4]);
-    criteriaBits.WriteBit(counter[1]);
-    criteriaBits.WriteBit(guid[2]);
-    criteriaBits.WriteBit(counter[3]);
-    criteriaBits.WriteBit(guid[1]);
-    criteriaBits.WriteBit(counter[5]);
-    criteriaBits.WriteBit(counter[0]);
-    criteriaBits.WriteBit(guid[3]);
-    criteriaBits.WriteBit(counter[2]);
-    criteriaBits.WriteBit(guid[7]);
-    criteriaBits.WriteBit(guid[5]);
-    criteriaBits.WriteBit(guid[0]);
-    criteriaBits.WriteBit(counter[6]);
-    criteriaBits.WriteBit(guid[6]);
-    criteriaBits.WriteBit(counter[7]);
-    criteriaBits.WriteBit(guid[4]);
-
-    criteriaData.WriteByteSeq(guid[5]);
-    criteriaData << uint32(progress->second.date);      // unknown date
-    criteriaData.WriteByteSeq(counter[3]);
-    criteriaData.WriteByteSeq(counter[7]);
-    criteriaData << uint32(progress->second.date);      // unknown date
-    criteriaData.WriteByteSeq(counter[6]);
-    criteriaData.WriteByteSeq(guid[4]);
-    criteriaData.WriteByteSeq(guid[1]);
-    criteriaData.WriteByteSeq(counter[4]);
-    criteriaData.WriteByteSeq(guid[3]);
-    criteriaData.WriteByteSeq(counter[0]);
-    criteriaData.WriteByteSeq(guid[2]);
-    criteriaData.WriteByteSeq(counter[1]);
-    criteriaData.WriteByteSeq(guid[6]);
-    criteriaData << uint32(progress->second.date);      // last update time (not packed!)
-    criteriaData << uint32(criteriaId);
-    criteriaData.WriteByteSeq(counter[5]);
-    criteriaData << uint32(0);
-    criteriaData.WriteByteSeq(guid[7]);
-    criteriaData.WriteByteSeq(counter[2]);
-    criteriaData.WriteByteSeq(guid[0]);
-    }
-
-    WorldPacket data(SMSG_GUILD_CRITERIA_DATA, criteriaBits.size() + criteriaData.size());
-    data.append(criteriaBits);
-    if (numCriteria)
+    data.FlushBits();
     data.append(criteriaData);
 
-    receiver->GetSession()->SendPacket(&data);*/
+    receiver->GetSession()->SendPacket(&data);
 }
 
 template<class T>

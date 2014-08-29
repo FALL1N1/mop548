@@ -840,7 +840,6 @@ public:
     void SendMoneyInfo(WorldSession* session) const;
     void SendLoginInfo(WorldSession* session);
     void SendNewsUpdate(WorldSession* session);
-    void SendGuildCriteriaData(WorldSession* session, uint32 achievementID);
 
     // Load from DB
     bool LoadFromDB(Field* fields);
