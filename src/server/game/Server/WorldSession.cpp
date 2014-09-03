@@ -612,6 +612,8 @@ void WorldSession::LogoutPlayer(bool save)
         data.WriteBit(guid[5]);
         data.WriteBit(guid[0]);
 
+        data.FlushBits();
+
         data.WriteByteSeq(guid[6]);
         data.WriteByteSeq(guid[4]);
         data.WriteByteSeq(guid[1]);

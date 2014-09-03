@@ -1109,14 +1109,14 @@ void BattlegroundMgr::BuildBattlegroundListPacket(WorldPacket* data, uint64 guid
 
     data->Initialize(SMSG_BATTLEFIELD_LIST);
     *data << uint32(winnerConquest)             // Winner Conquest Reward or Random Winner Conquest Reward
+          << uint32(loserHonor)                 // Loser Honor Reward or Random Loser Honor Reward
+          << uint8(bracketEntry->minLevel)      // min level
           << uint32(winnerConquest)             // Winner Conquest Reward or Random Winner Conquest Reward
-          << uint8(bracketEntry->maxLevel)      // max level
-          << uint32(loserHonor)                 // Loser Honor Reward or Random Loser Honor Reward
-          << uint32(loserHonor)                 // Loser Honor Reward or Random Loser Honor Reward
+          << uint32(winnerHonor)                // Winner Honor Reward or Random Winner Honor Reward
           << uint32(bgTypeId)                   // battleground id
           << uint32(winnerHonor)                // Winner Honor Reward or Random Winner Honor Reward
-          << uint8(bracketEntry->minLevel)      // min level
-          << uint32(winnerHonor);               // Winner Honor Reward or Random Winner Honor Reward
+          << uint8(bracketEntry->maxLevel)      // max level
+          << uint32(loserHonor);                // Loser Honor Reward or Random Loser Honor Reward
           
     data->WriteBit(guidBytes[0]);
     data->WriteBit(0);                                      // unk
@@ -1133,6 +1133,7 @@ void BattlegroundMgr::BuildBattlegroundListPacket(WorldPacket* data, uint64 guid
 
     size_t count_pos = data->bitwpos();
     data->WriteBits(0, 22);                                 // placeholder
+
     data->FlushBits();
 
     data->WriteByteSeq(guidBytes[7]);
