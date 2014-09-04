@@ -1119,8 +1119,6 @@ void WorldSession::HandleUpdateAccountData(WorldPacket& recvData)
     uint32 timestamp, type, decompressedSize, compressedSize;
     recvData >> decompressedSize >> timestamp >> compressedSize;
 
-    TC_LOG_DEBUG("network", "UAD: type %u, time %u, decompressedSize %u", type, timestamp, decompressedSize);
-
     if (type > NUM_ACCOUNT_DATA_TYPES)
         return;
 
@@ -1169,6 +1167,8 @@ void WorldSession::HandleUpdateAccountData(WorldPacket& recvData)
     data << uint32(type);
     data << uint32(0);
     SendPacket(&data);
+
+    TC_LOG_DEBUG("network", "UAD: type %u, time %u, decompressedSize %u", type, timestamp, decompressedSize);
 }
 
 void WorldSession::HandleRequestAccountData(WorldPacket& recvData)

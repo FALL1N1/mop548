@@ -1853,30 +1853,17 @@ void WorldSession::SendReforgeResult(bool success)
 
 void WorldSession::HandleReforgeItemOpcode(WorldPacket& recvData)
 {
-    uint32 slot, reforgeEntry;
+    uint32 slot, reforgeEntry, bag;
     ObjectGuid guid;
-    uint32 bag;
     Player* player = GetPlayer();
 
-    recvData >> slot >> reforgeEntry >> bag;
+    recvData >> reforgeEntry >> bag >> slot;
 
-    guid[1] = recvData.ReadBit();
-    guid[0] = recvData.ReadBit();
-    guid[5] = recvData.ReadBit();
-    guid[3] = recvData.ReadBit();
-    guid[4] = recvData.ReadBit();
-    guid[2] = recvData.ReadBit();
-    guid[7] = recvData.ReadBit();
-    guid[6] = recvData.ReadBit();
+    uint8 bitOrder[8] = {1, 0, 5, 3, 4, 2, 7, 6};
+    recvData.ReadBitInOrder(guid, bitOrder);
 
-    recvData.ReadByteSeq(guid[4]);
-    recvData.ReadByteSeq(guid[6]);
-    recvData.ReadByteSeq(guid[3]);
-    recvData.ReadByteSeq(guid[1]);
-    recvData.ReadByteSeq(guid[2]);
-    recvData.ReadByteSeq(guid[7]);
-    recvData.ReadByteSeq(guid[0]);
-    recvData.ReadByteSeq(guid[5]);
+    uint8 byteOrder[8] = {4, 6, 3, 1, 2, 7, 0, 5};
+    recvData.ReadBytesSeq(guid, byteOrder);
 
     if (!player->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_REFORGER))
     {
