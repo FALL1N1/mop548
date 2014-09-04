@@ -1116,9 +1116,8 @@ void WorldSession::HandleUpdateAccountData(WorldPacket& recvData)
 {
     TC_LOG_DEBUG("network", "WORLD: Received CMSG_UPDATE_ACCOUNT_DATA");
 
-    uint32 timestamp, type, decompressedSize;
-    recvData >> timestamp >> decompressedSize;
-    type = recvData.ReadBits(3);
+    uint32 timestamp, type, decompressedSize, compressedSize;
+    recvData >> decompressedSize >> timestamp >> compressedSize;
 
     TC_LOG_DEBUG("network", "UAD: type %u, time %u, decompressedSize %u", type, timestamp, decompressedSize);
 
@@ -1154,6 +1153,10 @@ void WorldSession::HandleUpdateAccountData(WorldPacket& recvData)
         TC_LOG_ERROR("network", "UAD: Failed to decompress account data");
         return;
     }
+
+    type = recvData.ReadBits(3);    
+    if (type > NUM_ACCOUNT_DATA_TYPES)
+        return;
 
     recvData.rfinish();                       // uncompress read (recvData.size() - recvData.rpos())
 
