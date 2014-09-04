@@ -1314,7 +1314,7 @@ uint32 Player::EnvironmentalDamage(EnviromentalDamage type, uint32 damage)
 
     ObjectGuid Guid = GetGUID();
 
-    WorldPacket data(SMSG_ENVIRONMENTALDAMAGELOG, 9 + 1 + 4 + 1 + 4 + 4);
+    WorldPacket data(SMSG_ENVIRONMENTAL_DAMAGE_LOG, 9 + 1 + 4 + 1 + 4 + 4);
     data.WriteBit(Guid[5]);
     data.WriteBit(Guid[7]);
     data.WriteBit(Guid[1]);
@@ -23973,7 +23973,7 @@ void Player::SendInitialPacketsBeforeAddToMap()
     // guild bank list wtf?
 
     // Homebind
-    WorldPacket data(SMSG_BINDPOINTUPDATE, 4 + 4 + 4 + 4 + 4);
+    WorldPacket data(SMSG_BIND_POINT_UPDATE, 4 + 4 + 4 + 4 + 4);
     data << m_homebindX;
     data << m_homebindZ;
     data << m_homebindY;

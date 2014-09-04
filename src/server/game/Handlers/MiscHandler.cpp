@@ -987,7 +987,7 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPacket& recvData)
     unk1 = recvData.ReadBit();
     unk2 = recvData.ReadBit();
 
-    TC_LOG_DEBUG("network", "CMSG_AREATRIGGER. Trigger ID: %u", triggerId);
+    TC_LOG_DEBUG("network", "CMSG_AREA_TRIGGER. Trigger ID: %u", triggerId);
 
     Player* player = GetPlayer();
     if (player->IsInFlight())

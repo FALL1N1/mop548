@@ -51,7 +51,7 @@ void WorldSession::HandleAttackSwingOpcode(WorldPacket& recvData)
     recvData.ReadByteSeq(guid[4]);
     recvData.ReadByteSeq(guid[5]);
 
-    TC_LOG_DEBUG("network", "WORLD: Recvd CMSG_ATTACKSWING Message guidlow:%u guidhigh:%u", GUID_LOPART(guid), GUID_HIPART(guid));
+    TC_LOG_DEBUG("network", "WORLD: Recvd CMSG_ATTACK_SWING Message guidlow:%u guidhigh:%u", GUID_LOPART(guid), GUID_HIPART(guid));
 
     Unit* pEnemy = ObjectAccessor::GetUnit(*_player, guid);
 
@@ -69,7 +69,7 @@ void WorldSession::HandleAttackSwingOpcode(WorldPacket& recvData)
         return;
     }
 
-    //! Client explicitly checks the following before sending CMSG_ATTACKSWING packet,
+    //! Client explicitly checks the following before sending CMSG_ATTACK_SWING packet,
     //! so we'll place the same check here. Note that it might be possible to reuse this snippet
     //! in other places as well.
     if (Vehicle* vehicle = _player->GetVehicle())
@@ -99,7 +99,7 @@ void WorldSession::HandleSetSheathedOpcode(WorldPacket& recvData)
     recvData >> sheathed;
     hasData = recvData.ReadBit();
 
-    //TC_LOG_DEBUG("network", "WORLD: Recvd CMSG_SETSHEATHED Message guidlow:%u value1:%u", GetPlayer()->GetGUIDLow(), sheathed);
+    //TC_LOG_DEBUG("network", "WORLD: Recvd CMSG_SET_SHEATHED Message guidlow:%u value1:%u", GetPlayer()->GetGUIDLow(), sheathed);
 
     if (hasData)
     {

@@ -1428,7 +1428,7 @@ void Unit::DealMeleeDamage(CalcDamageInfo* damageInfo, bool durabilityLoss)
             victim->DealDamageMods(this, damage, NULL);
 
             /// @todo Move this to a packet handler
-            WorldPacket data(SMSG_SPELLDAMAGESHIELD, 8 + 8 + 4 + 4 + 4 + 4 + 4);
+            WorldPacket data(SMSG_SPELL_DAMAGE_SHIELD, 8 + 8 + 4 + 4 + 4 + 4 + 4);
             data << uint64(victim->GetGUID());
             data << uint64(GetGUID());
             data << uint32(i_spellProto->Id);
@@ -4818,7 +4818,7 @@ void Unit::SendSpellNonMeleeDamageLog(SpellNonMeleeDamage* log)
     ObjectGuid targetGuid = log->target->GetGUID();
     int32 overkill = log->damage - log->target->GetHealth();
 
-    WorldPacket data(SMSG_SPELLNONMELEEDAMAGELOG, (16+4+4+4+1+4+4+1+1+4+4+1)); // we guess size
+    WorldPacket data(SMSG_SPELL_NON_MELEE_DAMAGE_LOG, (16+4+4+4+1+4+4+1+1+4+4+1)); // we guess size
     data.WriteBit(targetGuid[2]);
     data.WriteBit(attackerGuid[7]);
     data.WriteBit(attackerGuid[6]);
@@ -4901,7 +4901,7 @@ void Unit::SendPeriodicAuraLog(SpellPeriodicAuraLogInfo* pInfo)
     ObjectGuid casterGuid = aura->GetCasterGUID();
     ObjectGuid victimGuid = GetGUID();
 
-    WorldPacket data(SMSG_PERIODICAURALOG, 30);
+    WorldPacket data(SMSG_PERIODIC_AURA_LOG, 30);
     data.WriteBit(victimGuid[5]);
     data.WriteBit(victimGuid[6]);
     data.WriteBit(casterGuid[6]);
@@ -5024,7 +5024,7 @@ void Unit::SendPeriodicAuraLog(SpellPeriodicAuraLogInfo* pInfo)
 
 void Unit::SendSpellMiss(Unit* target, uint32 spellID, SpellMissInfo missInfo)
 {
-    WorldPacket data(SMSG_SPELLLOGMISS, (4+8+1+4+8+1));
+    WorldPacket data(SMSG_SPELL_LOG_MISS, (4+8+1+4+8+1));
     data << uint32(spellID);
     data << uint64(GetGUID());
     data << uint8(0);                                       // can be 0 or 1
@@ -5048,7 +5048,7 @@ void Unit::SendSpellDamageResist(Unit* target, uint32 spellId)
 
 void Unit::SendSpellDamageImmune(Unit* target, uint32 spellId)
 {
-    WorldPacket data(SMSG_SPELLORDAMAGE_IMMUNE, 8+8+4+1);
+    WorldPacket data(SMSG_SPELL_OR_DAMAGE_IMMUNE, 8+8+4+1);
     data << uint64(GetGUID());
     data << uint64(target->GetGUID());
     data << uint32(spellId);
@@ -8630,7 +8630,7 @@ void Unit::SendHealSpellLog(Unit* victim, uint32 SpellID, uint32 Damage, uint32 
     ObjectGuid casterGuid = GetGUID();
 
     // we guess size
-    WorldPacket data(SMSG_SPELLHEALLOG, 8 + 8 + 4 + 4 + 4 + 4 + 1 + 1);
+    WorldPacket data(SMSG_SPELL_HEAL_LOG, 8 + 8 + 4 + 4 + 4 + 4 + 1 + 1);
 
     data << uint32(SpellID);
     data << uint32(Absorb);
@@ -8695,7 +8695,7 @@ void Unit::SendEnergizeSpellLog(Unit* victim, uint32 spellId, int32 damage, Powe
     ObjectGuid victimGuid = victim->GetGUID();
     ObjectGuid casterGuid = GetGUID();
 
-    WorldPacket data(SMSG_SPELLENERGIZELOG, (8+8+4+4+4+1));
+    WorldPacket data(SMSG_SPELL_ENERGIZE_LOG, (8+8+4+4+4+1));
 
     data.WriteBit(victimGuid[7]);
     data.WriteBit(victimGuid[3]);
@@ -13915,7 +13915,7 @@ void Unit::Kill(Unit* victim, bool durabilityLoss)
     // call kill spell proc event (before real die and combat stop to triggering auras removed at death/combat stop)
     if (isRewardAllowed && player && player != victim)
     {
-        WorldPacket data(SMSG_PARTYKILLLOG, (8+8)); // send event PARTY_KILL
+        WorldPacket data(SMSG_PARTY_KILL_LOG, (8+8)); // send event PARTY_KILL
         data << uint64(player->GetGUID()); // player with killing blow
         data << uint64(victim->GetGUID()); // victim
 

@@ -84,7 +84,7 @@ void WorldSession::SendTaxiStatus(uint64 guid)
 
 void WorldSession::HandleTaxiQueryAvailableNodes(WorldPacket& recvData)
 {
-    TC_LOG_DEBUG("network", "WORLD: Received CMSG_TAXIQUERYAVAILABLENODES");
+    TC_LOG_DEBUG("network", "WORLD: Received CMSG_TAXI_QUERY_AVAILABLE_NODES");
 
     ObjectGuid guid;
 
@@ -241,7 +241,7 @@ void WorldSession::SendDiscoverNewTaxiNode(uint32 nodeid)
 
 void WorldSession::HandleActivateTaxiExpressOpcode (WorldPacket& recvData)
 {
-    TC_LOG_DEBUG("network", "WORLD: Received CMSG_ACTIVATETAXIEXPRESS");
+    TC_LOG_DEBUG("network", "WORLD: Received CMSG_ACTIVATE_TAXI_EXPRESS");
 
     ObjectGuid guid;
     uint32 node_count;
@@ -284,7 +284,7 @@ void WorldSession::HandleActivateTaxiExpressOpcode (WorldPacket& recvData)
         return;
     }
 
-    TC_LOG_DEBUG("network", "WORLD: Received CMSG_ACTIVATETAXIEXPRESS from %d to %d", nodes.front(), nodes.back());
+    TC_LOG_DEBUG("network", "WORLD: Received CMSG_ACTIVATE_TAXI_EXPRESS from %d to %d", nodes.front(), nodes.back());
 
     if (nodes.empty())
         return;
@@ -370,7 +370,7 @@ void WorldSession::HandleMoveSplineDoneOpcode(WorldPacket& recvData)
 
 void WorldSession::HandleActivateTaxiOpcode(WorldPacket& recvData)
 {
-    TC_LOG_DEBUG("network", "WORLD: Received CMSG_ACTIVATETAXI");
+    TC_LOG_DEBUG("network", "WORLD: Received CMSG_ACTIVATE_TAXI");
 
     ObjectGuid guid;
     std::vector<uint32> nodes;
@@ -396,7 +396,7 @@ void WorldSession::HandleActivateTaxiOpcode(WorldPacket& recvData)
     recvData.ReadByteSeq(guid[3]);
     recvData.ReadByteSeq(guid[7]);
 
-    TC_LOG_DEBUG("network", "WORLD: Received CMSG_ACTIVATETAXI from %d to %d", nodes[0], nodes[1]);
+    TC_LOG_DEBUG("network", "WORLD: Received CMSG_ACTIVATE_TAXI from %d to %d", nodes[0], nodes[1]);
     Creature* npc = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_FLIGHTMASTER);
     if (!npc)
     {

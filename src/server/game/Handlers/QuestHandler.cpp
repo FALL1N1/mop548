@@ -730,7 +730,7 @@ void WorldSession::HandlePushQuestToParty(WorldPacket& recvPacket)
     if (!_player->CanShareQuest(questId))
         return;
 
-    TC_LOG_DEBUG("network", "WORLD: Received CMSG_PUSHQUESTTOPARTY questId = %u", questId);
+    TC_LOG_DEBUG("network", "WORLD: Received CMSG_PUSH_QUEST_TO_PARTY questId = %u", questId);
 
     Quest const* quest = sObjectMgr->GetQuestTemplate(questId);
     if (!quest)

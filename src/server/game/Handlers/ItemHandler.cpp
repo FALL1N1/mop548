@@ -1122,7 +1122,7 @@ void WorldSession::HandleAutoStoreBankItemOpcode(WorldPacket& recvPacket)
 
 void WorldSession::SendEnchantmentLog(uint64 target, uint64 caster, uint32 itemId, uint32 enchantId)
 {
-    WorldPacket data(SMSG_ENCHANTMENTLOG, (8+8+4+4));
+    WorldPacket data(SMSG_ENCHANTMENT_LOG, (8+8+4+4));
     data.appendPackGUID(target);
     data.appendPackGUID(caster);
     data << uint32(itemId);

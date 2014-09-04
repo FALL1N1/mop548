@@ -338,7 +338,7 @@ void Spell::EffectInstaKill(SpellEffIndex /*effIndex*/)
     if (m_caster == unitTarget)                              // prevent interrupt message
         finish();
 
-    WorldPacket data(SMSG_SPELLINSTAKILLLOG, 8+8+4);
+    WorldPacket data(SMSG_SPELL_INSTAKILL_LOG, 8+8+4);
     data << uint64(m_caster->GetGUID());
     data << uint64(unitTarget->GetGUID());
     data << uint32(m_spellInfo->Id);
@@ -2394,7 +2394,7 @@ void Spell::EffectDispel(SpellEffIndex effIndex)
 
     ObjectGuid targetGuid = unitTarget->GetGUID();
     ObjectGuid casterGuid = m_caster->GetGUID();
-    WorldPacket dataSuccess(SMSG_SPELLDISPELLOG, 8+8+4+1+4+success_list.size()*8);
+    WorldPacket dataSuccess(SMSG_SPELL_DISPEL_LOG, 8+8+4+1+4+success_list.size()*8);
     dataSuccess.WriteBit(targetGuid[2]);
     dataSuccess.WriteBit(casterGuid[4]);
     dataSuccess.WriteBit(targetGuid[6]);
@@ -5392,7 +5392,7 @@ void Spell::EffectStealBeneficialBuff(SpellEffIndex effIndex)
     if (success_list.empty())
         return;
 
-    WorldPacket dataSuccess(SMSG_SPELLSTEALLOG, 8+8+4+1+4+damage*5);
+    WorldPacket dataSuccess(SMSG_SPELL_STEAL_LOG, 8+8+4+1+4+damage*5);
     dataSuccess.append(unitTarget->GetPackGUID());  // Victim GUID
     dataSuccess.append(m_caster->GetPackGUID());    // Caster GUID
     dataSuccess << uint32(m_spellInfo->Id);         // dispel spell id
@@ -5960,7 +5960,7 @@ void Spell::EffectBind(SpellEffIndex effIndex)
     player->SetHomebind(homeLoc, areaId);
 
     // binding
-    WorldPacket data(SMSG_BINDPOINTUPDATE, 4 + 4 + 4 + 4 + 4);
+    WorldPacket data(SMSG_BIND_POINT_UPDATE, 4 + 4 + 4 + 4 + 4);
     data << float(homeLoc.GetPositionX());
     data << float(homeLoc.GetPositionY());
     data << float(homeLoc.GetPositionZ());
