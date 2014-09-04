@@ -509,25 +509,15 @@ void WorldSession::HandleSetActiveMoverOpcode(WorldPacket& recvPacket)
 {
     TC_LOG_DEBUG("network", "WORLD: Recvd CMSG_SET_ACTIVE_MOVER");
 
-    ObjectGuid guid;
+    ObjectGuid guid;   
 
-    guid[7] = recvPacket.ReadBit();
-    guid[2] = recvPacket.ReadBit();
-    guid[1] = recvPacket.ReadBit();
-    guid[0] = recvPacket.ReadBit();
-    guid[4] = recvPacket.ReadBit();
-    guid[5] = recvPacket.ReadBit();
-    guid[6] = recvPacket.ReadBit();
-    guid[3] = recvPacket.ReadBit();
+    recvPacket.ReadBit();
 
-    recvPacket.ReadByteSeq(guid[3]);
-    recvPacket.ReadByteSeq(guid[2]);
-    recvPacket.ReadByteSeq(guid[4]);
-    recvPacket.ReadByteSeq(guid[0]);
-    recvPacket.ReadByteSeq(guid[5]);
-    recvPacket.ReadByteSeq(guid[1]);
-    recvPacket.ReadByteSeq(guid[6]);
-    recvPacket.ReadByteSeq(guid[7]);
+    uint8 bitOrder[8] = { 3, 0, 2, 1, 5, 4, 7, 6 };
+    recvPacket.ReadBitInOrder(guid, bitOrder);
+
+    uint8 byteOrder[8] = { 3, 4, 5, 2, 7, 0, 1, 6 };
+    recvPacket.ReadBytesSeq(guid, byteOrder);
 
     if (GetPlayer()->IsInWorld())
     {

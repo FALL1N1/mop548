@@ -3402,6 +3402,7 @@ void Player::InitStatsForLevel(bool reapplyMods)
         SetFloatValue(PLAYER_FIELD_MOD_DAMAGE_DONE_PERCENT+i, 1.0f);
     }
 
+    SetFloatValue(PLAYER_FIELD_MOD_RESILIENCE_PERCENT, -77.0f);
     SetFloatValue(PLAYER_FIELD_MOD_SPELL_POWER_PERCENT, 1.0f);
 
     //reset attack power, damage and attack speed fields
@@ -7716,16 +7717,29 @@ void Player::SendCurrencies() const
 void Player::SendPvpRewards() const
 {
     WorldPacket data(SMSG_REQUEST_PVP_REWARDS_RESPONSE, 24);
-    data << GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_POINTS, true);
-    data << GetCurrencyOnWeek(CURRENCY_TYPE_CONQUEST_META_ARENA, true);
-    data << GetCurrencyOnWeek(CURRENCY_TYPE_CONQUEST_META_RBG, true);
-    data << GetCurrencyOnWeek(CURRENCY_TYPE_CONQUEST_META_ARENA, true);
-    data << uint32(0); // UnkMop
-    data << GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_META_ARENA, true);
-    data << uint32(0); // unkMop2
-    data << GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_META_RBG, true);
-    data << GetCurrencyOnWeek(CURRENCY_TYPE_CONQUEST_POINTS, true);
-    data << GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_META_ARENA, true);
+
+    data << uint32(28360);
+    data << uint32(180);
+    data << uint32(0);
+    data << uint32(180);
+    data << uint32(400);
+    data << uint32(27960);
+    data << uint32(180);
+    data << uint32(28360);
+    data << uint32(180);
+    data << uint32(27960);
+
+    //data << GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_POINTS, true);
+    //data << GetCurrencyOnWeek(CURRENCY_TYPE_CONQUEST_META_ARENA, true);
+    //data << GetCurrencyOnWeek(CURRENCY_TYPE_CONQUEST_META_RBG, true);
+    //data << GetCurrencyOnWeek(CURRENCY_TYPE_CONQUEST_META_ARENA, true);
+    //data << uint32(0); // UnkMop
+    //data << GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_META_ARENA, true);
+    //data << uint32(0); // unkMop2
+    //data << GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_META_RBG, true);
+    //data << GetCurrencyOnWeek(CURRENCY_TYPE_CONQUEST_POINTS, true);
+    //data << GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_META_ARENA, true);
+
     GetSession()->SendPacket(&data);
 }
 
@@ -20921,26 +20935,15 @@ void Player::SendAttackSwingBadFacingAttack()
 void Player::SendAutoRepeatCancel(Unit* target)
 {
     WorldPacket data(SMSG_CANCEL_AUTO_REPEAT, 8);
-    ObjectGuid guid = target->GetGUID();
-    data.WriteBit(guid[1]);
-    data.WriteBit(guid[3]);
-    data.WriteBit(guid[0]);
-    data.WriteBit(guid[4]);
-    data.WriteBit(guid[6]);
-    data.WriteBit(guid[7]);
-    data.WriteBit(guid[5]);
-    data.WriteBit(guid[2]);
-    
-    data.WriteByteSeq(guid[7]);
-    data.WriteByteSeq(guid[6]);
-    data.WriteByteSeq(guid[2]);
-    data.WriteByteSeq(guid[5]);
-    data.WriteByteSeq(guid[0]);
-    data.WriteByteSeq(guid[4]);
-    data.WriteByteSeq(guid[1]);
-    data.WriteByteSeq(guid[3]);
 
-    // data.append(target->GetPackGUID());                     // may be it's target guid
+    ObjectGuid guid = target->GetGUID();
+
+    uint8 bitOrder[8] = { 1, 3, 0, 4, 6, 7, 5, 2 };
+    data.WriteBitInOrder(guid, bitOrder);
+
+    uint8 byteOrder[8] = { 7, 6, 2, 5, 0, 4, 1, 3 };
+    data.WriteBytesSeq(guid, byteOrder);
+
     GetSession()->SendPacket(&data);
 }
 
@@ -23184,25 +23187,23 @@ void Player::SendCooldownEvent(SpellInfo const* spellInfo, uint32 itemId /*= 0*/
     // Send activate cooldown timer (possible 0) at client side
     ObjectGuid guid = GetGUID();
 
-    WorldPacket data(SMSG_COOLDOWN_EVENT, 4 + 8);
-    data.WriteBit(guid[4]);
-    data.WriteBit(guid[7]);
-    data.WriteBit(guid[1]);
-    data.WriteBit(guid[6]);
-    data.WriteBit(guid[5]);
-    data.WriteBit(guid[3]);
-    data.WriteBit(guid[0]);
-    data.WriteBit(guid[2]);
+    WorldPacket data(SMSG_COOLDOWN_EVENT, 4 + 1 + 8);
 
-    data.WriteByteSeq(guid[0]);
+    uint8 bitOrder[8] = {4, 7, 1, 5, 6, 0, 2, 3};
+    data.WriteBitInOrder(GetGUID(), bitOrder);
+
     data.WriteByteSeq(guid[5]);
-    data.WriteByteSeq(guid[1]);
-    data.WriteByteSeq(guid[4]);
-    data.WriteByteSeq(guid[3]);
-    data.WriteByteSeq(guid[2]);
-    data.WriteByteSeq(guid[6]);
-    data << uint32(spellInfo->Id);
     data.WriteByteSeq(guid[7]);
+
+    data << uint32(spellInfo->Id);
+
+    data.WriteByteSeq(guid[3]);
+    data.WriteByteSeq(guid[1]);
+    data.WriteByteSeq(guid[2]);
+    data.WriteByteSeq(guid[4]);
+    data.WriteByteSeq(guid[6]);
+    data.WriteByteSeq(guid[0]);
+
     SendDirectMessage(&data);
 }
 

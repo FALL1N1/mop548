@@ -1119,13 +1119,10 @@ void WorldSession::HandleUpdateAccountData(WorldPacket& recvData)
     uint32 timestamp, type, decompressedSize, compressedSize;
     recvData >> decompressedSize >> timestamp >> compressedSize;
 
-    if (type > NUM_ACCOUNT_DATA_TYPES)
-        return;
-
     if (decompressedSize == 0)                               // erase
     {
+        type = recvData.ReadBits(3);
         SetAccountData(AccountDataType(type), 0, "");
-
         WorldPacket data(SMSG_UPDATE_ACCOUNT_DATA_COMPLETE, 4+4);
         data << uint32(type);
         data << uint32(0);

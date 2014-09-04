@@ -16432,57 +16432,44 @@ void Unit::SendClearThreatListOpcode()
 void Unit::SendRemoveFromThreatListOpcode(HostileReference* pHostileReference)
 {
     TC_LOG_DEBUG("entities.unit", "WORLD: Send SMSG_THREAT_REMOVE Message");
-    ObjectGuid GUID1 = GetGUID();                        // 16-23
-    ObjectGuid GUID2 = pHostileReference->getUnitGuid(); // 24-31
+    ObjectGuid victimGUID = GetGUID();
+    ObjectGuid hostileGUID = pHostileReference->getUnitGuid();
 
-    WorldPacket data(SMSG_THREAT_REMOVE, 8 + 8 + 2);
+    WorldPacket data(SMSG_THREAT_REMOVE, 1 + 1 + 8 + 8);
 
-    data.WriteBit(GUID1[0]);
-    data.WriteBit(GUID1[1]);
-    data.WriteBit(GUID1[5]);
+    data.WriteBit(victimGUID[0]);
+    data.WriteBit(victimGUID[1]);
+    data.WriteBit(victimGUID[5]);
+    data.WriteBit(hostileGUID[4]);
+    data.WriteBit(hostileGUID[0]);
+    data.WriteBit(victimGUID[4]);
+    data.WriteBit(victimGUID[6]);
+    data.WriteBit(hostileGUID[7]);
+    data.WriteBit(hostileGUID[6]);
+    data.WriteBit(hostileGUID[3]);
+    data.WriteBit(victimGUID[2]);
+    data.WriteBit(hostileGUID[1]);
+    data.WriteBit(victimGUID[3]);
+    data.WriteBit(victimGUID[7]);
+    data.WriteBit(hostileGUID[5]);
+    data.WriteBit(hostileGUID[2]);
 
-    data.WriteBit(GUID2[4]);
-    data.WriteBit(GUID2[0]);
-
-    data.WriteBit(GUID1[4]);
-    data.WriteBit(GUID1[6]);
-
-    data.WriteBit(GUID2[7]);
-    data.WriteBit(GUID2[6]);
-    data.WriteBit(GUID2[3]);
-
-    data.WriteBit(GUID1[2]);
-
-    data.WriteBit(GUID2[1]);
-
-    data.WriteBit(GUID1[3]);
-    data.WriteBit(GUID1[7]);
-
-    data.WriteBit(GUID2[5]);
-    data.WriteBit(GUID2[2]);
-
-    data.WriteByteSeq(GUID2[3]);
-    data.WriteByteSeq(GUID2[0]);
-    data.WriteByteSeq(GUID2[2]);
-
-    data.WriteByteSeq(GUID1[5]);
-    data.WriteByteSeq(GUID1[4]);
-    data.WriteByteSeq(GUID1[7]);
-    data.WriteByteSeq(GUID1[3]);
-    data.WriteByteSeq(GUID1[0]);
-
-    data.WriteByteSeq(GUID2[4]);
-
-    data.WriteByteSeq(GUID1[1]);
-
-    data.WriteByteSeq(GUID2[1]);
-    data.WriteByteSeq(GUID2[7]);
-    data.WriteByteSeq(GUID2[6]);
-
-    data.WriteByteSeq(GUID1[6]);
-
-    data.WriteByteSeq(GUID1[2]);
-    data.WriteByteSeq(GUID2[5]);
+    data.WriteByteSeq(hostileGUID[3]);
+    data.WriteByteSeq(hostileGUID[0]);
+    data.WriteByteSeq(hostileGUID[2]);
+    data.WriteByteSeq(victimGUID[5]);
+    data.WriteByteSeq(victimGUID[4]);
+    data.WriteByteSeq(victimGUID[7]);
+    data.WriteByteSeq(victimGUID[3]);
+    data.WriteByteSeq(victimGUID[0]);
+    data.WriteByteSeq(hostileGUID[4]);
+    data.WriteByteSeq(victimGUID[1]);
+    data.WriteByteSeq(hostileGUID[1]);
+    data.WriteByteSeq(victimGUID[6]);
+    data.WriteByteSeq(hostileGUID[7]);
+    data.WriteByteSeq(hostileGUID[6]);
+    data.WriteByteSeq(victimGUID[2]);
+    data.WriteByteSeq(hostileGUID[5]);
 
     SendMessageToSet(&data, false);
 }
