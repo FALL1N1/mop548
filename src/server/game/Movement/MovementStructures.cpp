@@ -4124,25 +4124,25 @@ MovementStatusElements const SplineMoveSetWalkSpeed[] =
     MSEEnd,
 };
 
-MovementStatusElements const SplineMoveSetRunSpeed[] =
+MovementStatusElements const SplineMoveSetRunSpeed[] = //5.4.8 18414
 {
-    MSEHasGuidByte4,
-    MSEHasGuidByte0,
-    MSEHasGuidByte5,
-    MSEHasGuidByte7,
-    MSEHasGuidByte6,
     MSEHasGuidByte3,
+    MSEHasGuidByte0,
     MSEHasGuidByte1,
+    MSEHasGuidByte4,
+    MSEHasGuidByte7,
+    MSEHasGuidByte5,
+    MSEHasGuidByte6,
     MSEHasGuidByte2,
-    MSEGuidByte0,
-    MSEGuidByte7,
-    MSEGuidByte6,
-    MSEGuidByte5,
-    MSEGuidByte3,
     MSEGuidByte4,
     MSEExtraElement,
-    MSEGuidByte2,
     MSEGuidByte1,
+    MSEGuidByte5,
+    MSEGuidByte3,
+    MSEGuidByte7,
+    MSEGuidByte6,
+    MSEGuidByte2,
+    MSEGuidByte0,
     MSEEnd,
 };
 
@@ -4234,25 +4234,25 @@ MovementStatusElements const SplineMoveSetTurnRate[] =
     MSEEnd,
 };
 
-MovementStatusElements const SplineMoveSetFlightSpeed[] =
+MovementStatusElements const SplineMoveSetFlightSpeed[] = //5.4.8 18414
 {
-    MSEHasGuidByte6,
-    MSEHasGuidByte0,
-    MSEHasGuidByte2,
-    MSEHasGuidByte7,
-    MSEHasGuidByte5,
-    MSEHasGuidByte4,
-    MSEHasGuidByte2,
-    MSEHasGuidByte1,
-    MSEGuidByte7,
-    MSEGuidByte6,
-    MSEGuidByte4,
     MSEExtraElement,
-    MSEGuidByte1,
-    MSEGuidByte3,
-    MSEGuidByte2,
-    MSEGuidByte0,
+    MSEHasGuidByte1,
+    MSEHasGuidByte4,
+    MSEHasGuidByte7,
+    MSEHasGuidByte3,
+    MSEHasGuidByte2,
+    MSEHasGuidByte6,
+    MSEHasGuidByte5,
+    MSEHasGuidByte0,
     MSEGuidByte5,
+    MSEGuidByte1,
+    MSEGuidByte0,
+    MSEGuidByte6,
+    MSEGuidByte2,
+    MSEGuidByte4,
+    MSEGuidByte7,
+    MSEGuidByte3,
     MSEEnd,
 };
 
@@ -5515,7 +5515,7 @@ MovementStatusElements const* GetMovementStatusElementsSequence(Opcodes opcode)
         //    return MovementSetCanFly;
         //case CMSG_MOVE_SET_CAN_FLY_ACK:
         //    return MovementSetCanFlyAck;
-        //case CMSG_MOVE_SET_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY_ACK:
+        //case CMSG_MOVE_SET_CAN_TRANS_BETW_SWIM_AND_FLY_ACK:
         //    return MovementSetCanTransitionBetweenSwimAndFlyAck;
         case SMSG_MOVE_SET_COLLISION_HEIGHT:
             return MoveSetCollisionHeight;
@@ -5543,8 +5543,8 @@ MovementStatusElements const* GetMovementStatusElementsSequence(Opcodes opcode)
         //    return MovementUpdateWalkSpeed;
         //case SMSG_SPLINE_MOVE_SET_WALK_SPEED:
         //    return SplineMoveSetWalkSpeed;
-        //case SMSG_SPLINE_MOVE_SET_RUN_SPEED:
-        //    return SplineMoveSetRunSpeed;
+        case SMSG_SPLINE_MOVE_SET_RUN_SPEED:
+            return SplineMoveSetRunSpeed;
         case SMSG_SPLINE_MOVE_SET_RUN_BACK_SPEED:
             return SplineMoveSetRunBackSpeed;
         case SMSG_SPLINE_MOVE_SET_SWIM_SPEED:

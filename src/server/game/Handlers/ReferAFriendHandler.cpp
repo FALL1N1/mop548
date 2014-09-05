@@ -70,8 +70,13 @@ void WorldSession::HandleAcceptGrantLevel(WorldPacket& recvData)
 {
     TC_LOG_DEBUG("network", "WORLD: CMSG_ACCEPT_LEVEL_GRANT");
 
-    uint64 guid;
-    recvData.readPackGUID(guid);
+    ObjectGuid guid;
+
+    uint8 bitOrder[8] = { 2, 7, 5, 4, 3, 0, 1, 6 };
+    recvData.ReadBitInOrder(guid, bitOrder);
+
+    uint8 byteOrder[8] = { 5, 3, 2, 7, 4, 1, 0, 6 };
+    recvData.ReadBytesSeq(guid, byteOrder);
 
     Player* other = ObjectAccessor::GetObjectInWorld(guid, _player);
     if (!(other && other->GetSession()))
