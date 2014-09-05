@@ -331,6 +331,8 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
     if (owner->GetGroup())
         owner->SetGroupUpdateFlag(GROUP_UPDATE_PET);
 
+    owner->SendTalentsInfoData(true);
+
     if (getPetType() == HUNTER_PET)
     {
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PET_DECLINED_NAME);
@@ -1986,14 +1988,8 @@ void Pet::SynchronizeLevelWithOwner()
     {
         // always same level
         case SUMMON_PET:
-            GivePetLevel(owner->getLevel());
-            break;
-        // can't be greater owner level
         case HUNTER_PET:
-            if (getLevel() > owner->getLevel())
-                GivePetLevel(owner->getLevel());
-            else if (getLevel() + 5 < owner->getLevel())
-                GivePetLevel(owner->getLevel() - 5);
+            GivePetLevel(owner->getLevel());
             break;
         default:
             break;
@@ -2079,4 +2075,34 @@ void Pet::SetDisplayId(uint32 modelId)
         if (Player* player = owner->ToPlayer())
             if (player->GetGroup())
                 player->SetGroupUpdateFlag(GROUP_UPDATE_FLAG_PET_MODEL_ID);
+}
+
+void Pet::LearnSpecializationSpell()
+{
+    for (uint32 i = 0; i < sSpecializationSpellsStore.GetNumRows(); i++)
+    {
+        SpecializationSpellsEntry const* specializationEntry = sSpecializationSpellsStore.LookupEntry(i);
+        if (!specializationEntry)
+            continue;
+
+        if (specializationEntry->SpecializationId != GetSpecializationId())
+            continue;
+
+        learnSpell(specializationEntry->SpellId);
+    }
+}
+
+void Pet::UnlearnSpecializationSpell()
+{
+    for (uint32 i = 0; i < sSpecializationSpellsStore.GetNumRows(); i++)
+    {
+        SpecializationSpellsEntry const* specializationEntry = sSpecializationSpellsStore.LookupEntry(i);
+        if (!specializationEntry)
+            continue;
+
+        if (specializationEntry->SpecializationId != GetSpecializationId())
+            continue;
+
+        unlearnSpell(specializationEntry->SpellId, false);
+    }
 }

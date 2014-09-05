@@ -1862,7 +1862,7 @@ class Player : public Unit, public GridObject<Player>
         void InitTalentForLevel();
         void BuildPlayerTalentsInfoData(WorldPacket* data);
         void BuildPetTalentsInfoData(WorldPacket* data);
-        void SendTalentsInfoData();
+        void SendTalentsInfoData(bool pet);
         bool LearnTalent(uint16 talentId);
         bool LearnPetTalentTree(uint16 talentId);
         void LearnPetTalent(uint64 petGuid, uint32 talentId, uint32 talentRank);

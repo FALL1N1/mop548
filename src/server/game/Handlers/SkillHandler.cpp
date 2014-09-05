@@ -43,7 +43,7 @@ void WorldSession::HandeSetTalentSpecialization(WorldPacket& recvData)
 
     _player->SetTalentSpecialization(_player->GetActiveSpec(), specializationId);
     _player->SetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID, specializationId);
-    _player->SendTalentsInfoData();
+    _player->SendTalentsInfoData(false);
 
     std::list<uint32> learnList = GetSpellsForLevels(0, _player->getRaceMask(), _player->GetTalentSpecialization(_player->GetActiveSpec()), 0, _player->getLevel());
     for (std::list<uint32>::const_iterator iter = learnList.begin(); iter != learnList.end(); iter++)
@@ -60,32 +60,15 @@ void WorldSession::HandleLearnTalentOpcode(WorldPacket& recvData)
     uint32 talentCount = recvData.ReadBits(23);
     uint16 talentId;
     bool anythingLearned = false;
-    // uint16 Temp[30];
     for (int i = 0; i != talentCount; i++)
     {
         recvData >> talentId;
         if (_player->LearnTalent(talentId))
             anythingLearned = true;
-    //    Temp[i] = talentId;
     }
 
     if (anythingLearned)
-        _player->SendTalentsInfoData();
-    /*
-    Pet* pet = _player->GetPet();
-    if (!pet)
-        return;
-
-    for (int i = 0; i != talentCount; i++)
-    {
-        talentId = Temp[i];
-        if (_player->LearnPetTalentTree(talentId))
-            anythingLearned = true;
-        // if (_player->LearnPetTalent(pet->GetGUID, uint32(talentId), 1)
-        //    anythingLearned = true;
-
-    }
-    */
+        _player->SendTalentsInfoData(false);
 }
 
 void WorldSession::HandleLearnPreviewTalents(WorldPacket& recvPacket)
@@ -143,7 +126,7 @@ void WorldSession::HandleTalentWipeConfirmOpcode(WorldPacket& recvData)
         return;
     }
 
-    _player->SendTalentsInfoData();
+    _player->SendTalentsInfoData(false);
     unit->CastSpell(_player, 14867, true);                  //spell: "Untalent Visual Effect"
 }
 

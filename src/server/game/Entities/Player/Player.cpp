@@ -3341,7 +3341,7 @@ void Player::InitTalentForLevel()
     SetUInt32Value(PLAYER_FIELD_MAX_TALENT_TIERS, CalculateTalentsPoints());
 
     if (!GetSession()->PlayerLoading())
-        SendTalentsInfoData();                         // update at client
+        SendTalentsInfoData(false);                         // update at client
 }
 
 void Player::InitStatsForLevel(bool reapplyMods)
@@ -4701,7 +4701,7 @@ bool Player::RemoveTalent(uint32 talentId)
     _SaveSpells(trans);
     CharacterDatabase.CommitTransaction(trans);
 
-    SendTalentsInfoData();
+    SendTalentsInfoData(false);
     return true;
 }
 
@@ -24031,7 +24031,7 @@ void Player::SendInitialPacketsBeforeAddToMap()
     // SMSG_SET_FLAT_SPELL_MODIFIER
     // SMSG_UPDATE_AURA_DURATION
 
-    SendTalentsInfoData();
+    SendTalentsInfoData(false);
 
     data.Initialize(SMSG_WORLD_SERVER_INFO, 4 + 4 + 1 + 1);
     // Bitfields have wrong order
@@ -26916,8 +26916,17 @@ void Player::BuildPetTalentsInfoData(WorldPacket* data)
     }*/
 }
 
-void Player::SendTalentsInfoData()
+void Player::SendTalentsInfoData(bool pet)
 {
+    if (pet)
+    {
+        Pet* pPet = GetPet();
+        WorldPacket data(SMSG_SET_PET_SPECIALIZATION);
+        data << uint16(pPet ? pPet->GetSpecializationId() : 0);
+        GetSession()->SendPacket(&data);
+        return;
+    }
+
     WorldPacket data(SMSG_TALENTS_INFO, 50);
     BuildPlayerTalentsInfoData(&data);
     GetSession()->SendPacket(&data);
@@ -27334,7 +27343,7 @@ void Player::UpdateSpecCount(uint8 count)
 
     SetSpecsCount(count);
 
-    SendTalentsInfoData();
+    SendTalentsInfoData(false);
 }
 
 void Player::ActivateSpec(uint8 spec)

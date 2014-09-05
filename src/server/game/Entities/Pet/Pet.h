@@ -147,12 +147,18 @@ class Pet : public Guardian
 
         Player* GetOwner() const;
 
+        uint32 GetSpecializationId() const { return m_specialization; }
+        void SetSpecializationId(uint32 id) { m_specialization = id; }
+        void LearnSpecializationSpell();
+        void UnlearnSpecializationSpell();
+
     protected:
         PetType m_petType;
         int32   m_duration;                                 // time until unsummon (used mostly for summoned guardians and not used for controlled pets)
         uint64  m_auraRaidUpdateMask;
         bool    m_loading;
         uint32  m_regenTimer;
+        uint32  m_specialization;
 
         DeclinedName *m_declinedname;
 

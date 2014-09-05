@@ -412,7 +412,7 @@ void OpcodeTable::InitializeClientTable()
     DEFINE_OPCODE_HANDLER(CMSG_PET_ACTION,                                0x025B, STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandlePetAction                    ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(CMSG_PET_CANCEL_AURA,                           0x0000, STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandlePetCancelAuraOpcode          );
     DEFINE_OPCODE_HANDLER(CMSG_PET_CAST_SPELL,                            0x044D, STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandlePetCastSpellOpcode           ); // 5.4.8 18414
-    DEFINE_OPCODE_HANDLER(CMSG_PET_LEARN_TALENT,                          0x1463, STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandlePetLearnTalent               ); // 5.4.8 18414
+    DEFINE_OPCODE_HANDLER(CMSG_PET_LEARN_SPECIALIZATION,                  0x1463, STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandlePetLearnTalent               ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(CMSG_PET_NAME_QUERY,                            0x1C62, STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandlePetNameQuery                 ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(CMSG_PET_RENAME,                                0x0000, STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandlePetRename                    );
     DEFINE_OPCODE_HANDLER(CMSG_PET_SET_ACTION,                            0x12E9, STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandlePetSetAction                 ); // Or maby        0x12E9 Not sure if this function is used anymore        0x149B
@@ -1103,9 +1103,8 @@ void OpcodeTable::InitializeServerTable()
     DEFINE_OPCODE_HANDLER(SMSG_PET_MODE,                                0x163F, STATUS_NEVER    ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(SMSG_PET_NAME_INVALID,                        0x0000, STATUS_UNHANDLED);
     DEFINE_OPCODE_HANDLER(SMSG_PET_NAME_QUERY_RESPONSE,                 0x0ABE, STATUS_NEVER    ); // 5.4.8 18414
-    DEFINE_OPCODE_HANDLER(SMSG_PET_REMOVED_SPELL,                       0x0C59, STATUS_UNHANDLED); // 5.4.8 18414
+    DEFINE_OPCODE_HANDLER(SMSG_PET_REMOVED_SPELL,                       0x1CAE, STATUS_NEVER    ); // 5.4.8 18414 // old  ( finded ClientPetUnlearnedSpells - looks good in sniffs, 0x0C59 null packet)
     DEFINE_OPCODE_HANDLER(SMSG_PET_RENAMEABLE,                          0x0000, STATUS_UNHANDLED);
-    DEFINE_OPCODE_HANDLER(SMSG_PET_SET_TALENT,                          0x060F, STATUS_UNHANDLED); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(SMSG_PET_SLOT_UPDATED,                        0x069A, STATUS_NEVER    ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(SMSG_PET_SPELLS,                              0x095A, STATUS_NEVER    ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(SMSG_PET_TAME_FAILURE,                        0x040E, STATUS_NEVER    ); // 5.4.8 18414
@@ -1209,6 +1208,7 @@ void OpcodeTable::InitializeServerTable()
     DEFINE_OPCODE_HANDLER(SMSG_SET_FLAT_SPELL_MODIFIER,                 0x10F2, STATUS_NEVER    ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(SMSG_SET_FORCED_REACTIONS,                    0x068F, STATUS_NEVER    ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(SMSG_SET_PCT_SPELL_MODIFIER,                  0x09D3, STATUS_NEVER    ); // 5.4.8 18414
+    DEFINE_OPCODE_HANDLER(SMSG_SET_PET_SPECIALIZATION,                  0x060F, STATUS_NEVER    ); // 5.4.8 18414 
     DEFINE_OPCODE_HANDLER(SMSG_SET_PHASE_SHIFT,                         0x02A2, STATUS_NEVER    ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(SMSG_SET_PLAYER_DECLINED_NAMES_RESULT,        0x180E, STATUS_UNHANDLED); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(SMSG_SET_PLAY_HOVER_ANIM,                     0x069F, STATUS_NEVER    ); // 5.4.8 18414

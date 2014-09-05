@@ -985,10 +985,48 @@ void WorldSession::SendPetNameInvalid(uint32 error, const std::string& name, Dec
 
 void WorldSession::HandlePetLearnTalent(WorldPacket& recvData)
 {
-    TC_LOG_DEBUG("network", "WORLD: CMSG_PET_LEARN_TALENT");
+    TC_LOG_DEBUG("network", "WORLD: CMSG_PET_LEARN_SPECIALIZATION");
+
+    uint32 index = recvData.read<uint32>();
+    // GUID : useless =P
+    recvData.rfinish();
+
+    if(_player->IsInCombat())
+        return;
+
+    uint32 specializationId = 0;
+
+    switch(index)
+    {
+        case 0:
+            specializationId = PET_SPECIALIZATION_FEROCITY;
+            break;
+        case 1:
+            specializationId = PET_SPECIALIZATION_TENACITY;
+            break;
+        case 2:
+            specializationId = PET_SPECIALIZATION_CUNNING;
+            break;
+        default:
+            break;
+    }
+
+    if (!specializationId)
+        return;
+
+    Pet* pet = _player->GetPet();
+    if (!pet)
+        return;
+
+    if (pet->GetSpecializationId())
+        pet->UnlearnSpecializationSpell();
+
+    pet->SetSpecializationId(specializationId);
+    pet->LearnSpecializationSpell();
+    _player->SendTalentsInfoData(true);
 }
 
 void WorldSession::HandleLearnPreviewTalentsPet(WorldPacket& recvData)
 {
-    TC_LOG_DEBUG("network", "CMSG_LEARN_PREVIEW_TALENTS_PET");
+    TC_LOG_DEBUG("network", "CMSG_LEARN_PREVIEW_TALENTS_PET WTF ?");
 }
