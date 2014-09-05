@@ -13146,15 +13146,29 @@ void Unit::SendPetTalk(uint32 pettalk)
     owner->ToPlayer()->GetSession()->SendPacket(&data);
 }
 
-void Unit::SendPetAIReaction(uint64 guid)
+void Unit::SendPetAIReaction(ObjectGuid guid)
 {
     Unit* owner = GetOwner();
     if (!owner || owner->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    WorldPacket data(SMSG_AI_REACTION, 8 + 4);
-    data << uint64(guid);
+    WorldPacket data(SMSG_AI_REACTION, 12);
+
+    uint8 bitOrder[8] = {5, 7, 0, 4, 6, 2, 3, 1};
+    data.WriteBitInOrder(guid, bitOrder);
+    
+    data.WriteByteSeq(guid[4]);
+    data.WriteByteSeq(guid[6]);
+    data.WriteByteSeq(guid[5]);
+
     data << uint32(AI_REACTION_HOSTILE);
+    
+    data.WriteByteSeq(guid[7]);
+    data.WriteByteSeq(guid[1]);
+    data.WriteByteSeq(guid[2]);
+    data.WriteByteSeq(guid[0]);
+    data.WriteByteSeq(guid[3]);
+
     owner->ToPlayer()->GetSession()->SendPacket(&data);
 }
 
