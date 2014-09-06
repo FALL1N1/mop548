@@ -173,7 +173,7 @@ void OpcodeTable::InitializeClientTable()
     DEFINE_OPCODE_HANDLER(CMSG_CHAR_CREATE,                               0x0F1D, STATUS_AUTHED,    PROCESS_THREADUNSAFE, &WorldSession::HandleCharCreateOpcode             ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(CMSG_CHAR_CUSTOMIZE,                            0x0A13, STATUS_AUTHED,    PROCESS_THREADUNSAFE, &WorldSession::HandleCharCustomize                ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(CMSG_CHAR_DELETE,                               0x04E2, STATUS_AUTHED,    PROCESS_THREADUNSAFE, &WorldSession::HandleCharDeleteOpcode             ); // 5.4.8 18414
-    DEFINE_OPCODE_HANDLER(CMSG_CHAR_ENUM,                                 0x18B2, STATUS_AUTHED,    PROCESS_THREADUNSAFE, &WorldSession::HandleCharEnumOpcode               ); // 5.4.8 18414
+    DEFINE_OPCODE_HANDLER(CMSG_CHAR_ENUM,                                 0x00E0, STATUS_AUTHED,    PROCESS_THREADUNSAFE, &WorldSession::HandleCharEnumOpcode               ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(CMSG_CHAR_FACTION_CHANGE,                       0x0329, STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleCharFactionOrRaceChange      ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(CMSG_CHAR_RACE_CHANGE,                          0x0000, STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleCharFactionOrRaceChange      );
     DEFINE_OPCODE_HANDLER(CMSG_CHAR_RENAME,                               0x0963, STATUS_AUTHED,    PROCESS_THREADUNSAFE, &WorldSession::HandleCharRenameOpcode             ); // 5.4.8 18414
@@ -490,7 +490,7 @@ void OpcodeTable::InitializeClientTable()
     DEFINE_OPCODE_HANDLER(CMSG_SEND_MAIL,                                 0x1DBA, STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleSendMail                     ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(CMSG_SEND_SOR_REQUEST_VIA_ADDRESS,              0x0000, STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                        );
     DEFINE_OPCODE_HANDLER(CMSG_SEND_SOR_REQUEST_VIA_BNET_ACCOUNT_ID,      0x0000, STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                        );
-    DEFINE_OPCODE_HANDLER(CMSG_GET_TIMEZONE_INFORMATION,                  0x00E0, STATUS_AUTHED,    PROCESS_THREADUNSAFE, &WorldSession::HandleSendTimezoneInformation      ); // 5.4.8 18414
+    DEFINE_OPCODE_HANDLER(CMSG_GET_TIMEZONE_INFORMATION,                  0x18B2, STATUS_AUTHED,    PROCESS_THREADUNSAFE, &WorldSession::HandleSendTimezoneInformation      ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(CMSG_SET_SHEATHED,                              0x0249, STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleSetSheathedOpcode            ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(CMSG_SET_ACTIONBAR_TOGGLES,                     0x0672, STATUS_AUTHED,    PROCESS_THREADUNSAFE, &WorldSession::HandleSetActionBarToggles          ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(CMSG_SET_ACTION_BUTTON,                         0x1F8C, STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleSetActionButtonOpcode        ); // 5.4.8 18414
