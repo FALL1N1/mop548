@@ -76,6 +76,8 @@ bool Player::UpdateStats(Stats stat)
             UpdateArmor();
             UpdateAllCritPercentages();
             UpdateDodgePercentage();
+            UpdateAttackPowerAndDamage(false);
+            UpdateAttackPowerAndDamage(true);
             break;
         case STAT_STAMINA:
             UpdateMaxHealth();
@@ -86,20 +88,17 @@ bool Player::UpdateStats(Stats stat)
             break;
         case STAT_SPIRIT:
             break;
+        case STAT_STRENGTH:
+            UpdateAttackPowerAndDamage(false);
+            break;
         default:
             break;
     }
 
-    if (stat == STAT_STRENGTH)
-        UpdateAttackPowerAndDamage(false);
-    else if (stat == STAT_AGILITY)
-    {
-        UpdateAttackPowerAndDamage(false);
-        UpdateAttackPowerAndDamage(true);
-    }
-
     UpdateSpellDamageAndHealingBonus();
     UpdateManaRegen();
+    UpdateEnergyRegen();
+    UpdateFocusRegen();
 
     // Update ratings in exist SPELL_AURA_MOD_RATING_FROM_STAT and only depends from stat
     uint32 mask = 0;
@@ -161,8 +160,11 @@ bool Player::UpdateAllStats()
     UpdateDodgePercentage();
     UpdateSpellDamageAndHealingBonus();
     UpdateManaRegen();
+    UpdateEnergyRegen();
+    UpdateFocusRegen();
     UpdateExpertise(BASE_ATTACK);
     UpdateExpertise(OFF_ATTACK);
+    UpdateExpertise(RANGED_ATTACK);
     RecalculateRating(CR_ARMOR_PENETRATION);
     for (int i = SPELL_SCHOOL_NORMAL; i < MAX_SPELL_SCHOOL; ++i)
         UpdateResistances(i);
@@ -272,10 +274,16 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
     UnitMods unitMod = ranged ? UNIT_MOD_ATTACK_POWER_RANGED : UNIT_MOD_ATTACK_POWER;
 
     uint16 index = UNIT_FIELD_ATTACK_POWER;
+    uint16 index_mod_pos = UNIT_FIELD_ATTACK_POWER_MOD_POS;
+    uint16 index_mod_neg = UNIT_FIELD_ATTACK_POWER_MOD_NEG;
+    uint16 index_mult = UNIT_FIELD_ATTACK_POWER_MULTIPLIER;
 
     if (ranged)
     {
         index = UNIT_FIELD_RANGED_ATTACK_POWER;
+        index_mod_pos = UNIT_FIELD_RANGED_ATTACK_POWER_MOD_POS;
+        index_mod_neg = UNIT_FIELD_RANGED_ATTACK_POWER_MOD_NEG;
+        index_mult = UNIT_FIELD_RANGED_ATTACK_POWER_MULTIPLIER;
         val2 = (level + std::max(GetStat(STAT_AGILITY) - 10.0f, 0.0f)) * entry->RAPPerAgility;
     }
     else
@@ -283,29 +291,59 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
         float strengthValue = std::max((GetStat(STAT_STRENGTH) - 10.0f) * entry->APPerStrenth, 0.0f);
         float agilityValue = std::max((GetStat(STAT_AGILITY) - 10.0f) * entry->APPerAgility, 0.0f);
 
-        SpellShapeshiftFormEntry const* form = sSpellShapeshiftFormStore.LookupEntry(GetShapeshiftForm());
-        // Directly taken from client, SHAPESHIFT_FLAG_AP_FROM_STRENGTH ?
-        if (form && form->flags1 & 0x20)
-            agilityValue += std::max((GetStat(STAT_AGILITY) - 10.0f) * entry->APPerStrenth, 0.0f);
+        if (GetShapeshiftForm() == FORM_CAT || GetShapeshiftForm() == FORM_BEAR)
+            agilityValue += std::max((GetStat(STAT_AGILITY) - 10.0f) * 2, 0.0f);
 
         val2 = strengthValue + agilityValue;
     }
 
     SetModifierValue(unitMod, BASE_VALUE, val2);
 
-    float base_attPower  = GetModifierValue(unitMod, BASE_VALUE) * GetModifierValue(unitMod, BASE_PCT);
+    float base_attPower = GetModifierValue(unitMod, BASE_VALUE) * GetModifierValue(unitMod, BASE_PCT);
     float attPowerMod = GetModifierValue(unitMod, TOTAL_VALUE);
+    float attPowerMultiplier = GetModifierValue(unitMod, TOTAL_PCT) - 1.0f;
 
     //add dynamic flat mods
-    if (!ranged)
+    if (!ranged && HasAuraType(SPELL_AURA_MOD_ATTACK_POWER_OF_ARMOR))
     {
         AuraEffectList const& mAPbyArmor = GetAuraEffectsByType(SPELL_AURA_MOD_ATTACK_POWER_OF_ARMOR);
         for (AuraEffectList::const_iterator iter = mAPbyArmor.begin(); iter != mAPbyArmor.end(); ++iter)
+        {
             // always: ((*i)->GetModifier()->m_miscvalue == 1 == SPELL_SCHOOL_MASK_NORMAL)
-            attPowerMod += int32(GetArmor() / (*iter)->GetAmount());
+            int32 temp = int32(GetArmor() / (*iter)->GetAmount());
+            if (temp > 0)
+                attPowerMod += temp;
+            else
+                attPowerMod -= temp;
+        }
     }
 
-    SetInt32Value(index, (uint32)base_attPower);            //UNIT_FIELD_(RANGED)_ATTACK_POWER field
+    if (HasAuraType(SPELL_AURA_OVERRIDE_AP_BY_SPELL_POWER_PCT))
+    {
+        int32 ApBySpellPct = 0;
+        int32 spellPower = ToPlayer()->GetBaseSpellPowerBonus();                    // SpellPower from Weapon
+        spellPower += std::max(0, int32(ToPlayer()->GetStat(STAT_INTELLECT)) - 10); // SpellPower from intellect
+
+        AuraEffectList const& mAPFromSpellPowerPct = GetAuraEffectsByType(SPELL_AURA_OVERRIDE_AP_BY_SPELL_POWER_PCT);
+        for (AuraEffectList::const_iterator i = mAPFromSpellPowerPct.begin(); i != mAPFromSpellPowerPct.end(); ++i)
+            ApBySpellPct += CalculatePct(spellPower, (*i)->GetAmount());
+
+        if (ApBySpellPct > 0)
+        {
+            SetInt32Value(index, uint32(ApBySpellPct));     //UNIT_FIELD_(RANGED)_ATTACK_POWER field
+            SetFloatValue(index_mult, attPowerMultiplier);  //UNIT_FIELD_(RANGED)_ATTACK_POWER_MULTIPLIER field
+        }
+        else
+        {
+            SetInt32Value(index, uint32(base_attPower + attPowerMod));  //UNIT_FIELD_(RANGED)_ATTACK_POWER field
+            SetFloatValue(index_mult, attPowerMultiplier);              //UNIT_FIELD_(RANGED)_ATTACK_POWER_MULTIPLIER field
+        }
+    }
+    else
+    {
+        SetInt32Value(index, uint32(base_attPower + attPowerMod));  //UNIT_FIELD_(RANGED)_ATTACK_POWER field
+        SetFloatValue(index_mult, attPowerMultiplier);              //UNIT_FIELD_(RANGED)_ATTACK_POWER_MULTIPLIER field
+    }
 
     Pet* pet = GetPet();                                //update pet's AP
     Guardian* guardian = GetGuardianPet();
@@ -535,6 +573,12 @@ void Player::UpdateMastery()
     }*/
 }
 
+void Player::UpdatePVPPower(int32 amount)
+{
+    SetStatFloatValue(PLAYER_FIELD_PVP_POWER_DAMAGE, GetUInt32Value(PLAYER_FIELD_COMBAT_RATINGS + CR_PVP_POWER) * GetRatingMultiplier(CR_PVP_POWER));
+    SetStatFloatValue(PLAYER_FIELD_PVP_POWER_HEALING, GetUInt32Value(PLAYER_FIELD_COMBAT_RATINGS + CR_PVP_POWER) * GetRatingMultiplier(CR_PVP_POWER));
+}
+
 const float m_diminishing_k[MAX_CLASSES] =
 {
     0.9560f,  // Warrior
@@ -563,7 +607,7 @@ void Player::UpdateParryPercentage()
         145.560408f,    // Shaman
         0.0f,           // Mage
         0.0f,           // Warlock
-        0.0f,           // Monk
+        145.560408f,    // Monk
         0.0f            // Druid
     };
 
@@ -645,6 +689,9 @@ void Player::UpdateSpellCritChance(uint32 school)
 
     // Store crit value
     SetFloatValue(PLAYER_FIELD_SPELL_CRIT_PERCENTAGE + school, crit);
+    
+    if (Pet* pet = GetPet())
+        pet->m_baseSpellCritChance = crit;
 }
 
 void Player::UpdateArmorPenetration(int32 amount)
@@ -679,10 +726,7 @@ void Player::UpdateAllSpellCritChances()
 
 void Player::UpdateExpertise(WeaponAttackType attack)
 {
-    if (attack == RANGED_ATTACK)
-        return;
-
-    int32 expertise = int32(GetRatingBonusValue(CR_EXPERTISE));
+    float expertise = GetRatingBonusValue(CR_EXPERTISE);
 
     Item* weapon = GetWeaponForAttack(attack, true);
 
@@ -698,12 +742,19 @@ void Player::UpdateExpertise(WeaponAttackType attack)
     }
 
     if (expertise < 0)
-        expertise = 0;
+        expertise = 0.0f;
 
     switch (attack)
     {
-        case BASE_ATTACK: SetUInt32Value(PLAYER_FIELD_MAINHAND_EXPERTISE, expertise);         break;
-        case OFF_ATTACK:  SetUInt32Value(PLAYER_FIELD_OFFHAND_EXPERTISE, expertise); break;
+        case BASE_ATTACK:
+            SetFloatValue(PLAYER_FIELD_MAINHAND_EXPERTISE, expertise);
+            break;
+        case OFF_ATTACK:
+            SetFloatValue(PLAYER_FIELD_OFFHAND_EXPERTISE, expertise);
+            break;
+        case RANGED_ATTACK:
+            SetFloatValue(PLAYER_FIELD_RANGED_EXPERTISE, expertise);
+            break;
         default: break;
     }
 }
@@ -726,16 +777,58 @@ void Player::UpdateManaRegen()
 
     // Mana regen from spirit
     float spirit_regen = OCTRegenMPPerSpirit();
-    // Apply PCT bonus from SPELL_AURA_MOD_POWER_REGEN_PERCENT aura on spirit base regen
     spirit_regen *= GetTotalAuraMultiplierByMiscValue(SPELL_AURA_MOD_POWER_REGEN_PERCENT, POWER_MANA);
+    float HastePct = 1.0f + GetUInt32Value(PLAYER_FIELD_COMBAT_RATINGS + CR_HASTE_MELEE) * GetRatingMultiplier(CR_HASTE_MELEE) / 100.0f;
 
-    float base_regen = GetMaxPower(POWER_MANA) * 0.004f + GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, POWER_MANA) / 5.0f;
+    float combat_regen = 0.004f * GetMaxPower(POWER_MANA) + spirit_regen + (GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, POWER_MANA) / 5.0f);
+    float base_regen = 0.004f * GetMaxPower(POWER_MANA) + (GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, POWER_MANA) / 5.0f);
 
-    // Set regen rate in cast state apply only on spirit based regen
-    int32 modManaRegenInterrupt = GetTotalAuraModifier(SPELL_AURA_MOD_MANA_REGEN_INTERRUPT);
+    if (getClass() == CLASS_WARLOCK)
+    {
+        combat_regen = 0.01f * GetMaxPower(POWER_MANA) + spirit_regen + GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, POWER_MANA);
+        base_regen = 0.01f * GetMaxPower(POWER_MANA) + GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, POWER_MANA);
+    }
 
-    SetStatFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER, base_regen + CalculatePct(spirit_regen, modManaRegenInterrupt));
-    SetStatFloatValue(UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER, spirit_regen + base_regen);
+    // Mana Meditation && Meditation
+    if (HasAuraType(SPELL_AURA_MOD_MANA_REGEN_INTERRUPT))
+        base_regen += 0.5 * spirit_regen; // Allows 50% of your mana regeneration from Spirit to continue while in combat.
+
+    // Not In Combat : 2% of base mana + spirit_regen
+    SetStatFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER, base_regen);
+    // In Combat : 2% of base mana
+    SetStatFloatValue(UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER, combat_regen);
+}
+
+void Player::UpdateEnergyRegen()
+{
+    int index = GetPowerIndex(POWER_ENERGY);
+    if (index == MAX_POWERS)
+        return;
+
+    float value = 10.0f + (0.1f * GetRatingBonusValue(CR_HASTE_MELEE));
+
+    AddPct(value, GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN_PERCENT, POWER_ENERGY));
+    value += GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, POWER_ENERGY) / 5.0f;
+
+    //No changes between in and out of combat regen
+    SetStatFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER + index, value - 10.0f);
+    SetStatFloatValue(UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER + index, value - 10.0f);
+}
+
+void Player::UpdateFocusRegen()
+{
+    int index = GetPowerIndex(POWER_FOCUS);
+    if (index == MAX_POWERS)
+        return;
+
+    float value = 5.0f + (0.02f * GetRatingBonusValue(CR_HASTE_RANGED));
+
+    AddPct(value, GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN_PERCENT, POWER_FOCUS));
+    value += GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, POWER_FOCUS) / 5.0f;
+
+    //No changes between in and out of combat regen (Client need to added value)
+    SetStatFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER + index, value - 5.0f);
+    SetStatFloatValue(UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER + index, value - 5.0f);
 }
 
 void Player::UpdateRuneRegen(RuneType rune)
@@ -1183,16 +1276,12 @@ void Guardian::UpdateAttackPowerAndDamage(bool ranged)
 
     SetModifierValue(UNIT_MOD_ATTACK_POWER, BASE_VALUE, val + bonusAP);
 
-    //in BASE_VALUE of UNIT_MOD_ATTACK_POWER for creatures we store data of meleeattackpower field in DB
     float base_attPower  = GetModifierValue(unitMod, BASE_VALUE) * GetModifierValue(unitMod, BASE_PCT);
     float attPowerMultiplier = GetModifierValue(unitMod, TOTAL_PCT) - 1.0f;
 
-    //UNIT_FIELD_(RANGED)_ATTACK_POWER field
     SetInt32Value(UNIT_FIELD_ATTACK_POWER, (int32)base_attPower);
-    //UNIT_FIELD_(RANGED)_ATTACK_POWER_MULTIPLIER field
     SetFloatValue(UNIT_FIELD_ATTACK_POWER_MULTIPLIER, attPowerMultiplier);
 
-    //automatically update weapon damage after attack power modification
     UpdateDamagePhysical(BASE_ATTACK);
 }
 

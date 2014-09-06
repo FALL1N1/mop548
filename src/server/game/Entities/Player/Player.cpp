@@ -6044,9 +6044,11 @@ float Player::GetExpertiseDodgeOrParryReduction(WeaponAttackType attType) const
     switch (attType)
     {
         case BASE_ATTACK:
-            return GetUInt32Value(PLAYER_FIELD_MAINHAND_EXPERTISE) / 4.0f;
+            return GetFloatValue(PLAYER_FIELD_MAINHAND_EXPERTISE) / 4.0f;
         case OFF_ATTACK:
-            return GetUInt32Value(PLAYER_FIELD_OFFHAND_EXPERTISE) / 4.0f;
+            return GetFloatValue(PLAYER_FIELD_OFFHAND_EXPERTISE) / 4.0f;
+        case RANGED_ATTACK:
+            return GetFloatValue(PLAYER_FIELD_RANGED_EXPERTISE) / 4.0f;
         default:
             break;
     }
@@ -6086,11 +6088,16 @@ void Player::ApplyRatingMod(CombatRating cr, int32 value, bool apply)
             ApplyAttackTimePercentMod(OFF_ATTACK, RatingChange, apply);
             if (getClass() == CLASS_DEATH_KNIGHT)
                 UpdateAllRunesRegen();
+
+            ApplyMeleeHastePercentMod(value * GetRatingMultiplier(cr), apply);
+            UpdateEnergyRegen();
             break;
         }
         case CR_HASTE_RANGED:
         {
             ApplyAttackTimePercentMod(RANGED_ATTACK, value * GetRatingMultiplier(cr), apply);
+            ApplyRangedHastePercentMod(value * GetRatingMultiplier(cr), apply);
+            UpdateFocusRegen();
             break;
         }
         case CR_HASTE_SPELL:
@@ -6178,6 +6185,7 @@ void Player::UpdateRating(CombatRating cr)
             {
                 UpdateExpertise(BASE_ATTACK);
                 UpdateExpertise(OFF_ATTACK);
+                UpdateExpertise(RANGED_ATTACK);
             }
             break;
         case CR_ARMOR_PENETRATION:
@@ -6186,6 +6194,9 @@ void Player::UpdateRating(CombatRating cr)
             break;
         case CR_MASTERY:
             UpdateMastery();
+            break;
+        case CR_PVP_POWER:
+            UpdatePVPPower(amount);
             break;
     }
 }
@@ -8586,6 +8597,9 @@ void Player::_ApplyItemBonuses(ItemTemplate const* proto, uint8 slot, bool apply
                 break;
             case ITEM_MOD_MASTERY_RATING:
                 ApplyRatingMod(CR_MASTERY, int32(val), apply);
+                break;
+            case ITEM_MOD_PVP_POWER:
+                ApplyRatingMod(CR_PVP_POWER, int32(val), apply);
                 break;
             case ITEM_MOD_FIRE_RESISTANCE:
                 HandleStatModifier(UNIT_MOD_RESISTANCE_FIRE, BASE_VALUE, float(val), apply);
@@ -14372,6 +14386,9 @@ void Player::ApplyReforgeEnchantment(Item* item, bool apply)
         case ITEM_MOD_MASTERY_RATING:
             ApplyRatingMod(CR_MASTERY, -int32(removeValue), apply);
             break;
+        case ITEM_MOD_PVP_POWER:
+            ApplyRatingMod(CR_PVP_POWER, -int32(removeValue), apply);
+            break;
     }
 
     switch (reforge->FinalStat)
@@ -14484,6 +14501,9 @@ void Player::ApplyReforgeEnchantment(Item* item, bool apply)
             break;
         case ITEM_MOD_MASTERY_RATING:
             ApplyRatingMod(CR_MASTERY, int32(addValue), apply);
+            break;
+        case ITEM_MOD_PVP_POWER:
+            ApplyRatingMod(CR_PVP_POWER, int32(addValue), apply);
             break;
     }
 }
@@ -14811,6 +14831,10 @@ void Player::ApplyEnchantment(Item* item, EnchantmentSlot slot, bool apply, bool
                         case ITEM_MOD_MASTERY_RATING:
                             ApplyRatingMod(CR_MASTERY, enchant_amount, apply);
                             TC_LOG_DEBUG("entities.player.items", "+ %u MASTERY", enchant_amount);
+                            break;
+                        case ITEM_MOD_PVP_POWER:
+                            ApplyRatingMod(CR_PVP_POWER, enchant_amount, apply);
+                            TC_LOG_DEBUG("entities.player.items", "+ %u PVP POWER", enchant_amount);
                             break;
                         default:
                             break;

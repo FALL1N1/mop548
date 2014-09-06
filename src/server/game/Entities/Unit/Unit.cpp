@@ -8793,6 +8793,13 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uin
     float ApCoeffMod = 1.0f;
     int32 DoneTotal = 0;
 
+    // Apply Power PvP damage bonus - works in all scenarios on players and pets/minions
+    if (pdamage > 0 && GetTypeId() == TYPEID_PLAYER && (victim->GetTypeId() == TYPEID_PLAYER || (victim->IsPet() && victim->GetOwner() && victim->GetOwner()->GetTypeId() == TYPEID_PLAYER)))
+    {
+        float PvPPower = ToPlayer()->GetRatingBonusValue(CR_PVP_POWER);
+        AddPct(DoneTotalMod, PvPPower);
+    }
+
     // Pet damage?
     if (GetTypeId() == TYPEID_UNIT && !ToCreature()->IsPet())
         DoneTotalMod *= ToCreature()->GetSpellDamageMod(ToCreature()->GetCreatureTemplate()->rank);
@@ -9517,6 +9524,14 @@ uint32 Unit::SpellHealingBonusDone(Unit* victim, SpellInfo const* spellProto, ui
     // Done fixed damage bonus auras
     int32 DoneAdvertisedBenefit = SpellBaseHealingBonusDone(spellProto->GetSchoolMask());
 
+    // Apply Power PvP healing bonus - Only works in Battlegrounds or Arena
+    if (healamount > 0 && GetTypeId() == TYPEID_PLAYER && (victim->GetTypeId() == TYPEID_PLAYER || (victim->IsPet() && victim->GetOwner() && victim->GetOwner()->GetTypeId() == TYPEID_PLAYER)))
+        if (ToPlayer()->GetBattleground())
+        {
+            float PvPPower = ToPlayer()->GetRatingBonusValue(CR_PVP_POWER);
+            AddPct(DoneTotalMod, PvPPower);
+        }
+
     // Check for table values
     SpellBonusEntry const* bonus = sSpellMgr->GetSpellBonusData(spellProto->Id);
     float coeff = 0;
@@ -9936,6 +9951,13 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
 
     // Done total percent damage auras
     float DoneTotalMod = 1.0f;
+
+    // Apply Power PvP damage bonus - works in all scenarios and only on players and their minions/pets
+    if (pdamage > 0 && GetTypeId() == TYPEID_PLAYER && (victim->GetTypeId() == TYPEID_PLAYER || (victim->IsPet() && victim->GetOwner() && victim->GetOwner()->GetTypeId() == TYPEID_PLAYER)))
+    {
+        float PvPPower = ToPlayer()->GetRatingBonusValue(CR_PVP_POWER);
+        AddPct(DoneTotalMod, PvPPower);
+    }
 
     // Some spells don't benefit from pct done mods
     if (spellProto)
@@ -13406,6 +13428,22 @@ void Unit::ApplyCastTimePercentMod(float val, bool apply)
         ApplyPercentModFloatValue(UNIT_FIELD_MOD_CASTING_SPEED, -val, apply);
         ApplyPercentModFloatValue(UNIT_FIELD_MOD_SPELL_HASTE, -val, apply);
     }
+}
+
+void Unit::ApplyMeleeHastePercentMod(float val, bool apply)
+{
+    if (val > 0)
+        ApplyPercentModFloatValue(UNIT_FIELD_MOD_HASTE, val, !apply);
+    else
+        ApplyPercentModFloatValue(UNIT_FIELD_MOD_HASTE, -val, apply);
+}
+
+void Unit::ApplyRangedHastePercentMod(float val, bool apply)
+{
+    if (val > 0)
+        ApplyPercentModFloatValue(UNIT_FIELD_MOD_RANGED_HASTE, val, !apply);
+    else
+        ApplyPercentModFloatValue(UNIT_FIELD_MOD_RANGED_HASTE, -val, apply);
 }
 
 uint32 Unit::GetCastingTimeForBonus(SpellInfo const* spellProto, DamageEffectType damagetype, uint32 CastingTime) const

@@ -20,7 +20,6 @@
 
 #pragma once
 #include "Player.h"
-#include "SharedDefines.h"
 
 typedef std::map<uint8, uint32> SlotEquipmentMap;
 

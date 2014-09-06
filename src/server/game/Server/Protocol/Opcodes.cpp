@@ -484,14 +484,14 @@ void OpcodeTable::InitializeClientTable()
     DEFINE_OPCODE_HANDLER(CMSG_RESURRECT_RESPONSE,                        0x0000, STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleResurrectResponseOpcode      );
     DEFINE_OPCODE_HANDLER(CMSG_RETURN_TO_GRAVEYARD,                       0x12EA, STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleReturnToGraveyard            ); // 5.4.8 18291
     DEFINE_OPCODE_HANDLER(CMSG_ROLE_POLL_BEGIN,                           0x0000, STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                        );
-    DEFINE_OPCODE_HANDLER(CMSG_SAVE_CUF_PROFILES,                         0x0000, STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::HandleSaveCUFProfiles              );
+    DEFINE_OPCODE_HANDLER(CMSG_SAVE_CUF_PROFILES,                         0x06E6, STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleSaveCUFProfiles              ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(CMSG_SELF_RES,                                  0x0000, STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleSelfResOpcode                );
     DEFINE_OPCODE_HANDLER(CMSG_SELL_ITEM,                                 0x1358, STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleSellItemOpcode               ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(CMSG_SEND_MAIL,                                 0x1DBA, STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleSendMail                     ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(CMSG_SEND_SOR_REQUEST_VIA_ADDRESS,              0x0000, STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                        );
-    DEFINE_OPCODE_HANDLER(CMSG_SEND_SOR_REQUEST_VIA_BNET_ACCOUNT_ID,      0x0000, STATUS_UNHANDLED, PROCESS_INPLACE,    &WorldSession::Handle_NULL                        );
-    DEFINE_OPCODE_HANDLER(CMSG_GET_TIMEZONE_INFORMATION,                  0x00E0, STATUS_AUTHED, PROCESS_THREADUNSAFE,    &WorldSession::HandleSendTimezoneInformation      ); // 5.4.8 18414
-    DEFINE_OPCODE_HANDLER(CMSG_SET_SHEATHED,                              0x03E6, STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleSetSheathedOpcode            );
+    DEFINE_OPCODE_HANDLER(CMSG_SEND_SOR_REQUEST_VIA_BNET_ACCOUNT_ID,      0x0000, STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                        );
+    DEFINE_OPCODE_HANDLER(CMSG_GET_TIMEZONE_INFORMATION,                  0x00E0, STATUS_AUTHED,    PROCESS_THREADUNSAFE, &WorldSession::HandleSendTimezoneInformation      ); // 5.4.8 18414
+    DEFINE_OPCODE_HANDLER(CMSG_SET_SHEATHED,                              0x0249, STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleSetSheathedOpcode            ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(CMSG_SET_ACTIONBAR_TOGGLES,                     0x0672, STATUS_AUTHED,    PROCESS_THREADUNSAFE, &WorldSession::HandleSetActionBarToggles          ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(CMSG_SET_ACTION_BUTTON,                         0x1F8C, STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleSetActionButtonOpcode        ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(CMSG_SET_ACTIVE_MOVER,                          0x09F0, STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleSetActiveMoverOpcode         ); // 5.4.8 18414
@@ -980,7 +980,7 @@ void OpcodeTable::InitializeServerTable()
     DEFINE_OPCODE_HANDLER(SMSG_LF_GUILD_COMMAND_RESULT,                 0x1A79, STATUS_UNHANDLED); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(SMSG_LF_GUILD_POST_UPDATED,                   0x1B71, STATUS_UNHANDLED); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(SMSG_LIST_INVENTORY,                          0x1AAE, STATUS_NEVER    ); // 5.4.8 18414
-    DEFINE_OPCODE_HANDLER(SMSG_LOAD_CUF_PROFILES,                       0x0E32, STATUS_UNHANDLED); // 5.4.8 18414
+    DEFINE_OPCODE_HANDLER(SMSG_LOAD_CUF_PROFILES,                       0x0E32, STATUS_NEVER    ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(SMSG_LOGIN_SETTIMESPEED,                      0x082B, STATUS_NEVER    ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(SMSG_LOGIN_VERIFY_WORLD,                      0x1C0F, STATUS_NEVER    ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(SMSG_LOGOUT_CANCEL_ACK,                       0x0AAF, STATUS_NEVER    ); // 5.4.8 18414

@@ -2049,6 +2049,7 @@ class Player : public Unit, public GridObject<Player>
         void UpdateAllRatings();
         void UpdateMastery();
         bool CanUseMastery() const;
+        void UpdatePVPPower(int32 amount);
 
         void CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bool addTotalPct, float& min_damage, float& max_damage);
 
@@ -2081,6 +2082,8 @@ class Player : public Unit, public GridObject<Player>
         void ApplyManaRegenBonus(int32 amount, bool apply);
         void ApplyHealthRegenBonus(int32 amount, bool apply);
         void UpdateManaRegen();
+        void UpdateEnergyRegen();
+        void UpdateFocusRegen();
         void UpdateRuneRegen(RuneType rune);
         void UpdateAllRunesRegen();
 
