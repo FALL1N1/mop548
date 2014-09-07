@@ -831,6 +831,15 @@ int WorldSocket::ProcessIncoming(WorldPacket* new_pct)
                 if (!handler || handler->Status == STATUS_UNHANDLED)
                 {
                     TC_LOG_ERROR("network.opcode", "No defined handler for opcode %s sent by %s", GetOpcodeNameForLogging(new_pct->GetOpcode(), false, new_pct->GetReceivedOpcode()).c_str(), m_Session->GetPlayerInfo().c_str());
+
+                    PreparedStatement* stmt = NULL;
+                    stmt = WorldDatabase.GetPreparedStatement(WORLD_INS_UNK_OPCODES);
+                    stmt->setUInt32(0, (uint32)new_pct->GetReceivedOpcode());
+                    stmt->setString(1, "CMSG");
+                    stmt->setString(2, GetOpcodeNameForLogging(new_pct->GetOpcode(), false, new_pct->GetReceivedOpcode()).c_str());
+
+                    WorldDatabase.Execute(stmt);
+
                     return 0;
                 }
 

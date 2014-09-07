@@ -93,4 +93,7 @@ void WorldDatabaseConnection::DoPrepareStatements()
     PrepareStatement(WORLD_DEL_DISABLES, "DELETE FROM disables WHERE entry = ? AND sourceType = ?", CONNECTION_ASYNC);
     // 0: uint8
     PrepareStatement(WORLD_SEL_REQ_XP, "SELECT xp_for_next_level FROM player_xp_for_level WHERE lvl = ?", CONNECTION_SYNCH);
+
+    // custom
+    PrepareStatement(WORLD_INS_UNK_OPCODES, "INSERT IGNORE INTO unk_opcodes (id, type, name) VALUES (CONCAT('0x',HEX(?)), ?, ?)", CONNECTION_ASYNC);
 }
