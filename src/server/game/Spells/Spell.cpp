@@ -4181,7 +4181,7 @@ void Spell::SendSpellStart()
         data << uint32(0);
     }
 
-    if (predictedPowerCount > 0)
+    if (predictedPowerCount)
     {
         /*for (uint32 i = 0; i < powerUnitPowerCount; ++i)
         {

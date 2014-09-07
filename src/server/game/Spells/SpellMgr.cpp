@@ -3345,6 +3345,9 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 34471: // The Beast Within
                 spellInfo->AttributesEx5 |= SPELL_ATTR5_USABLE_WHILE_CONFUSED | SPELL_ATTR5_USABLE_WHILE_FEARED | SPELL_ATTR5_USABLE_WHILE_STUNNED;
                 break;
+            case 82691: //Ring of Frost
+                spellInfo->AttributesEx5 &= ~SPELL_ATTR5_SINGLE_TARGET_SPELL;
+                break;
             // ULDUAR SPELLS
             //
             case 62374: // Pursued (Flame Leviathan)
