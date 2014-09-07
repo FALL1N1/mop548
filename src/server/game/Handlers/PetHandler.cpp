@@ -988,10 +988,9 @@ void WorldSession::HandlePetLearnTalent(WorldPacket& recvData)
     TC_LOG_DEBUG("network", "WORLD: CMSG_PET_LEARN_SPECIALIZATION");
 
     uint32 index = recvData.read<uint32>();
-    // GUID : useless =P
     recvData.rfinish();
 
-    if(_player->IsInCombat())
+    if (_player->IsInCombat())
         return;
 
     uint32 specializationId = 0;
