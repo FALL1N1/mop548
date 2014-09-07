@@ -563,12 +563,12 @@ void WorldSession::HandleAddonMessagechatOpcode(WorldPacket& recvData)
     {
         case CHAT_MSG_WHISPER:
         {
-            uint32 msgLen = recvData.ReadBits(9);
+            uint32 targetLen = recvData.ReadBits(9);
+            uint32 msgLen = recvData.ReadBits(8);
             uint32 prefixLen = recvData.ReadBits(5);
-            uint32 targetLen = recvData.ReadBits(10);
-            message = recvData.ReadString(msgLen);
-            prefix = recvData.ReadString(prefixLen);
             targetName = recvData.ReadString(targetLen);
+            prefix = recvData.ReadString(prefixLen);
+            message = recvData.ReadString(msgLen);
             break;
         }
         case CHAT_MSG_PARTY:

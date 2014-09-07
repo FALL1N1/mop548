@@ -1288,14 +1288,22 @@ void WorldSession::HandleCancelChanneling(WorldPacket& recvData)
 
 void WorldSession::HandleTotemDestroyed(WorldPacket& recvPacket)
 {
+    TC_LOG_DEBUG("network", "WORLD: CMSG_TOTEM_DESTROYED");
+
     // ignore for remote control state
     if (_player->m_mover != _player)
         return;
-
+    
     uint8 slotId;
-    uint64 guid;
+    ObjectGuid guid;
+
     recvPacket >> slotId;
-    recvPacket >> guid;
+
+    uint8 bitOrder[8] = {4, 2, 1, 3, 0, 6, 7, 5};
+    recvPacket.ReadBitInOrder(guid, bitOrder);
+
+    uint8 byteOrder[8] = {6, 2, 4, 1, 5, 0, 3, 7};
+    recvPacket.ReadBytesSeq(guid, byteOrder);
 
     ++slotId;
     if (slotId >= MAX_TOTEM_SLOT)

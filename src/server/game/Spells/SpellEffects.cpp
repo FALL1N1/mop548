@@ -337,11 +337,47 @@ void Spell::EffectInstaKill(SpellEffIndex /*effIndex*/)
 
     if (m_caster == unitTarget)                              // prevent interrupt message
         finish();
+ 
+    ObjectGuid casterGuid = m_caster->GetGUID();
+    ObjectGuid targetGuid = unitTarget->GetGUID();
 
-    WorldPacket data(SMSG_SPELL_INSTAKILL_LOG, 8+8+4);
-    data << uint64(m_caster->GetGUID());
-    data << uint64(unitTarget->GetGUID());
+    WorldPacket data(SMSG_SPELL_INSTAKILL_LOG, 4);
+
+    data.WriteBit(casterGuid[6]);
+    data.WriteBit(targetGuid[0]);
+    data.WriteBit(casterGuid[7]);
+    data.WriteBit(targetGuid[2]);
+    data.WriteBit(casterGuid[3]);
+    data.WriteBit(casterGuid[1]);
+    data.WriteBit(casterGuid[2]);
+    data.WriteBit(casterGuid[0]);
+    data.WriteBit(casterGuid[4]);
+    data.WriteBit(targetGuid[4]);
+    data.WriteBit(targetGuid[7]);
+    data.WriteBit(targetGuid[1]);
+    data.WriteBit(targetGuid[6]);
+    data.WriteBit(targetGuid[5]);
+    data.WriteBit(casterGuid[5]);
+    data.WriteBit(targetGuid[3]);
+
+    data.WriteByteSeq(casterGuid[0]);
+    data.WriteByteSeq(targetGuid[1]);
+    data.WriteByteSeq(casterGuid[3]);
+    data.WriteByteSeq(casterGuid[4]);
+    data.WriteByteSeq(casterGuid[5]);
+    data.WriteByteSeq(casterGuid[7]);
+    data.WriteByteSeq(targetGuid[0]);
+    data.WriteByteSeq(casterGuid[6]);
+    data.WriteByteSeq(targetGuid[2]);
+    data.WriteByteSeq(targetGuid[4]);
+    data.WriteByteSeq(casterGuid[1]);
     data << uint32(m_spellInfo->Id);
+    data.WriteByteSeq(targetGuid[3]);
+    data.WriteByteSeq(casterGuid[2]);
+    data.WriteByteSeq(targetGuid[7]);
+    data.WriteByteSeq(targetGuid[6]);
+    data.WriteByteSeq(targetGuid[5]);
+
     m_caster->SendMessageToSet(&data, true);
 
     m_caster->DealDamage(unitTarget, unitTarget->GetHealth(), NULL, NODAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);

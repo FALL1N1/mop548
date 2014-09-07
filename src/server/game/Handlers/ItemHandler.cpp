@@ -322,7 +322,7 @@ void WorldSession::HandleReadItem(WorldPacket& recvData)
     uint8 bag, slot;
     recvData >> bag >> slot;
 
-Guid[2] = recvData.ReadBit();
+    Guid[2] = recvData.ReadBit();
     Guid[1] = recvData.ReadBit();
     Guid[3] = recvData.ReadBit();
     Guid[7] = recvData.ReadBit();
