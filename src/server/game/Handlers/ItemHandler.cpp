@@ -1571,8 +1571,15 @@ void WorldSession::HandleItemRefundInfoRequest(WorldPacket& recvData)
 {
     TC_LOG_DEBUG("network", "WORLD: CMSG_ITEM_REFUND_INFO");
 
-    uint64 guid;
-    recvData >> guid;                                      // item guid
+    ObjectGuid guid;
+
+    uint8 bitOrder[8] = {1, 0, 3, 2, 7, 4, 5, 6};
+    recvData.ReadBitInOrder(guid, bitOrder);
+
+    recvData.FlushBits();
+
+    uint8 byteOrder[8] = {3, 7, 5, 1, 0, 6, 4, 2};
+    recvData.ReadBytesSeq(guid, byteOrder);
 
     Item* item = _player->GetItemByGuid(guid);
     if (!item)
