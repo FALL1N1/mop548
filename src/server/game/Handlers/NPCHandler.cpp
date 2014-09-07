@@ -402,12 +402,24 @@ void WorldSession::HandleTrainerBuySpellOpcode(WorldPacket& recvData)
     SendPacket(&data);
 }
 
-void WorldSession::SendTrainerBuyFailed(uint64 guid, uint32 spellId, uint32 reason)
+void WorldSession::SendTrainerBuyFailed(ObjectGuid guid, uint32 spellId, uint32 reason)
 {
-    WorldPacket data(SMSG_TRAINER_BUY_FAILED, 16);
-    data << uint64(guid);
-    data << uint32(spellId);        // should be same as in packet from client
+    WorldPacket data(SMSG_TRAINER_BUY_FAILED, 4 + 4);
+    
+    uint8 bitOrder[8] = {3, 0, 4, 7, 6, 1, 5, 2};
+    data.WriteBitInOrder(guid, bitOrder);
+
+    data.ReadByteSeq(guid[1]);
+    data.ReadByteSeq(guid[2]);
+    data.ReadByteSeq(guid[0]);
+    data.ReadByteSeq(guid[3]);
+    data.ReadByteSeq(guid[4]);
     data << uint32(reason);         // 1 == "Not enough money for trainer service." 0 == "Trainer service %d unavailable."
+    data.ReadByteSeq(guid[5]);
+    data.ReadByteSeq(guid[6]);
+    data.ReadByteSeq(guid[7]);
+    data << uint32(spellId);        // should be same as in packet from client
+    
     SendPacket(&data);
 }
 
