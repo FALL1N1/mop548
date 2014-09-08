@@ -83,6 +83,7 @@
 #include "BattlefieldMgr.h"
 #include "TransportMgr.h"
 #include "BattlePetMgr.h"
+#include "MasteryMgr.h"
 
 ACE_Atomic_Op<ACE_Thread_Mutex, bool> World::m_stopEvent = false;
 uint8 World::m_ExitCode = SHUTDOWN_EXIT_CODE;
@@ -1768,6 +1769,9 @@ void World::SetInitialWorldSettings()
 
     TC_LOG_INFO("server.loading", "Loading client addons...");
     AddonMgr::LoadFromDB();
+
+    TC_LOG_INFO("server.loading", "Loading Masteries...");
+    sMasteryMgr->LoadFromDB();
 
     ///- Handle outdated emails (delete/return)
     TC_LOG_INFO("server.loading", "Returning old mails...");

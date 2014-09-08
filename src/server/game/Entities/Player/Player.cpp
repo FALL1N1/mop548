@@ -83,6 +83,7 @@
 #include "WorldStateBuilder.h"
 #include "MovementStructures.h"
 #include "Config.h"
+#include "MasteryMgr.h"
 
 #define ZONE_UPDATE_INTERVAL (1*IN_MILLISECONDS)
 
@@ -136,22 +137,6 @@ enum CharacterCustomizeFlags
 #define MAX_DEATH_COUNT 3
 
 static uint32 copseReclaimDelay[MAX_DEATH_COUNT] = { 30, 60, 120 };
-
-uint32 const MasterySpells[MAX_CLASSES] =
-{
-        0,
-    87500,  // Warrior
-    87494,  // Paladin
-    87493,  // Hunter
-    87496,  // Rogue
-    87495,  // Priest
-    87492,  // Death Knight
-    87497,  // Shaman
-    86467,  // Mage
-    87498,  // Warlock
-        0,
-    87491,  // Druid
-};
 
 // == PlayerTaxi ================================================
 
@@ -3392,6 +3377,9 @@ void Player::InitStatsForLevel(bool reapplyMods)
     for (uint16 index = PLAYER_FIELD_COMBAT_RATINGS; index < PLAYER_FIELD_COMBAT_RATINGS + MAX_COMBAT_RATING; ++index)
         SetUInt32Value(index, 0);
 
+    float mastery = sMasteryMgr->getMastery(CharSpecialization(GetTalentSpecialization(GetActiveSpec()))).getPercent(0) / 2.0f;
+    SetFloatValue(PLAYER_FIELD_MASTERY, mastery);
+
     SetUInt32Value(PLAYER_FIELD_MOD_HEALING_DONE_POS, 0);
     SetFloatValue(PLAYER_FIELD_MOD_HEALING_PERCENT, 1.0f);
     SetFloatValue(PLAYER_FIELD_MOD_HEALING_DONE_PERCENT, 1.0f);
@@ -4115,19 +4103,8 @@ bool Player::IsNeedCastPassiveSpellAtLearn(SpellInfo const* spellInfo) const
     bool need_cast = (!spellInfo->Stances || (form && (spellInfo->Stances & (1 << (form - 1)))) ||
         (!form && (spellInfo->AttributesEx2 & SPELL_ATTR2_NOT_NEED_SHAPESHIFT)));
 
-    if (spellInfo->AttributesEx8 & SPELL_ATTR8_MASTERY_SPECIALIZATION)
-        need_cast &= IsCurrentSpecMasterySpell(spellInfo);
-
     //Check CasterAuraStates
     return need_cast && (!spellInfo->CasterAuraState || HasAuraState(AuraStateType(spellInfo->CasterAuraState)));
-}
-
-bool Player::IsCurrentSpecMasterySpell(SpellInfo const* spellInfo) const
-{
-    if (ChrSpecializationEntry const* specialization = sChrSpecializationStore.LookupEntry(GetTalentSpecialization(GetActiveSpec())))
-        return spellInfo->Id == specialization->MasterySpellId;
-
-    return false;
 }
 
 void Player::learnSpell(uint32 spell_id, bool dependent)
@@ -6193,7 +6170,7 @@ void Player::UpdateRating(CombatRating cr)
                 UpdateArmorPenetration(amount);
             break;
         case CR_MASTERY:
-            UpdateMastery();
+            UpdateMastery(amount);
             break;
         case CR_PVP_POWER:
             UpdatePVPPower(amount);
@@ -18298,6 +18275,8 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
             SetAtLoginFlag(AT_LOGIN_RESET_TALENTS); // invalid tree, reset talents
     }
 
+    UpdateMastery(GetUInt32Value(PLAYER_FIELD_COMBAT_RATINGS + CR_MASTERY));
+
     TC_LOG_DEBUG("entities.player.loading", "The value of player %s after load item and aura is: ", m_name.c_str());
     outDebugValues();
 
@@ -27424,50 +27403,8 @@ void Player::ActivateSpec(uint8 spec)
 
         if (!talentInfo)
             continue;
-
-        /*TalentTabEntry const* talentTabInfo = sTalentTabStore.LookupEntry(talentInfo->TalentTab);
-
-        if (!talentTabInfo)
-            continue;
-
-        // unlearn only talents for character class
-        // some spell learned by one class as normal spells or know at creation but another class learn it as talent,
-        // to prevent unexpected lost normal learned spell skip another class talents
-        if ((getClassMask() & talentTabInfo->ClassMask) == 0)
-            continue;
-
-        for (int8 rank = MAX_TALENT_RANK-1; rank >= 0; --rank)
-        {
-            // skip non-existant talent ranks
-            if (talentInfo->RankID[rank] == 0)
-                continue;
-            removeSpell(talentInfo->RankID[rank], true); // removes the talent, and all dependant, learned, and chained spells..
-            if (const SpellInfo* _spellEntry = sSpellMgr->GetSpellInfo(talentInfo->RankID[rank]))
-                for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)                  // search through the SpellInfo for valid trigger spells
-                    if (_spellEntry->Effects[i].TriggerSpell > 0 && _spellEntry->Effects[i].Effect == SPELL_EFFECT_LEARN_SPELL)
-                        removeSpell(_spellEntry->Effects[i].TriggerSpell, true); // and remove any spells that the talent teaches
-            // if this talent rank can be found in the PlayerTalentMap, mark the talent as removed so it gets deleted
-            //PlayerTalentMap::iterator plrTalent = m_talents[m_activeSpec]->find(talentInfo->RankID[rank]);
-            //if (plrTalent != m_talents[m_activeSpec]->end())
-            //    plrTalent->second->state = PLAYERSPELL_REMOVED;
-        }*/
     }
-    /*
-    // Remove spec specific spells
-    for (uint32 i = 0; i < MAX_TALENT_TABS; ++i)
-    {
-        uint32 const* talentTabs = GetClassSpecializations(getClass());
-        std::vector<uint32> const* specSpells = GetTalentTreePrimarySpells(talentTabs[i]);
-        if (specSpells)
-            for (size_t i = 0; i < specSpells->size(); ++i)
-                removeSpell(specSpells->at(i), true);
 
-        TalentTabEntry const* talentTabInfo = sTalentTabStore.LookupEntry(talentTabs[i]);
-        for (uint32 i = 0; i < MAX_MASTERY_SPELLS; ++i)
-            if (uint32 mastery = talentTabInfo->MasterySpellId[i])
-                removeSpell(mastery, true);
-    }
-    */
     // set glyphs
     for (uint8 slot = 0; slot < MAX_GLYPH_SLOT_INDEX; ++slot)
         // remove secondary glyph
@@ -27492,18 +27429,7 @@ void Player::ActivateSpec(uint8 spec)
         learnSpell(talentInfo->SpellId, false); // add the talent to the PlayerSpellMap
 
     }
-/*
-    std::vector<uint32> const* specSpells = GetTalentTreePrimarySpells(GetTalentSpecialization(GetActiveSpec()));
-    if (specSpells)
-        for (size_t i = 0; i < specSpells->size(); ++i)
-            learnSpell(specSpells->at(i), false);
 
-    if (CanUseMastery())
-        if (TalentTabEntry const* talentTabInfo = sTalentTabStore.LookupEntry(GetTalentSpecialization(GetActiveSpec())))
-            for (uint32 i = 0; i < MAX_MASTERY_SPELLS; ++i)
-                if (uint32 mastery = talentTabInfo->MasterySpellId[i])
-                    learnSpell(mastery, false);
-*/
     // set glyphs
     for (uint8 slot = 0; slot < MAX_GLYPH_SLOT_INDEX; ++slot)
     {
@@ -27567,6 +27493,7 @@ void Player::SetReputation(uint32 factionentry, uint32 value)
 {
     GetReputationMgr().SetReputation(sFactionStore.LookupEntry(factionentry), value);
 }
+
 uint32 Player::GetReputation(uint32 factionentry) const
 {
     return GetReputationMgr().GetReputation(sFactionStore.LookupEntry(factionentry));
@@ -28234,11 +28161,6 @@ Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
     //ObjectAccessor::UpdateObjectVisibility(pet);
 
     return pet;
-}
-
-bool Player::CanUseMastery() const
-{
-    return HasSpell(MasterySpells[getClass()]);
 }
 
 void Player::ReadyCheckComplete()
@@ -29072,4 +28994,63 @@ void Player::UpdateResearchProjects()
         uint32 offset = i & 1; // i % 2
         SetUInt16Value(PLAYER_FIELD_RESEARCHING + field, offset, projectIds[i]);
     }
+}
+
+float Player::GetMasterySpellCoefficient()
+{
+    uint32 spell = 0;
+    switch (GetTalentSpecialization(GetActiveSpec()))
+    {
+        case CHAR_SPECIALIZATION_MAGE_ARCANE:           spell = 76547;  break;
+        case CHAR_SPECIALIZATION_MAGE_FIRE:             spell = 12846;  break;
+        case CHAR_SPECIALIZATION_MAGE_FROST:            spell = 76613;  break;
+
+        case CHAR_SPECIALIZATION_PALADIN_HOLY:          spell = 76669;  break;
+        case CHAR_SPECIALIZATION_PALADIN_PROTECTION:    spell = 76671;  break;
+        case CHAR_SPECIALIZATION_PALADIN_RETRIBUTION:   spell = 76672;  break;
+
+        case CHAR_SPECIALIZATION_WARRIOR_ARMS:          spell = 76838;  break;
+        case CHAR_SPECIALIZATION_WARRIOR_FURY:          spell = 76856;  break;
+        case CHAR_SPECIALIZATION_WARRIOR_PROTECTION:    spell = 76857;  break;
+
+        case CHAR_SPECIALIZATION_DRUID_BALANCE:         spell = 77492;  break;
+        case CHAR_SPECIALIZATION_DRUID_FERAL:           spell = 77493;  break;
+        case CHAR_SPECIALIZATION_DRUID_GUARDIAN:        spell = 77494;  break;
+        case CHAR_SPECIALIZATION_DRUID_RESTORATION:     spell = 77495;  break;
+
+        case CHAR_SPECIALIZATION_DEATH_KNIGHT_BLOOD:    spell = 77513;  break;
+        case CHAR_SPECIALIZATION_DEATH_KNIGHT_FROST:    spell = 77514;  break;
+        case CHAR_SPECIALIZATION_DEATH_KNIGHT_UNHOLY:   spell = 77515;  break;
+
+        case CHAR_SPECIALIZATION_HUNTER_BEAST_MASTERY:  spell = 76657;  break;
+        case CHAR_SPECIALIZATION_HUNTER_MARKSMANSHIP:   spell = 76659;  break;
+        case CHAR_SPECIALIZATION_HUNTER_SURVIVAL:       spell = 76658;  break;
+
+        case CHAR_SPECIALIZATION_PRIEST_DISCIPLINE:     spell = 77484;  break;
+        case CHAR_SPECIALIZATION_PRIEST_HOLY:           spell = 77485;  break;
+        case CHAR_SPECIALIZATION_PRIEST_SHADOW:         spell = 77486;  break;
+
+        case CHAR_SPECIALIZATION_ROGUE_ASSASSINATION:   spell = 76803;  break;
+        case CHAR_SPECIALIZATION_ROGUE_COMBAT:          spell = 76806;  break;
+        case CHAR_SPECIALIZATION_ROGUE_SUBTLETY:        spell = 76808;  break;
+
+        case CHAR_SPECIALIZATION_SHAMAN_ELEMENTAL:      spell = 77222;  break;
+        case CHAR_SPECIALIZATION_SHAMAN_ENHANCEMENT:    spell = 77223;  break;
+        case CHAR_SPECIALIZATION_SHAMAN_RESTORATION:    spell = 77226;  break;
+
+        case CHAR_SPECIALIZATION_WARLOCK_AFFLICTION:    spell = 77215;  break;
+        case CHAR_SPECIALIZATION_WARLOCK_DEMONOLOGY:    spell = 77219;  break;
+        case CHAR_SPECIALIZATION_WARLOCK_DESTRUCTION:   spell = 77220;  break;
+
+        case CHAR_SPECIALIZATION_MONK_BREWMASTER:       spell = 117906; break;
+        case CHAR_SPECIALIZATION_MONK_WINDWALKER:       spell = 115636; break;
+        case CHAR_SPECIALIZATION_MONK_MISTWEAVER:       spell = 117907; break;
+        default:
+            return 1.0f;
+    }
+
+    // retrieve the mastery value multiplier from the mastery spell base points
+    if (SpellInfo const* mastery = sSpellMgr->GetSpellInfo(spell))
+        return (GetFloatValue(PLAYER_FIELD_MASTERY) * mastery->Effects[EFFECT_0].BonusMultiplier);
+    return 1.0f;
 }

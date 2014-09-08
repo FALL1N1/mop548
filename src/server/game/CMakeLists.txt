@@ -36,6 +36,7 @@ file(GLOB_RECURSE sources_Instances Instances/*.cpp Instances/*.h)
 file(GLOB_RECURSE sources_Loot Loot/*.cpp Loot/*.h)
 file(GLOB_RECURSE sources_Mails Mails/*.cpp Mails/*.h)
 file(GLOB_RECURSE sources_Maps Maps/*.cpp Maps/*.h)
+file(GLOB_RECURSE sources_Mastery Mastery/*.cpp Mastery/*.h)
 file(GLOB_RECURSE sources_Miscellaneous Miscellaneous/*.cpp Miscellaneous/*.h)
 file(GLOB_RECURSE sources_Movement Movement/*.cpp Movement/*.h)
 file(GLOB_RECURSE sources_OutdoorPvP OutdoorPvP/*.cpp OutdoorPvP/*.h)
@@ -82,6 +83,7 @@ source_group(Instances FILES ${sources_Instances})
 source_group(Loot FILES ${sources_Loot})
 source_group(Mails FILES ${sources_Mails})
 source_group(Maps FILES ${sources_Maps})
+source_group(Mastery FILES ${sources_Mastery})
 source_group(Miscellaneous FILES ${sources_Miscellaneous})
 source_group(Movement FILES ${sources_Movement})
 source_group(OutdoorPvP FILES ${sources_OutdoorPvP})
@@ -135,6 +137,7 @@ set(game_STAT_SRCS
   ${sources_Loot}
   ${sources_Mails}
   ${sources_Maps}
+  ${sources_Mastery}
   ${sources_Miscellaneous}
   ${sources_Movement}
   ${sources_OutdoorPvP}
@@ -228,6 +231,7 @@ include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}/Loot
   ${CMAKE_CURRENT_SOURCE_DIR}/Mails
   ${CMAKE_CURRENT_SOURCE_DIR}/Maps
+  ${CMAKE_CURRENT_SOURCE_DIR}/Mastery
   ${CMAKE_CURRENT_SOURCE_DIR}/Miscellaneous
   ${CMAKE_CURRENT_SOURCE_DIR}/Movement
   ${CMAKE_CURRENT_SOURCE_DIR}/Movement/Spline

@@ -2254,7 +2254,12 @@ bool Unit::isSpellBlocked(Unit* victim, SpellInfo const* spellProto, WeaponAttac
 bool Unit::isBlockCritical()
 {
     if (roll_chance_i(GetTotalAuraModifier(SPELL_AURA_MOD_BLOCK_CRIT_CHANCE)))
+    {
+        // Critical Blocks enrage the warrior
+        if (HasAura(76857))
+            CastSpell(this, 12880, true);
         return true;
+    }
     return false;
 }
 
@@ -4381,6 +4386,10 @@ int32 Unit::GetTotalAuraModifier(AuraType auratype) const
 
     for (std::map<SpellGroup, int32>::const_iterator itr = SameEffectSpellGroup.begin(); itr != SameEffectSpellGroup.end(); ++itr)
         modifier += itr->second;
+
+    // Mastery : Critical Block - Increase critical block chance
+    if (HasAura(76857) && auratype == SPELL_AURA_MOD_BLOCK_CRIT_CHANCE)
+        modifier += int32(GetFloatValue(PLAYER_FIELD_MASTERY) * 2.2f);
 
     return modifier;
 }

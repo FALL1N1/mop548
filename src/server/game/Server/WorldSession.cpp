@@ -1067,7 +1067,7 @@ bool WorldSession::IsAddonRegistered(const std::string& prefix) const
     return itr != _registeredAddonPrefixes.end();
 }
 
-void WorldSession::HandleUnregisterAddonPrefixesOpcode(WorldPacket& /*recvPacket*/) // empty packet
+void WorldSession::HandleUnregisterAddonPrefixesOpcode(WorldPacket& /*recvPacket*/)
 {
     TC_LOG_DEBUG("network", "WORLD: Received CMSG_UNREGISTER_ALL_ADDON_PREFIXES");
 

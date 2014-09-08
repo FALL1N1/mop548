@@ -26,6 +26,7 @@
 #include "SpellAuraEffects.h"
 #include "SpellMgr.h"
 #include "World.h"
+#include "MasteryMgr.h"
 
 inline bool _ModifyUInt32(bool apply, uint32& baseValue, int32& amount)
 {
@@ -474,6 +475,16 @@ void Player::UpdateBlockPercentage()
         value = 5.0f;
         // Increase from SPELL_AURA_MOD_BLOCK_PERCENT aura
         value += GetTotalAuraModifier(SPELL_AURA_MOD_BLOCK_PERCENT);
+
+        // 76671 - Mastery : Divine Bulwark - Block Percentage
+        if (GetTypeId() == TYPEID_PLAYER && HasAura(76671))
+            value += GetFloatValue(PLAYER_FIELD_MASTERY);
+
+        // Custom MoP Script
+        // 76857 - Mastery : Critical Block - Block Percentage
+        if (GetTypeId() == TYPEID_PLAYER && HasAura(76857))
+            value += GetFloatValue(PLAYER_FIELD_MASTERY) / 2.0f;
+
         // Increase from rating
         value += GetRatingBonusValue(CR_BLOCK);
 
@@ -535,42 +546,28 @@ void Player::UpdateAllCritPercentages()
     UpdateCritPercentage(RANGED_ATTACK);
 }
 
-void Player::UpdateMastery()
+float Player::GetMasteryPercent()
 {
-    if (!CanUseMastery())
-    {
-        SetFloatValue(PLAYER_FIELD_MASTERY, 0.0f);
-        return;
-    }
+    CharSpecialization mastery = CharSpecialization(GetTalentSpecialization(GetActiveSpec()));
 
-    float value = GetTotalAuraModifier(SPELL_AURA_MASTERY);
-    value += GetRatingBonusValue(CR_MASTERY);
-    SetFloatValue(PLAYER_FIELD_MASTERY, value);
-    /*
-    TalentTabEntry const* talentTab = sTalentTabStore.LookupEntry(GetTalentSpecialization(GetActiveSpec()));
-    if (!talentTab)
-        return;
+    uint32 amount = GetUInt32Value(PLAYER_FIELD_COMBAT_RATINGS + CR_MASTERY);
+    return sMasteryMgr->getMastery(mastery).getPercent(amount);
+}
 
-    for (uint32 i = 0; i < MAX_MASTERY_SPELLS; ++i)
-    {
-        if (!talentTab->MasterySpellId[i])
-            continue;
+void Player::UpdateMastery(int32 amount)
+{
+    CharSpecialization masteryId = CharSpecialization(GetTalentSpecialization(GetActiveSpec()));
 
-        if (Aura* aura = GetAura(talentTab->MasterySpellId[i]))
-        {
-            for (uint32 j = 0; j < MAX_SPELL_EFFECTS; ++j)
-            {
-                if (!aura->HasEffect(j))
-                    continue;
+    float value = sMasteryMgr->getMastery(masteryId).getPercent(amount) / 2.0f;
+    SetStatFloatValue(PLAYER_FIELD_MASTERY, value);
 
-                float mult = aura->GetSpellInfo()->Effects[j].BonusMultiplier;
-                if (G3D::fuzzyEq(mult, 0.0f))
-                    continue;
-
-                aura->GetEffect(j)->ChangeAmount(int32(value * aura->GetSpellInfo()->Effects[j].BonusMultiplier));
-            }
-        }
-    }*/
+    // 76671 - Mastery : Divine Bulwark - Update Block Percentage
+    // 76857 - Mastery : Critical Block - Update Block Percentage
+    if (HasAura(76671) || HasAura(76857))
+        UpdateBlockPercentage();
+    // 77494 - Mastery : Nature's Guardian - Update Armor
+    if (HasAura(77494))
+        UpdateArmor();
 }
 
 void Player::UpdatePVPPower(int32 amount)

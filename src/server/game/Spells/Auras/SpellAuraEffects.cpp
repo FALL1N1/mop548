@@ -543,12 +543,7 @@ void AuraEffect::GetApplicationList(std::list<AuraApplication*> & applicationLis
 int32 AuraEffect::CalculateAmount(Unit* caster)
 {
     // default amount calculation
-    int32 amount = 0;
-
-    if (!(m_spellInfo->AttributesEx8 & SPELL_ATTR8_MASTERY_SPECIALIZATION) || G3D::fuzzyEq(m_spellInfo->Effects[m_effIndex].BonusMultiplier, 0.0f))
-        amount = m_spellInfo->Effects[m_effIndex].CalcValue(caster, &m_baseAmount, GetBase()->GetOwner()->ToUnit());
-    else if (caster && caster->GetTypeId() == TYPEID_PLAYER)
-        amount = int32(caster->GetFloatValue(PLAYER_FIELD_MASTERY) * m_spellInfo->Effects[m_effIndex].BonusMultiplier);
+    int32 amount = m_spellInfo->Effects[m_effIndex].CalcValue(caster, &m_baseAmount, GetBase()->GetOwner()->ToUnit());
 
     // check item enchant aura cast
     if (!amount && caster)
@@ -1307,9 +1302,6 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
                 if (!spellInfo || !(spellInfo->Attributes & (SPELL_ATTR0_PASSIVE | SPELL_ATTR0_HIDDEN_CLIENTSIDE)))
                     continue;
 
-                if ((spellInfo->AttributesEx8 & SPELL_ATTR8_MASTERY_SPECIALIZATION) && !plrTarget->IsCurrentSpecMasterySpell(spellInfo))
-                    continue;
-
                 if (spellInfo->Stances & (1<<(GetMiscValue()-1)))
                     target->CastSpell(target, itr->first, true, NULL, this);
             }
@@ -1965,6 +1957,8 @@ void AuraEffect::HandleAuraModShapeshift(AuraApplication const* aurApp, uint8 mo
             else
                 target->ToPlayer()->RemoveTemporarySpell(shapeInfo->stanceSpell[i]);
         }
+        // Update the Mastery percentage for Shapeshift
+        target->ToPlayer()->UpdateMastery(target->GetUInt32Value(PLAYER_FIELD_COMBAT_RATINGS + CR_MASTERY));
     }
 }
 
@@ -5403,7 +5397,7 @@ void AuraEffect::HandleMastery(AuraApplication const* aurApp, uint8 mode, bool /
     if (!target)
         return;
 
-    target->UpdateMastery();
+    target->UpdateMastery(target->GetUInt32Value(PLAYER_FIELD_COMBAT_RATINGS + CR_MASTERY));
 }
 
 void AuraEffect::HandlePeriodicDummyAuraTick(Unit* target, Unit* caster) const
