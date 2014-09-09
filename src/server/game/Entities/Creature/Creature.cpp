@@ -815,6 +815,9 @@ bool Creature::Create(uint32 guidlow, Map* map, uint32 phaseMask, uint32 Entry, 
     if (Entry == VISUAL_WAYPOINT)
         SetVisible(false);
 
+    if (GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_IGNORE_PATHFINDING)
+        AddUnitState(UNIT_STATE_IGNORE_PATHFINDING);
+
     return true;
 }
 
