@@ -227,14 +227,6 @@ void WorldSession::SendPacket(WorldPacket const* packet, bool forced /*= false*/
         if (!handler || handler->Status == STATUS_UNHANDLED)
         {
             TC_LOG_ERROR("network.opcode", "Prevented sending disabled opcode %s to %s", GetOpcodeNameForLogging(packet->GetOpcode(), true).c_str(), GetPlayerInfo().c_str());
-
-            PreparedStatement* stmt = NULL;
-            stmt = WorldDatabase.GetPreparedStatement(WORLD_INS_UNK_OPCODES);
-            stmt->setUInt32(0, (uint32)packet->GetOpcode());
-            stmt->setString(1, "SMSG");
-            stmt->setString(2, GetOpcodeNameForLogging(packet->GetOpcode(), true).c_str());
-            WorldDatabase.Execute(stmt);
-           
             return;
         }
     }
