@@ -26,6 +26,13 @@
 #define PET_FOCUS_REGEN_INTERVAL 4 * IN_MILLISECONDS
 #define HAPPINESS_LEVEL_SIZE        333000
 
+enum PetSpecialization
+{
+    PET_SPECIALIZATION_FEROCITY = 74,
+    PET_SPECIALIZATION_TENACITY = 81,
+    PET_SPECIALIZATION_CUNNING  = 79
+};
+
 struct PetSpell
 {
     ActiveStates active;
