@@ -1400,12 +1400,10 @@ void WorldSession::HandlePlayedTime(WorldPacket& recvData)
 
 void WorldSession::HandlePandarenFactionChoiceOpcode(WorldPacket& recvData)
 {
-    Player* player = GetPlayer();
-
-    if (player->getRace() != RACE_PANDAREN_NEUTRAL)
+    if (_player->getRace() != RACE_PANDAREN_NEUTRAL)
     {
         TC_LOG_ERROR("network", "Player '%s' (GUID: %u) sent CMSG_PANDAREN_CHOOSE_FACTION, but his race is %d. Race should be %d.",
-            player->GetName().c_str(), player->GetGUIDLow(), player->getRace(), RACE_PANDAREN_NEUTRAL);
+            _player->GetName().c_str(), _player->GetGUIDLow(), _player->getRace(), RACE_PANDAREN_NEUTRAL);
         recvData.rfinish();
         return;
     }
@@ -1414,22 +1412,31 @@ void WorldSession::HandlePandarenFactionChoiceOpcode(WorldPacket& recvData)
     recvData >> race;
 
     uint32 const* languageSpells;
+    WorldLocation location;
+    uint32 homebindLocation;
+
     if (race)
     {
         race = RACE_PANDAREN_ALLIANCE;
         languageSpells = pandarenLanguageSpellsAlliance;
+        location = WorldLocation(0, -8960.02f, 516.10f, 96.36f, 0.67f);
+        homebindLocation = 9;
     }
     else
     {
         race = RACE_PANDAREN_HORDE;
         languageSpells = pandarenLanguageSpellsHorde;
+        location = WorldLocation(1, 1357.62f, -4373.55f, 26.13f, 0.13f);
+        homebindLocation = 363;
     }
 
-    player->SetRace(race);
-    player->setFactionForRace(race);
+    _player->SetRace(race);
+    _player->setFactionForRace(race);
+    _player->TeleportTo(location);
+    _player->SetHomebind(location, homebindLocation);
 
     for (uint8 i = 0; i < PANDAREN_FACTION_LANGUAGE_COUNT; i++)
-        player->learnSpell(languageSpells[i], false);
+        _player->learnSpell(languageSpells[i], false);
 
     WorldPacket data(SMSG_PANDAREN_FACTION_CHOSEN, 4 + 1);
     data << (uint32)race;
@@ -1437,11 +1444,11 @@ void WorldSession::HandlePandarenFactionChoiceOpcode(WorldPacket& recvData)
     data.FlushBits();
     SendPacket(&data);
 
-    player->GetReputationMgr().UpdateReputationFlags();
+    _player->GetReputationMgr().UpdateReputationFlags();
 
-    player->GetReputationMgr().SendInitialReputations();
-    player->SendFeatureSystemStatus();
-    player->GetReputationMgr().SendForceReactions();
+    _player->GetReputationMgr().SendInitialReputations();
+    _player->SendFeatureSystemStatus();
+    _player->GetReputationMgr().SendForceReactions();
 }
 
 void WorldSession::HandleInspectOpcode(WorldPacket& recvData)
