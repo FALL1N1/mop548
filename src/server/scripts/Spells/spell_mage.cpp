@@ -528,17 +528,21 @@ public:
             float outRadius = 6.7f;
             float inRadius = 3.7f;
 
-            for (std::list<WorldObject*>::iterator itr = targets.begin(); itr != targets.end(); ++itr)
-            if (Unit* unit = (*itr)->ToUnit())
-            if (unit->HasAura(SPELL_MAGE_RING_OF_FROST_IMUNITY) || unit->HasAura(SPELL_MAGE_RING_OF_FROST_FREEZE) || unit->GetExactDist(GetExplTargetDest()) > outRadius || unit->GetExactDist(GetExplTargetDest()) < inRadius)
-                targets.erase(itr--);
+            targets.remove_if([&](WorldObject* target)
+            {
+                if (Unit* unit = target->ToUnit())
+                    return unit->HasAura(SPELL_MAGE_RING_OF_FROST_IMUNITY) || unit->HasAura(SPELL_MAGE_RING_OF_FROST_FREEZE) || unit->GetExactDist(GetExplTargetDest()) > outRadius || unit->GetExactDist(GetExplTargetDest()) < inRadius;
+
+                else 
+                    return true;
+            });
 
             Unit::AuraList castedRingOfFrostStuns;
             Unit::AuraList& castedAuras = GetCaster()->GetCastedAuras();
 
             for (Unit::AuraList::iterator itr = castedAuras.begin(); itr != castedAuras.end(); ++itr)
-            if ((*itr)->GetId() == SPELL_MAGE_RING_OF_FROST_FREEZE)
-                castedRingOfFrostStuns.push_back((*itr));
+                if ((*itr)->GetId() == SPELL_MAGE_RING_OF_FROST_FREEZE)
+                    castedRingOfFrostStuns.push_back((*itr));
 
             if (castedRingOfFrostStuns.size() + targets.size() > GetSpellInfo()->MaxAffectedTargets)
                 Trinity::Containers::RandomResizeList(targets, GetSpellInfo()->MaxAffectedTargets - castedRingOfFrostStuns.size());
@@ -569,8 +573,8 @@ public:
         void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
             if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
-            if (GetCaster())
-                GetCaster()->CastSpell(GetTarget(), SPELL_MAGE_RING_OF_FROST_IMUNITY, true);
+                if (GetCaster())
+                    GetCaster()->CastSpell(GetTarget(), SPELL_MAGE_RING_OF_FROST_IMUNITY, true);
         }
 
         void Register() override
