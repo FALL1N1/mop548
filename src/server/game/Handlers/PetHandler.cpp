@@ -456,7 +456,6 @@ void WorldSession::HandlePetActionHelper(Unit* pet, uint64 guid1, uint32 spellid
         default:
             TC_LOG_ERROR("network", "WORLD: unknown PET flag Action %i and spellid %i.", uint32(flag), spellid);
     }
-    printf("Flag [%u] SpellId [%u]\n", flag, spellid);
 }
 
 void WorldSession::HandlePetNameQuery(WorldPacket& recvData)
@@ -571,7 +570,6 @@ bool WorldSession::CheckStableMaster(uint64 guid)
 void WorldSession::HandlePetSetAction(WorldPacket& recvData)
 {
     TC_LOG_INFO("network", "HandlePetSetAction. CMSG_PET_SET_ACTION");
-    printf("Setting PetBar !!\n");
     ObjectGuid petguid;
     uint8  count;
 
@@ -603,8 +601,6 @@ void WorldSession::HandlePetSetAction(WorldPacket& recvData)
     recvData.ReadByteSeq(petguid[4]);
     recvData.ReadByteSeq(petguid[0]);
 
-    // recvData >> petguid;
-
     Unit* pet = ObjectAccessor::GetUnit(*_player, petguid);
 
     if (!pet || pet != _player->GetFirstControlled())
@@ -624,12 +620,9 @@ void WorldSession::HandlePetSetAction(WorldPacket& recvData)
 
     for (uint8 i = 0; i < count; ++i)
     {
-        // recvData >> position[i];
-        // recvData >> data[i];
-
         uint8 act_state = UNIT_ACTION_BUTTON_TYPE(data[i]);
 
-        //ignore invalid position
+        // ignore invalid position
         if (position[i] >= MAX_UNIT_ACTION_BAR_INDEX)
             return;
 
@@ -653,8 +646,7 @@ void WorldSession::HandlePetSetAction(WorldPacket& recvData)
         {
             uint32 spell_id_0 = UNIT_ACTION_BUTTON_ACTION(data[0]);
             UnitActionBarEntry const* actionEntry_1 = charmInfo->GetActionBarEntry(position[1]);
-            if (!actionEntry_1 || spell_id_0 != actionEntry_1->GetAction() ||
-                act_state_0 != actionEntry_1->GetType())
+            if (!actionEntry_1 || spell_id_0 != actionEntry_1->GetAction() || act_state_0 != actionEntry_1->GetType())
                 return;
         }
 
@@ -663,8 +655,7 @@ void WorldSession::HandlePetSetAction(WorldPacket& recvData)
         {
             uint32 spell_id_1 = UNIT_ACTION_BUTTON_ACTION(data[1]);
             UnitActionBarEntry const* actionEntry_0 = charmInfo->GetActionBarEntry(position[0]);
-            if (!actionEntry_0 || spell_id_1 != actionEntry_0->GetAction() ||
-                act_state_1 != actionEntry_0->GetType())
+            if (!actionEntry_0 || spell_id_1 != actionEntry_0->GetAction() || act_state_1 != actionEntry_0->GetType())
                 return;
         }
     }
@@ -860,16 +851,8 @@ void WorldSession::HandlePetSpellAutocastOpcode(WorldPacket& recvPacket)
 
 void WorldSession::HandlePetCastSpellOpcode(WorldPacket& recvPacket)
 {
-
     TC_LOG_DEBUG("network", "WORLD: CMSG_PET_CAST_SPELL");
-    /*
-    uint64 guid;
-    uint8  castCount;
-    uint32 spellId;
-    uint8  castFlags;
 
-    recvPacket >> guid >> castCount >> spellId >> castFlags;
-    */
     ObjectGuid guid;
     uint32 spellId;
     uint32 unk_1;
