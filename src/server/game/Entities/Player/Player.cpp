@@ -27733,8 +27733,8 @@ VoidStorageItem* Player::GetVoidStorageItem(uint64 id, uint8& slot) const
 void Player::SendMovementSetCanTransitionBetweenSwimAndFly(bool apply)
 {
     Movement::PacketSender(this, NULL_OPCODE, apply ?
-        SMSG_MOVE_SET_CAN_TRANS_BETW_SWIM_AND_FLY :
-        SMSG_MOVE_UNSET_CAN_TRANS_BETW_SWIM_AND_FLY).Send();
+        SMSG_MOVE_SET_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY :
+        SMSG_MOVE_UNSET_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY).Send();
 }
 
 void Player::SendMovementSetCollisionHeight(float height)

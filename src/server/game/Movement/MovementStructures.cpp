@@ -5515,7 +5515,7 @@ MovementStatusElements const* GetMovementStatusElementsSequence(Opcodes opcode)
         //    return MovementSetCanFly;
         //case CMSG_MOVE_SET_CAN_FLY_ACK:
         //    return MovementSetCanFlyAck;
-        //case CMSG_MOVE_SET_CAN_TRANS_BETW_SWIM_AND_FLY_ACK:
+        //case CMSG_MOVE_SET_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY_ACK:
         //    return MovementSetCanTransitionBetweenSwimAndFlyAck;
         case SMSG_MOVE_SET_COLLISION_HEIGHT:
             return MoveSetCollisionHeight;
