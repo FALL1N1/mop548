@@ -25,13 +25,13 @@ class MasteryMgr
 public:
 
     void LoadFromDB();
-    Mastery getMastery(CharSpecialization spec);
+    //Mastery getMastery(CharSpecialization spec);
 
 private:
     MasteryMgr() { };
     ~MasteryMgr() { };
 
-    std::map<CharSpecialization, Mastery> masteriesMap;
+    //std::map<CharSpecialization, Mastery> masteriesMap;
 };
 
 #define sMasteryMgr ACE_Singleton<MasteryMgr, ACE_Null_Mutex>::instance()

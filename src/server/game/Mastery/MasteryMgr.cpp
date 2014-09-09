@@ -25,7 +25,7 @@ void MasteryMgr::LoadFromDB()
         mastery.base = fields[1].GetFloat();
         mastery.ratio = fields[2].GetFloat();
 
-        masteriesMap[(CharSpecialization)id] = mastery;
+        //masteriesMap[(CharSpecialization)id] = mastery;
 
         ++count;
     } while (result->NextRow());
@@ -34,7 +34,7 @@ void MasteryMgr::LoadFromDB()
 }
 
 
-Mastery MasteryMgr::getMastery(CharSpecialization specId)
+/*Mastery MasteryMgr::getMastery(CharSpecialization specId)
 {
     std::map<CharSpecialization, Mastery>::const_iterator itr = masteriesMap.find(specId);
     if (itr != masteriesMap.end())
@@ -48,4 +48,4 @@ Mastery MasteryMgr::getMastery(CharSpecialization specId)
         mastery.ratio = 0.0f;
         return mastery;
     }
-}
+}*/
