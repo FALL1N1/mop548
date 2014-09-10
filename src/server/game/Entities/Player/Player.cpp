@@ -3377,9 +3377,8 @@ void Player::InitStatsForLevel(bool reapplyMods)
     for (uint16 index = PLAYER_FIELD_COMBAT_RATINGS; index < PLAYER_FIELD_COMBAT_RATINGS + MAX_COMBAT_RATING; ++index)
         SetUInt32Value(index, 0);
 
-    // !!!GetTalentSpecialization is not Char Specialization
-    //float mastery = sMasteryMgr->getMastery(CharSpecialization(GetTalentSpecialization(GetActiveSpec()))).getPercent(0) / 2.0f;
-    //SetFloatValue(PLAYER_FIELD_MASTERY, mastery);
+    float mastery = sMasteryMgr->GetMastery(GetTalentSpecialization(GetActiveSpec())).GetPercent(0) / 2.0f;
+    SetFloatValue(PLAYER_FIELD_MASTERY, mastery);
 
     SetUInt32Value(PLAYER_FIELD_MOD_HEALING_DONE_POS, 0);
     SetFloatValue(PLAYER_FIELD_MOD_HEALING_PERCENT, 1.0f);
@@ -28758,9 +28757,7 @@ void Player::UpdateResearchProjects()
 
 float Player::GetMasterySpellCoefficient()
 {
-    // !!!GetTalentSpecialization is not Char Specialization
-
-    /*uint32 spell = 0;
+    uint32 spell = 0;
     switch (GetTalentSpecialization(GetActiveSpec()))
     {
         case CHAR_SPECIALIZATION_MAGE_ARCANE:           spell = 76547;  break;
@@ -28813,6 +28810,6 @@ float Player::GetMasterySpellCoefficient()
 
     // retrieve the mastery value multiplier from the mastery spell base points
     if (SpellInfo const* mastery = sSpellMgr->GetSpellInfo(spell))
-        return (GetFloatValue(PLAYER_FIELD_MASTERY) * mastery->Effects[EFFECT_0].BonusMultiplier);*/
+        return (GetFloatValue(PLAYER_FIELD_MASTERY) * mastery->Effects[EFFECT_0].BonusMultiplier);
     return 1.0f;
 }

@@ -13,7 +13,7 @@ struct Mastery
     float base;
     float ratio;
 
-    float getPercent(uint32 amount)
+    float GetPercent(uint32 amount)
     {
         return base + ((ratio == 0.0f) ? 0.0f : (float(amount) / ratio));
     };
@@ -25,13 +25,13 @@ class MasteryMgr
 public:
 
     void LoadFromDB();
-    //Mastery getMastery(CharSpecialization spec);
+    Mastery GetMastery(uint32 spec);
 
 private:
     MasteryMgr() { };
     ~MasteryMgr() { };
 
-    //std::map<CharSpecialization, Mastery> masteriesMap;
+    std::map<uint32, Mastery> masteriesMap;
 };
 
 #define sMasteryMgr ACE_Singleton<MasteryMgr, ACE_Null_Mutex>::instance()

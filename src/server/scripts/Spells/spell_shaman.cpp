@@ -217,9 +217,9 @@ class spell_sha_ascendance : public SpellScriptLoader
                 {
                     switch (player->GetTalentSpecialization(player->GetActiveSpec()))
                     {
-                        case TALENT_TREE_SHAMAN_ENHANCEMENT:
-                        case TALENT_TREE_SHAMAN_ELEMENTAL:
-                        case TALENT_TREE_SHAMAN_RESTORATION:
+                        case CHAR_SPECIALIZATION_SHAMAN_ENHANCEMENT:
+                        case CHAR_SPECIALIZATION_SHAMAN_ELEMENTAL:
+                        case CHAR_SPECIALIZATION_SHAMAN_RESTORATION:
                             return SPELL_CAST_OK;
                         default:
                             return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
@@ -235,13 +235,13 @@ class spell_sha_ascendance : public SpellScriptLoader
                 {
                     switch (player->GetTalentSpecialization(player->GetActiveSpec()))
                     {
-                        case TALENT_TREE_SHAMAN_ENHANCEMENT:
+                        case CHAR_SPECIALIZATION_SHAMAN_ENHANCEMENT:
                             player->CastSpell(player, SPELL_SHAMAN_ASCENDANCE_ENHANCEMENT, true);
                             break;
-                        case TALENT_TREE_SHAMAN_ELEMENTAL:
+                        case CHAR_SPECIALIZATION_SHAMAN_ELEMENTAL:
                             player->CastSpell(player, SPELL_SHAMAN_ASCENDANCE_ELEMENTAL, true);
                             break;
-                        case TALENT_TREE_SHAMAN_RESTORATION:
+                        case CHAR_SPECIALIZATION_SHAMAN_RESTORATION:
                             player->CastSpell(player, SPELL_SHAMAN_ASCENDANCE_RESTORATION, true);
                             break;
                         default:
