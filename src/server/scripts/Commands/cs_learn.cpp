@@ -464,6 +464,9 @@ public:
         else
             handler->SendSysMessage(LANG_FORGET_SPELL);
 
+        if (GetTalentSpellCost(spellId))
+            target->SendTalentsInfoData(false);
+       
         return true;
     }
 };
