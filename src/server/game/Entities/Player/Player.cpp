@@ -28757,59 +28757,13 @@ void Player::UpdateResearchProjects()
 
 float Player::GetMasterySpellCoefficient()
 {
-    uint32 spell = 0;
-    switch (GetTalentSpecialization(GetActiveSpec()))
-    {
-        case CHAR_SPECIALIZATION_MAGE_ARCANE:           spell = 76547;  break;
-        case CHAR_SPECIALIZATION_MAGE_FIRE:             spell = 12846;  break;
-        case CHAR_SPECIALIZATION_MAGE_FROST:            spell = 76613;  break;
-
-        case CHAR_SPECIALIZATION_PALADIN_HOLY:          spell = 76669;  break;
-        case CHAR_SPECIALIZATION_PALADIN_PROTECTION:    spell = 76671;  break;
-        case CHAR_SPECIALIZATION_PALADIN_RETRIBUTION:   spell = 76672;  break;
-
-        case CHAR_SPECIALIZATION_WARRIOR_ARMS:          spell = 76838;  break;
-        case CHAR_SPECIALIZATION_WARRIOR_FURY:          spell = 76856;  break;
-        case CHAR_SPECIALIZATION_WARRIOR_PROTECTION:    spell = 76857;  break;
-
-        case CHAR_SPECIALIZATION_DRUID_BALANCE:         spell = 77492;  break;
-        case CHAR_SPECIALIZATION_DRUID_FERAL:           spell = 77493;  break;
-        case CHAR_SPECIALIZATION_DRUID_GUARDIAN:        spell = 77494;  break;
-        case CHAR_SPECIALIZATION_DRUID_RESTORATION:     spell = 77495;  break;
-
-        case CHAR_SPECIALIZATION_DEATH_KNIGHT_BLOOD:    spell = 77513;  break;
-        case CHAR_SPECIALIZATION_DEATH_KNIGHT_FROST:    spell = 77514;  break;
-        case CHAR_SPECIALIZATION_DEATH_KNIGHT_UNHOLY:   spell = 77515;  break;
-
-        case CHAR_SPECIALIZATION_HUNTER_BEAST_MASTERY:  spell = 76657;  break;
-        case CHAR_SPECIALIZATION_HUNTER_MARKSMANSHIP:   spell = 76659;  break;
-        case CHAR_SPECIALIZATION_HUNTER_SURVIVAL:       spell = 76658;  break;
-
-        case CHAR_SPECIALIZATION_PRIEST_DISCIPLINE:     spell = 77484;  break;
-        case CHAR_SPECIALIZATION_PRIEST_HOLY:           spell = 77485;  break;
-        case CHAR_SPECIALIZATION_PRIEST_SHADOW:         spell = 77486;  break;
-
-        case CHAR_SPECIALIZATION_ROGUE_ASSASSINATION:   spell = 76803;  break;
-        case CHAR_SPECIALIZATION_ROGUE_COMBAT:          spell = 76806;  break;
-        case CHAR_SPECIALIZATION_ROGUE_SUBTLETY:        spell = 76808;  break;
-
-        case CHAR_SPECIALIZATION_SHAMAN_ELEMENTAL:      spell = 77222;  break;
-        case CHAR_SPECIALIZATION_SHAMAN_ENHANCEMENT:    spell = 77223;  break;
-        case CHAR_SPECIALIZATION_SHAMAN_RESTORATION:    spell = 77226;  break;
-
-        case CHAR_SPECIALIZATION_WARLOCK_AFFLICTION:    spell = 77215;  break;
-        case CHAR_SPECIALIZATION_WARLOCK_DEMONOLOGY:    spell = 77219;  break;
-        case CHAR_SPECIALIZATION_WARLOCK_DESTRUCTION:   spell = 77220;  break;
-
-        case CHAR_SPECIALIZATION_MONK_BREWMASTER:       spell = 117906; break;
-        case CHAR_SPECIALIZATION_MONK_WINDWALKER:       spell = 115636; break;
-        case CHAR_SPECIALIZATION_MONK_MISTWEAVER:       spell = 117907; break;
-        default:
-            return 1.0f;
-    }
+    ChrSpecializationEntry const* specEntry = sChrSpecializationStore.LookupEntry(GetTalentSpecialization(GetActiveSpec()));
+    if (!specEntry)
+        return 1.0f;
 
     // retrieve the mastery value multiplier from the mastery spell base points
-    if (SpellInfo const* mastery = sSpellMgr->GetSpellInfo(spell))
+    if (SpellInfo const* mastery = sSpellMgr->GetSpellInfo(specEntry->MasterySpellId))
         return (GetFloatValue(PLAYER_FIELD_MASTERY) * mastery->Effects[EFFECT_0].BonusMultiplier);
+
     return 1.0f;
 }
