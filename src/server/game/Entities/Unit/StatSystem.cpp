@@ -548,17 +548,18 @@ void Player::UpdateAllCritPercentages()
 
 float Player::GetMasteryPercent()
 {
-    CharSpecialization mastery = CharSpecialization(GetTalentSpecialization(GetActiveSpec()));
+    uint32 mastery = GetTalentSpecialization(GetActiveSpec());
 
     uint32 amount = GetUInt32Value(PLAYER_FIELD_COMBAT_RATINGS + CR_MASTERY);
-    return sMasteryMgr->getMastery(mastery).getPercent(amount);
+    return sMasteryMgr->GetMastery(mastery).GetPercent(amount);
+    return 1.0f;
 }
 
 void Player::UpdateMastery(int32 amount)
 {
-    CharSpecialization masteryId = CharSpecialization(GetTalentSpecialization(GetActiveSpec()));
+    uint32 masteryId = GetTalentSpecialization(GetActiveSpec());
 
-    float value = sMasteryMgr->getMastery(masteryId).getPercent(amount) / 2.0f;
+    float value = sMasteryMgr->GetMastery(masteryId).GetPercent(amount) / 2.0f;
     SetStatFloatValue(PLAYER_FIELD_MASTERY, value);
 
     // 76671 - Mastery : Divine Bulwark - Update Block Percentage
