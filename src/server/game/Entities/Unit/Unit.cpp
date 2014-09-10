@@ -13171,9 +13171,22 @@ void Unit::SendPetTalk(uint32 pettalk)
     if (!owner || owner->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    WorldPacket data(SMSG_PET_ACTION_SOUND, 8 + 4);
-    data << uint64(GetGUID());
+    WorldPacket data(SMSG_PET_ACTION_SOUND, 4);
+    ObjectGuid guid = GetGUID();
+    
+    uint8 bitOrder[8] = {2, 7, 6, 0, 5, 1, 3, 4};
+    data.WriteBitInOrder(guid, bitOrder);
+
+    data.WriteByteSeq(guid[7]);
+    data.WriteByteSeq(guid[4]);
+    data.WriteByteSeq(guid[6]);
+    data.WriteByteSeq(guid[1]);
     data << uint32(pettalk);
+    data.WriteByteSeq(guid[2]);
+    data.WriteByteSeq(guid[3]);
+    data.WriteByteSeq(guid[5]);
+    data.WriteByteSeq(guid[0]);
+
     owner->ToPlayer()->GetSession()->SendPacket(&data);
 }
 

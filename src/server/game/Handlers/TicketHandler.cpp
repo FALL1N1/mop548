@@ -29,6 +29,53 @@
 #include "WorldPacket.h"
 #include "WorldSession.h"
 
+
+//Todo Questlog AuraLog PhaseLog!
+void WorldSession::HandleSubmitBugOpcode(WorldPacket& recvData)
+{
+    TC_LOG_DEBUG("network", "WORLD: CMSG_SUBMIT_BUG");
+
+    float posX, posY, posZ, posO;
+    uint32 mapID;
+
+    recvData >> posZ;
+    recvData >> posY;
+    recvData >> posX;
+    recvData >> posO;
+    recvData >> mapID;
+    uint32 length = recvData.ReadBits(10);
+    recvData.FlushBits();
+    std::string bug = recvData.ReadString(length);
+
+    ObjectGuid plrGuid = GUID_LOPART(GetPlayer()->GetGUID());
+    std::string name = "<unknown>";
+    sObjectMgr->GetPlayerNameByGUID(plrGuid, name);
+
+    SQLTransaction trans = SQLTransaction(NULL);
+
+    //    0     1      2      3          4      5      6     7     8          
+    // realm, guid, message, createTime, pool, mapId, posX, posY, posZ
+    uint8 index = 0;
+    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_BUG_TICKET);
+    stmt->setUInt32(index, realmID);
+    stmt->setUInt32(++index, plrGuid);
+    stmt->setString(++index, bug);
+    stmt->setUInt32(++index, uint32(time(NULL)));
+    stmt->setString(++index, name.c_str());
+    stmt->setUInt16(++index, uint16(mapID));
+    stmt->setFloat(++index, (float)posX);
+    stmt->setFloat(++index, (float)posY);
+    stmt->setFloat(++index, (float)posZ);
+
+    LoginDatabase.ExecuteOrAppend(trans, stmt);
+}
+void WorldSession::HandleSubmitSuggestionOpcode(WorldPacket& recvData)
+{
+    TC_LOG_DEBUG("network", "WORLD: CMSG_SUGGESTION_SUBMIT");
+
+    HandleSubmitBugOpcode(recvData);  //If you want a separate table for the suggestions. Do it !! Same opcode Structure HandleSubmitBugOpcode
+}
+
 void WorldSession::HandleGMTicketCreateOpcode(WorldPacket& recvData)
 {
     // Don't accept tickets if the ticket queue is disabled. (Ticket UI is greyed out but not fully dependable)

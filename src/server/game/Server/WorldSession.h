@@ -481,6 +481,8 @@ class WorldSession
         void HandleLogoutCancelOpcode(WorldPacket& recvPacket);
 
         // GM Ticket opcodes
+        void HandleSubmitBugOpcode(WorldPacket & recvPacket);
+        void HandleSubmitSuggestionOpcode(WorldPacket & recvPacket);
         void HandleGMTicketCreateOpcode(WorldPacket& recvPacket);
         void HandleGMTicketUpdateOpcode(WorldPacket& recvPacket);
         void HandleGMTicketDeleteOpcode(WorldPacket& recvPacket);

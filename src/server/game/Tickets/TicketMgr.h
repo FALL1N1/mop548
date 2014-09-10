@@ -27,6 +27,16 @@
 
 class ChatHandler;
 
+enum ComplainType
+{
+    COMPLAIN_SPAM           = 0,
+    COMPLAIN_CHEATER        = 1,
+    COMPLAIN_PLAYER_NAME    = 3,
+    COMPLAIN_GUILD_NAME     = 6,
+    COMPLAIN_ARENA_NAME     = 9,
+    COMPLAIN_BAD_LANG       = 10,
+};
+
 // from blizzard lua
 enum GMTicketSystemStatus
 {
