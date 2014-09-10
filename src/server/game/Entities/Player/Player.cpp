@@ -7710,27 +7710,16 @@ void Player::SendPvpRewards() const
 {
     WorldPacket data(SMSG_REQUEST_PVP_REWARDS_RESPONSE, 24);
 
-    data << uint32(28360);
-    data << uint32(180);
-    data << uint32(0);
-    data << uint32(180);
-    data << uint32(400);
-    data << uint32(27960);
-    data << uint32(180);
-    data << uint32(28360);
-    data << uint32(180);
-    data << uint32(27960);
-
-    //data << GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_POINTS, true);
-    //data << GetCurrencyOnWeek(CURRENCY_TYPE_CONQUEST_META_ARENA, true);
-    //data << GetCurrencyOnWeek(CURRENCY_TYPE_CONQUEST_META_RBG, true);
-    //data << GetCurrencyOnWeek(CURRENCY_TYPE_CONQUEST_META_ARENA, true);
-    //data << uint32(0); // UnkMop
-    //data << GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_META_ARENA, true);
-    //data << uint32(0); // unkMop2
-    //data << GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_META_RBG, true);
-    //data << GetCurrencyOnWeek(CURRENCY_TYPE_CONQUEST_POINTS, true);
-    //data << GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_META_ARENA, true);
+    data << GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_POINTS, true);
+    data << GetCurrencyOnWeek(CURRENCY_TYPE_CONQUEST_META_ARENA, true);
+    data << GetCurrencyOnWeek(CURRENCY_TYPE_CONQUEST_META_RBG, true);
+    data << GetCurrencyOnWeek(CURRENCY_TYPE_CONQUEST_META_ARENA, true);
+    data << uint32(0); // UnkMop
+    data << GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_META_ARENA, true);
+    data << uint32(0); // unkMop2
+    data << GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_META_RBG, true);
+    data << GetCurrencyOnWeek(CURRENCY_TYPE_CONQUEST_POINTS, true);
+    data << GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_META_ARENA, true);
 
     GetSession()->SendPacket(&data);
 }
@@ -23220,22 +23209,33 @@ void Player::SendCooldownEvent(SpellInfo const* spellInfo, uint32 itemId /*= 0*/
     // Send activate cooldown timer (possible 0) at client side
     ObjectGuid guid = GetGUID();
 
-    WorldPacket data(SMSG_COOLDOWN_EVENT, 4 + 1 + 8);
+    WorldPacket data(SMSG_COOLDOWN_EVENT, 4 + 2 + 8);
 
-    uint8 bitOrder[8] = {4, 7, 1, 5, 6, 0, 2, 3};
-    data.WriteBitInOrder(GetGUID(), bitOrder);
+    data.WriteBit(guid[3]);
+    data.WriteBit(guid[6]);
+    data.WriteBit(guid[2]);
 
-    data.WriteByteSeq(guid[5]);
+    data.WriteBit(0); // unk - mostly 0
+
+    data.WriteBit(guid[7]);
+    data.WriteBit(guid[0]);
+    data.WriteBit(guid[1]);
+    data.WriteBit(guid[5]);
+    data.WriteBit(guid[4]);
+
+    data.FlushBits();
+
+    data.WriteByteSeq(guid[0]);
+    data.WriteByteSeq(guid[1]);
+    data.WriteByteSeq(guid[2]);
     data.WriteByteSeq(guid[7]);
+    data.WriteByteSeq(guid[3]);
+    data.WriteByteSeq(guid[6]);
+    data.WriteByteSeq(guid[5]);
 
     data << uint32(spellInfo->Id);
 
-    data.WriteByteSeq(guid[3]);
-    data.WriteByteSeq(guid[1]);
-    data.WriteByteSeq(guid[2]);
     data.WriteByteSeq(guid[4]);
-    data.WriteByteSeq(guid[6]);
-    data.WriteByteSeq(guid[0]);
 
     SendDirectMessage(&data);
 }
