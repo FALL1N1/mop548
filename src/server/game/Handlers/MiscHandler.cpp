@@ -1119,42 +1119,43 @@ void WorldSession::HandleUpdateAccountData(WorldPacket& recvData)
     uint32 timestamp, type, decompressedSize, compressedSize;
     recvData >> decompressedSize >> timestamp >> compressedSize;
 
-    if (decompressedSize == 0)                               // erase
+    if (decompressedSize > 0xFFFF) // unnneded warning spam in this case
+    {
+        recvData.rfinish();
+        TC_LOG_ERROR("network", "UAD: Account data packet too big, size %u", decompressedSize);
+        return;
+    }
+
+    if (decompressedSize == 0) // erase                             
     {
         type = recvData.ReadBits(3);
         SetAccountData(AccountDataType(type), 0, "");
         WorldPacket data(SMSG_UPDATE_ACCOUNT_DATA_COMPLETE, 4+4);
         data << uint32(type);
         data << uint32(0);
-        SendPacket(&data);
-
+        SendPacket(&data);        
         return;
     }
-
-    if (decompressedSize > 0xFFFF)
-    {
-        recvData.rfinish();                   // unnneded warning spam in this case
-        TC_LOG_ERROR("network", "UAD: Account data packet too big, size %u", decompressedSize);
-        return;
-    }
-
+    
     ByteBuffer dest;
     dest.resize(decompressedSize);
 
     uLongf realSize = decompressedSize;
-    if (uncompress(dest.contents(), &realSize, recvData.contents() + recvData.rpos(), recvData.size() - recvData.rpos()) != Z_OK)
+    if (uncompress(dest.contents(), &realSize, recvData.contents() + recvData.rpos(), recvData.size() - recvData.rpos()) != Z_OK) // unnneded warning spam in this case
     {
-        recvData.rfinish();                   // unnneded warning spam in this case
+        recvData.rfinish();                   
         TC_LOG_ERROR("network", "UAD: Failed to decompress account data");
         return;
     }
 
-    type = recvData.ReadBits(3);    
+    type = recvData.ReadBits(3);
+
     if (type > NUM_ACCOUNT_DATA_TYPES)
         return;
 
-    recvData.rfinish();                       // uncompress read (recvData.size() - recvData.rpos())
+    recvData.rfinish();   
 
+    // uncompress read (recvData.size() - recvData.rpos())
     std::string adata;
     dest >> adata;
 

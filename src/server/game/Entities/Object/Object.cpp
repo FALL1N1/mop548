@@ -250,8 +250,13 @@ void Object::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) c
     }
 
     if (Unit const* unit = ToUnit())
+    {
         if (unit->GetVictim())
             flags |= UPDATEFLAG_HAS_TARGET;
+
+        if (unit->GetAIAnimKitId() || unit->GetMovementAnimKitId() || unit->GetMeleeAnimKitId())
+            flags |= UPDATEFLAG_ANIMKITS;
+    }
 
     ByteBuffer buf(500);
     buf << uint8(updateType);
@@ -392,7 +397,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
     bool hasTarget = flags & UPDATEFLAG_HAS_TARGET;
     bool hasVehicle = flags & UPDATEFLAG_VEHICLE;
     bool hasTransport = flags & UPDATEFLAG_TRANSPORT;
-    bool hasAnimKits = false; //flags & UPDATEFLAG_ANIMKITS;
+    bool hasAnimKits = flags & UPDATEFLAG_ANIMKITS;
 
     bool hasFallData;
     bool hasFallDirection;
@@ -516,14 +521,14 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
         data->WriteBit(self->m_movementInfo.transport.time3 && self->m_movementInfo.transport.guid);
     }
 
-    /*
     if (hasAnimKits)
     {
-        data->WriteBit(1);  // Missing AnimKit1
-        data->WriteBit(1);  // Missing AnimKit2
-        data->WriteBit(1);  // Missing AnimKit3
+        // Not sure about the order
+        Unit const* unit = ToUnit();
+        data->WriteBit(unit->GetAIAnimKitId() == 0);
+        data->WriteBit(unit->GetMovementAnimKitId() == 0);
+        data->WriteBit(unit->GetMeleeAnimKitId() == 0);
     }
-    */
 
     if (hasTarget)
     {
@@ -697,16 +702,16 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
         *data << float(self->GetPositionX());
     }
 
-    /*
     if (hasAnimKits)
     {
-        if (hasAnimKit3)
-            *data << uint16(animKit3);
-        if (hasAnimKit2)
-            *data << uint16(animKit2);
-        if (hasAnimKit1)
-            *data << uint16(animKit1);
-    }*/
+        Unit const* unit = ToUnit();
+        if (unit->GetMeleeAnimKitId())
+            *data << uint16(unit->GetMeleeAnimKitId());
+        if (unit->GetMovementAnimKitId())
+            *data << uint16(unit->GetMovementAnimKitId());
+        if (unit->GetAIAnimKitId())
+            *data << uint16(unit->GetAIAnimKitId());
+    }
 
     if (hasTransport)
     {

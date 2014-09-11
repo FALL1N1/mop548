@@ -262,6 +262,10 @@ Unit::Unit(bool isWorldObject) :
 
     _lastLiquid = NULL;
     _isWalkingBeforeCharm = false;
+
+    _aiAnimKitId = 0;
+    _movementAnimKitId = 0;
+    _meleeAnimKitId = 0;
 }
 
 ////////////////////////////////////////////////////////////
@@ -13956,11 +13960,103 @@ void Unit::SendDurabilityLoss(Player* receiver, uint32 percent)
     receiver->GetSession()->SendPacket(&data);
 }
 
-void Unit::PlayOneShotAnimKit(uint32 id)
+void Unit::SetAIAnimKitId(uint16 animKitId)
 {
-    WorldPacket data(SMSG_PLAY_ONE_SHOT_ANIM_KIT, 7+2);
-    data.appendPackGUID(GetGUID());
-    data << uint16(id);
+    if (_aiAnimKitId == animKitId)
+        return;
+
+    _aiAnimKitId = animKitId;
+
+    WorldPacket data(SMSG_SET_AI_ANIM_KIT, 8 + 2);
+
+    ObjectGuid guid = GetGUID();
+    uint8 bitOrder[8] = { 5, 4, 1, 3, 0, 2, 6, 7 };
+    data.WriteBitInOrder(guid, bitOrder);
+
+    data.WriteByteSeq(guid[0]);
+    data.WriteByteSeq(guid[1]);
+    data.WriteByteSeq(guid[3]);
+    data.WriteByteSeq(guid[7]);
+    data.WriteByteSeq(guid[2]);
+    data.WriteByteSeq(guid[4]);
+    data.WriteByteSeq(guid[5]);
+
+    data << uint16(animKitId);
+
+    data.WriteByteSeq(guid[6]);
+
+    SendMessageToSet(&data, true);
+}
+
+void Unit::SetMovementAnimKitId(uint16 animKitId)
+{
+    if (_movementAnimKitId == animKitId)
+        return;
+
+    _movementAnimKitId = animKitId;
+
+    WorldPacket data(SMSG_SET_MOVEMENT_ANIM_KIT, 9 + 2);
+    
+    data << uint16(animKitId);
+
+    ObjectGuid guid = GetGUID();
+    uint8 bitOrder[8] = { 5, 0, 6, 2, 7, 1, 4, 3 };
+    data.WriteBitInOrder(guid, bitOrder);
+
+    uint8 byteOrder[8] = { 0, 4, 3, 2, 6, 5, 7, 1 };
+    data.WriteBytesSeq(guid, byteOrder);
+
+    SendMessageToSet(&data, true);
+}
+
+void Unit::SetMeleeAnimKitId(uint16 animKitId)
+{
+    if (_meleeAnimKitId == animKitId)
+        return;
+
+    _meleeAnimKitId = animKitId;
+
+    WorldPacket data(SMSG_SET_MELEE_ANIM_KIT, 2 + 9);
+
+    ObjectGuid guid = GetGUID();
+    uint8 bitOrder[8] = { 3, 0, 7, 2, 6, 4, 1, 5 };
+    data.WriteBitInOrder(guid, bitOrder);
+    
+    data.WriteByteSeq(guid[5]);
+    data.WriteByteSeq(guid[0]);
+    data.WriteByteSeq(guid[3]);
+    data.WriteByteSeq(guid[4]);
+    data.WriteByteSeq(guid[7]);
+
+    data << uint16(animKitId);
+
+    data.WriteByteSeq(guid[6]);
+    data.WriteByteSeq(guid[1]);
+    data.WriteByteSeq(guid[2]);
+
+    SendMessageToSet(&data, true);
+}
+
+void Unit::PlayOneShotAnimKit(uint16 animKitId)
+{
+    WorldPacket data(SMSG_PLAY_ONE_SHOT_ANIM_KIT, 2 + 9);
+
+    ObjectGuid guid = GetGUID();
+    uint8 bitOrder[8] = { 3, 1, 7, 6, 0, 4, 5, 2 };
+    data.WriteBitInOrder(guid, bitOrder);
+    
+    data.WriteByteSeq(guid[3]);
+    data.WriteByteSeq(guid[6]);
+    data.WriteByteSeq(guid[1]);
+    data.WriteByteSeq(guid[4]);
+
+    data << uint16(animKitId);
+
+    data.WriteByteSeq(guid[2]);
+    data.WriteByteSeq(guid[7]);
+    data.WriteByteSeq(guid[5]);
+    data.WriteByteSeq(guid[0]);
+
     SendMessageToSet(&data, true);
 }
 
@@ -14995,6 +15091,7 @@ void Unit::SendPlaySpellVisualKit(uint32 id, uint32 unkParam)
     data.WriteByteSeq(guid[4]);
     data.WriteByteSeq(guid[2]);
     data.WriteByteSeq(guid[3]);
+
     SendMessageToSet(&data, true);
 }
 
