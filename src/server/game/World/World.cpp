@@ -83,7 +83,6 @@
 #include "BattlefieldMgr.h"
 #include "TransportMgr.h"
 #include "BattlePetMgr.h"
-#include "MasteryMgr.h"
 
 ACE_Atomic_Op<ACE_Thread_Mutex, bool> World::m_stopEvent = false;
 uint8 World::m_ExitCode = SHUTDOWN_EXIT_CODE;
@@ -1397,6 +1396,9 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading SpellInfo store...");
     sSpellMgr->LoadSpellInfoStore();
 
+    TC_LOG_INFO("server.loading", "Loading TalentSpellInfo store....");
+    sSpellMgr->LoadTalentSpellInfo();
+
     TC_LOG_INFO("server.loading", "Loading SpellInfo corrections...");
     sSpellMgr->LoadSpellInfoCorrections();
 
@@ -1589,6 +1591,9 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading SpellArea Data...");                // must be after quest load
     sSpellMgr->LoadSpellAreas();
 
+    TC_LOG_INFO("server.loading", "Loading Spell Classes Info...");
+    sSpellMgr->LoadSpellClassInfo();
+
     TC_LOG_INFO("server.loading", "Loading AreaTrigger definitions...");
     sObjectMgr->LoadAreaTriggerTeleports();
 
@@ -1769,9 +1774,6 @@ void World::SetInitialWorldSettings()
 
     TC_LOG_INFO("server.loading", "Loading client addons...");
     AddonMgr::LoadFromDB();
-
-    TC_LOG_INFO("server.loading", "Loading Masteries...");
-    sMasteryMgr->LoadFromDB();
 
     ///- Handle outdated emails (delete/return)
     TC_LOG_INFO("server.loading", "Returning old mails...");

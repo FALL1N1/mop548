@@ -619,7 +619,7 @@ void OpcodeTable::InitializeClientTable()
     DEFINE_OPCODE_HANDLER(MSG_SAVE_GUILD_EMBLEM,                          0x0000, STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleSaveGuildEmblemOpcode        );
     DEFINE_OPCODE_HANDLER(MSG_SET_RAID_DIFFICULTY,                        0x0591, STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleSetRaidDifficultyOpcode      ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(MSG_TABARDVENDOR_ACTIVATE,                      0x0000, STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleTabardVendorActivateOpcode   );
-    //DEFINE_OPCODE_HANDLER(MSG_TALENT_WIPE_CONFIRM,                        0x02AB, STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleTalentWipeConfirmOpcode      );
+    DEFINE_OPCODE_HANDLER(MSG_TALENT_WIPE_CONFIRM,                        0x02AB, STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleTalentWipeConfirmOpcode      ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(MSG_VERIFY_CONNECTIVITY,                        0x4F57, STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::Handle_EarlyProccess               ); // Not an opcode
 
 #undef DEFINE_OPCODE_HANDLER
@@ -1361,7 +1361,6 @@ void OpcodeTable::InitializeServerTable()
     DEFINE_OPCODE_HANDLER(SMSG_RAID_TARGET_UPDATE_ALL,                  0x0283, STATUS_NEVER    ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(SMSG_CHANNEL_START,                           0x10F9, STATUS_NEVER    ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(SMSG_CHANNEL_UPDATE,                          0x11D9, STATUS_NEVER    ); // 5.4.8 18414
-
     DEFINE_OPCODE_HANDLER(MSG_TALENT_WIPE_CONFIRM,                      0x02AB, STATUS_NEVER    ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(MSG_SET_RAID_DIFFICULTY,                      0x0591, STATUS_NEVER    ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(MSG_VERIFY_CONNECTIVITY,                      0x4F57, STATUS_NEVER    ); // Not an opcode

@@ -601,6 +601,10 @@ DiminishingLevels GetDiminishingReturnsMaxLevel(DiminishingGroup group);
 int32 GetDiminishingReturnsLimitDuration(DiminishingGroup group, SpellInfo const* spellproto);
 bool IsDiminishingReturnsGroupDurationLimited(DiminishingGroup group);
 
+typedef std::vector<std::set<uint32> > SpellClassList;
+typedef std::set<uint32> TalentSpellSet;
+typedef std::map<uint32, std::list<uint32> > SpellOverrideInfo;
+
 class SpellMgr
 {
     friend class ACE_Singleton<SpellMgr, ACE_Null_Mutex>;
@@ -692,6 +696,9 @@ class SpellMgr
         // SpellInfo object management
         SpellInfo const* GetSpellInfo(uint32 spellId) const { return spellId < GetSpellInfoStoreSize() ?  mSpellInfoMap[spellId] : NULL; }
         uint32 GetSpellInfoStoreSize() const { return mSpellInfoMap.size(); }
+        std::set<uint32> GetSpellClassList(uint8 ClassID) const { return mSpellClassInfo[ClassID]; }
+        std::list<uint32> const* GetSpellOverrideInfo(uint32 spellId) { return mSpellOverrideInfo.find(spellId) == mSpellOverrideInfo.end() ? NULL : &mSpellOverrideInfo[spellId]; }
+        bool IsTalent(uint32 spellId) { return mTalentSpellInfo.find(spellId) != mTalentSpellInfo.end() ?  true :  false; }
 
     private:
         SpellInfo* _GetSpellInfo(uint32 spellId) { return spellId < GetSpellInfoStoreSize() ?  mSpellInfoMap[spellId] : NULL; }
@@ -726,6 +733,8 @@ class SpellMgr
         void UnloadSpellInfoImplicitTargetConditionLists();
         void LoadSpellInfoCustomAttributes();
         void LoadSpellInfoCorrections();
+        void LoadTalentSpellInfo();
+        void LoadSpellClassInfo();
 
     private:
         SpellDifficultySearcherMap mSpellDifficultySearcherMap;
@@ -755,6 +764,9 @@ class SpellMgr
         PetLevelupSpellMap         mPetLevelupSpellMap;
         PetDefaultSpellsMap        mPetDefaultSpellsMap;           // only spells not listed in related mPetLevelupSpellMap entry
         SpellInfoMap               mSpellInfoMap;
+        SpellClassList             mSpellClassInfo;
+        TalentSpellSet             mTalentSpellInfo;
+        SpellOverrideInfo          mSpellOverrideInfo;
 };
 
 #define sSpellMgr ACE_Singleton<SpellMgr, ACE_Null_Mutex>::instance()

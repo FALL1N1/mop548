@@ -1958,7 +1958,7 @@ void AuraEffect::HandleAuraModShapeshift(AuraApplication const* aurApp, uint8 mo
                 target->ToPlayer()->RemoveTemporarySpell(shapeInfo->stanceSpell[i]);
         }
         // Update the Mastery percentage for Shapeshift
-        target->ToPlayer()->UpdateMastery(target->GetUInt32Value(PLAYER_FIELD_COMBAT_RATINGS + CR_MASTERY));
+        target->ToPlayer()->UpdateMastery();
     }
 }
 
@@ -5393,7 +5393,7 @@ void AuraEffect::HandleMastery(AuraApplication const* aurApp, uint8 mode, bool /
     if (!target)
         return;
 
-    target->UpdateMastery(target->GetUInt32Value(PLAYER_FIELD_COMBAT_RATINGS + CR_MASTERY));
+    target->UpdateMastery();
 }
 
 void AuraEffect::HandlePeriodicDummyAuraTick(Unit* target, Unit* caster) const

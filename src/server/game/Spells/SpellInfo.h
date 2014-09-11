@@ -404,6 +404,10 @@ public:
     uint32 ExplicitTargetMask;
     SpellChainNode const* ChainEntry;
 
+    // SpecializationSpellsEntry
+    std::list<uint32> SpecializationIdList;
+    std::list<uint32> OverrideSpellList;
+
     // struct access functions
     SpellTargetRestrictionsEntry const* GetSpellTargetRestrictions() const;
     SpellAuraOptionsEntry const* GetSpellAuraOptions() const;

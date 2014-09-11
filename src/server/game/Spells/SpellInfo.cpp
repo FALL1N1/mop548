@@ -1053,6 +1053,21 @@ SpellInfo::SpellInfo(SpellEntry const* spellEntry, SpellEffectEntry const** effe
     for (uint8 i = 0; i < 2; ++i)
         Totem[i] = _totem ? _totem->Totem[i] : 0;
 
+    // SpecializationSpellsEntry
+    SpecializationSpellsEntry const* specializationInfo = NULL;
+    for (uint32 i = 0; i < sSpecializationSpellsStore.GetNumRows(); i++)
+    {
+        specializationInfo = sSpecializationSpellsStore.LookupEntry(i);
+        if (!specializationInfo)
+            continue;
+
+        if (specializationInfo->SpellId == Id)
+            SpecializationIdList.push_back(specializationInfo->SpecializationId);
+
+        if (specializationInfo->RemovesSpellId == Id)
+            OverrideSpellList.push_back(specializationInfo->SpellId);
+    }
+
     ChainEntry = NULL;
 }
 

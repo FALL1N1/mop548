@@ -1173,13 +1173,17 @@ private:
 
 struct PlayerTalentInfo
 {
-    PlayerTalentInfo() : UsedTalentCount(0), ResetTalentsCost(0), ResetTalentsTime(0), ActiveSpec(0), SpecsCount(1)
+    PlayerTalentInfo() :
+        FreeTalentPoints(0), UsedTalentCount(0), ResetTalentsCost(0),
+        ResetSpecializationCost(0), ResetTalentsTime(0), ResetSpecializationTime(0),
+        ActiveSpec(0), SpecsCount(1)
     {
         for (uint8 i = 0; i < MAX_TALENT_SPECS; ++i)
         {
             SpecInfo[i].Talents = new PlayerTalentMap();
             memset(SpecInfo[i].Glyphs, 0, MAX_GLYPH_SLOT_INDEX * sizeof(uint32));
             SpecInfo[i].TalentTree = 0;
+            SpecInfo[i].SpecializationId = 0;
         }
     }
 
@@ -1198,11 +1202,15 @@ struct PlayerTalentInfo
         PlayerTalentMap* Talents;
         uint32 Glyphs[MAX_GLYPH_SLOT_INDEX];
         uint32 TalentTree;
+        uint32 SpecializationId;
     } SpecInfo[MAX_TALENT_SPECS];
 
+    uint32 FreeTalentPoints;
     uint32 UsedTalentCount;
     uint32 ResetTalentsCost;
     time_t ResetTalentsTime;
+    uint32 ResetSpecializationCost;
+    time_t ResetSpecializationTime;
     uint8 ActiveSpec;
     uint8 SpecsCount;
 
@@ -1327,6 +1335,7 @@ class Player : public Unit, public GridObject<Player>
         void GiveLevel(uint8 level);
 
         void InitStatsForLevel(bool reapplyMods = false);
+        void RemoveSpecializationSpells();
 
         // .cheat command related
         bool GetCommandStatus(uint32 command) const { return _activeCheats & command; }
@@ -1710,7 +1719,7 @@ class Player : public Unit, public GridObject<Player>
         bool m_mailsUpdated;
 
         void SetBindPoint(uint64 guid);
-        void SendTalentWipeConfirm(uint64 guid);
+        void SendTalentWipeConfirm(uint64 guid, bool specialization);
         void CalcRage(uint32 damage, bool attacker);
         void RegenerateAll();
         void Regenerate(Powers power);
@@ -1804,31 +1813,41 @@ class Player : public Unit, public GridObject<Player>
         std::string GetGuildName();
 
         // Talents
+        uint32 GetFreeTalentPoints() const { return _talentMgr->FreeTalentPoints; }
+        void SetFreeTalentPoints(uint32 points) { _talentMgr->FreeTalentPoints = points; }
         uint32 GetUsedTalentCount() const { return _talentMgr->UsedTalentCount; }
         void SetUsedTalentCount(uint32 talents) { _talentMgr->UsedTalentCount = talents; }
         uint32 GetTalentResetCost() const { return _talentMgr->ResetTalentsCost; }
+        uint32 GetSpecializationResetCost() const { return _talentMgr->ResetSpecializationCost; }
+        void SetSpecializationResetCost(uint32 cost) { _talentMgr->ResetSpecializationCost = cost; }
+        uint32 GetSpecializationResetTime() const { return _talentMgr->ResetSpecializationTime; }
+        void SetSpecializationResetTime(time_t time_) { _talentMgr->ResetSpecializationTime = time_; }
         void SetTalentResetCost(uint32 cost)  { _talentMgr->ResetTalentsCost = cost; }
         uint32 GetTalentResetTime() const { return _talentMgr->ResetTalentsTime; }
         void SetTalentResetTime(time_t time_)  { _talentMgr->ResetTalentsTime = time_; }
-        uint32 GetTalentSpecialization(uint8 spec) const { return _talentMgr->SpecInfo[spec].TalentTree; }
-        void SetTalentSpecialization(uint8 spec, uint32 tree) { _talentMgr->SpecInfo[spec].TalentTree = tree; }
         uint8 GetActiveSpec() const { return _talentMgr->ActiveSpec; }
         void SetActiveSpec(uint8 spec){ _talentMgr->ActiveSpec = spec; }
         uint8 GetSpecsCount() const { return _talentMgr->SpecsCount; }
         void SetSpecsCount(uint8 count) { _talentMgr->SpecsCount = count; }
+        void SetSpecializationId(uint8 spec, uint32 id);
+        uint32 GetSpecializationId(uint8 spec) const { return _talentMgr->SpecInfo[spec].SpecializationId; }
         float GetMasterySpellCoefficient();
 
-        bool ResetTalents(bool noCost = false, bool resetTalents = true, bool resetSpecialization = true);
+        bool ResetTalents(bool no_cost = false);
         bool RemoveTalent(uint32 talentId);
 
         uint32 GetNextResetTalentsCost() const;
+        uint32 GetNextResetSpecializationCost() const;
         void InitTalentForLevel();
+        void InitSpellForLevel();
         void BuildPlayerTalentsInfoData(WorldPacket* data);
         void SendTalentsInfoData(bool pet);
-        bool LearnTalent(uint16 talentId);
+        bool LearnTalent(uint32 talentId);
         bool AddTalent(uint32 spellId, uint8 spec, bool learning);
         bool HasTalent(uint32 spell_id, uint8 spec) const;
         uint32 CalculateTalentsPoints() const;
+
+        void ResetSpec();
 
         // Dual Spec
         void UpdateSpecCount(uint8 count);
@@ -2007,10 +2026,9 @@ class Player : public Unit, public GridObject<Player>
         void ApplyRatingMod(CombatRating cr, int32 value, bool apply);
         void UpdateRating(CombatRating cr);
         void UpdateAllRatings();
-        float GetMasteryPercent();
-        void UpdateMastery(int32 amount);
+        void UpdateMastery();
         void UpdatePVPPower(int32 amount);
-
+        
         void CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bool addTotalPct, float& min_damage, float& max_damage);
 
         inline void RecalculateRating(CombatRating cr) { ApplyRatingMod(cr, 0, true);}

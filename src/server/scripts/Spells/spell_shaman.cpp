@@ -215,7 +215,7 @@ class spell_sha_ascendance : public SpellScriptLoader
             {
                 if (Player* player = GetCaster()->ToPlayer())
                 {
-                    switch (player->GetTalentSpecialization(player->GetActiveSpec()))
+                    switch (player->GetSpecializationId(player->GetActiveSpec()))
                     {
                         case CHAR_SPECIALIZATION_SHAMAN_ENHANCEMENT:
                         case CHAR_SPECIALIZATION_SHAMAN_ELEMENTAL:
@@ -233,7 +233,7 @@ class spell_sha_ascendance : public SpellScriptLoader
             {
                 if (Player* player = GetCaster()->ToPlayer())
                 {
-                    switch (player->GetTalentSpecialization(player->GetActiveSpec()))
+                    switch (player->GetSpecializationId(player->GetActiveSpec()))
                     {
                         case CHAR_SPECIALIZATION_SHAMAN_ENHANCEMENT:
                             player->CastSpell(player, SPELL_SHAMAN_ASCENDANCE_ENHANCEMENT, true);

@@ -3685,3 +3685,70 @@ void SpellMgr::LoadSpellInfoCorrections()
 
     TC_LOG_INFO("server.loading", ">> Loaded SpellInfo corrections in %u ms", GetMSTimeDiffToNow(oldMSTime));
 }
+
+static const uint32 SkillClass[MAX_CLASSES] = {0, 840, 800, 795, 921, 804, 796, 924, 904, 849, 829, 798};
+
+void SpellMgr::LoadSpellClassInfo()
+{
+    mSpellClassInfo.resize(MAX_CLASSES);
+    for (int ClassID = 0; ClassID < MAX_CLASSES; ClassID++)
+    {
+        ChrClassesEntry const* classEntry = sChrClassesStore.LookupEntry(ClassID);
+        if (!classEntry)
+            continue;
+
+        // Player mastery activation
+        mSpellClassInfo[ClassID].insert(114585);
+
+        for (uint32 i = 0; i < sSkillLineAbilityStore.GetNumRows(); ++i)
+        {
+            SkillLineAbilityEntry const* skillLine = sSkillLineAbilityStore.LookupEntry(i);
+            if (!skillLine)
+                continue;
+
+            SpellInfo const* spellEntry = sSpellMgr->GetSpellInfo(skillLine->spellId);
+            if (!spellEntry)
+                continue;
+
+            if (spellEntry->SpellLevel == 0)
+                continue;
+
+            if (skillLine->skillId !=  SkillClass[ClassID] || skillLine->learnOnGetSkill != ABILITY_LEARNED_ON_GET_RACE_OR_CLASS_SKILL)
+                continue;
+
+            if (spellEntry->Attributes & SPELL_ATTR0_TRADESPELL || spellEntry->Attributes & SPELL_ATTR0_HIDDEN_CLIENTSIDE
+                || spellEntry->AttributesEx8 & SPELL_ATTR8_UNK13 || spellEntry->AttributesEx4 & SPELL_ATTR4_UNK15)
+                continue;
+
+            if (sSpellMgr->IsTalent(spellEntry->Id))
+                continue;
+
+            mSpellClassInfo[ClassID].insert(spellEntry->Id);
+        }
+
+        for (uint32 i = 0; i < sSpecializationSpellsStore.GetNumRows(); ++i)
+        {
+            SpecializationSpellsEntry const* specializationInfo = sSpecializationSpellsStore.LookupEntry(i);
+            if (!specializationInfo)
+                continue;
+
+            ChrSpecializationEntry const* chrSpec = sChrSpecializationStore.LookupEntry(specializationInfo->SpecializationId);
+            if (!chrSpec)
+                continue;
+
+            mSpellClassInfo[chrSpec->classId].insert(specializationInfo->SpellId);
+        }
+    }
+}
+
+void SpellMgr::LoadTalentSpellInfo()
+{
+    for (uint32 i = 0; i < sTalentStore.GetNumRows(); i++)
+    {
+        TalentEntry const* talent = sTalentStore.LookupEntry(i);
+        if (!talent)
+            continue;
+
+        mTalentSpellInfo.insert(talent->SpellId);
+    }
+}

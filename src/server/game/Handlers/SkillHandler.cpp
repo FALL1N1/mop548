@@ -30,29 +30,40 @@
 
 void WorldSession::HandeSetTalentSpecialization(WorldPacket& recvData)
 {
-    uint32 specializationTabId;
-    recvData >> specializationTabId;
+    uint32 specializationTabId = recvData.read<uint32>();
+    uint8 classId = _player->getClass();
 
-    if (specializationTabId > MAX_TALENT_TABS)
+    if (_player->GetSpecializationId(_player->GetActiveSpec()))
         return;
 
-    if (_player->GetTalentSpecialization(_player->GetActiveSpec()))
-        return;
+    uint32 specializationId = 0;
+    uint32 specializationSpell = 0;
 
-    uint32 specializationId = GetClassSpecializations(_player->getClass())[specializationTabId];
-
-    _player->SetTalentSpecialization(_player->GetActiveSpec(), specializationId);
-    _player->SetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID, specializationId);
-    _player->SendTalentsInfoData(false);
-    _player->UpdateMastery(_player->GetUInt32Value(PLAYER_FIELD_COMBAT_RATINGS + CR_MASTERY));
-
-    std::list<uint32> learnList = GetSpellsForLevels(0, _player->getRaceMask(), _player->GetTalentSpecialization(_player->GetActiveSpec()), 0, _player->getLevel());
-    for (std::list<uint32>::const_iterator iter = learnList.begin(); iter != learnList.end(); iter++)
+    for (uint32 i = 0; i < sChrSpecializationStore.GetNumRows(); i++)
     {
-        if (!_player->HasSpell(*iter))
-            _player->learnSpell(*iter, true);
+        ChrSpecializationEntry const* specialization = sChrSpecializationStore.LookupEntry(i);
+        if (!specialization)
+            continue;
+
+        if (specialization->classId == classId && specialization->TabPage == specializationTabId)
+        {
+            specializationId = specialization->Id;
+            specializationSpell = specialization->MasterySpellId;
+            break;
+        }
     }
 
+    if (specializationId)
+    {
+        _player->SetSpecializationId(_player->GetActiveSpec(), specializationId);
+        _player->SendTalentsInfoData(false);
+        if (specializationSpell)
+            _player->learnSpell(specializationSpell, false);
+        
+        _player->InitStatsForLevel(true);
+        _player->UpdateMastery();
+        _player->InitSpellForLevel();
+    }
     _player->SaveToDB();
 }
 
@@ -76,22 +87,16 @@ void WorldSession::HandleTalentWipeConfirmOpcode(WorldPacket& recvData)
 {
     TC_LOG_DEBUG("network", "MSG_TALENT_WIPE_CONFIRM");
     ObjectGuid guid;
-    uint8 unk_1;
-    uint32 unk_2;
+    uint8 specializationReset;
+    uint32 cost;
 
-    guid[5] = recvData.ReadBit();
-    guid[7] = recvData.ReadBit();
-    guid[3] = recvData.ReadBit();
-    guid[2] = recvData.ReadBit();
-    guid[1] = recvData.ReadBit();
-    guid[0] = recvData.ReadBit();
-    guid[4] = recvData.ReadBit();
-    guid[6] = recvData.ReadBit();
+    uint8 bitOrder[8] = { 5, 7, 3, 2, 1, 0, 4, 6 };
+    recvData.ReadBitInOrder(guid, bitOrder);
 
     recvData.ReadByteSeq(guid[1]);
     recvData.ReadByteSeq(guid[0]);
 
-    recvData >> unk_1;
+    recvData >> specializationReset;
 
     recvData.ReadByteSeq(guid[7]);
     recvData.ReadByteSeq(guid[3]);
@@ -100,7 +105,7 @@ void WorldSession::HandleTalentWipeConfirmOpcode(WorldPacket& recvData)
     recvData.ReadByteSeq(guid[6]);
     recvData.ReadByteSeq(guid[4]);
 
-    recvData >> unk_2;
+    recvData >> cost;
 
     Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_TRAINER);
     if (!unit)
@@ -113,13 +118,34 @@ void WorldSession::HandleTalentWipeConfirmOpcode(WorldPacket& recvData)
     if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
         GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
 
-    if (!_player->ResetTalents())
+    if (!specializationReset)
     {
-        WorldPacket data(MSG_TALENT_WIPE_CONFIRM, 8+4);    //you have not any talent
-        data << uint64(0);
-        data << uint32(0);
-        SendPacket(&data);
-        return;
+        if (!_player->ResetTalents())
+        {
+            ObjectGuid Guid = guid;
+
+            WorldPacket data(MSG_TALENT_WIPE_CONFIRM, 8 + 4);    //you have not any talent
+
+            uint8 bitOrder[8] = { 5, 7, 3, 2, 1, 0, 4, 6 };
+            data.WriteBitInOrder(Guid, bitOrder);
+
+            data.WriteByteSeq(Guid[1]);
+            data.WriteByteSeq(Guid[0]);
+            data << uint8(0);
+            data.WriteByteSeq(Guid[7]);
+            data.WriteByteSeq(Guid[3]);
+            data.WriteByteSeq(Guid[2]);
+            data.WriteByteSeq(Guid[5]);
+            data.WriteByteSeq(Guid[6]);
+            data.WriteByteSeq(Guid[4]);
+            data << uint32(0);
+            SendPacket(&data);
+            return;
+        }
+    }
+    else
+    {
+        _player->ResetSpec();
     }
 
     _player->SendTalentsInfoData(false);

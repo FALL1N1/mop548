@@ -26,7 +26,6 @@
 #include "SpellAuraEffects.h"
 #include "SpellMgr.h"
 #include "World.h"
-#include "MasteryMgr.h"
 
 inline bool _ModifyUInt32(bool apply, uint32& baseValue, int32& amount)
 {
@@ -546,21 +545,19 @@ void Player::UpdateAllCritPercentages()
     UpdateCritPercentage(RANGED_ATTACK);
 }
 
-float Player::GetMasteryPercent()
+void Player::UpdateMastery()
 {
-    uint32 mastery = GetTalentSpecialization(GetActiveSpec());
+    float value = 0.0f;
 
-    uint32 amount = GetUInt32Value(PLAYER_FIELD_COMBAT_RATINGS + CR_MASTERY);
-    return sMasteryMgr->GetMastery(mastery).GetPercent(amount);
-    return 1.0f;
-}
-
-void Player::UpdateMastery(int32 amount)
-{
-    uint32 masteryId = GetTalentSpecialization(GetActiveSpec());
-
-    float value = sMasteryMgr->GetMastery(masteryId).GetPercent(amount) / 2.0f;
-    SetStatFloatValue(PLAYER_FIELD_MASTERY, value);
+    if (HasAuraType(SPELL_AURA_MASTERY) && HasAura(114585) && getLevel() >= 80)
+    {
+        // Mastery from SPELL_AURA_MASTERY aura
+        value += GetTotalAuraModifier(SPELL_AURA_MASTERY);
+        // Mastery from rating
+        value += GetRatingBonusValue(CR_MASTERY);
+        value = value < 0.0f ? 0.0f : value;
+    }
+    SetFloatValue(PLAYER_FIELD_MASTERY, value);
 
     // 76671 - Mastery : Divine Bulwark - Update Block Percentage
     // 76857 - Mastery : Critical Block - Update Block Percentage

@@ -1024,6 +1024,24 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
         return;
     }
 
+    // Override spell Id, client send base spell and not the overrided id
+    if (!spellInfo->OverrideSpellList.empty())
+    {
+        for (auto itr : spellInfo->OverrideSpellList)
+        {
+            if (_player->HasSpell(itr))
+            {
+                SpellInfo const* overrideSpellInfo = sSpellMgr->GetSpellInfo(itr);
+                if (overrideSpellInfo)
+                {
+                    spellInfo = overrideSpellInfo;
+                    spellId = itr;
+                }
+                break;
+            }
+        }
+    }
+
     if (spellInfo->IsPassive())
     {
         recvPacket.rfinish(); // prevent spam at ignore packet
