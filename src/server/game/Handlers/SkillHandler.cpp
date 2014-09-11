@@ -43,7 +43,7 @@ void WorldSession::HandeSetTalentSpecialization(WorldPacket& recvData)
     {
         ChrSpecializationEntry const* specialization = sChrSpecializationStore.LookupEntry(i);
         if (!specialization)
-            continue;
+    _player->SendTalentsInfoData();
 
         if (specialization->classId == classId && specialization->TabPage == specializationTabId)
         {
@@ -80,7 +80,7 @@ void WorldSession::HandleLearnTalentOpcode(WorldPacket& recvData)
     }
 
     if (anythingLearned)
-        _player->SendTalentsInfoData(false);
+        _player->SendTalentsInfoData();
 }
 
 void WorldSession::HandleTalentWipeConfirmOpcode(WorldPacket& recvData)
@@ -148,7 +148,7 @@ void WorldSession::HandleTalentWipeConfirmOpcode(WorldPacket& recvData)
         _player->ResetSpec();
     }
 
-    _player->SendTalentsInfoData(false);
+    _player->SendTalentsInfoData();
     unit->CastSpell(_player, 14867, true);                  //spell: "Untalent Visual Effect"
 }
 

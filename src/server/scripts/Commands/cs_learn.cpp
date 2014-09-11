@@ -119,7 +119,7 @@ public:
             targetPlayer->learnSpell(spell, false);
 
         if (GetTalentSpellCost(spellInfo->GetFirstRankSpell()->Id))
-            targetPlayer->SendTalentsInfoData(false);
+            targetPlayer->SendTalentsInfoData();
 
         return true;
     }
@@ -465,7 +465,7 @@ public:
             handler->SendSysMessage(LANG_FORGET_SPELL);
 
         if (GetTalentSpellCost(spellId))
-            target->SendTalentsInfoData(false);
+            target->SendTalentsInfoData();
        
         return true;
     }

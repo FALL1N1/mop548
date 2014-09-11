@@ -1841,7 +1841,7 @@ class Player : public Unit, public GridObject<Player>
         void InitTalentForLevel();
         void InitSpellForLevel();
         void BuildPlayerTalentsInfoData(WorldPacket* data);
-        void SendTalentsInfoData(bool pet);
+        void SendTalentsInfoData(bool pet = false);
         bool LearnTalent(uint32 talentId);
         bool AddTalent(uint32 spellId, uint8 spec, bool learning);
         bool HasTalent(uint32 spell_id, uint8 spec) const;
