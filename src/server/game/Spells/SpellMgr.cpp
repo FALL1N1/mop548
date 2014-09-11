@@ -2921,7 +2921,6 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
             case 48689:
             case 48690:
             case 48691:
-            case 6785: // Ravage
             case 6787:
             case 9866:
             case 9867:
