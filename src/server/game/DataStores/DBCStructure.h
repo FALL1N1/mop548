@@ -798,7 +798,7 @@ struct ChrSpecializationEntry
     uint32  Id;                                             // 0
     //char* unkName;                                        // 1
     uint32 classId;                                         // 2
-    uint32 MasterySpellId;                                  // 3
+    uint32 specializationSpell;                             // 3
     // uint32 unk                                           // 4 - prolly MasterySpellId[1] - always 0
     uint32 TabPage;                                         // 5
     uint32 PetTabPage;                                      // 6

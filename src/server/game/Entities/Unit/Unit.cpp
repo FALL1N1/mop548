@@ -266,6 +266,8 @@ Unit::Unit(bool isWorldObject) :
     _aiAnimKitId = 0;
     _movementAnimKitId = 0;
     _meleeAnimKitId = 0;
+
+    SetEclipsePower(0);
 }
 
 ////////////////////////////////////////////////////////////
@@ -6028,6 +6030,47 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                     CastCustomSpell(70691, SPELLVALUE_BASE_POINT0, damage, victim, true);
                     return true;
                 }
+                case 46832: // Sudden Eclipse (S12 - 2P Balance)
+                {
+                    if (GetTypeId() != TYPEID_PLAYER)
+                        return false;
+
+                    if (!(procEx & PROC_EX_CRITICAL_HIT))
+                        return false;
+
+                    // Solar and Lunar Eclipse
+                    if (HasAura(48517) || HasAura(48518))
+                        return false;
+
+                    if (ToPlayer()->HasSpellCooldown(46832))
+                        return false;
+
+                    ToPlayer()->AddSpellCooldown(46832, 0, time(NULL) + 6);
+
+                    if (GetEclipsePower() <= 0)
+                        SetEclipsePower(GetEclipsePower() - 20);
+                    else
+                        SetEclipsePower(GetEclipsePower() + 20);
+
+                    if (GetEclipsePower() == 100)
+                    {
+                        CastSpell(this, 48517, true, 0); // Cast Lunar Eclipse
+                        CastSpell(this, 16886, true); // Cast Nature's Grace
+                        CastSpell(this, 81070, true); // Cast Eclipse - Give 35% of POWER_MANA
+                    }
+                    else if (GetEclipsePower() == -100)
+                    {
+                        CastSpell(this, 48518, true, 0); // Cast Lunar Eclipse
+                        CastSpell(this, 16886, true); // Cast Nature's Grace
+                        CastSpell(this, 81070, true); // Cast Eclipse - Give 35% of POWER_MANA
+                        CastSpell(this, 107095, true);
+
+                        if (ToPlayer()->HasSpellCooldown(48505))
+                            ToPlayer()->RemoveSpellCooldown(48505, true);
+                    }
+
+                    break;
+                }
             }
             break;
         }
@@ -9190,8 +9233,8 @@ int32 Unit::SpellBaseDamageBonusDone(SpellSchoolMask schoolMask) const
         DoneAdvertisedBenefit += ToPlayer()->GetBaseSpellPowerBonus();
 
         // Check if we are ever using mana - PaperDollFrame.lua
-        if (GetPowerIndex(POWER_MANA) != MAX_POWERS)
-            DoneAdvertisedBenefit += std::max(0, int32(GetStat(STAT_INTELLECT)) - 10);  // spellpower from intellect
+        if (GetPowerIndexByClass(POWER_MANA, getClass()) != MAX_POWERS)
+            DoneAdvertisedBenefit += std::max(0, int32(GetStat(STAT_INTELLECT)) - 10); // spellpower from intellect
 
         // Damage bonus from stats
         AuraEffectList const& mDamageDoneOfStatPercent = GetAuraEffectsByType(SPELL_AURA_MOD_SPELL_DAMAGE_OF_STAT_PERCENT);
@@ -9236,7 +9279,7 @@ bool Unit::isSpellCrit(Unit* victim, SpellInfo const* spellProto, SpellSchoolMas
 {
     //! Mobs can't crit with spells. Player Totems can
     //! Fire Elemental (from totem) can too - but this part is a hack and needs more research
-    if (IS_CREATURE_GUID(GetGUID()) && !(IsTotem() && IS_PLAYER_GUID(GetOwnerGUID())) && GetEntry() != 15438)
+    if (IS_CREATURE_GUID(GetGUID()) && !(IsTotem() && IS_PLAYER_GUID(GetOwnerGUID())) && GetEntry() != ENTRY_FIRE_ELEMENTAL)
         return false;
 
     // not critting spell
@@ -9728,7 +9771,7 @@ int32 Unit::SpellBaseHealingBonusDone(SpellSchoolMask schoolMask) const
         advertisedBenefit += ToPlayer()->GetBaseSpellPowerBonus();
 
         // Check if we are ever using mana - PaperDollFrame.lua
-        if (GetPowerIndex(POWER_MANA) != MAX_POWERS)
+        if (GetPowerIndexByClass(POWER_MANA, getClass()) != MAX_POWERS)
             advertisedBenefit += std::max(0, int32(GetStat(STAT_INTELLECT)) - 10);  // spellpower from intellect
 
         // Healing bonus from stats
@@ -10530,6 +10573,11 @@ void Unit::ClearInCombat()
     else
         ToPlayer()->UpdatePotionCooldown();
 
+    // Reset Holy Power
+    if (Player* player = ToPlayer())
+        if (player->getClass() == CLASS_PALADIN)
+            player->SetPower(POWER_HOLY_POWER, 0);
+
     RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PET_IN_COMBAT);
 }
 
@@ -10824,8 +10872,27 @@ int32 Unit::ModifyPower(Powers power, int32 dVal)
 {
     int32 gain = 0;
 
-    if (dVal == 0)
+    if (dVal == 0 && power != POWER_ENERGY) // The client will always regen energy if we don't send him the actual value
         return 0;
+
+    if (power == POWER_CHI)
+    {
+        if (dVal < 0)
+        {
+            if (Aura* tigereyeBrew = GetAura(123980))
+                tigereyeBrew->SetScriptData(0, -dVal);
+            else if (Aura* manaTea = GetAura(123766))
+                manaTea->SetScriptData(0, -dVal);
+        }
+    }
+    else if (power == POWER_HOLY_POWER)
+    {
+        if (dVal < 0)
+        {
+            if (Aura* unbreakableSpirit = GetAura(114154))
+                unbreakableSpirit->SetScriptData(0, -dVal);
+        }
+    }
 
     int32 curPower = GetPower(power);
 
@@ -10847,6 +10914,24 @@ int32 Unit::ModifyPower(Powers power, int32 dVal)
     {
         SetPower(power, maxPower);
         gain = maxPower - curPower;
+    }
+
+    if (power == POWER_SHADOW_ORBS)
+    {
+        if (GetPower(POWER_SHADOW_ORBS) > 0)
+        {
+            // Shadow Orb visual
+            if (!HasAura(77487) && !HasAura(57985))
+                CastSpell(this, 77487, true);
+            // Glyph of Shadow Ravens
+            else if (!HasAura(77487) && HasAura(57985))
+                CastSpell(this, 127850, true);
+        }
+        else
+        {
+            RemoveAurasDueToSpell(77487);
+            RemoveAurasDueToSpell(127850);
+        }
     }
 
     return gain;
@@ -11822,8 +11907,12 @@ bool Unit::HandleStatModifier(UnitMods unitMod, UnitModifierType modifierType, f
         case UNIT_MOD_FOCUS:
         case UNIT_MOD_ENERGY:
         case UNIT_MOD_RUNE:
-        case UNIT_MOD_RUNIC_POWER:          UpdateMaxPower(GetPowerTypeByAuraGroup(unitMod));          break;
-
+        case UNIT_MOD_RUNIC_POWER:
+        case UNIT_MOD_CHI:
+        case UNIT_MOD_BURNING_EMBERS:
+        case UNIT_MOD_SOUL_SHARDS:
+        case UNIT_MOD_DEMONIC_FURY:
+        case UNIT_MOD_SHADOW_ORB:           UpdateMaxPower(GetPowerTypeByAuraGroup(unitMod));          break;
         case UNIT_MOD_RESISTANCE_HOLY:
         case UNIT_MOD_RESISTANCE_FIRE:
         case UNIT_MOD_RESISTANCE_NATURE:
@@ -11942,8 +12031,14 @@ Powers Unit::GetPowerTypeByAuraGroup(UnitMods unitMod) const
         case UNIT_MOD_ENERGY:      return POWER_ENERGY;
         case UNIT_MOD_RUNE:        return POWER_RUNES;
         case UNIT_MOD_RUNIC_POWER: return POWER_RUNIC_POWER;
-        default:
-        case UNIT_MOD_MANA:        return POWER_MANA;
+        case UNIT_MOD_CHI:         return POWER_CHI;
+        case UNIT_MOD_HOLY_POWER:  return POWER_HOLY_POWER;
+        case UNIT_MOD_SHADOW_ORB:  return POWER_SHADOW_ORBS;
+        case UNIT_MOD_BURNING_EMBERS: return POWER_BURNING_EMBERS;
+        case UNIT_MOD_DEMONIC_FURY:return POWER_DEMONIC_FURY;
+        case UNIT_MOD_SOUL_SHARDS: return POWER_SOUL_SHARDS;
+        case UNIT_MOD_MANA:
+        default:                   return POWER_MANA;
     }
 }
 
@@ -12051,9 +12146,53 @@ void Unit::SetMaxHealth(uint32 val)
         SetHealth(val);
 }
 
+uint32 Unit::GetPowerIndexByClass(uint32 powerId, uint32 classId) const
+{
+    if (powerId == POWER_ENERGY)
+    {
+        if (ToPet() && ToPet()->IsWarlockPet())
+            return 0;
+
+        switch (this->GetEntry())
+        {
+            case ENTRY_GHOUL:
+            case 59915:
+            case 60043:
+            case 60047:
+            case 60051:
+                return 0;
+            default:
+                break;
+        }
+    }
+
+    ChrClassesEntry const* classEntry = sChrClassesStore.LookupEntry(classId);
+
+    ASSERT(classEntry && "Class not found");
+
+    uint32 index = 0;
+    for (uint32 i = 0; i <= sChrPowerTypesStore.GetNumRows(); ++i)
+    {
+        ChrPowerTypesEntry const* powerEntry = sChrPowerTypesStore.LookupEntry(i);
+        if (!powerEntry)
+            continue;
+
+        if (powerEntry->classId != classId)
+            continue;
+
+        if (powerEntry->power == powerId)
+            return index;
+
+        ++index;
+    }
+
+    // return invalid value - this class doesn't use this power
+    return MAX_POWERS;
+};
+
 int32 Unit::GetPower(Powers power) const
 {
-    uint32 powerIndex = GetPowerIndex(power);
+    uint32 powerIndex = GetPowerIndexByClass(power, getClass());
     if (powerIndex == MAX_POWERS)
         return 0;
 
@@ -12062,7 +12201,7 @@ int32 Unit::GetPower(Powers power) const
 
 int32 Unit::GetMaxPower(Powers power) const
 {
-    uint32 powerIndex = GetPowerIndex(power);
+    uint32 powerIndex = GetPowerIndexByClass(power, getClass());
     if (powerIndex == MAX_POWERS)
         return 0;
 
@@ -12071,7 +12210,7 @@ int32 Unit::GetMaxPower(Powers power) const
 
 void Unit::SetPower(Powers power, int32 val)
 {
-    uint32 powerIndex = GetPowerIndex(power);
+    uint32 powerIndex = GetPowerIndexByClass(power, getClass());
     if (powerIndex == MAX_POWERS)
         return;
 
@@ -12131,7 +12270,7 @@ void Unit::SetPower(Powers power, int32 val)
 
 void Unit::SetMaxPower(Powers power, int32 val)
 {
-    uint32 powerIndex = GetPowerIndex(power);
+    uint32 powerIndex = GetPowerIndexByClass(power, getClass());
     if (powerIndex == MAX_POWERS)
         return;
 
@@ -12158,19 +12297,6 @@ void Unit::SetMaxPower(Powers power, int32 val)
         SetPower(power, val);
 }
 
-uint32 Unit::GetPowerIndex(uint32 powerType) const
-{
-    /// This is here because hunter pets are of the warrior class.
-    /// With the current implementation, the core only gives them
-    /// POWER_RAGE, so we enforce the class to hunter so that they
-    /// effectively get focus power.
-    uint32 classId = getClass();
-    if (ToPet() && ToPet()->getPetType() == HUNTER_PET)
-        classId = CLASS_HUNTER;
-
-    return GetPowerIndexByClass(powerType, classId);
-}
-
 int32 Unit::GetCreatePowers(Powers power) const
 {
     switch (power)
@@ -12184,21 +12310,29 @@ int32 Unit::GetCreatePowers(Powers power) const
                 return 100;
             return (GetTypeId() == TYPEID_PLAYER || !((Creature const*)this)->IsPet() || ((Pet const*)this)->getPetType() != HUNTER_PET ? 0 : 100);
         case POWER_ENERGY:
-            return 100;
+            return ((IsPet() && GetEntry() == ENTRY_IMP || GetEntry() == ENTRY_FELHUNTER || GetEntry() == ENTRY_VOIDWALKER ||
+                GetEntry() == ENTRY_SUCCUBUS || GetEntry() == ENTRY_FELGUARD || GetEntry() == ENTRY_SHIVARRA || GetEntry() == ENTRY_OBSERVER ||
+                GetEntry() == ENTRY_VOIDLORD || GetEntry() == ENTRY_FEL_IMP) ? 200 : 100);
         case POWER_RUNIC_POWER:
             return 1000;
         case POWER_RUNES:
             return 0;
+        case POWER_SHADOW_ORBS:
+            return (GetTypeId() == TYPEID_PLAYER && ToPlayer()->getClass() == CLASS_PRIEST && (ToPlayer()->GetSpecializationId(ToPlayer()->GetActiveSpec()) == CHAR_SPECIALIZATION_PRIEST_SHADOW) ? 3 : 0);
+        case POWER_BURNING_EMBERS:
+            return (GetTypeId() == TYPEID_PLAYER && ToPlayer()->getClass() == CLASS_WARLOCK && (ToPlayer()->GetSpecializationId(ToPlayer()->GetActiveSpec()) == CHAR_SPECIALIZATION_WARLOCK_DESTRUCTION) ? 30 : 0);
+        case POWER_DEMONIC_FURY:
+            return (GetTypeId() == TYPEID_PLAYER && ToPlayer()->getClass() == CLASS_WARLOCK && (ToPlayer()->GetSpecializationId(ToPlayer()->GetActiveSpec()) == CHAR_SPECIALIZATION_WARLOCK_DEMONOLOGY) ? 1000 : 0);
         case POWER_SOUL_SHARDS:
-            return 3;
+            return (GetTypeId() == TYPEID_PLAYER && ToPlayer()->getClass() == CLASS_WARLOCK && (ToPlayer()->GetSpecializationId(ToPlayer()->GetActiveSpec()) == CHAR_SPECIALIZATION_WARLOCK_AFFLICTION) ? 300 : 0);
         case POWER_ECLIPSE:
-            return 100;
+            return (GetTypeId() == TYPEID_PLAYER && ToPlayer()->getClass() == CLASS_DRUID && (ToPlayer()->GetSpecializationId(ToPlayer()->GetActiveSpec()) == CHAR_SPECIALIZATION_DRUID_BALANCE) ? 100 : 0); // Should be -100 to 100 this needs the power to be int32 instead of uint32
         case POWER_HOLY_POWER:
-            return 3;
+            return (GetTypeId() == TYPEID_PLAYER && ToPlayer()->getClass() == CLASS_PALADIN ? 3 : 0);
         case POWER_HEALTH:
             return 0;
         case POWER_CHI:
-            return 4;
+            return (GetTypeId() == TYPEID_PLAYER && ToPlayer()->getClass() == CLASS_MONK ? 4 : 0);
         default:
             break;
     }
@@ -17132,7 +17266,6 @@ bool Unit::IsSplineEnabled() const
     return movespline->Initialized() && !movespline->Finalized();
 }
 
-
 void Unit::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* target) const
 {
     if (!target)
@@ -17310,4 +17443,61 @@ void Unit::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* target)
     updateMask.AppendToPacket(data);
     data->append(fieldBuffer);
     *data << uint8(0);
+}
+
+void Unit::SetEclipsePower(int32 power)
+{
+    if (power > 100)
+        power = 100;
+
+    if (power < -100)
+        power = -100;
+
+    if (power > 0)
+    {
+        if (HasAura(48518))
+            RemoveAurasDueToSpell(48518); // Eclipse (Lunar)
+        if (HasAura(107095))
+            RemoveAurasDueToSpell(107095);// Eclipse (Lunar) - SPELL_AURA_OVERRIDE_SPELLS
+    }
+
+    if (power == 0)
+    {
+        if (HasAura(48517))
+            RemoveAurasDueToSpell(48517); // Eclipse (Solar)
+        if (HasAura(48518))
+            RemoveAurasDueToSpell(48518); // Eclipse (Lunar)
+        if (HasAura(107095))
+            RemoveAurasDueToSpell(107095);// Eclipse (Lunar) - SPELL_AURA_OVERRIDE_SPELLS
+    }
+
+    if (power < 0)
+    {
+        if (HasAura(48517))
+            RemoveAurasDueToSpell(48517); // Eclipse (Solar)
+    }
+
+    _eclipsePower = power;
+
+    ObjectGuid guid;
+
+    WorldPacket data(SMSG_POWER_UPDATE, 8 + 4 + 1 + 4);
+
+    uint8 bitOrder[8] = {4, 6, 7, 5, 2, 3, 0, 1};
+    data.WriteBitInOrder(guid, bitOrder);
+
+    data.WriteBits(1, 21); // 1 update
+
+    data.WriteByteSeq(guid[7]);
+    data.WriteByteSeq(guid[0]);
+    data.WriteByteSeq(guid[5]);
+    data.WriteByteSeq(guid[3]);
+    data.WriteByteSeq(guid[1]);
+    data.WriteByteSeq(guid[2]);
+    data.WriteByteSeq(guid[4]);
+    data << uint8(POWER_ECLIPSE);
+    data << int32(_eclipsePower);
+    data.WriteByteSeq(guid[6]);
+
+    SendMessageToSet(&data, GetTypeId() == TYPEID_PLAYER ? true : false);
 }

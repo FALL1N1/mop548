@@ -796,7 +796,7 @@ void Player::UpdateManaRegen()
 
 void Player::UpdateEnergyRegen()
 {
-    int index = GetPowerIndex(POWER_ENERGY);
+    int index = GetPowerIndexByClass(POWER_MANA, getClass()) != MAX_POWERS;
     if (index == MAX_POWERS)
         return;
 
@@ -812,7 +812,7 @@ void Player::UpdateEnergyRegen()
 
 void Player::UpdateFocusRegen()
 {
-    int index = GetPowerIndex(POWER_FOCUS);
+    int index = GetPowerIndexByClass(POWER_FOCUS, getClass()) != MAX_POWERS;
     if (index == MAX_POWERS)
         return;
 
@@ -1026,17 +1026,6 @@ void Creature::UpdateDamagePhysical(WeaponAttackType attType)
 ########    PETS STAT SYSTEM     ########
 ########                         ########
 #######################################*/
-
-#define ENTRY_IMP               416
-#define ENTRY_VOIDWALKER        1860
-#define ENTRY_SUCCUBUS          1863
-#define ENTRY_FELHUNTER         417
-#define ENTRY_FELGUARD          17252
-#define ENTRY_WATER_ELEMENTAL   510
-#define ENTRY_TREANT            1964
-#define ENTRY_FIRE_ELEMENTAL    15438
-#define ENTRY_GHOUL             26125
-#define ENTRY_BLOODWORM         28017
 
 bool Guardian::UpdateStats(Stats stat)
 {
@@ -1289,7 +1278,7 @@ void Guardian::UpdateDamagePhysical(WeaponAttackType attType)
     if (m_owner->GetTypeId() == TYPEID_PLAYER)
     {
         //force of nature
-        if (GetEntry() == ENTRY_TREANT)
+        if (GetEntry() == ENTRY_TREANT_BALANCE)
         {
             int32 spellDmg = int32(m_owner->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS + SPELL_SCHOOL_NATURE)) + m_owner->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_NEG + SPELL_SCHOOL_NATURE);
             if (spellDmg > 0)

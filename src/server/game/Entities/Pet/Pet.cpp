@@ -915,12 +915,12 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
         {
             switch (GetEntry())
             {
-                case 510: // mage Water Elemental
+                case ENTRY_WATER_ELEMENTAL: // mage Water Elemental
                 {
                     SetBonusDamage(int32(GetOwner()->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_FROST) * 0.33f));
                     break;
                 }
-                case 1964: //force of nature
+                case ENTRY_TREANT_BALANCE: //force of nature
                 {
                     if (!pInfo)
                         SetCreateHealth(30 + 30*petlevel);
@@ -937,7 +937,7 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
                     SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, float(petlevel + (petlevel / 4)));
                     break;
                 }
-                case 15438: //fire elemental
+                case ENTRY_FIRE_ELEMENTAL: //fire elemental
                 {
                     if (!pInfo)
                     {
@@ -1002,7 +1002,7 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
                     }
                     break;
                 }
-                case 27829: // Ebon Gargoyle
+                case ENTRY_GARGOYLE: // Ebon Gargoyle
                 {
                     if (!pInfo)
                     {
@@ -1014,7 +1014,7 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
                     SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, float(petlevel + (petlevel / 4)));
                     break;
                 }
-                case 28017: // Bloodworms
+                case ENTRY_BLOODWORM: // Bloodworms
                 {
                     SetCreateHealth(4 * petlevel);
                     SetBonusDamage(int32(GetOwner()->GetTotalAttackPowerValue(BASE_ATTACK) * 0.006f));

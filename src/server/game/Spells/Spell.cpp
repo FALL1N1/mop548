@@ -1213,7 +1213,7 @@ void Spell::SelectImplicitAreaTargets(SpellEffIndex effIndex, SpellImplicitTarge
         case 51328:
             // check if our target is not valid (spell can target ghoul or dead unit)
             if (!(m_targets.GetUnitTarget() && m_targets.GetUnitTarget()->GetDisplayId() == m_targets.GetUnitTarget()->GetNativeDisplayId() &&
-                ((m_targets.GetUnitTarget()->GetEntry() == 26125 && m_targets.GetUnitTarget()->GetOwnerGUID() == m_caster->GetGUID())
+                ((m_targets.GetUnitTarget()->GetEntry() == ENTRY_GHOUL && m_targets.GetUnitTarget()->GetOwnerGUID() == m_caster->GetGUID())
                 || m_targets.GetUnitTarget()->isDead())))
             {
                 // remove existing targets
@@ -5173,7 +5173,7 @@ void Spell::TakePower()
     bool hit = true;
     if (m_caster->GetTypeId() == TYPEID_PLAYER)
     {
-        if (powerType == POWER_RAGE || powerType == POWER_ENERGY || powerType == POWER_RUNES || powerType == POWER_CHI)
+        if (powerType == POWER_HOLY_POWER || powerType == POWER_ENERGY || powerType == POWER_RUNES)
             if (uint64 targetGUID = m_targets.GetUnitTargetGUID())
                 for (std::list<TargetInfo>::iterator ihit= m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
                     if (ihit->targetGUID == targetGUID)
@@ -5193,6 +5193,18 @@ void Spell::TakePower()
     {
         TakeRunePower(hit);
         return;
+    }
+
+    // In Spell::HandleHolyPower
+    if (m_spellInfo->PowerType == POWER_HOLY_POWER)
+    {
+        if (m_spellInfo->Id == 85222)
+        {
+            m_powerCost = m_caster->GetPower(POWER_HOLY_POWER);
+
+            if (m_powerCost > 3)
+                m_powerCost = 3;
+        }
     }
 
     if (!m_powerCost)

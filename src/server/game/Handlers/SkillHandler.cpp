@@ -30,9 +30,10 @@
 
 void WorldSession::HandeSetTalentSpecialization(WorldPacket& recvData)
 {
-    uint32 specializationTabId = recvData.read<uint32>();
+    uint32 tab = recvData.read<uint32>();
     uint8 classId = _player->getClass();
 
+    // Avoid cheat - hack
     if (_player->GetSpecializationId(_player->GetActiveSpec()))
         return;
 
@@ -43,12 +44,12 @@ void WorldSession::HandeSetTalentSpecialization(WorldPacket& recvData)
     {
         ChrSpecializationEntry const* specialization = sChrSpecializationStore.LookupEntry(i);
         if (!specialization)
-    _player->SendTalentsInfoData();
+            continue;
 
-        if (specialization->classId == classId && specialization->TabPage == specializationTabId)
+        if (specialization->classId == classId && specialization->TabPage == tab)
         {
             specializationId = specialization->Id;
-            specializationSpell = specialization->MasterySpellId;
+            specializationSpell = specialization->specializationSpell;
             break;
         }
     }

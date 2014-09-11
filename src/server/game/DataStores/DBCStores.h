@@ -85,8 +85,6 @@ PvPDifficultyEntry const* GetBattlegroundBracketById(uint32 mapid, BattlegroundB
 
 CharStartOutfitEntry const* GetCharStartOutfitEntry(uint8 race, uint8 class_, uint8 gender);
 
-uint32 GetPowerIndexByClass(uint32 powerType, uint32 classId);
-
 typedef std::vector<std::pair<int32, int32> > DigsitePOIPolygon;
 typedef std::map<uint32 /*digsiteId*/, DigsitePOIPolygon> DigsitePOIPolygonContainer;
 DigsitePOIPolygon const* GetDigsitePOIPolygon(uint32 digsiteId);
