@@ -164,3 +164,5 @@ class Pet : public Guardian
             ASSERT(false);
         }
 };
+
+#endif
