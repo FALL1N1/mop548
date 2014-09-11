@@ -84,7 +84,7 @@ class Pet : public Guardian
         bool HaveInDiet(ItemTemplate const* item) const;
         uint32 GetCurrentFoodBenefitLevel(uint32 itemlevel) const;
         void SetDuration(int32 dur) { m_duration = dur; }
-        int32 GetDuration() const;
+        int32 GetDuration() const { return m_duration; }
 
         /*
         bool UpdateStats(Stats stat);
@@ -139,7 +139,7 @@ class Pet : public Guardian
 
         Player* GetOwner() const;
 
-        uint32 GetSpecializationId() const;
+        uint32 GetSpecializationId() const { return m_specialization; }
         void SetSpecializationId(uint32 id) { m_specialization = id; }
         void LearnSpecializationSpell();
         void UnlearnSpecializationSpell();
@@ -164,19 +164,3 @@ class Pet : public Guardian
             ASSERT(false);
         }
 };
-
-// inline declaration goes here
-
-inline
-uint32 Pet::GetSpecializationId() const
-{
-    return m_specialization;
-}
-
-inline
-int32 Pet::GetDuration() const
-{
-    return m_duration;
-}
-
-#endif
