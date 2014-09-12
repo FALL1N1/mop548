@@ -815,7 +815,9 @@ void BattlegroundQueue::BattlegroundQueueUpdate(uint32 /*diff*/, BattlegroundTyp
         MinPlayersPerTeam = sBattlegroundMgr->isArenaTesting() ? 1 : ratedType;
     }
     else if (sBattlegroundMgr->isTesting())
+    {
         MinPlayersPerTeam = 1;
+    }
 
     m_SelectionPools[TEAM_ALLIANCE].Init();
     m_SelectionPools[TEAM_HORDE].Init();

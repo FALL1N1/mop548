@@ -8113,9 +8113,9 @@ void Player::SendPvpRewards() const
     data << GetCurrencyOnWeek(CURRENCY_TYPE_CONQUEST_META_ARENA, true);
     data << GetCurrencyOnWeek(CURRENCY_TYPE_CONQUEST_META_RBG, true);
     data << GetCurrencyOnWeek(CURRENCY_TYPE_CONQUEST_META_ARENA, true);
-    data << uint32(0); // UnkMop
+    data << uint32(400); // Rated BG Victory Reward
     data << GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_META_ARENA, true);
-    data << uint32(0); // unkMop2
+    data << uint32(180); // Rated Arena Victory Reward
     data << GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_META_RBG, true);
     data << GetCurrencyOnWeek(CURRENCY_TYPE_CONQUEST_POINTS, true);
     data << GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_META_ARENA, true);

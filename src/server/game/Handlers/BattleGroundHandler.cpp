@@ -790,20 +790,24 @@ void WorldSession::HandleRequestRatedInfo(WorldPacket & recvData)
 {
     TC_LOG_DEBUG("network", "WORLD: CMSG_REQUEST_RATED_BG_INFO");
 
-    //_player->GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_META_RBG, true);
-    //_player->GetCurrency(CURRENCY_TYPE_CONQUEST_POINTS, true);
+    RatedInfo* rInfo = sRatedMgr->GetRatedInfo(_player->GetGUID());
 
-    WorldPacket data(SMSG_BATTLEFIELD_RATED_INFO, 40);
-    data << uint32(0);      // unk
-    data << uint32(0);      // unk
-    data << uint32(0);      // unk
-    data << uint32(0);      // unk
-    data << uint32(400);    // Rated BG Victory Reward
-    data << uint32(0);      // unk
-    data << uint32(180);    // Rated Arena Victory Reward
-    data << uint32(0);      // unk
-    data << uint32(0);      // unk
-    data << uint32(0);      // unk
+    WorldPacket data(SMSG_BATTLEFIELD_RATED_INFO, 128);
+
+    for (uint8 i = 0; i < MAX_RATED_SLOT; ++i)
+    {
+        RatedType ratedType = RatedInfo::GetRatedTypeBySlot(i);
+
+        StatsBySlot const *stats = rInfo->GetStatsBySlot(ratedType);
+        data << uint32(stats->WeekGames);
+        data << uint32(stats->WeekBest);
+        data << uint32(stats->WeekWins); // games?
+        data << uint32(stats->SeasonGames); // current rating
+        data << uint32(stats->SeasonBest); // wins
+        data << uint32(stats->SeasonWins);
+        data << uint32(stats->PersonalRating);
+        data << uint32(stats->MatchMakerRating);
+    }
 
     SendPacket(&data);
 }
@@ -830,30 +834,4 @@ void WorldSession::HandleRequestPvpReward(WorldPacket& /*recvData*/)
     TC_LOG_DEBUG("network", "WORLD: CMSG_REQUEST_PVP_REWARDS");
 
     _player->SendPvpRewards();
-}
-
-void WorldSession::HandleRequestRatedStats(WorldPacket& /*recvData*/)
-{
-    TC_LOG_DEBUG("network", "WORLD: CMSG_REQUEST_RATED_STATS");
-    
-    RatedInfo* rInfo = sRatedMgr->GetRatedInfo(_player->GetGUID());
-
-    WorldPacket data(SMSG_RATED_STATS, 128);    
-
-    for (uint8 i = 0; i < MAX_RATED_SLOT; ++i)
-    {
-        RatedType ratedType = RatedInfo::GetRatedTypeBySlot(i);
-
-        StatsBySlot const *stats = rInfo->GetStatsBySlot(ratedType);        
-        data << uint32(stats->WeekGames);
-        data << uint32(stats->WeekBest);
-        data << uint32(stats->WeekWins); // games?
-        data << uint32(stats->SeasonGames); // current rating
-        data << uint32(stats->SeasonBest); // wins
-        data << uint32(stats->SeasonWins);
-        data << uint32(stats->PersonalRating);
-        data << uint32(stats->MatchMakerRating);
-    }
-
-    SendPacket(&data);
 }
