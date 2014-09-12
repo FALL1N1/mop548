@@ -6055,14 +6055,14 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                     if (GetEclipsePower() == 100)
                     {
                         CastSpell(this, 48517, true, 0); // Cast Lunar Eclipse
-                        CastSpell(this, 16886, true); // Cast Nature's Grace
-                        CastSpell(this, 81070, true); // Cast Eclipse - Give 35% of POWER_MANA
+                        CastSpell(this, 16886, true);    // Cast Nature's Grace
+                        CastSpell(this, 81070, true);    // Cast Eclipse - Give 35% of POWER_MANA
                     }
                     else if (GetEclipsePower() == -100)
                     {
                         CastSpell(this, 48518, true, 0); // Cast Lunar Eclipse
-                        CastSpell(this, 16886, true); // Cast Nature's Grace
-                        CastSpell(this, 81070, true); // Cast Eclipse - Give 35% of POWER_MANA
+                        CastSpell(this, 16886, true);    // Cast Nature's Grace
+                        CastSpell(this, 81070, true);    // Cast Eclipse - Give 35% of POWER_MANA
                         CastSpell(this, 107095, true);
 
                         if (ToPlayer()->HasSpellCooldown(48505))
@@ -9332,7 +9332,7 @@ bool Unit::isSpellCrit(Unit* victim, SpellInfo const* spellProto, SpellSchoolMas
 {
     //! Mobs can't crit with spells. Player Totems can
     //! Fire Elemental (from totem) can too - but this part is a hack and needs more research
-    if (IS_CREATURE_GUID(GetGUID()) && !(IsTotem() && IS_PLAYER_GUID(GetOwnerGUID())) && GetEntry() != ENTRY_FIRE_ELEMENTAL)
+    if (IS_CREATURE_GUID(GetGUID()) && !(IsTotem() && IS_PLAYER_GUID(GetOwnerGUID())) && GetEntry() != E_PET_ENTRY_FIRE_ELEMENTAL)
         return false;
 
     // not critting spell
@@ -12114,7 +12114,6 @@ Powers Unit::GetPowerTypeByAuraGroup(UnitMods unitMod) const
         case UNIT_MOD_BURNING_EMBERS: return POWER_BURNING_EMBERS;
         case UNIT_MOD_DEMONIC_FURY:return POWER_DEMONIC_FURY;
         case UNIT_MOD_SOUL_SHARDS: return POWER_SOUL_SHARDS;
-        case UNIT_MOD_MANA:
         default:                   return POWER_MANA;
     }
 }
@@ -12354,9 +12353,9 @@ int32 Unit::GetCreatePowers(Powers power) const
                 return 100;
             return (GetTypeId() == TYPEID_PLAYER || !((Creature const*)this)->IsPet() || ((Pet const*)this)->getPetType() != HUNTER_PET ? 0 : 100);
         case POWER_ENERGY:
-            return ((IsPet() && GetEntry() == ENTRY_IMP || GetEntry() == ENTRY_FELHUNTER || GetEntry() == ENTRY_VOIDWALKER ||
-                GetEntry() == ENTRY_SUCCUBUS || GetEntry() == ENTRY_FELGUARD || GetEntry() == ENTRY_SHIVARRA || GetEntry() == ENTRY_OBSERVER ||
-                GetEntry() == ENTRY_VOIDLORD || GetEntry() == ENTRY_FEL_IMP) ? 200 : 100);
+            return ((IsPet() && GetEntry() == E_PET_ENTRY_IMP || GetEntry() == E_PET_ENTRY_FELHUNTER || GetEntry() == E_PET_ENTRY_VOIDWALKER ||
+                GetEntry() == E_PET_ENTRY_SUCCUBUS || GetEntry() == E_PET_ENTRY_FELGUARD || GetEntry() == E_PET_ENTRY_SHIVARRA || GetEntry() == E_PET_ENTRY_OBSERVER ||
+                GetEntry() == E_PET_ENTRY_VOIDLORD || GetEntry() == E_PET_ENTRY_FEL_IMP) ? 200 : 100);
         case POWER_RUNIC_POWER:
             return 1000;
         case POWER_RUNES:

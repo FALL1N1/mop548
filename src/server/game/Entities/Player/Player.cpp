@@ -2560,22 +2560,39 @@ void Player::RegenerateAll()
 {
     m_regenTimerCount += m_regenTimer;
 
-    if (getClass() == CLASS_PALADIN)
-        m_holyPowerRegenTimerCount += m_regenTimer;
-
-    if (getClass() == CLASS_MONK)
-        m_chiPowerRegenTimerCount += m_regenTimer;
-
-    if (getClass() == CLASS_HUNTER)
-        m_focusRegenTimerCount += m_regenTimer;
-
-    if (getClass() == CLASS_WARLOCK && GetSpecializationId(GetActiveSpec()) == CHAR_SPECIALIZATION_WARLOCK_AFFLICTION)
-        m_demonicFuryPowerRegenTimerCount += m_regenTimer;
-    else if (getClass() == CLASS_WARLOCK && GetSpecializationId(GetActiveSpec()) == CHAR_SPECIALIZATION_WARLOCK_DESTRUCTION)
-        m_burningEmbersRegenTimerCount += m_regenTimer;
-    else if (getClass() == CLASS_WARLOCK && GetSpecializationId(GetActiveSpec()) == CHAR_SPECIALIZATION_WARLOCK_AFFLICTION)
-        m_soulShardsRegenTimerCount += m_regenTimer;
-
+    switch (getClass())
+    {
+        case CLASS_PALADIN:
+            m_holyPowerRegenTimerCount += m_regenTimer;
+            break;
+        case CLASS_MONK:
+            m_chiPowerRegenTimerCount += m_regenTimer;
+            break;
+        case CLASS_HUNTER:
+            m_focusRegenTimerCount += m_regenTimer;
+            break;
+        case CLASS_WARLOCK:
+        {
+            switch (GetSpecializationId(GetActiveSpec()))
+            {
+                case CHAR_SPECIALIZATION_WARLOCK_DEMONOLOGY:
+                    m_demonicFuryPowerRegenTimerCount += m_regenTimer;
+                    break;
+                case CHAR_SPECIALIZATION_WARLOCK_DESTRUCTION:
+                    m_burningEmbersRegenTimerCount += m_regenTimer;
+                    break;
+                case CHAR_SPECIALIZATION_WARLOCK_AFFLICTION:
+                    m_soulShardsRegenTimerCount += m_regenTimer;
+                    break;
+                default:
+                    break;
+            }
+            break;
+        }
+        default:
+            break;
+    }    
+   
     Regenerate(POWER_ENERGY);
     Regenerate(POWER_MANA);
 
@@ -2678,7 +2695,8 @@ void Player::Regenerate(Powers power)
     float rangedHaste = GetFloatValue(UNIT_FIELD_MOD_RANGED_HASTE);
     float meleeHaste = GetFloatValue(UNIT_FIELD_MOD_HASTE);
     float spellHaste = GetFloatValue(UNIT_FIELD_MOD_CASTING_SPEED);
-    float HastePct = 1.0f + GetUInt32Value(PLAYER_FIELD_COMBAT_RATINGS + CR_HASTE_MELEE) * GetRatingMultiplier(CR_HASTE_MELEE) / 100.0f;
+
+    int32 powerValue = GetPower(power);
 
     switch (power)
     {
@@ -2693,7 +2711,7 @@ void Player::Regenerate(Powers power)
 
             break;
         }
-        case POWER_RAGE:                                                // Regenerate rage
+        case POWER_RAGE:
         {
             if (!IsInCombat() && !HasAuraType(SPELL_AURA_INTERRUPT_REGEN))
             {
@@ -2703,150 +2721,71 @@ void Player::Regenerate(Powers power)
 
             break;
         }
-        case POWER_FOCUS:
+        case POWER_FOCUS: // Hunter
             addvalue += (6.0f + CalculatePct(6.0f, rangedHaste)) * sWorld->getRate(RATE_POWER_FOCUS);
             break;
-        case POWER_ENERGY:                                              // Regenerate energy (rogue) & (monk)
-            addvalue += ((0.01f * m_regenTimer) * sWorld->getRate(RATE_POWER_ENERGY) * HastePct);
+        case POWER_ENERGY: // Rogue and Monk
+            addvalue += ((0.01f * m_regenTimer) + CalculatePct(0.01f, meleeHaste)) * sWorld->getRate(RATE_POWER_ENERGY);
             break;
-        case POWER_RUNIC_POWER:
+        case POWER_RUNIC_POWER: // Death Knight
         {
             if (!IsInCombat() && !HasAuraType(SPELL_AURA_INTERRUPT_REGEN))
             {
+                // 3 RunicPower by tick
                 float RunicPowerDecreaseRate = sWorld->getRate(RATE_POWER_RUNICPOWER_LOSS);
-                addvalue += -30 * RunicPowerDecreaseRate;         // 3 RunicPower by tick
+                addvalue += -30 * RunicPowerDecreaseRate;               
             }
             break;
         }
-        case POWER_HOLY_POWER:                                          // Regenerate holy power
+        case POWER_HOLY_POWER: // Paladin                                         
             if (!IsInCombat())
                 addvalue += -1.0f; // remove 1 each 10 sec
             break;
-        case POWER_RUNES:
-        case POWER_HEALTH:
-            break;
-        case POWER_CHI:                                                 // Regenerate chi (monk)
+        case POWER_CHI: // Monk 
             if (!IsInCombat())
                 addvalue += -1.0f; // remove 1 each 10 sec
             break;
-        case POWER_DEMONIC_FURY:                                        // Regenerate Demonic Fury
+        case POWER_DEMONIC_FURY: // Warlock
         {
-            if (!IsInCombat() && GetPower(POWER_DEMONIC_FURY) >= 300 && GetShapeshiftForm() != FORM_METAMORPHOSIS)
-                addvalue += -1.0f;    // remove 1 each 100ms
-            else if (!IsInCombat() && GetPower(POWER_DEMONIC_FURY) < 200 && GetShapeshiftForm() != FORM_METAMORPHOSIS)
-                addvalue += 1.0f;     // give 1 each 100ms while player has less than 200 demonic fury
-
-            if (GetPower(POWER_DEMONIC_FURY) <= 40)
+            if (!IsInCombat() && GetShapeshiftForm() != FORM_METAMORPHOSIS)
             {
-                if (HasAura(103958))
-                    RemoveAura(103958);
-
-                if (HasAura(54879))
-                    RemoveAura(54879);
+                if (powerValue >= 300)
+                    addvalue += -1.0f; // remove 1 each 100ms
+                else if (powerValue < 200)
+                    addvalue += +1.0f; // give 1 each 100ms while player has less than 200 demonic fury
             }
 
-            // Demonic Fury visuals
-            if (GetPower(POWER_DEMONIC_FURY) == 1000)
-                CastSpell(this, 131755, true);
-            else if (GetPower(POWER_DEMONIC_FURY) >= 500)
-            {
-                CastSpell(this, 122738, true);
-
-                if (HasAura(131755))
-                    RemoveAura(131755);
-            }
-            else
-            {
-                if (HasAura(122738))
-                    RemoveAura(122738);
-                if (HasAura(131755))
-                    RemoveAura(131755);
-            }
-
+            UpdateAurasOnPowerChange(power);            
             break;
-        }
-        
-        case POWER_BURNING_EMBERS:                                      // Regenerate Burning Embers
+        }        
+        case POWER_BURNING_EMBERS: // Warlock
         {
             // After 15s return to one embers if no one
             // or return to one if more than one
-            if (!IsInCombat() && GetPower(POWER_BURNING_EMBERS) < 10)
-                SetPower(POWER_BURNING_EMBERS, GetPower(POWER_BURNING_EMBERS) + 1);
-            else if (!IsInCombat() && GetPower(POWER_BURNING_EMBERS) > 10)
-                SetPower(POWER_BURNING_EMBERS, GetPower(POWER_BURNING_EMBERS) - 1);
-
-            if (HasAura(56241))
+            if (!IsInCombat())
             {
-                if (GetPower(POWER_BURNING_EMBERS) < 20)
-                {
-                    RemoveAura(123730); // 2
-                    RemoveAura(123728); // 1
-                    RemoveAura(123731); // 3
-                }
-                else if (GetPower(POWER_BURNING_EMBERS) < 30)
-                {
-                    RemoveAura(123730); // 2 shards visual
-                    CastSpell(this, 123728, true); // 1 shard visual
-                }
-                else if (GetPower(POWER_BURNING_EMBERS) < 40)
-                {
-                    CastSpell(this, 123728, true); // 1 shard visual
-                    CastSpell(this, 123730, true); // 2 shards visual
-                    RemoveAura(123731); // 3 shards visual
-                }
-                else if (GetPower(POWER_BURNING_EMBERS) < 50)
-                {
-                    CastSpell(this, 123728, true); // 1 shard visual
-                    CastSpell(this, 123730, true); // 2 shards visual
-                    CastSpell(this, 123731, true); // 3 shards visual
-                }
+                if (powerValue < 10)
+                    addvalue += +1.0f;
+                else if (powerValue > 10)
+                    addvalue += -1.0f;
             }
-            else
-            {
-                if (GetPower(POWER_BURNING_EMBERS) < 20)
-                {
-                    RemoveAura(116855); // First visual
-                    RemoveAura(116920); // Second visual
-                }
-                if (GetPower(POWER_BURNING_EMBERS) < 30)
-                {
-                    CastSpell(this, 116855, true);  // First visual
-                    RemoveAura(116920);             // Second visual
-                }
-                else
-                    CastSpell(this, 116920, true);  // Second visual
-            }
+                     
+            UpdateAurasOnPowerChange(power);
             break;
         }
-        // Regenerate Soul Shards
-        case POWER_SOUL_SHARDS:
+        case POWER_SOUL_SHARDS: // Warlock
         {
             // If isn't in combat, gain 1 shard every 20s
             if (!IsInCombat())
-                SetPower(POWER_SOUL_SHARDS, GetPower(POWER_SOUL_SHARDS) + 100);
+                addvalue += 100.0f;
 
-            if (HasAura(56241))
-            {
-                if (GetPower(POWER_SOUL_SHARDS) < 200 && GetPower(POWER_SOUL_SHARDS) >= 100)
-                {
-                    RemoveAura(123730); // 2 shards visual
-                    CastSpell(this, 123728, true); // 1 shard visual
-                }
-                else if (GetPower(POWER_SOUL_SHARDS) < 300)
-                {
-                    CastSpell(this, 123728, true); // 1 shard visual
-                    CastSpell(this, 123730, true); // 2 shards visual
-                    RemoveAura(123731); // 3 shards visual
-                }
-                else if (GetPower(POWER_SOUL_SHARDS) < 400)
-                {
-                    CastSpell(this, 123728, true); // 1 shard visual
-                    CastSpell(this, 123730, true); // 2 shards visual
-                    CastSpell(this, 123731, true); // 3 shards visual
-                }
-            }
+            UpdateAurasOnPowerChange(power);
             break;
         }
+        case POWER_RUNES:
+        case POWER_HEALTH:
+            break;
+
         default:
             break;
     }
@@ -2910,6 +2849,176 @@ void Player::Regenerate(Powers power)
         SetPower(power, curValue);
     else
         UpdateUInt32Value(UNIT_FIELD_POWER + powerIndex, curValue);
+}
+
+void Player::UpdateAurasOnPowerChange(Powers power)
+{
+    int32 powerValue = GetPower(power);
+
+    switch (power)
+    {
+        case POWER_DEMONIC_FURY:
+        {
+            const int32 metamorphosisAura = 103958;
+            const int32 metamorphosisSpell = 54879;
+            const int32 maximumFury = 131755;
+            const int32 masterDemonologist = 122738;
+
+            // Metamorphosis
+            if (powerValue <= 40)
+            {
+                if (HasAura(metamorphosisAura))
+                    RemoveAura(metamorphosisAura);
+
+                if (HasAura(metamorphosisSpell))
+                    RemoveAura(metamorphosisSpell);
+            }
+
+            // Demonic Fury visuals
+            if (powerValue == 1000) // maximum value
+            {
+                CastSpell(this, maximumFury, true);
+            }                
+            else if (powerValue >= 500)
+            {
+                CastSpell(this, masterDemonologist, true);
+
+                if (HasAura(maximumFury))
+                    RemoveAura(maximumFury);
+            }
+            else
+            {
+                if (HasAura(masterDemonologist))
+                    RemoveAura(masterDemonologist);
+                if (HasAura(maximumFury))
+                    RemoveAura(maximumFury);
+            }
+
+            break;
+        }
+        case POWER_BURNING_EMBERS:
+        {
+            const int32 glyphOfVerdantSpheres = 56241;
+            const int32 twoShardsVisual = 123730;
+            const int32 oneShardVisual = 123728;
+            const int32 threeShardsVisual = 123731;
+            const int32 firstSearingEmber = 116855;
+            const int32 secondSearingEmber = 116920;
+
+            if (HasAura(glyphOfVerdantSpheres))
+            {
+                if (GetPower(POWER_BURNING_EMBERS) < 20)
+                {
+                    RemoveAura(oneShardVisual);
+                    RemoveAura(twoShardsVisual);                    
+                    RemoveAura(threeShardsVisual);
+                }
+                else if (GetPower(POWER_BURNING_EMBERS) < 30)
+                {
+                    RemoveAura(twoShardsVisual);
+                    CastSpell(this, oneShardVisual, true);
+                }
+                else if (GetPower(POWER_BURNING_EMBERS) < 40)
+                {
+                    CastSpell(this, oneShardVisual, true);
+                    CastSpell(this, twoShardsVisual, true);
+                    RemoveAura(threeShardsVisual);
+                }
+                else if (GetPower(POWER_BURNING_EMBERS) < 50)
+                {
+                    CastSpell(this, oneShardVisual, true);
+                    CastSpell(this, twoShardsVisual, true);
+                    CastSpell(this, threeShardsVisual, true);
+                }
+            }
+            else
+            {
+                if (GetPower(POWER_BURNING_EMBERS) < 20)
+                {
+                    RemoveAura(firstSearingEmber);
+                    RemoveAura(secondSearingEmber);
+                }
+                if (GetPower(POWER_BURNING_EMBERS) < 30)
+                {
+                    CastSpell(this, firstSearingEmber, true);
+                    RemoveAura(secondSearingEmber);
+                }
+                else
+                    CastSpell(this, secondSearingEmber, true);
+            }
+            if (HasAura(glyphOfVerdantSpheres))
+            {
+                if (GetPower(POWER_BURNING_EMBERS) < 20)
+                {
+                    RemoveAura(twoShardsVisual);
+                    RemoveAura(oneShardVisual);
+                    RemoveAura(threeShardsVisual);
+                }
+                else if (GetPower(POWER_BURNING_EMBERS) < 30)
+                {
+                    RemoveAura(twoShardsVisual);
+                    CastSpell(this, oneShardVisual, true);
+                }
+                else if (GetPower(POWER_BURNING_EMBERS) < 40)
+                {
+                    CastSpell(this, oneShardVisual, true);
+                    CastSpell(this, twoShardsVisual, true);
+                    RemoveAura(threeShardsVisual);
+                }
+                else if (GetPower(POWER_BURNING_EMBERS) < 50)
+                {
+                    CastSpell(this, oneShardVisual, true);
+                    CastSpell(this, twoShardsVisual, true);
+                    CastSpell(this, threeShardsVisual, true);
+                }
+            }
+            else
+            {
+                if (GetPower(POWER_BURNING_EMBERS) < 20)
+                {
+                    RemoveAura(firstSearingEmber);
+                    RemoveAura(secondSearingEmber);
+                }
+                if (GetPower(POWER_BURNING_EMBERS) < 30)
+                {
+                    CastSpell(this, firstSearingEmber, true);
+                    RemoveAura(secondSearingEmber);
+                }
+                else
+                    CastSpell(this, secondSearingEmber, true);
+            }
+            break;
+        }
+        case POWER_SOUL_SHARDS:
+        {
+            const int32 glyphOfVerdantSpheres = 56241;
+            const int32 twoShardsVisual = 123730;
+            const int32 oneShardVisual = 123728;
+            const int32 threeShardsVisual = 123731;
+
+            if (HasAura(glyphOfVerdantSpheres))
+            {
+                if (GetPower(POWER_SOUL_SHARDS) < 200 && GetPower(POWER_SOUL_SHARDS) >= 100)
+                {
+                    RemoveAura(twoShardsVisual);
+                    CastSpell(this, oneShardVisual, true);
+                }
+                else if (GetPower(POWER_SOUL_SHARDS) < 300)
+                {
+                    CastSpell(this, oneShardVisual, true);
+                    CastSpell(this, twoShardsVisual, true);
+                    RemoveAura(threeShardsVisual);
+                }
+                else if (GetPower(POWER_SOUL_SHARDS) < 400)
+                {
+                    CastSpell(this, oneShardVisual, true);
+                    CastSpell(this, twoShardsVisual, true);
+                    CastSpell(this, threeShardsVisual, true);
+                }
+            }
+            break;
+        }
+    }
 }
 
 void Player::RegenerateHealth()
@@ -21556,10 +21665,10 @@ void Player::RemovePet(Pet* pet, PetSaveMode mode, bool returnreagent)
         switch (pet->GetEntry())
         {
             //warlock pets except imp are removed(?) when logging out
-            case ENTRY_VOIDWALKER:
-            case ENTRY_SUCCUBUS:
-            case ENTRY_FELHUNTER:
-            case ENTRY_FELGUARD:
+            case E_PET_ENTRY_VOIDWALKER:
+            case E_PET_ENTRY_SUCCUBUS:
+            case E_PET_ENTRY_FELHUNTER:
+            case E_PET_ENTRY_FELGUARD:
                 mode = PET_SAVE_NOT_IN_SLOT;
                 break;
         }

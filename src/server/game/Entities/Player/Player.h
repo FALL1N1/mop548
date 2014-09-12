@@ -1723,6 +1723,7 @@ class Player : public Unit, public GridObject<Player>
         void CalcRage(uint32 damage, bool attacker);
         void RegenerateAll();
         void Regenerate(Powers power);
+        void UpdateAurasOnPowerChange(Powers power);
         void RegenerateHealth();
         void setRegenTimerCount(uint32 time) {m_regenTimerCount = time;}
         void setWeaponChangeTimer(uint32 time) {m_weaponChangeTimer = time;}
