@@ -1284,6 +1284,11 @@ CharStartOutfitEntry const* GetCharStartOutfitEntry(uint8 race, uint8 class_, ui
     return itr->second;
 }
 
+uint32 GetPowerIndexByClass(uint32 powerType, uint32 classId)
+{
+    return PowersByClass[classId][powerType];
+}
+
 uint32 ScalingStatValuesEntry::GetStatMultiplier(uint32 inventoryType) const
 {
     if (inventoryType < MAX_INVTYPE)

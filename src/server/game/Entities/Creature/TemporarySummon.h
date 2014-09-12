@@ -73,7 +73,9 @@ class Minion : public TempSummon
         float GetFollowAngle() const { return m_followAngle; }
         void SetFollowAngle(float angle) { m_followAngle = angle; }
         bool IsPetGhoul() const {return GetEntry() == ENTRY_GHOUL;} // Ghoul may be guardian or pet
-        bool IsSpiritWolf() const {return GetEntry() == 29264;} // Spirit wolf from feral spirits
+        bool IsPetGargoyle() const { return GetEntry() == ENTRY_GARGOYLE; }
+        bool IsSpiritWolf() const {return GetEntry() == ENTRY_FERAL_SPIRIT;}
+        bool IsTreant() const { return GetEntry() == ENTRY_TREANT_GUARDIAN || GetEntry() == ENTRY_TREANT_FERAL || GetEntry() == ENTRY_TREANT_BALANCE || GetEntry() == ENTRY_TREANT_RESTO; }
         bool IsGuardianPet() const;
         bool IsWarlockPet() const;
     protected:

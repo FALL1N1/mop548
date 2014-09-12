@@ -521,6 +521,10 @@ public:
     bool IsDifferentRankOf(SpellInfo const* spellInfo) const;
     bool IsHighRankOf(SpellInfo const* spellInfo) const;
 
+    // Helpers
+    bool IsAfflictionPeriodicDamage() const;
+    bool IsEmberstormGropSpells() const;
+
     // loading helpers
     void _InitializeExplicitTargetMask();
     bool _IsPositiveEffect(uint8 effIndex, bool deep) const;

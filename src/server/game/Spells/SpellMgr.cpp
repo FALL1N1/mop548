@@ -2789,6 +2789,10 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
 
         switch (spellInfo->Id)
         {
+            case 111546:// Chaotic Energy
+                spellInfo->Effects[1].Effect = 0;
+                spellInfo->Effects[1].BasePoints = 0;
+                break;
             // override list
             case 34433: // Shadowfiend
                 spellInfo->OverrideSpellList.push_back(123040); // Add Mindbender to override spell list of Shadowfiend

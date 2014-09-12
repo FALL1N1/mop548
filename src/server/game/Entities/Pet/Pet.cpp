@@ -856,8 +856,9 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
     PetLevelInfo const* pInfo = sObjectMgr->GetPetLevelInfo(creature_ID, petlevel);
     if (pInfo)                                      // exist in DB
     {
-        SetCreateHealth(pInfo->health);
-        if (petType != HUNTER_PET) //hunter pet use focus
+        if (creature_ID != 510)
+            SetCreateHealth(pInfo->health);
+        if (petType != HUNTER_PET && GetOwner() && GetOwner()->getClass() != CLASS_WARLOCK && creature_ID != 510) // hunter's pets use focus and Warlock's pets use energy
             SetCreateMana(pInfo->mana);
 
         if (pInfo->armor > 0)
@@ -974,7 +975,7 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
                     SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, float(petlevel / 2));
                     break;
                 }
-                case 29264: // Feral Spirit
+                case ENTRY_FERAL_SPIRIT: // Feral Spirit
                 {
                     if (!pInfo)
                         SetCreateHealth(30*petlevel);

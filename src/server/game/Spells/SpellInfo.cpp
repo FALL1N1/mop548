@@ -2985,3 +2985,36 @@ void SpellInfo::_UnloadImplicitTargetConditionLists()
         delete cur;
     }
 }
+
+bool SpellInfo::IsAfflictionPeriodicDamage() const
+{
+    switch (Id)
+    {
+        case 172:   // Corruption
+        case 980:   // Agony
+        case 30108: // Unstable Affliction
+        case 131736:// Unstable Affliction (triggered)
+        case 131737:// Agony (triggered)
+        case 131740:// Corruption (triggered)
+            return true;
+        default:
+            return false;
+    }
+}
+
+bool SpellInfo::IsEmberstormGropSpells() const
+{
+    switch (Id)
+    {
+        case 348:   // Immolate
+        case 17962: // Conflagrate
+        case 29722: // Incinerate
+        case 77799: // Fel Flame
+        case 108685:// Conflagrate (modifiered)
+        case 108686:// Immolate (modifiered)
+        case 114654:// Incinerate (modifiered)
+            return true;
+        default:
+            return false;
+    }
+}

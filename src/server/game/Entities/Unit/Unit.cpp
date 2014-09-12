@@ -8849,6 +8849,51 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uin
     float ApCoeffMod = 1.0f;
     int32 DoneTotal = 0;
 
+    // 77215 - Mastery : Potent Afflictions
+    // Increase periodic damage of Corruption, Agony and Unstable Affliction
+    if (GetTypeId() == TYPEID_PLAYER && spellProto && spellProto->IsAfflictionPeriodicDamage() && damagetype == DOT && HasAura(77215))
+    {
+        float Mastery = ToPlayer()->GetMasterySpellCoefficient();
+        AddPct(DoneTotalMod, Mastery);
+    }
+
+    // 77219 - Mastery : Master Demonologist
+    // Bonus damage while using Metamorphosis
+    if (GetTypeId() == TYPEID_PLAYER && HasAura(77219))
+    {
+        float Mastery = 0.0f;
+
+        if (HasAura(103958))
+            float Mastery = ToPlayer()->GetMasterySpellCoefficient();
+        else
+            Mastery = GetFloatValue(PLAYER_FIELD_MASTERY);
+
+        AddPct(DoneTotalMod, Mastery);
+    }
+    else if (IsPet())
+    {
+        Unit* owner = GetOwner();
+        if (owner && owner->HasAura(77219) && owner->GetTypeId() == TYPEID_PLAYER)
+        {
+            float Mastery = owner->GetFloatValue(PLAYER_FIELD_MASTERY);
+            AddPct(DoneTotalMod, Mastery);
+        }
+    }
+
+    // Mastery : Emberstorm - 77220
+    // Increases the damage of Immolate, Incinerate, Fel Flame and Conflagrate (include the Fire and Brimstone spells)
+    if (GetTypeId() == TYPEID_PLAYER && HasAura(77220) && spellProto && spellProto->IsEmberstormGropSpells())
+    {
+        float Mastery = (GetFloatValue(PLAYER_FIELD_MASTERY) + 1);
+        AddPct(DoneTotalMod, Mastery);
+    }
+    // Increases the damage of spells wich consume Burning Embers (Shadowburn and Chaos Bolt)
+    if (GetTypeId() == TYPEID_PLAYER && HasAura(77220) && spellProto && (spellProto->Id == 17877 || spellProto->Id == 116858))
+    {
+        float Mastery = ToPlayer()->GetMasterySpellCoefficient();
+        AddPct(DoneTotalMod, Mastery);
+    }
+
     // Apply Power PvP damage bonus - works in all scenarios on players and pets/minions
     if (pdamage > 0 && GetTypeId() == TYPEID_PLAYER && (victim->GetTypeId() == TYPEID_PLAYER || (victim->IsPet() && victim->GetOwner() && victim->GetOwner()->GetTypeId() == TYPEID_PLAYER)))
     {
@@ -9233,7 +9278,7 @@ int32 Unit::SpellBaseDamageBonusDone(SpellSchoolMask schoolMask) const
         DoneAdvertisedBenefit += ToPlayer()->GetBaseSpellPowerBonus();
 
         // Check if we are ever using mana - PaperDollFrame.lua
-        if (GetPowerIndexByClass(POWER_MANA, getClass()) != MAX_POWERS)
+        if (GetPowerIndex(POWER_MANA) != MAX_POWERS)
             DoneAdvertisedBenefit += std::max(0, int32(GetStat(STAT_INTELLECT)) - 10); // spellpower from intellect
 
         // Damage bonus from stats
@@ -9771,8 +9816,8 @@ int32 Unit::SpellBaseHealingBonusDone(SpellSchoolMask schoolMask) const
         advertisedBenefit += ToPlayer()->GetBaseSpellPowerBonus();
 
         // Check if we are ever using mana - PaperDollFrame.lua
-        if (GetPowerIndexByClass(POWER_MANA, getClass()) != MAX_POWERS)
-            advertisedBenefit += std::max(0, int32(GetStat(STAT_INTELLECT)) - 10);  // spellpower from intellect
+        if (GetPowerIndex(POWER_MANA) != MAX_POWERS)
+            advertisedBenefit += std::max(0, int32(GetStat(STAT_INTELLECT)) - 10); // spellpower from intellect
 
         // Healing bonus from stats
         AuraEffectList const& mHealingDoneOfStatPercent = GetAuraEffectsByType(SPELL_AURA_MOD_SPELL_HEALING_OF_STAT_PERCENT);
@@ -10007,6 +10052,30 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
 
     // Done total percent damage auras
     float DoneTotalMod = 1.0f;
+       
+    // 77219 - Mastery : Master Demonologist
+    // Bonus damage while using Metamorphosis
+    if (HasAura(103958) && HasAura(77219) && GetTypeId() == TYPEID_PLAYER)
+    {
+        float Mastery = ToPlayer()->GetMasterySpellCoefficient();
+        AddPct(DoneTotalMod, Mastery);
+    }
+    // Bonus damage in caster form
+    else if (!HasAura(103958) && HasAura(77219) && GetTypeId() == TYPEID_PLAYER)
+    {
+        float Mastery = GetFloatValue(PLAYER_FIELD_MASTERY);
+        AddPct(DoneTotalMod, Mastery);
+    }
+    // Bonus damage for demon servants
+    else if (IsPet())
+    {
+        Unit* owner = GetOwner();
+        if (owner && owner->HasAura(77219) && owner->GetTypeId() == TYPEID_PLAYER)
+        {
+            float Mastery = owner->GetFloatValue(PLAYER_FIELD_MASTERY);
+            AddPct(DoneTotalMod, Mastery);
+        }
+    }
 
     // Apply Power PvP damage bonus - works in all scenarios and only on players and their minions/pets
     if (pdamage > 0 && GetTypeId() == TYPEID_PLAYER && (victim->GetTypeId() == TYPEID_PLAYER || (victim->IsPet() && victim->GetOwner() && victim->GetOwner()->GetTypeId() == TYPEID_PLAYER)))
@@ -12146,53 +12215,9 @@ void Unit::SetMaxHealth(uint32 val)
         SetHealth(val);
 }
 
-uint32 Unit::GetPowerIndexByClass(uint32 powerId, uint32 classId) const
-{
-    if (powerId == POWER_ENERGY)
-    {
-        if (ToPet() && ToPet()->IsWarlockPet())
-            return 0;
-
-        switch (this->GetEntry())
-        {
-            case ENTRY_GHOUL:
-            case 59915:
-            case 60043:
-            case 60047:
-            case 60051:
-                return 0;
-            default:
-                break;
-        }
-    }
-
-    ChrClassesEntry const* classEntry = sChrClassesStore.LookupEntry(classId);
-
-    ASSERT(classEntry && "Class not found");
-
-    uint32 index = 0;
-    for (uint32 i = 0; i <= sChrPowerTypesStore.GetNumRows(); ++i)
-    {
-        ChrPowerTypesEntry const* powerEntry = sChrPowerTypesStore.LookupEntry(i);
-        if (!powerEntry)
-            continue;
-
-        if (powerEntry->classId != classId)
-            continue;
-
-        if (powerEntry->power == powerId)
-            return index;
-
-        ++index;
-    }
-
-    // return invalid value - this class doesn't use this power
-    return MAX_POWERS;
-};
-
 int32 Unit::GetPower(Powers power) const
 {
-    uint32 powerIndex = GetPowerIndexByClass(power, getClass());
+    uint32 powerIndex = GetPowerIndex(power);
     if (powerIndex == MAX_POWERS)
         return 0;
 
@@ -12201,7 +12226,7 @@ int32 Unit::GetPower(Powers power) const
 
 int32 Unit::GetMaxPower(Powers power) const
 {
-    uint32 powerIndex = GetPowerIndexByClass(power, getClass());
+    uint32 powerIndex = GetPowerIndex(power);
     if (powerIndex == MAX_POWERS)
         return 0;
 
@@ -12210,13 +12235,16 @@ int32 Unit::GetMaxPower(Powers power) const
 
 void Unit::SetPower(Powers power, int32 val)
 {
-    uint32 powerIndex = GetPowerIndexByClass(power, getClass());
+    uint32 powerIndex = GetPowerIndex(power);
     if (powerIndex == MAX_POWERS)
         return;
 
     int32 maxPower = int32(GetMaxPower(power));
     if (maxPower < val)
         val = maxPower;
+
+    if (val == GetInt32Value(UNIT_FIELD_POWER + powerIndex))
+        return;
 
     SetInt32Value(UNIT_FIELD_POWER + powerIndex, val);
 
@@ -12248,7 +12276,7 @@ void Unit::SetPower(Powers power, int32 val)
 
         data.WriteByteSeq(guid[6]);
 
-        SendMessageToSet(&data, GetTypeId() == TYPEID_PLAYER);
+        SendMessageToSet(&data, GetTypeId() == TYPEID_PLAYER ? true : false);
     }
 
     // group update
@@ -12270,7 +12298,7 @@ void Unit::SetPower(Powers power, int32 val)
 
 void Unit::SetMaxPower(Powers power, int32 val)
 {
-    uint32 powerIndex = GetPowerIndexByClass(power, getClass());
+    uint32 powerIndex = GetPowerIndex(power);
     if (powerIndex == MAX_POWERS)
         return;
 
@@ -12295,6 +12323,14 @@ void Unit::SetMaxPower(Powers power, int32 val)
 
     if (val < cur_power)
         SetPower(power, val);
+}
+
+uint32 Unit::GetPowerIndex(uint32 powerType) const
+{
+    uint32 classId = getClass();
+    if (ToPet() && ToPet()->getPetType() == HUNTER_PET)
+        classId = CLASS_HUNTER;
+    return GetPowerIndexByClass(powerType, classId);
 }
 
 int32 Unit::GetCreatePowers(Powers power) const

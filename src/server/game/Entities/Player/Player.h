@@ -1831,7 +1831,7 @@ class Player : public Unit, public GridObject<Player>
         void SetSpecsCount(uint8 count) { _talentMgr->SpecsCount = count; }
         void SetSpecializationId(uint8 spec, uint32 id);
         uint32 GetSpecializationId(uint8 spec) const { return _talentMgr->SpecInfo[spec].SpecializationId; }
-        float GetMasterySpellCoefficient();
+        float GetMasterySpellCoefficient() const;
 
         bool ResetTalents(bool no_cost = false);
         bool RemoveTalent(uint32 talentId);
@@ -2010,7 +2010,6 @@ class Player : public Unit, public GridObject<Player>
         uint32 GetSpellByProto(ItemTemplate* proto);
 
         float GetHealthBonusFromStamina();
-        float GetManaBonusFromIntellect();
 
         bool UpdateStats(Stats stat);
         bool UpdateAllStats();

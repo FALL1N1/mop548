@@ -92,6 +92,7 @@ enum CreatureFlagsExtra
 
 // Shaman
 #define ENTRY_FIRE_ELEMENTAL    15438
+#define ENTRY_FERAL_SPIRIT      29264
 
 // Death Knight
 #define ENTRY_GHOUL             26125

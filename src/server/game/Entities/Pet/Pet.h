@@ -86,17 +86,6 @@ class Pet : public Guardian
         void SetDuration(int32 dur) { m_duration = dur; }
         int32 GetDuration() const { return m_duration; }
 
-        /*
-        bool UpdateStats(Stats stat);
-        bool UpdateAllStats();
-        void UpdateResistances(uint32 school);
-        void UpdateArmor();
-        void UpdateMaxHealth();
-        void UpdateMaxPower(Powers power);
-        void UpdateAttackPowerAndDamage(bool ranged = false);
-        void UpdateDamagePhysical(WeaponAttackType attType);
-        */
-
         void ToggleAutocast(SpellInfo const* spellInfo, bool apply);
 
         bool HasSpell(uint32 spell) const;

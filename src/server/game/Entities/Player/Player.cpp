@@ -1010,6 +1010,12 @@ bool Player::Create(uint32 guidlow, CharacterCreateInfo* createInfo)
         SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE);
     }
 
+    SetFloatValue(UNIT_FIELD_MOD_CASTING_SPEED, 1.0f);
+    SetFloatValue(UNIT_FIELD_MOD_SPELL_HASTE, 1.0f);
+    SetFloatValue(UNIT_FIELD_MOD_HASTE, 1.0f);
+    SetFloatValue(UNIT_FIELD_MOD_HASTE_REGEN, 1.0f);
+    SetFloatValue(UNIT_FIELD_MOD_RANGED_HASTE, 1.0f);
+
     SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_REGENERATE_POWER);
     SetFloatValue(UNIT_FIELD_HOVER_HEIGHT, 1.0f);            // default for players in 3.0.3
 
@@ -2662,7 +2668,7 @@ void Player::Regenerate(Powers power)
         return;
 
     // Skip regeneration for power type we cannot have
-    uint32 powerIndex = GetPowerIndexByClass(power, getClass());
+    uint32 powerIndex = GetPowerIndex(power);
     if (powerIndex == MAX_POWERS)
         return;
 
@@ -2684,8 +2690,9 @@ void Player::Regenerate(Powers power)
                 addvalue += GetFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER) *  ManaIncreaseRate * ((0.001f * m_regenTimer) + CalculatePct(0.001f, spellHaste));
             else
                 addvalue += GetFloatValue(UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER) *  ManaIncreaseRate * ((0.001f * m_regenTimer) + CalculatePct(0.001f, spellHaste));
+
+            break;
         }
-        break;
         case POWER_RAGE:                                                // Regenerate rage
         {
             if (!IsInCombat() && !HasAuraType(SPELL_AURA_INTERRUPT_REGEN))
@@ -2693,8 +2700,9 @@ void Player::Regenerate(Powers power)
                 float RageDecreaseRate = sWorld->getRate(RATE_POWER_RAGE_LOSS);
                 addvalue += -25 * RageDecreaseRate / meleeHaste;                // 2.5 rage by tick (= 2 seconds => 1.25 rage/sec)
             }
+
+            break;
         }
-        break;
         case POWER_FOCUS:
             addvalue += (6.0f + CalculatePct(6.0f, rangedHaste)) * sWorld->getRate(RATE_POWER_FOCUS);
             break;
@@ -2708,23 +2716,19 @@ void Player::Regenerate(Powers power)
                 float RunicPowerDecreaseRate = sWorld->getRate(RATE_POWER_RUNICPOWER_LOSS);
                 addvalue += -30 * RunicPowerDecreaseRate;         // 3 RunicPower by tick
             }
+            break;
         }
-        break;
         case POWER_HOLY_POWER:                                          // Regenerate holy power
-        {
             if (!IsInCombat())
-                addvalue += -1.0f;      // remove 1 each 10 sec
-        }
-        break;
+                addvalue += -1.0f; // remove 1 each 10 sec
+            break;
         case POWER_RUNES:
         case POWER_HEALTH:
             break;
         case POWER_CHI:                                                 // Regenerate chi (monk)
-        {
             if (!IsInCombat())
                 addvalue += -1.0f; // remove 1 each 10 sec
             break;
-        }
         case POWER_DEMONIC_FURY:                                        // Regenerate Demonic Fury
         {
             if (!IsInCombat() && GetPower(POWER_DEMONIC_FURY) >= 300 && GetShapeshiftForm() != FORM_METAMORPHOSIS)
@@ -2812,11 +2816,11 @@ void Player::Regenerate(Powers power)
                 else
                     CastSpell(this, 116920, true);  // Second visual
             }
-
             break;
         }
         // Regenerate Soul Shards
         case POWER_SOUL_SHARDS:
+        {
             // If isn't in combat, gain 1 shard every 20s
             if (!IsInCombat())
                 SetPower(POWER_SOUL_SHARDS, GetPower(POWER_SOUL_SHARDS) + 100);
@@ -2842,6 +2846,7 @@ void Player::Regenerate(Powers power)
                 }
             }
             break;
+        }
         default:
             break;
     }
@@ -2901,7 +2906,7 @@ void Player::Regenerate(Powers power)
             m_powerFraction[powerIndex] = addvalue - integerValue;
     }
 
-    if (m_regenTimerCount >= 1000)
+    if (m_regenTimerCount >= 500)
         SetPower(power, curValue);
     else
         UpdateUInt32Value(UNIT_FIELD_POWER + powerIndex, curValue);
@@ -3583,6 +3588,7 @@ void Player::InitStatsForLevel(bool reapplyMods)
     SetFloatValue(UNIT_FIELD_MOD_CASTING_SPEED, 1.0f);
     SetFloatValue(UNIT_FIELD_MOD_SPELL_HASTE, 1.0f);
     SetFloatValue(UNIT_FIELD_MOD_HASTE, 1.0f);
+    SetFloatValue(UNIT_FIELD_MOD_HASTE_REGEN, 1.0f);
     SetFloatValue(UNIT_FIELD_MOD_RANGED_HASTE, 1.0f);
 
     // reset size before reapply auras
@@ -5797,8 +5803,6 @@ void Player::DurabilityLossAll(double percent, bool inventory)
     if (inventory)
     {
         // bags not have durability
-        // for (int i = INVENTORY_SLOT_BAG_START; i < INVENTORY_SLOT_BAG_END; i++)
-
         for (uint8 i = INVENTORY_SLOT_ITEM_START; i < INVENTORY_SLOT_ITEM_END; i++)
             if (Item* pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
                 DurabilityLoss(pItem, percent);
@@ -5840,8 +5844,6 @@ void Player::DurabilityPointsLossAll(int32 points, bool inventory)
     if (inventory)
     {
         // bags not have durability
-        // for (int i = INVENTORY_SLOT_BAG_START; i < INVENTORY_SLOT_BAG_END; i++)
-
         for (uint8 i = INVENTORY_SLOT_ITEM_START; i < INVENTORY_SLOT_ITEM_END; i++)
             if (Item* pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
                 DurabilityPointsLoss(pItem, points);
@@ -6315,7 +6317,6 @@ float Player::GetRatingMultiplier(CombatRating cr) const
         level = GT_MAX_LEVEL;
 
     GtCombatRatingsEntry const* Rating = sGtCombatRatingsStore.LookupEntry(cr*GT_MAX_LEVEL+level-1);
-    // gtOCTClassCombatRatingScalarStore.dbc starts with 1, CombatRating with zero, so cr+1
     GtOCTClassCombatRatingScalarEntry const* classRating = sGtOCTClassCombatRatingScalarStore.LookupEntry((getClass()-1)*GT_MAX_RATING+cr+1);
     if (!Rating || !classRating)
         return 1.0f;                                        // By default use minimum coefficient (not must be called)
@@ -6355,7 +6356,6 @@ float Player::OCTRegenMPPerSpirit()
     if (level > GT_MAX_LEVEL)
         level = GT_MAX_LEVEL;
 
-//    GtOCTRegenMPEntry     const* baseRatio = sGtOCTRegenMPStore.LookupEntry((pclass-1)*GT_MAX_LEVEL + level-1);
     GtRegenMPPerSptEntry  const* moreRatio = sGtRegenMPPerSptStore.LookupEntry((pclass-1)*GT_MAX_LEVEL + level-1);
     if (moreRatio == NULL)
         return 0.0f;
@@ -6418,6 +6418,16 @@ void Player::UpdateRating(CombatRating cr)
     SetUInt32Value(PLAYER_FIELD_COMBAT_RATINGS + cr, uint32(amount));
 
     bool affectStats = CanModifyStats();
+
+    if (cr == CR_HASTE_MELEE || cr == CR_HASTE_RANGED || cr == CR_HASTE_SPELL)
+    {
+        float haste = 1 / (1 + (amount * GetRatingMultiplier(cr)) / 100);
+        // Update haste percentage for client
+        SetFloatValue(UNIT_FIELD_MOD_RANGED_HASTE, haste);
+        SetFloatValue(UNIT_FIELD_MOD_SPELL_HASTE, haste);
+        SetFloatValue(UNIT_FIELD_MOD_HASTE, haste);
+        UpdateManaRegen();
+    }
 
     switch (cr)
     {
@@ -18563,7 +18573,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
     uint32 loadedPowers = 0;
     for (uint32 i = 0; i < MAX_POWERS; ++i)
     {
-        if (GetPowerIndexByClass(Powers(i), getClass()) != MAX_POWERS)
+        if (GetPowerIndex(i) != MAX_POWERS)
         {
             uint32 savedPower = fields[47+loadedPowers].GetUInt32();
             uint32 maxPower = GetUInt32Value(UNIT_FIELD_MAX_POWER + loadedPowers);
@@ -20198,7 +20208,7 @@ void Player::SaveToDB(bool create /*=false*/)
         uint32 storedPowers = 0;
         for (uint32 i = 0; i < MAX_POWERS; ++i)
         {
-            if (GetPowerIndexByClass(Powers(i), getClass()) != MAX_POWERS)
+            if (GetPowerIndex(i) != MAX_POWERS)
             {
                 stmt->setUInt32(index++, GetUInt32Value(UNIT_FIELD_POWER + storedPowers));
                 if (++storedPowers >= MAX_POWERS_PER_CLASS)
@@ -20321,7 +20331,7 @@ void Player::SaveToDB(bool create /*=false*/)
         uint32 storedPowers = 0;
         for (uint32 i = 0; i < MAX_POWERS; ++i)
         {
-            if (GetPowerIndexByClass(Powers(i), getClass()) != MAX_POWERS)
+            if (GetPowerIndex(i) != MAX_POWERS)
             {
                 stmt->setUInt32(index++, GetUInt32Value(UNIT_FIELD_POWER + storedPowers));
                 if (++storedPowers >= MAX_POWERS_PER_CLASS)
@@ -29108,7 +29118,7 @@ void Player::UpdateResearchProjects()
     }
 }
 
-float Player::GetMasterySpellCoefficient()
+float Player::GetMasterySpellCoefficient() const
 {
     ChrSpecializationEntry const* specEntry = sChrSpecializationStore.LookupEntry(GetSpecializationId(GetActiveSpec()));
     if (!specEntry)

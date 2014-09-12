@@ -91,6 +91,8 @@ DigsitePOIPolygon const* GetDigsitePOIPolygon(uint32 digsiteId);
 
 LFGDungeonEntry const* GetLFGDungeon(uint32 mapId, Difficulty difficulty);
 
+uint32 GetPowerIndexByClass(uint32 powerType, uint32 classId);
+
 extern SpecializationOverrideSpellsMap sSpecializationOverrideSpellMap;
 extern DBCStorage <AchievementEntry>             sAchievementStore;
 extern DBCStorage <AchievementCriteriaEntry>     sAchievementCriteriaStore;
