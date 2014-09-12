@@ -9332,7 +9332,7 @@ bool Unit::isSpellCrit(Unit* victim, SpellInfo const* spellProto, SpellSchoolMas
 {
     //! Mobs can't crit with spells. Player Totems can
     //! Fire Elemental (from totem) can too - but this part is a hack and needs more research
-    if (IS_CREATURE_GUID(GetGUID()) && !(IsTotem() && IS_PLAYER_GUID(GetOwnerGUID())) && GetEntry() != E_PET_ENTRY_FIRE_ELEMENTAL)
+    if (IS_CREATURE_GUID(GetGUID()) && !(IsTotem() && IS_PLAYER_GUID(GetOwnerGUID())) && GetEntry() != PET_ENTRY_FIRE_ELEMENTAL)
         return false;
 
     // not critting spell
@@ -12353,9 +12353,9 @@ int32 Unit::GetCreatePowers(Powers power) const
                 return 100;
             return (GetTypeId() == TYPEID_PLAYER || !((Creature const*)this)->IsPet() || ((Pet const*)this)->getPetType() != HUNTER_PET ? 0 : 100);
         case POWER_ENERGY:
-            return ((IsPet() && GetEntry() == E_PET_ENTRY_IMP || GetEntry() == E_PET_ENTRY_FELHUNTER || GetEntry() == E_PET_ENTRY_VOIDWALKER ||
-                GetEntry() == E_PET_ENTRY_SUCCUBUS || GetEntry() == E_PET_ENTRY_FELGUARD || GetEntry() == E_PET_ENTRY_SHIVARRA || GetEntry() == E_PET_ENTRY_OBSERVER ||
-                GetEntry() == E_PET_ENTRY_VOIDLORD || GetEntry() == E_PET_ENTRY_FEL_IMP) ? 200 : 100);
+            return ((IsPet() && GetEntry() == PET_ENTRY_IMP || GetEntry() == PET_ENTRY_FELHUNTER || GetEntry() == PET_ENTRY_VOIDWALKER ||
+                GetEntry() == PET_ENTRY_SUCCUBUS || GetEntry() == PET_ENTRY_FELGUARD || GetEntry() == PET_ENTRY_SHIVARRA || GetEntry() == PET_ENTRY_OBSERVER ||
+                GetEntry() == PET_ENTRY_VOIDLORD || GetEntry() == PET_ENTRY_FEL_IMP) ? 200 : 100);
         case POWER_RUNIC_POWER:
             return 1000;
         case POWER_RUNES:

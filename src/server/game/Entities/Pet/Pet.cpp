@@ -916,12 +916,12 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
         {
             switch (GetEntry())
             {
-                case E_PET_ENTRY_WATER_ELEMENTAL: // Summon Water Elemental Spell
+                case PET_ENTRY_WATER_ELEMENTAL: // Summon Water Elemental Spell
                 {
                     SetBonusDamage(int32(GetOwner()->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_FROST) * 0.33f));
                     break;
                 }
-                case E_PET_ENTRY_TREANT_BALANCE: // Force of Nature
+                case PET_ENTRY_TREANT_BALANCE: // Force of Nature
                 {
                     if (!pInfo)
                         SetCreateHealth(30 + 30 * petlevel);
@@ -931,7 +931,7 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
                     SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, float(petlevel * 2.5f + (petlevel / 2) + bonusDmg));
                     break;
                 }
-                case E_PET_ENTRY_EARTH_ELEMENTAL:
+                case PET_ENTRY_EARTH_ELEMENTAL:
                 {
                     if (!pInfo)
                         SetCreateHealth(100 + 120 * petlevel);
@@ -940,7 +940,7 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
                     SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, float(petlevel + (petlevel / 4)));
                     break;
                 }
-                case E_PET_ENTRY_FIRE_ELEMENTAL:
+                case PET_ENTRY_FIRE_ELEMENTAL:
                 {
                     if (!pInfo)
                     {
@@ -953,7 +953,7 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
                     SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, float(petlevel * 4 + petlevel));
                     break;
                 }
-                case E_PET_ENTRY_SHADOWFIEND:
+                case PET_ENTRY_SHADOWFIEND:
                 {
                     if (!pInfo)
                     {
@@ -966,19 +966,19 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
                     SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, float((petlevel * 4 + petlevel) + bonus_dmg));
                     break;
                 }
-                case E_PET_ENTRY_VENOMOUS_SNAKE: // Snake Trap
+                case PET_ENTRY_VENOMOUS_SNAKE: // Snake Trap
                 {
                     SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, float((petlevel / 2) - 25));
                     SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, float((petlevel / 2) - 18));
                     break;
                 }
-                case E_PET_ENTRY_VIPER: // Snake Trap
+                case PET_ENTRY_VIPER: // Snake Trap
                 {
                     SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, float(petlevel / 2 - 10));
                     SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, float(petlevel / 2));
                     break;
                 }
-                case E_PET_ENTRY_FERAL_SPIRIT:
+                case PET_ENTRY_FERAL_SPIRIT:
                 {
                     if (!pInfo)
                         SetCreateHealth(30*petlevel);
@@ -999,7 +999,7 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
                     
                     break;
                 }
-                case E_PET_ENTRY_MIRROR_IMAGE:
+                case PET_ENTRY_MIRROR_IMAGE:
                 {
                     SetBonusDamage(int32(GetOwner()->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_FROST) * 0.33f));
                     SetDisplayId(GetOwner()->GetDisplayId());
@@ -1012,7 +1012,7 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
 
                     break;
                 }
-                case E_PET_ENTRY_GARGOYLE: // Ebon Gargoyle
+                case PET_ENTRY_GARGOYLE: // Ebon Gargoyle
                 {
                     if (!pInfo)
                     {
@@ -1025,7 +1025,7 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
                     SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, float(petlevel + (petlevel / 4)));
                     break;
                 }
-                case E_PET_ENTRY_BLOODWORM:
+                case PET_ENTRY_BLOODWORM:
                 {
                     SetCreateHealth(4 * petlevel);
                     SetBonusDamage(int32(GetOwner()->GetTotalAttackPowerValue(BASE_ATTACK) * 0.006f));

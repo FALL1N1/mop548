@@ -41,44 +41,44 @@ struct TempSummonData
 enum EPetEntries
 {
     // Warlock
-    E_PET_ENTRY_INFERNAL = 89,
-    E_PET_ENTRY_IMP = 416,
-    E_PET_ENTRY_VOIDWALKER = 1860,
-    E_PET_ENTRY_SUCCUBUS = 1863,
-    E_PET_ENTRY_FELHUNTER = 417,
-    E_PET_ENTRY_FELGUARD = 17252,
-    E_PET_ENTRY_FEL_IMP = 58959,
-    E_PET_ENTRY_VOIDLORD = 58960,
-    E_PET_ENTRY_SHIVARRA = 58963,
-    E_PET_ENTRY_OBSERVER = 58964,
-    E_PET_ENTRY_WRATHGUARD = 58965,
+    PET_ENTRY_INFERNAL = 89,
+    PET_ENTRY_IMP = 416,
+    PET_ENTRY_VOIDWALKER = 1860,
+    PET_ENTRY_SUCCUBUS = 1863,
+    PET_ENTRY_FELHUNTER = 417,
+    PET_ENTRY_FELGUARD = 17252,
+    PET_ENTRY_FEL_IMP = 58959,
+    PET_ENTRY_VOIDLORD = 58960,
+    PET_ENTRY_SHIVARRA = 58963,
+    PET_ENTRY_OBSERVER = 58964,
+    PET_ENTRY_WRATHGUARD = 58965,
 
     // Mage
-    E_PET_ENTRY_WATER_ELEMENTAL = 510,
-    E_PET_ENTRY_MIRROR_IMAGE = 31216,
+    PET_ENTRY_WATER_ELEMENTAL = 510,
+    PET_ENTRY_MIRROR_IMAGE = 31216,
 
     // Druid
-    E_PET_ENTRY_TREANT_GUARDIAN = 54985,
-    E_PET_ENTRY_TREANT_FERAL = 54984,
-    E_PET_ENTRY_TREANT_RESTO = 54983,
-    E_PET_ENTRY_TREANT_BALANCE = 1964,
+    PET_ENTRY_TREANT_GUARDIAN = 54985,
+    PET_ENTRY_TREANT_FERAL = 54984,
+    PET_ENTRY_TREANT_RESTO = 54983,
+    PET_ENTRY_TREANT_BALANCE = 1964,
 
     // Shaman
-    E_PET_ENTRY_FIRE_ELEMENTAL = 15438,
-    E_PET_ENTRY_FERAL_SPIRIT = 29264,
-    E_PET_ENTRY_EARTH_ELEMENTAL = 15352,
+    PET_ENTRY_FIRE_ELEMENTAL = 15438,
+    PET_ENTRY_FERAL_SPIRIT = 29264,
+    PET_ENTRY_EARTH_ELEMENTAL = 15352,
 
     // Death Knight
-    E_PET_ENTRY_GHOUL = 26125,
-    E_PET_ENTRY_BLOODWORM = 28017,
-    E_PET_ENTRY_GARGOYLE = 27829,
+    PET_ENTRY_GHOUL = 26125,
+    PET_ENTRY_BLOODWORM = 28017,
+    PET_ENTRY_GARGOYLE = 27829,
 
     // Priest 
-    E_PET_ENTRY_SHADOWFIEND = 19668,
+    PET_ENTRY_SHADOWFIEND = 19668,
 
     // Hunter
-    E_PET_ENTRY_VENOMOUS_SNAKE = 19833,
-    E_PET_ENTRY_VIPER = 19921,
+    PET_ENTRY_VENOMOUS_SNAKE = 19833,
+    PET_ENTRY_VIPER = 19921,
 };
 
 class TempSummon : public Creature
@@ -118,11 +118,11 @@ public:
     void SetFollowAngle(float angle) { m_followAngle = angle; }
 
     bool IsTreant() const;
-    bool IsPetGhoul() const { return GetEntry() == E_PET_ENTRY_GHOUL; }
-    bool IsPetGargoyle() const { return GetEntry() == E_PET_ENTRY_GARGOYLE; }
-    bool IsSpiritWolf() const { return GetEntry() == E_PET_ENTRY_FERAL_SPIRIT; }
-    bool isWrathGuard() const { return GetEntry() == E_PET_ENTRY_WRATHGUARD; }
-    bool IsWaterElemental() const { return GetEntry() == E_PET_ENTRY_WATER_ELEMENTAL; }
+    bool IsPetGhoul() const { return GetEntry() == PET_ENTRY_GHOUL; }
+    bool IsPetGargoyle() const { return GetEntry() == PET_ENTRY_GARGOYLE; }
+    bool IsSpiritWolf() const { return GetEntry() == PET_ENTRY_FERAL_SPIRIT; }
+    bool isWrathGuard() const { return GetEntry() == PET_ENTRY_WRATHGUARD; }
+    bool IsWaterElemental() const { return GetEntry() == PET_ENTRY_WATER_ELEMENTAL; }
     bool IsGuardianPet() const;
     bool IsWarlockPet() const;
 protected:
@@ -179,10 +179,10 @@ bool Minion::IsTreant() const
 {
     switch (GetEntry())
     {
-        case E_PET_ENTRY_TREANT_GUARDIAN:
-        case E_PET_ENTRY_TREANT_FERAL:
-        case E_PET_ENTRY_TREANT_BALANCE:
-        case E_PET_ENTRY_TREANT_RESTO:
+        case PET_ENTRY_TREANT_GUARDIAN:
+        case PET_ENTRY_TREANT_FERAL:
+        case PET_ENTRY_TREANT_BALANCE:
+        case PET_ENTRY_TREANT_RESTO:
             return true;
         default:
             return false;
@@ -202,16 +202,16 @@ bool Minion::IsWarlockPet() const
     {
         switch (GetEntry())
         {
-            case E_PET_ENTRY_INFERNAL:
-            case E_PET_ENTRY_IMP:
-            case E_PET_ENTRY_VOIDWALKER:
-            case E_PET_ENTRY_SUCCUBUS:
-            case E_PET_ENTRY_FELHUNTER:
-            case E_PET_ENTRY_FELGUARD:
-            case E_PET_ENTRY_OBSERVER:
-            case E_PET_ENTRY_SHIVARRA:
-            case E_PET_ENTRY_VOIDLORD:
-            case E_PET_ENTRY_FEL_IMP:
+            case PET_ENTRY_INFERNAL:
+            case PET_ENTRY_IMP:
+            case PET_ENTRY_VOIDWALKER:
+            case PET_ENTRY_SUCCUBUS:
+            case PET_ENTRY_FELHUNTER:
+            case PET_ENTRY_FELGUARD:
+            case PET_ENTRY_OBSERVER:
+            case PET_ENTRY_SHIVARRA:
+            case PET_ENTRY_VOIDLORD:
+            case PET_ENTRY_FEL_IMP:
                 return true;
             default:
                 return false;

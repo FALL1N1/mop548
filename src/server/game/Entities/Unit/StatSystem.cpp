@@ -1212,28 +1212,28 @@ void Guardian::UpdateMaxHealth()
     float multiplicator;
     switch (GetEntry())
     {
-        case E_PET_ENTRY_IMP:             
+        case PET_ENTRY_IMP:             
             multiplicator = 8.4f;
             break;
-        case E_PET_ENTRY_VOIDWALKER:
-        case E_PET_ENTRY_FELGUARD:
+        case PET_ENTRY_VOIDWALKER:
+        case PET_ENTRY_FELGUARD:
             multiplicator = 11.0f;
             break;
-        case E_PET_ENTRY_SUCCUBUS:
+        case PET_ENTRY_SUCCUBUS:
             multiplicator = 9.1f;
             break;
-        case E_PET_ENTRY_FELHUNTER:
+        case PET_ENTRY_FELHUNTER:
             multiplicator = 9.5f;
             break;
-        case E_PET_ENTRY_GHOUL:
-        case E_PET_ENTRY_GARGOYLE:
+        case PET_ENTRY_GHOUL:
+        case PET_ENTRY_GARGOYLE:
             multiplicator = 15.0f;
             break;
-        case E_PET_ENTRY_WATER_ELEMENTAL:
+        case PET_ENTRY_WATER_ELEMENTAL:
             multiplicator = 1.0f;
             stamina = 0.0f;
             break;
-        case E_PET_ENTRY_BLOODWORM:
+        case PET_ENTRY_BLOODWORM:
             SetMaxHealth(GetCreateHealth()); 
             return;
         default:
@@ -1258,12 +1258,12 @@ void Guardian::UpdateMaxPower(Powers power)
 
     switch (GetEntry())
     {
-        case E_PET_ENTRY_IMP:             multiplicator = 4.95f;  break;
-        case E_PET_ENTRY_VOIDWALKER:
-        case E_PET_ENTRY_SUCCUBUS:
-        case E_PET_ENTRY_FELHUNTER:
-        case E_PET_ENTRY_FELGUARD:        multiplicator = 11.5f;  break;
-        case E_PET_ENTRY_WATER_ELEMENTAL: multiplicator = 1.0f;   addValue = 0.0f;    break;
+        case PET_ENTRY_IMP:             multiplicator = 4.95f;  break;
+        case PET_ENTRY_VOIDWALKER:
+        case PET_ENTRY_SUCCUBUS:
+        case PET_ENTRY_FELHUNTER:
+        case PET_ENTRY_FELGUARD:        multiplicator = 11.5f;  break;
+        case PET_ENTRY_WATER_ELEMENTAL: multiplicator = 1.0f;   addValue = 0.0f;    break;
         default:                    multiplicator = 15.0f;  break;
     }
 
@@ -1284,7 +1284,7 @@ void Guardian::UpdateAttackPowerAndDamage(bool ranged)
     float bonusAP = 0.0f;
     UnitMods unitMod = UNIT_MOD_ATTACK_POWER;
 
-    if (GetEntry() == E_PET_ENTRY_IMP)                                   // imp's attack power
+    if (GetEntry() == PET_ENTRY_IMP)                                   // imp's attack power
         val = GetStat(STAT_STRENGTH) - 10.0f;
     else
         val = 2 * GetStat(STAT_STRENGTH) - 20.0f;
@@ -1294,13 +1294,13 @@ void Guardian::UpdateAttackPowerAndDamage(bool ranged)
     {
         switch(GetEntry())
         {
-            case E_PET_ENTRY_GHOUL:
+            case PET_ENTRY_GHOUL:
             {
                 bonusAP = owner->GetTotalAttackPowerValue(BASE_ATTACK) * 0.22f;
                 SetBonusDamage(int32(owner->GetTotalAttackPowerValue(BASE_ATTACK) * 0.1287f));
                 break;
             }
-            case E_PET_ENTRY_FERAL_SPIRIT:
+            case PET_ENTRY_FERAL_SPIRIT:
             {
                 float dmg_multiplier = 0.31f;
                 if (m_owner->GetAuraEffect(63271, 0)) // Glyph of Feral Spirit
@@ -1310,12 +1310,12 @@ void Guardian::UpdateAttackPowerAndDamage(bool ranged)
                 SetBonusDamage(int32(owner->GetTotalAttackPowerValue(BASE_ATTACK) * dmg_multiplier));
                 break;
             }
-            case E_PET_ENTRY_WATER_ELEMENTAL:
+            case PET_ENTRY_WATER_ELEMENTAL:
             {
                 SetBonusDamage(int32(m_owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_FROST)));
                 break;
             }
-            case E_PET_ENTRY_GARGOYLE:
+            case PET_ENTRY_GARGOYLE:
             {
                 bonusAP = owner->GetTotalAttackPowerValue(BASE_ATTACK) * 0.4f;
                 SetBonusDamage(int32(m_owner->GetTotalAttackPowerValue(BASE_ATTACK)));
@@ -1366,7 +1366,7 @@ void Guardian::UpdateDamagePhysical(WeaponAttackType attType)
                 bonusDamage = spellDmg * 0.09f;
         }
         //greater fire elemental
-        else if (GetEntry() == E_PET_ENTRY_FIRE_ELEMENTAL)
+        else if (GetEntry() == PET_ENTRY_FIRE_ELEMENTAL)
         {
             int32 spellDmg = int32(m_owner->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS + SPELL_SCHOOL_FIRE)) - m_owner->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_NEG + SPELL_SCHOOL_FIRE);
             if (spellDmg > 0)

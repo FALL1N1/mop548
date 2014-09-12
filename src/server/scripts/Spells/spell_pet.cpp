@@ -256,17 +256,17 @@ public:
                     uint32 baseHealth = pInfo->health;
                     switch (pet->GetEntry())
                     {
-                        case E_PET_ENTRY_IMP:
+                        case PET_ENTRY_IMP:
                             healthMod = uint32(_tempBonus * 8.4f);
                             break;
-                        case E_PET_ENTRY_FELGUARD:
-                        case E_PET_ENTRY_VOIDWALKER:
+                        case PET_ENTRY_FELGUARD:
+                        case PET_ENTRY_VOIDWALKER:
                             healthMod = _tempBonus * 11;
                             break;
-                        case E_PET_ENTRY_SUCCUBUS:
+                        case PET_ENTRY_SUCCUBUS:
                             healthMod = uint32(_tempBonus * 9.1f);
                             break;
-                        case E_PET_ENTRY_FELHUNTER:
+                        case PET_ENTRY_FELHUNTER:
                             healthMod = uint32(_tempBonus * 9.5f);
                             break;
                         default:
@@ -305,7 +305,7 @@ public:
                     amount += bonusAP;
 
                     // Glyph of felguard
-                    if (pet->GetEntry() == E_PET_ENTRY_FELGUARD)
+                    if (pet->GetEntry() == PET_ENTRY_FELGUARD)
                     {
                         if (AuraEffect* /* aurEff */ect = owner->GetAuraEffect(56246, EFFECT_0))
                         {
@@ -396,13 +396,13 @@ public:
                     uint32 baseMana = pInfo->mana;
                     switch (pet->GetEntry())
                     {
-                    case E_PET_ENTRY_IMP:
+                    case PET_ENTRY_IMP:
                         manaMod = uint32(_tempBonus * 4.9f);
                         break;
-                    case E_PET_ENTRY_VOIDWALKER:
-                    case E_PET_ENTRY_SUCCUBUS:
-                    case E_PET_ENTRY_FELHUNTER:
-                    case E_PET_ENTRY_FELGUARD:
+                    case PET_ENTRY_VOIDWALKER:
+                    case PET_ENTRY_SUCCUBUS:
+                    case PET_ENTRY_FELHUNTER:
+                    case PET_ENTRY_FELGUARD:
                         manaMod = uint32(_tempBonus * 11.5f);
                         break;
                     default:
@@ -745,14 +745,14 @@ public:
             {
                 switch (GetCaster()->GetEntry())
                 {
-                case E_PET_ENTRY_VOIDWALKER:
+                case PET_ENTRY_VOIDWALKER:
                     amount += -16;
                     break;
-                case E_PET_ENTRY_FELHUNTER:
+                case PET_ENTRY_FELHUNTER:
                     amount += -20;
                     break;
-                case E_PET_ENTRY_SUCCUBUS:
-                case E_PET_ENTRY_FELGUARD:
+                case PET_ENTRY_SUCCUBUS:
+                case PET_ENTRY_FELGUARD:
                     amount += 5;
                     break;
                 }

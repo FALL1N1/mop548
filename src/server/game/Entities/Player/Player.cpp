@@ -2750,7 +2750,7 @@ void Player::Regenerate(Powers power)
             if (!IsInCombat() && GetShapeshiftForm() != FORM_METAMORPHOSIS)
             {
                 if (powerValue >= 300)
-                    addvalue += -1.0f; // remove 1 each 100ms
+                    addvalue -= 1.0f; // remove 1 each 100ms
                 else if (powerValue < 200)
                     addvalue += 1.0f; // give 1 each 100ms while player has less than 200 demonic fury
             }
@@ -2765,9 +2765,9 @@ void Player::Regenerate(Powers power)
             if (!IsInCombat())
             {
                 if (powerValue < 10)
-                    addvalue += +1.0f;
+                    addvalue += 1.0f;
                 else if (powerValue > 10)
-                    addvalue += -1.0f;
+                    addvalue -= 1.0f;
             }
                      
             UpdateAurasOnPowerChange(power);
@@ -2899,35 +2899,35 @@ void Player::UpdateAurasOnPowerChange(Powers power)
         case POWER_BURNING_EMBERS:
         {
             const int32 glyphOfVerdantSpheres = 56241;
-            const int32 twoShardsVisual = 123730;
+
             const int32 oneShardVisual = 123728;
+            const int32 twoShardsVisual = 123730;            
             const int32 threeShardsVisual = 123731;
 
-            const int32 firstSearingEmger = 116854; // 10
-            const int32 secondSearingEmber = 116855; // 20
-            const int32 thirdSearingEmber = 116920; // 30
-
+            const int32 firstSearingEmger = 116854;
+            const int32 secondSearingEmber = 116855;
+            const int32 thirdSearingEmber = 116920;
 
             if (HasAura(glyphOfVerdantSpheres))
             {
-                if (GetPower(POWER_BURNING_EMBERS) < 20)
+                if (powerValue < 20)
                 {
                     RemoveAura(oneShardVisual);
                     RemoveAura(twoShardsVisual);                    
                     RemoveAura(threeShardsVisual);
                 }
-                else if (GetPower(POWER_BURNING_EMBERS) < 30)
+                else if (powerValue < 30)
                 {
                     RemoveAura(twoShardsVisual);
                     CastSpell(this, oneShardVisual, true);
                 }
-                else if (GetPower(POWER_BURNING_EMBERS) < 40)
+                else if (powerValue < 40)
                 {
                     CastSpell(this, oneShardVisual, true);
                     CastSpell(this, twoShardsVisual, true);
                     RemoveAura(threeShardsVisual);
                 }
-                else if (GetPower(POWER_BURNING_EMBERS) < 50)
+                else if (powerValue < 50)
                 {
                     CastSpell(this, oneShardVisual, true);
                     CastSpell(this, twoShardsVisual, true);
@@ -2936,13 +2936,13 @@ void Player::UpdateAurasOnPowerChange(Powers power)
             }
             else
             {
-                if (GetPower(POWER_BURNING_EMBERS) < 20)
+                if (powerValue < 20)
                 {
                     CastSpell(this, firstSearingEmger, true);
                     RemoveAura(secondSearingEmber);
                     RemoveAura(thirdSearingEmber);
                 }
-                if (GetPower(POWER_BURNING_EMBERS) < 30)
+                if (powerValue < 30)
                 {
                     CastSpell(this, secondSearingEmber, true);
                     RemoveAura(firstSearingEmger);
@@ -2956,24 +2956,25 @@ void Player::UpdateAurasOnPowerChange(Powers power)
         case POWER_SOUL_SHARDS:
         {
             const int32 glyphOfVerdantSpheres = 56241;
-            const int32 twoShardsVisual = 123730;
+
             const int32 oneShardVisual = 123728;
+            const int32 twoShardsVisual = 123730;           
             const int32 threeShardsVisual = 123731;
 
             if (HasAura(glyphOfVerdantSpheres))
             {
-                if (GetPower(POWER_SOUL_SHARDS) < 200 && GetPower(POWER_SOUL_SHARDS) >= 100)
+                if (powerValue < 200 && powerValue >= 100)
                 {
                     RemoveAura(twoShardsVisual);
                     CastSpell(this, oneShardVisual, true);
                 }
-                else if (GetPower(POWER_SOUL_SHARDS) < 300)
+                else if (powerValue < 300)
                 {
                     CastSpell(this, oneShardVisual, true);
                     CastSpell(this, twoShardsVisual, true);
                     RemoveAura(threeShardsVisual);
                 }
-                else if (GetPower(POWER_SOUL_SHARDS) < 400)
+                else if (powerValue < 400)
                 {
                     CastSpell(this, oneShardVisual, true);
                     CastSpell(this, twoShardsVisual, true);
@@ -21629,10 +21630,10 @@ void Player::RemovePet(Pet* pet, PetSaveMode mode, bool returnreagent)
         switch (pet->GetEntry())
         {
             //warlock pets except imp are removed(?) when logging out
-            case E_PET_ENTRY_VOIDWALKER:
-            case E_PET_ENTRY_SUCCUBUS:
-            case E_PET_ENTRY_FELHUNTER:
-            case E_PET_ENTRY_FELGUARD:
+            case PET_ENTRY_VOIDWALKER:
+            case PET_ENTRY_SUCCUBUS:
+            case PET_ENTRY_FELHUNTER:
+            case PET_ENTRY_FELGUARD:
                 mode = PET_SAVE_NOT_IN_SLOT;
                 break;
         }
