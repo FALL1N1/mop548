@@ -38,7 +38,7 @@ RatedInfo::RatedInfo(uint64 guid) : m_guid(guid)
         statsBySlot->PersonalRating     = sWorld->getIntConfig(CONFIG_ARENA_START_RATING);
         statsBySlot->MatchMakerRating   = sWorld->getIntConfig(CONFIG_ARENA_START_MATCHMAKER_RATING);
 
-        m_ratedStats[RatedType(i)] = statsBySlot;
+        m_ratedStats[type] = statsBySlot;
     }
     
     // Only valid GUIDs are added automatically

@@ -788,7 +788,7 @@ void WorldSession::HandleReportPvPAFK(WorldPacket& recvData)
 
 void WorldSession::HandleRequestRatedInfo(WorldPacket & recvData)
 {
-    TC_LOG_DEBUG("network", "WORLD: CMSG_REQUEST_RATED_BG_INFO");
+    TC_LOG_DEBUG("network", "WORLD: CMSG_REQUEST_RATED_INFO");
 
     RatedInfo* rInfo = sRatedMgr->GetRatedInfo(_player->GetGUID());
 
@@ -799,6 +799,8 @@ void WorldSession::HandleRequestRatedInfo(WorldPacket & recvData)
         RatedType ratedType = RatedInfo::GetRatedTypeBySlot(i);
 
         StatsBySlot const *stats = rInfo->GetStatsBySlot(ratedType);
+        ASSERT(stats && "Stats must be already initialized");
+
         data << uint32(stats->WeekGames);
         data << uint32(stats->WeekBest);
         data << uint32(stats->WeekWins); // games?

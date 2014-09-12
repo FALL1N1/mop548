@@ -50,7 +50,7 @@ RatedInfo* RatedMgr::GetRatedInfo(uint64 guid)
 void RatedMgr::AddRatedInfo(RatedInfo* info)
 {
     RatedInfoContainer::iterator itr = m_ratedInfoStore.find(info->GetGUID());
-    ASSERT(itr == m_ratedInfoStore.end());
+    ASSERT(itr == m_ratedInfoStore.end() && "This RatedInfo with this guid is already included");
     m_ratedInfoStore[info->GetGUID()] = info;
 }
 
