@@ -8894,6 +8894,14 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uin
         AddPct(DoneTotalMod, Mastery);
     }
 
+    // Chaos Bolt - 116858 and Soul Fire - 6353
+    // damage is increased by your critical strike chance
+    if (GetTypeId() == TYPEID_PLAYER && spellProto && (spellProto->Id == 116858 || spellProto->Id == 6353 || spellProto->Id == 104027))
+    {
+        float crit_chance = GetFloatValue(PLAYER_FIELD_SPELL_CRIT_PERCENTAGE + GetFirstSchoolInMask(spellProto->GetSchoolMask()));
+        AddPct(DoneTotalMod, crit_chance);
+    }
+
     // Apply Power PvP damage bonus - works in all scenarios on players and pets/minions
     if (pdamage > 0 && GetTypeId() == TYPEID_PLAYER && (victim->GetTypeId() == TYPEID_PLAYER || (victim->IsPet() && victim->GetOwner() && victim->GetOwner()->GetTypeId() == TYPEID_PLAYER)))
     {

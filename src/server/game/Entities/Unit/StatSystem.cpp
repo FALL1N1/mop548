@@ -789,8 +789,7 @@ void Player::UpdateManaRegen()
         // Chaotic Energy : Increase Mana regen by 625%
         if (HasAura(111546))
         {
-            combat_regen = combat_regen + (combat_regen * 6.25f);
-            combat_regen *= HastePct;
+            combat_regen = HastePct * (combat_regen + (combat_regen * 6.25f));
             base_regen = HastePct * (base_regen + (base_regen * 6.25f));
         }
     }
