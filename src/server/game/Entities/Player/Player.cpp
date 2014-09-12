@@ -2752,7 +2752,7 @@ void Player::Regenerate(Powers power)
                 if (powerValue >= 300)
                     addvalue += -1.0f; // remove 1 each 100ms
                 else if (powerValue < 200)
-                    addvalue += +1.0f; // give 1 each 100ms while player has less than 200 demonic fury
+                    addvalue += 1.0f; // give 1 each 100ms while player has less than 200 demonic fury
             }
 
             UpdateAurasOnPowerChange(power);            
@@ -2902,8 +2902,11 @@ void Player::UpdateAurasOnPowerChange(Powers power)
             const int32 twoShardsVisual = 123730;
             const int32 oneShardVisual = 123728;
             const int32 threeShardsVisual = 123731;
-            const int32 firstSearingEmber = 116855;
-            const int32 secondSearingEmber = 116920;
+
+            const int32 firstSearingEmger = 116854; // 10
+            const int32 secondSearingEmber = 116855; // 20
+            const int32 thirdSearingEmber = 116920; // 30
+
 
             if (HasAura(glyphOfVerdantSpheres))
             {
@@ -2935,57 +2938,18 @@ void Player::UpdateAurasOnPowerChange(Powers power)
             {
                 if (GetPower(POWER_BURNING_EMBERS) < 20)
                 {
-                    RemoveAura(firstSearingEmber);
+                    CastSpell(this, firstSearingEmger, true);
                     RemoveAura(secondSearingEmber);
+                    RemoveAura(thirdSearingEmber);
                 }
                 if (GetPower(POWER_BURNING_EMBERS) < 30)
                 {
-                    CastSpell(this, firstSearingEmber, true);
-                    RemoveAura(secondSearingEmber);
+                    CastSpell(this, secondSearingEmber, true);
+                    RemoveAura(firstSearingEmger);
+                    RemoveAura(thirdSearingEmber);
                 }
                 else
-                    CastSpell(this, secondSearingEmber, true);
-            }
-            if (HasAura(glyphOfVerdantSpheres))
-            {
-                if (GetPower(POWER_BURNING_EMBERS) < 20)
-                {
-                    RemoveAura(twoShardsVisual);
-                    RemoveAura(oneShardVisual);
-                    RemoveAura(threeShardsVisual);
-                }
-                else if (GetPower(POWER_BURNING_EMBERS) < 30)
-                {
-                    RemoveAura(twoShardsVisual);
-                    CastSpell(this, oneShardVisual, true);
-                }
-                else if (GetPower(POWER_BURNING_EMBERS) < 40)
-                {
-                    CastSpell(this, oneShardVisual, true);
-                    CastSpell(this, twoShardsVisual, true);
-                    RemoveAura(threeShardsVisual);
-                }
-                else if (GetPower(POWER_BURNING_EMBERS) < 50)
-                {
-                    CastSpell(this, oneShardVisual, true);
-                    CastSpell(this, twoShardsVisual, true);
-                    CastSpell(this, threeShardsVisual, true);
-                }
-            }
-            else
-            {
-                if (GetPower(POWER_BURNING_EMBERS) < 20)
-                {
-                    RemoveAura(firstSearingEmber);
-                    RemoveAura(secondSearingEmber);
-                }
-                if (GetPower(POWER_BURNING_EMBERS) < 30)
-                {
-                    CastSpell(this, firstSearingEmber, true);
-                    RemoveAura(secondSearingEmber);
-                }
-                else
-                    CastSpell(this, secondSearingEmber, true);
+                    CastSpell(this, thirdSearingEmber, true);
             }
             break;
         }
