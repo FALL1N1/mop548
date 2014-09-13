@@ -87,7 +87,6 @@ void RatedMgr::LoadRatedInfo()
     }
 
     uint32 count = 0;
-    uint64 guid = 0;
     uint64 lastGuid = 0;    
 
     // Container for even all available rated battleground slots (2v2, 3v3, 5v5 and 10v10) per 1 GUID
@@ -97,7 +96,7 @@ void RatedMgr::LoadRatedInfo()
     {
         Field* fields = result->Fetch();
 
-        guid = fields[0].GetUInt64();
+        uint64 guid = fields[0].GetUInt64();
         uint8 slot = fields[1].GetUInt8();
 
         // Validity Check

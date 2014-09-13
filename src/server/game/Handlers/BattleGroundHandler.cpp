@@ -800,15 +800,15 @@ void WorldSession::HandleRequestRatedInfo(WorldPacket & recvData)
 
         StatsBySlot const *stats = rInfo->GetStatsBySlot(ratedType);
         ASSERT(stats && "Stats must be already initialized");
-
-        data << uint32(stats->WeekGames);
-        data << uint32(stats->WeekBest);
-        data << uint32(stats->WeekWins); // games?
-        data << uint32(stats->SeasonGames); // current rating
-        data << uint32(stats->SeasonBest); // wins
+        
+        data << uint32(0); // unk always 0, maybe this should be projected cap
         data << uint32(stats->SeasonWins);
+        data << uint32(stats->SeasonGames);
         data << uint32(stats->PersonalRating);
-        data << uint32(stats->MatchMakerRating);
+        data << uint32(stats->WeekWins);
+        data << uint32(stats->WeekBest);
+        data << uint32(stats->WeekGames);
+        data << uint32(stats->SeasonBest);
     }
 
     SendPacket(&data);
