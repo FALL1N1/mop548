@@ -868,7 +868,7 @@ void BattlegroundQueue::BattlegroundQueueUpdate(uint32 /*diff*/, BattlegroundTyp
             bg2->StartBattleground();
         }
     }
-    else if (bg_template->IsRated())
+    else if (bg_template->IsArena()) // IsRated is not initialized in template
     {
         // found out the minimum and maximum ratings the newly added team should battle against
         // arenaRating is the rating of the latest joined team, or 0
