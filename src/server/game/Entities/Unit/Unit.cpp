@@ -4948,7 +4948,6 @@ void Unit::SendPeriodicAuraLog(SpellPeriodicAuraLogInfo* pInfo)
         data.WriteBit(false);
         data.WriteBit(!hasResist);
         data.WriteBit(!hasSchoolMaskOrPowerType);
-        return;
     };
 
     switch (aura->GetAuraType())
