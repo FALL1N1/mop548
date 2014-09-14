@@ -49,6 +49,8 @@ enum HunterSpells
     SPELL_HUNTER_NARROW_ESCAPT_MISSILE          = 128405,
     SPELL_HUNTER_POSTHASTE_TALENT               = 109215,
     SPELL_HUNTER_POSTHASTE                      = 118922,
+    SPELL_HUNTER_PET_HOT_PHOENIX_TRIGGERED      = 54114,
+    SPELL_HUNTER_PET_HOT_PHOENIX_DEBUFF         = 55711,
 };
 
 class spell_hun_cobra_shot : public SpellScriptLoader
@@ -305,8 +307,8 @@ public:
             OnEffectPeriodic += AuraEffectPeriodicFn(spell_hun_camouflage_visual_AuraScript::EffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
         }
 
-        private:
-            bool _hasGlyph;
+    private:
+        bool _hasGlyph;
     };
 
     AuraScript* GetAuraScript() const
@@ -387,6 +389,55 @@ public:
     }
 };
 
+//! Pet spells
+
+class spell_hun_pet_heart_of_the_phoenix : public SpellScriptLoader
+{
+public:
+    spell_hun_pet_heart_of_the_phoenix() : SpellScriptLoader("spell_hun_pet_heart_of_the_phoenix") { }
+
+    class spell_hun_pet_heart_of_the_phoenix_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_hun_pet_heart_of_the_phoenix_SpellScript);
+
+        bool Load() override
+        {
+            if (!GetCaster()->IsPet())
+                return false;
+            return true;
+        }
+
+        bool Validate(SpellInfo const* /*spellEntry*/) override
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_HUNTER_PET_HOT_PHOENIX_TRIGGERED) || !sSpellMgr->GetSpellInfo(SPELL_HUNTER_PET_HOT_PHOENIX_DEBUFF))
+                return false;
+            return true;
+        }
+
+        void HandleScript(SpellEffIndex /*effIndex*/)
+        {
+            Unit* caster = GetCaster();
+            if (Unit* owner = caster->GetOwner())
+            {
+                if (!caster->HasAura(SPELL_HUNTER_PET_HOT_PHOENIX_DEBUFF))
+                {
+                    owner->CastCustomSpell(SPELL_HUNTER_PET_HOT_PHOENIX_TRIGGERED, SPELLVALUE_BASE_POINT0, 100, caster, true);
+                    caster->CastSpell(caster, SPELL_HUNTER_PET_HOT_PHOENIX_DEBUFF, true);
+                }
+            }
+        }
+
+        void Register() override
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_hun_pet_heart_of_the_phoenix_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_hun_pet_heart_of_the_phoenix_SpellScript();
+    }
+};
 void AddSC_hunter_spell_scripts()
 {
     new spell_hun_cobra_shot();
@@ -397,4 +448,5 @@ void AddSC_hunter_spell_scripts()
     new spell_hun_camouflage_visual();
     new spell_hun_disengage();
     new spell_hun_narrow_escape();
+    new spell_hun_pet_heart_of_the_phoenix();
 }
