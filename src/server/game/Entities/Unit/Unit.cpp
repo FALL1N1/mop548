@@ -5188,19 +5188,15 @@ void Unit::SendAttackStateUpdate(CalcDamageInfo* damageInfo)
         data << float(0);
         data << float(0);
         data << float(0);
-
-        for (uint8 i = 0; i < 2; ++i)
-        {
-            data << float(0);
-            data << float(0);
-        }
+        data << float(0);
+        data << float(0);
         data << uint32(0);
     }
 
     if (damageInfo->HitInfo & (HITINFO_BLOCK | HITINFO_UNK12))
         data << float(0);
 
-    data.put(size, data.wpos() - size - 4); // Blizz - Weird and Lazy people....
+    data.put(size, data.wpos() - size);
     SendMessageToSet(&data, true);
 }
 

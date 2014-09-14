@@ -411,17 +411,17 @@ void WorldSession::SendActivateTaxiReply(ActivateTaxiReply reply)
 {
     ObjectGuid guid(_player->GetGUID());
 
-    WorldPacket data(SMSG_ACTIVATETAXIREPLY, 8);
+    WorldPacket data(SMSG_ACTIVATETAXIREPLY, 1 + 1 + 8);
     data.WriteBit(guid[2]);
     data.WriteBit(guid[7]);
-    data << uint32(reply);
+    data.WriteBit(!reply);
     data.WriteBit(guid[0]);
     data.WriteBit(guid[3]);
     data.WriteBit(guid[6]);
     data.WriteBit(guid[5]);
     data.WriteBit(guid[1]);
     data.WriteBit(guid[4]);
-
+    data.FlushBits();
     data.WriteByteSeq(guid[1]);
     data.WriteByteSeq(guid[5]);
     data.WriteByteSeq(guid[7]);
