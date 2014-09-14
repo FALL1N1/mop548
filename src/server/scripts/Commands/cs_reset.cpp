@@ -47,6 +47,7 @@ public:
             { "spells",       rbac::RBAC_PERM_COMMAND_RESET_SPELLS,       true, &HandleResetSpellsCommand,       "", NULL },
             { "stats",        rbac::RBAC_PERM_COMMAND_RESET_STATS,        true, &HandleResetStatsCommand,        "", NULL },
             { "talents",      rbac::RBAC_PERM_COMMAND_RESET_TALENTS,      true, &HandleResetTalentsCommand,      "", NULL },
+            { "spec",         rbac::RBAC_PERM_COMMAND_RESET_SPEC,         true, &HandleResetSpecCommand,         "", NULL },
             { "all",          rbac::RBAC_PERM_COMMAND_RESET_ALL,          true, &HandleResetAllCommand,          "", NULL },
             { NULL,           0,                                   false, NULL,                            "", NULL }
         };
@@ -242,6 +243,29 @@ public:
             return true;
         }
 
+        handler->SendSysMessage(LANG_NO_CHAR_SELECTED);
+        handler->SetSentErrorMessage(true);
+        return false;
+    }
+
+    static bool HandleResetSpecCommand(ChatHandler* handler, char const* args)
+    {
+        Player* target;
+        uint64 targetGuid;
+        std::string targetName;
+        if (!handler->extractPlayerTarget((char*)args, &target, &targetGuid, &targetName))
+        {
+            handler->SendSysMessage(LANG_NO_CHAR_SELECTED);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        if (target)
+        {
+            target->ResetSpec();
+            target->SendTalentsInfoData();
+            return true;
+        }
         handler->SendSysMessage(LANG_NO_CHAR_SELECTED);
         handler->SetSentErrorMessage(true);
         return false;
