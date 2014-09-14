@@ -377,17 +377,30 @@ void TradeData::Update(bool forTarget /*= true*/)
 void TradeData::SetAccepted(bool state, bool crosssend /*= false*/)
 {
     m_accepted = state;
-    // printf("SetAccepted, State [%u]\tcrossend [%u]\n", state, crosssend);
-    // Commented for know 
-    /*
+
     if (!state)
     {
         if (crosssend)
-            m_trader->GetSession()->SendTradeStatus(TRADE_STATUS_ACCEPTED); // TRADE_STATUS_STATE_CHANGED); // TRADE_STATUS_BACK_TO_TRADE);
+            m_trader->GetSession()->SendTradeStatus(TRADE_STATUS_UNACCEPTED);
         else
-            m_player->GetSession()->SendTradeStatus(TRADE_STATUS_ACCEPTED); // TRADE_STATUS_STATE_CHANGED); //  TRADE_STATUS_BACK_TO_TRADE);
+            m_player->GetSession()->SendTradeStatus(TRADE_STATUS_UNACCEPTED);
     }
-    */
+}
+
+void Player::IgnoreTrade()
+{
+    if (m_trade)
+    {
+        Player* trader = m_trade->GetTrader();
+
+        trader->GetSession()->SendTradeStatus(TRADE_STATUS_FAILED);
+
+        // cleanup
+        delete m_trade;
+        m_trade = NULL;
+        delete trader->m_trade;
+        trader->m_trade = NULL;
+    }
 }
 
 // == KillRewarder ====================================================
