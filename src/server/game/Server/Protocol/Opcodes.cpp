@@ -396,7 +396,7 @@ void OpcodeTable::InitializeClientTable()
     DEFINE_OPCODE_HANDLER(CMSG_OFFER_PETITION,                            0x15BE, STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleOfferPetitionOpcode          ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(CMSG_OPENING_CINEMATIC,                         0x0130, STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleOpeningCinematic             ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(CMSG_OPEN_ITEM,                                 0x1D10, STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleOpenItemOpcode               ); // 5.4.8 18414
-    DEFINE_OPCODE_HANDLER(CMSG_OPT_OUT_OF_LOOT,                           0x0000, STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleOptOutOfLootOpcode           );
+    DEFINE_OPCODE_HANDLER(CMSG_OPT_OUT_OF_LOOT,                           0x06E0, STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleOptOutOfLootOpcode           ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(CMSG_PAGE_TEXT_QUERY,                           0x0000, STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandlePageTextQueryOpcode          );
     DEFINE_OPCODE_HANDLER(CMSG_PANDAREN_FACTION_CHOSEN,                   0x0027, STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandlePandarenFactionChoiceOpcode  ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(CMSG_PARTY_SILENCE,                             0x0000, STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                        );
@@ -485,7 +485,7 @@ void OpcodeTable::InitializeClientTable()
     DEFINE_OPCODE_HANDLER(CMSG_RESET_INSTANCES,                           0x0C69, STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleResetInstancesOpcode         ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(CMSG_RESURRECT_RESPONSE,                        0x0000, STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleResurrectResponseOpcode      );
     DEFINE_OPCODE_HANDLER(CMSG_RETURN_TO_GRAVEYARD,                       0x12EA, STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleReturnToGraveyard            ); // 5.4.8 18414
-    DEFINE_OPCODE_HANDLER(CMSG_ROLE_POLL_BEGIN,                           0x0000, STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                        );
+    DEFINE_OPCODE_HANDLER(CMSG_ROLE_POLL_BEGIN,                           0x1882, STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                        ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(CMSG_SAVE_CUF_PROFILES,                         0x06E6, STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleSaveCUFProfiles              ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(CMSG_SELF_RES,                                  0x0000, STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleSelfResOpcode                );
     DEFINE_OPCODE_HANDLER(CMSG_SELL_ITEM,                                 0x1358, STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleSellItemOpcode               ); // 5.4.8 18414
