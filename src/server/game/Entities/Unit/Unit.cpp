@@ -14299,7 +14299,7 @@ void Unit::Kill(Unit* victim, bool durabilityLoss)
         data.WriteBit(targetGuid[7]);
         data.WriteBit(targetGuid[2]);
         data.WriteBit(casterGuid[1]);
-        data.WriteBit(targetGuid[3]);
+        data.WriteBit(targetGuid[4]);
         data.WriteBit(casterGuid[2]);
         data.WriteBit(casterGuid[5]);
         data.WriteBit(targetGuid[3]);
