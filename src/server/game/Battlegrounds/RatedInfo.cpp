@@ -195,7 +195,7 @@ int32 StatsBySlot::GetRatingMod(uint32 ownRating, uint32 opponentRating, bool wo
     if (won && ownRating < 1300)
     {
         if (ownRating < 1000)
-            mod = 48.0f * (won_mod - chance);
+            mod = 96.0f * (won_mod - chance);
         else
             mod = (24.0f + (24.0f * (1300.0f - float(ownRating)) / 300.0f)) * (won_mod - chance);
     }

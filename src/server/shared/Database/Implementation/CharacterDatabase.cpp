@@ -319,8 +319,8 @@ void CharacterDatabaseConnection::DoPrepareStatements()
     PrepareStatement(CHAR_SEL_PETITION_SIG_BY_GUID_TYPE, "SELECT ownerguid, petitionguid FROM petition_sign WHERE playerguid = ? AND type = ?", CONNECTION_SYNCH);
 
     // Rated matches
-    PrepareStatement(CHAR_REP_RATED_BATTLEGROUND_STATS, "SELECT guid, slot, weekGames, weekWins, weekBest, seasonGames, seasonWins, seasonBest, personalRating, matchmakerRating FROM character_rated_stats ORDER by guid ASC", CONNECTION_ASYNC);
-    PrepareStatement(CHAR_SEL_RATED_BATTLEGROUND_STATS, "REPLACE INTO character_rated_stats (guid, slot, weekGames, weekWins, weekBest, seasonGames, seasonWins, seasonBest, personalRating, matchmakerRating) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_SEL_RATED_BATTLEGROUND_STATS, "SELECT guid, slot, weekGames, weekWins, weekBest, seasonGames, seasonWins, seasonBest, personalRating, matchmakerRating FROM character_rated_stats ORDER by guid ASC", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_REP_RATED_BATTLEGROUND_STATS, "REPLACE INTO character_rated_stats (guid, slot, weekGames, weekWins, weekBest, seasonGames, seasonWins, seasonBest, personalRating, matchmakerRating) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", CONNECTION_ASYNC);
 
     // Character battleground data
     PrepareStatement(CHAR_INS_PLAYER_BGDATA, "INSERT INTO character_battleground_data (guid, instanceId, team, joinX, joinY, joinZ, joinO, joinMapId, taxiStart, taxiEnd, mountSpell) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", CONNECTION_ASYNC);
