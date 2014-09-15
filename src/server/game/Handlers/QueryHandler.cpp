@@ -262,7 +262,7 @@ void WorldSession::HandleCreatureQueryOpcode(WorldPacket& recvData)
 
         data.WriteBit(info->RacialLeader);
         data.WriteBits(info->IconName.length() + 1, 6);
-        data.FlushBits();
+        //data.FlushBits();
 
         data << uint32(info->KillCredit[0]);                  // New in 3.1, kill credit
         data << uint32(info->Modelid4);                       // Modelid4

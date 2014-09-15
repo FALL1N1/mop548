@@ -3343,32 +3343,38 @@ void Player::RemoveFromGroup(Group* group, uint64 guid, RemoveMethod method /* =
 void Player::SendLogXPGain(uint32 GivenXP, Unit* victim, uint32 BonusXP, bool recruitAFriend, float /*group_rate*/)
 {
     ObjectGuid guid = victim ? victim->GetGUID() : 0;
-
+    bool baseXP = 0;
+    bool groupRate = 0;
     WorldPacket data(SMSG_LOG_XPGAIN, 1 + 1 + 8 + 4 + 4 + 4 + 1);
-    data.WriteBit(0);                                       // has XP
-    data.WriteBit(guid[6]);
-    data.WriteBit(guid[3]);
-    data.WriteBit(0);                                       // has group bonus
-    data.WriteBit(guid[0]);
-    data.WriteBit(guid[7]);
-    data.WriteBit(0);                                       // unknown
-    data.WriteBit(guid[2]);
-    data.WriteBit(guid[1]);
-    data.WriteBit(guid[5]);
-    data.WriteBit(guid[4]);
 
+    data.WriteBit(baseXP);                                  // has XP
+    data.WriteBit(guid[1]);
+    data.WriteBit(guid[2]);
+    data.WriteBit(guid[7]);
+    data.WriteBit(guid[4]);
+    data.WriteBit(guid[3]);
+    data.WriteBit(0);                                       // unknown
+    data.WriteBit(guid[0]);
+    data.WriteBit(guid[5]);
+    data.WriteBit(guid[6]);
+    data.WriteBit(groupRate);                               // has group bonus
+
+    data.WriteByteSeq(guid[4]);
+    data.WriteByteSeq(guid[2]);
+    if (groupRate)
+        data << float(1);                                    // 1 - none 0 - 100% group bonus output
+    data << uint8(recruitAFriend ? 1 : 0);                  // does the GivenXP include a RaF bonus?
     data.WriteByteSeq(guid[7]);
     data.WriteByteSeq(guid[1]);
     data.WriteByteSeq(guid[3]);
-    data.WriteByteSeq(guid[5]);
-    data.WriteByteSeq(guid[2]);
-    data << float(1);                                       // 1 - none 0 - 100% group bonus output
-    data.WriteByteSeq(guid[4]);
     data.WriteByteSeq(guid[6]);
-    data << uint32(GivenXP);                                // experience without bonus
     data << uint32(GivenXP + BonusXP);                      // given experience
+
+    if (baseXP)
+        data << uint32(GivenXP);                            // experience without bonus
+
     data.WriteByteSeq(guid[0]);
-    data << uint8(recruitAFriend ? 1 : 0);                  // does the GivenXP include a RaF bonus?
+    data.WriteByteSeq(guid[5]);
 
     GetSession()->SendPacket(&data);
 }
@@ -15367,7 +15373,6 @@ void Player::SendNewItem(Item* item, uint32 count, bool received, bool created, 
     data.WriteBit(itemGuid[1]);
     data.WriteBit(created);                                 // 0 = received. 1 = created
     data.WriteBit(itemGuid[3]);
-    data.FlushBits();
 
     data.WriteByteSeq(playerGuid[1]);
     data.WriteByteSeq(itemGuid[1]);
@@ -15386,7 +15391,7 @@ void Player::SendNewItem(Item* item, uint32 count, bool received, bool created, 
     data.WriteByteSeq(itemGuid[2]);
     data.WriteByteSeq(playerGuid[0]);
     data << uint32(count);                                  // count of items
-    data.WriteByteSeq(playerGuid[5]);
+    data.WriteByteSeq(playerGuid[7]);
     data.WriteByteSeq(itemGuid[5]);
     data.WriteByteSeq(playerGuid[4]);
     data << uint8(item->GetBagSlot());                      // bag slot
