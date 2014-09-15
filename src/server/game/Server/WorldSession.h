@@ -349,6 +349,9 @@ class WorldSession
         void SendAuctionOwnerNotification(AuctionEntry* auction);
         void SendAuctionRemovedNotification(uint32 auctionId, uint32 itemEntry, int32 randomPropertyId);
 
+        //Online Shop
+        void SendOnlineShopQueryResult();
+
         //Item Enchantment
         void SendEnchantmentLog(uint64 target, uint64 caster, uint32 itemId, uint32 enchantId);
         void SendItemEnchantTimeUpdate(ObjectGuid Playerguid, ObjectGuid Itemguid, uint32 slot, uint32 Duration);
@@ -786,6 +789,8 @@ class WorldSession
         void HandleTutorialFlag (WorldPacket& recvData);
         void HandleTutorialClear(WorldPacket& recvData);
         void HandleTutorialReset(WorldPacket& recvData);
+
+        void HandleOnlineShopQueryOpcode(WorldPacket& recvData);
 
         //Pet
         void HandlePetAction(WorldPacket& recvData);

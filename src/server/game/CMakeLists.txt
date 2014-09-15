@@ -39,6 +39,7 @@ file(GLOB_RECURSE sources_Maps Maps/*.cpp Maps/*.h)
 file(GLOB_RECURSE sources_Miscellaneous Miscellaneous/*.cpp Miscellaneous/*.h)
 file(GLOB_RECURSE sources_Movement Movement/*.cpp Movement/*.h)
 file(GLOB_RECURSE sources_OutdoorPvP OutdoorPvP/*.cpp OutdoorPvP/*.h)
+file(GLOB_RECURSE sources_OnlineShop OnlineShop/*.cpp OnlineShop/*.h)
 file(GLOB_RECURSE sources_Pools Pools/*.cpp Pools/*.h)
 file(GLOB_RECURSE sources_PrecompiledHeaders PrecompiledHeaders/*.cpp PrecompiledHeaders/*.h)
 file(GLOB_RECURSE sources_Quests Quests/*.cpp Quests/*.h)
@@ -85,6 +86,7 @@ source_group(Maps FILES ${sources_Maps})
 source_group(Miscellaneous FILES ${sources_Miscellaneous})
 source_group(Movement FILES ${sources_Movement})
 source_group(OutdoorPvP FILES ${sources_OutdoorPvP})
+source_group(OnlineShop FILES ${sources_OnlineShop})
 source_group(Pools FILES ${sources_Pools})
 source_group(PrecompiledHeaders FILES ${sources_PrecompiledHeaders})
 source_group(Quests FILES ${sources_Quests})
@@ -138,6 +140,7 @@ set(game_STAT_SRCS
   ${sources_Miscellaneous}
   ${sources_Movement}
   ${sources_OutdoorPvP}
+  ${sources_OnlineShop}
   ${sources_Pools}
   ${sources_Quests}
   ${sources_Reputation}
@@ -234,6 +237,7 @@ include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}/Movement/MovementGenerators
   ${CMAKE_CURRENT_SOURCE_DIR}/Movement/Waypoints
   ${CMAKE_CURRENT_SOURCE_DIR}/OutdoorPvP
+  ${CMAKE_CURRENT_SOURCE_DIR}/OnlineShop
   ${CMAKE_CURRENT_SOURCE_DIR}/Pools
   ${CMAKE_CURRENT_SOURCE_DIR}/PrecompiledHeaders
   ${CMAKE_CURRENT_SOURCE_DIR}/Quests
