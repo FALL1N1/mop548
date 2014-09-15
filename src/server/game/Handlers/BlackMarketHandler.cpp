@@ -17,6 +17,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "BlackMarketMgr.h"
 #include "ObjectMgr.h"
 #include "Opcodes.h"
 #include "Player.h"
@@ -27,25 +28,15 @@
 
 void WorldSession::HandleBlackMarketHelloOpcode(WorldPacket& recvData)
 {
+    TC_LOG_DEBUG("network", "WORLD: Received CMSG_BLACKMARKET_HELLO");
+
     ObjectGuid guid;
 
-    guid[4] = recvData.ReadBit();
-    guid[5] = recvData.ReadBit();
-    guid[2] = recvData.ReadBit();
-    guid[7] = recvData.ReadBit();
-    guid[0] = recvData.ReadBit();
-    guid[1] = recvData.ReadBit();
-    guid[3] = recvData.ReadBit();
-    guid[6] = recvData.ReadBit();
+    uint8 bitOrder[8] = { 4, 5, 2, 7, 0, 1, 3, 6 };
+    recvData.ReadBitInOrder(guid, bitOrder);
 
-    recvData.ReadByteSeq(guid[3]);
-    recvData.ReadByteSeq(guid[5]);
-    recvData.ReadByteSeq(guid[0]);
-    recvData.ReadByteSeq(guid[6]);
-    recvData.ReadByteSeq(guid[4]);
-    recvData.ReadByteSeq(guid[1]);
-    recvData.ReadByteSeq(guid[7]);
-    recvData.ReadByteSeq(guid[2]);
+    uint8 byteOrder[8] = { 3, 5, 0, 6, 4, 1, 7, 2 };
+    recvData.ReadBytesSeq(guid, byteOrder);
 
     uint64 npcGuid = uint64(guid);
 
@@ -65,56 +56,37 @@ void WorldSession::HandleBlackMarketHelloOpcode(WorldPacket& recvData)
 
 void WorldSession::SendBlackMarketHello(uint64 npcGuid)
 {
+    TC_LOG_DEBUG("network", "WORLD: Received SMSG_BLACKMARKET_HELLO");
+
     WorldPacket data(SMSG_BLACKMARKET_HELLO, 8);
 
     ObjectGuid guid = npcGuid;
 
-    data.WriteBit(guid[2]);
-    data.WriteBit(guid[0]);
-    data.WriteBit(guid[4]);
-    data.WriteBit(guid[1]);
-    data.WriteBit(guid[3]);
-    data.WriteBit(guid[6]);
-    data.WriteBit(guid[5]);
-    data.WriteBit(guid[7]);
-    data.WriteBit(1);      //Unknow
+    uint8 bitOrder[8] = { 2, 0, 4, 1, 3, 6, 5, 7 };
+    data.WriteBitInOrder(guid, bitOrder);
 
-    data.WriteByteSeq(guid[6]);
-    data.WriteByteSeq(guid[1]);
-    data.WriteByteSeq(guid[2]);
-    data.WriteByteSeq(guid[5]);
-    data.WriteByteSeq(guid[0]);
-    data.WriteByteSeq(guid[7]);
-    data.WriteByteSeq(guid[4]);
-    data.WriteByteSeq(guid[3]);
+    data.WriteBit(1); // Unknow
+
+    uint8 byteOrder[8] = { 6, 1, 2, 5, 0, 7, 4, 3 };
+    data.WriteBytesSeq(guid, byteOrder);
 
     SendPacket(&data);
 }
 
 void WorldSession::HandleBlackMarketRequestItemOpcode(WorldPacket& recvData)
 {
+    TC_LOG_DEBUG("network", "WORLD: Received CMSG_BLACKMARKET_REQUEST_ITEMS");
+
     ObjectGuid guid;
     uint32 Timestamp;
 
     recvData >> Timestamp;
 
-    guid[2] = recvData.ReadBit();
-    guid[6] = recvData.ReadBit();
-    guid[0] = recvData.ReadBit();
-    guid[3] = recvData.ReadBit();
-    guid[4] = recvData.ReadBit();
-    guid[5] = recvData.ReadBit();
-    guid[1] = recvData.ReadBit();
-    guid[7] = recvData.ReadBit();
+    uint8 bitOrder[8] = { 2, 6, 0, 3, 4, 5, 1, 7 };
+    recvData.ReadBitInOrder(guid, bitOrder);
 
-    recvData.ReadByteSeq(guid[6]);
-    recvData.ReadByteSeq(guid[2]);
-    recvData.ReadByteSeq(guid[3]);
-    recvData.ReadByteSeq(guid[5]);
-    recvData.ReadByteSeq(guid[7]);
-    recvData.ReadByteSeq(guid[4]);
-    recvData.ReadByteSeq(guid[1]);
-    recvData.ReadByteSeq(guid[0]);
+    uint8 byteOrder[8] = { 6, 2, 3, 5, 7, 4, 1, 0 };
+    recvData.ReadBytesSeq(guid, byteOrder);
 
     uint64 NpcGuid = uint64(guid);
 
@@ -130,37 +102,49 @@ void WorldSession::HandleBlackMarketRequestItemOpcode(WorldPacket& recvData)
 
 void WorldSession::SendBlackMarketRequestItemsResult()
 {
-    WorldPacket data(SMSG_BLACKMARKET_REQUEST_ITEMS_RESULT);
-    //need structure
+    TC_LOG_DEBUG("network", "WORLD: Received SMSG_BLACKMARKET_REQUEST_ITEMS_RESULT");
+
+    WorldPacket data(SMSG_BLACKMARKET_REQUEST_ITEMS_RESULT, 9);
+    sBlackMarketMgr->BuildBlackMarketAuctionsPacket(data, GetPlayer()->GetGUIDLow());
     SendPacket(&data);
 }
 
 void WorldSession::HandleBlackMarketBidOpcode(WorldPacket& recvData)
 {
+    TC_LOG_DEBUG("network", "WORLD: Received CMSG_BLACKMARKET_BID");
+
     ObjectGuid guid;
     uint32 itemid, id;
     uint64 price;
 
     recvData >> id >> itemid >> price;
 
-    guid[0] = recvData.ReadBit();
-    guid[5] = recvData.ReadBit();
-    guid[4] = recvData.ReadBit();
-    guid[3] = recvData.ReadBit();
-    guid[7] = recvData.ReadBit();
-    guid[6] = recvData.ReadBit();
-    guid[1] = recvData.ReadBit();
-    guid[2] = recvData.ReadBit();
+    uint8 bitOrder[8] = { 0, 5, 4, 3, 7, 6, 1, 2 };
+    recvData.ReadBitInOrder(guid, bitOrder);
 
-    recvData.ReadByteSeq(guid[4]);
-    recvData.ReadByteSeq(guid[3]);
-    recvData.ReadByteSeq(guid[6]);
-    recvData.ReadByteSeq(guid[5]);
-    recvData.ReadByteSeq(guid[7]);
-    recvData.ReadByteSeq(guid[1]);
-    recvData.ReadByteSeq(guid[0]);
-    recvData.ReadByteSeq(guid[2]);
-    //structure ok need implement database data
+    uint8 byteOrder[8] = { 4, 3, 6, 5, 7, 1, 0, 2 };
+    recvData.ReadBytesSeq(guid, byteOrder);
+
+    uint64 npcGuid = uint64(guid);
+
+    if (!price)
+        return;
+
+    Creature* creature = GetPlayer()->GetNPCIfCanInteractWith(npcGuid, UNIT_NPC_FLAG_BLACKMARKET);
+    if (!creature)
+        return;
+
+    BMAuctionEntry *auction = sBlackMarketMgr->GetAuction(id);
+    if (!auction)
+        return;
+
+    if (auction->bidder == GetPlayer()->GetGUIDLow()) // Trying to cheat
+        return;
+
+    if (auction->bid >= price && price != auction->bm_template->startBid) // Trying to cheat
+        return;
+
+    sBlackMarketMgr->UpdateAuction(auction, price, GetPlayer());
 
     SendBlackMarketBidResult();
     SendBlackMarketRequestItemsResult();
@@ -168,7 +152,12 @@ void WorldSession::HandleBlackMarketBidOpcode(WorldPacket& recvData)
 
 void WorldSession::SendBlackMarketBidResult()
 {
+    TC_LOG_DEBUG("network", "WORLD: Received SMSG_BLACKMARKET_BID_RESULT");
+
     WorldPacket data(SMSG_BLACKMARKET_BID_RESULT, 5);
+
     data << uint32(0); //unk
+    data.WriteBits(0, 2);
+
     SendPacket(&data);
 }
