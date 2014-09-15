@@ -533,10 +533,10 @@ void BattlegroundMgr::BuildPvpLogDataPacket(WorldPacket* data, Battleground* bg)
     {
         *data << int32(0);  // unk (negative value)
         *data << int32(0);  // unk (negative value)
-        *data << int32(0);  // Players team MMR
+        *data << int32(bg->GetTeamMatchmakerRating(TEAM_ALLIANCE));  // Players team MMR
         *data << int32(-1); // unk - always -1
         *data << int32(-1); // unk - always -1
-        *data << int32(0);  // Enemys team MMR
+        *data << int32(bg->GetTeamMatchmakerRating(TEAM_HORDE));  // Enemys team MMR
 
         TC_LOG_DEBUG("bg.battleground", "rating change: %d", 0);
     }

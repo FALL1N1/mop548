@@ -176,32 +176,35 @@ struct BattlegroundObjectInfo
 
 enum ScoreType
 {
-    SCORE_KILLING_BLOWS         = 1,
-    SCORE_DEATHS                = 2,
-    SCORE_HONORABLE_KILLS       = 3,
-    SCORE_BONUS_HONOR           = 4,
+    SCORE_KILLING_BLOWS             = 1,
+    SCORE_DEATHS                    = 2,
+    SCORE_HONORABLE_KILLS           = 3,
+    SCORE_BONUS_HONOR               = 4,
     //EY, but in MSG_PVP_LOG_DATA opcode!
-    SCORE_DAMAGE_DONE           = 5,
-    SCORE_HEALING_DONE          = 6,
+    SCORE_DAMAGE_DONE               = 5,
+    SCORE_HEALING_DONE              = 6,
     //WS
-    SCORE_FLAG_CAPTURES         = 7,
-    SCORE_FLAG_RETURNS          = 8,
+    SCORE_FLAG_CAPTURES             = 7,
+    SCORE_FLAG_RETURNS              = 8,
     //AB and IC
-    SCORE_BASES_ASSAULTED       = 9,
-    SCORE_BASES_DEFENDED        = 10,
+    SCORE_BASES_ASSAULTED           = 9,
+    SCORE_BASES_DEFENDED            = 10,
     //AV
-    SCORE_GRAVEYARDS_ASSAULTED  = 11,
-    SCORE_GRAVEYARDS_DEFENDED   = 12,
-    SCORE_TOWERS_ASSAULTED      = 13,
-    SCORE_TOWERS_DEFENDED       = 14,
-    SCORE_MINES_CAPTURED        = 15,
-    SCORE_LEADERS_KILLED        = 16,
-    SCORE_SECONDARY_OBJECTIVES  = 17,
+    SCORE_GRAVEYARDS_ASSAULTED      = 11,
+    SCORE_GRAVEYARDS_DEFENDED       = 12,
+    SCORE_TOWERS_ASSAULTED          = 13,
+    SCORE_TOWERS_DEFENDED           = 14,
+    SCORE_MINES_CAPTURED            = 15,
+    SCORE_LEADERS_KILLED            = 16,
+    SCORE_SECONDARY_OBJECTIVES      = 17,
     //SOTA
-    SCORE_DESTROYED_DEMOLISHER  = 18,
-    SCORE_DESTROYED_WALL        = 19,
+    SCORE_DESTROYED_DEMOLISHER      = 18,
+    SCORE_DESTROYED_WALL            = 19,
     //RATED MATCHES
-    SCORE_PERSONAL_RATING_CHANGE = 20,
+    SCORE_PRE_MATCH_PERSONAL_RATING = 20,
+    SCORE_PERSONAL_RATING_CHANGE    = 21,
+    SCORE_PRE_MATCH_MMR             = 22,
+    SCORE_MMR_CHANGE                = 23,
 };
 
 enum BattlegroundType
@@ -240,7 +243,8 @@ enum BattlegroundStartingEventsIds
 struct BattlegroundScore
 {
     BattlegroundScore() : KillingBlows(0), Deaths(0), HonorableKills(0), BonusHonor(0),
-    DamageDone(0), HealingDone(0), PersonalRatingChange(0), MatchmakerRatingChange(0)
+    DamageDone(0), HealingDone(0), PersonalRatingChange(0), MatchmakerRatingChange(0),
+    PreMatchMatchmakerRating(0), PreMatchPersonalRating(0)
     { }
 
     virtual ~BattlegroundScore() { }                        //virtual destructor is used when deleting score from scores map
@@ -251,8 +255,10 @@ struct BattlegroundScore
     uint32 BonusHonor;
     uint32 DamageDone;
     uint32 HealingDone;
-    int32 PersonalRatingChange;
-    int32 MatchmakerRatingChange;
+    uint16 PreMatchPersonalRating;
+    int16 PersonalRatingChange;
+    uint16 PreMatchMatchmakerRating;
+    int16 MatchmakerRatingChange;
 };
 
 enum BGHonorMode
@@ -363,9 +369,10 @@ class Battleground
         bool HasFreeSlots() const;
         uint32 GetFreeSlotsForTeam(uint32 Team) const;
 
-        bool IsArena() const        { return m_IsArena; }
-        bool IsBattleground() const { return !m_IsArena; }
-        bool IsRated() const        { return m_IsRated; }
+        bool IsArena() const                { return m_IsArena; }
+        bool IsBattleground() const         { return !m_IsArena; }
+        bool IsRated() const                { return m_IsRated; }
+        bool IsRatedBattleground() const    { return m_IsRated && !m_IsArena; }
 
         typedef std::map<uint64, BattlegroundPlayer> BattlegroundPlayerMap;
         BattlegroundPlayerMap const& GetPlayers() const { return m_Players; }
