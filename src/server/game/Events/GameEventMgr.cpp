@@ -716,7 +716,7 @@ void GameEventMgr::LoadFromDB()
 
                 uint32 guid     = fields[0].GetUInt32();
                 uint16 event_id = fields[1].GetUInt8();
-                uint32 npcflag  = fields[2].GetUInt32();
+                uint64 npcflag  = fields[2].GetUInt64();
 
                 if (event_id >= mGameEvent.size())
                 {
@@ -807,7 +807,7 @@ void GameEventMgr::LoadFromDB()
                 newEntry.ExtendedCost = fields[5].GetUInt32();
                 newEntry.Type = fields[6].GetUInt8();
                 // get the event npc flag for checking if the npc will be vendor during the event or not
-                uint32 event_npc_flag = 0;
+                uint64 event_npc_flag = 0;
                 NPCFlagList& flist = mGameEventNPCFlags[event_id];
                 for (NPCFlagList::const_iterator itr = flist.begin(); itr != flist.end(); ++itr)
                 {
@@ -917,16 +917,14 @@ void GameEventMgr::LoadFromDB()
     }
 }
 
-uint32 GameEventMgr::GetNPCFlag(Creature* cr)
+uint64 GameEventMgr::GetNPCFlag(Creature* cr)
 {
     uint32 mask = 0;
     uint32 guid = cr->GetDBTableGUIDLow();
 
     for (ActiveEvents::iterator e_itr = m_ActiveEvents.begin(); e_itr != m_ActiveEvents.end(); ++e_itr)
     {
-        for (NPCFlagList::iterator itr = mGameEventNPCFlags[*e_itr].begin();
-            itr != mGameEventNPCFlags[*e_itr].end();
-            ++ itr)
+        for (NPCFlagList::iterator itr = mGameEventNPCFlags[*e_itr].begin(); itr != mGameEventNPCFlags[*e_itr].end(); ++ itr)
             if (itr->first == guid)
                 mask |= itr->second;
     }
@@ -1128,10 +1126,10 @@ void GameEventMgr::UpdateEventNPCFlags(uint16 event_id)
             // if we found the creature, modify its npcflag
             if (cr)
             {
-                uint32 npcflag = GetNPCFlag(cr);
+                uint64 npcflag = GetNPCFlag(cr);
                 if (const CreatureTemplate* ci = cr->GetCreatureTemplate())
                     npcflag |= ci->npcflag;
-                cr->SetUInt32Value(UNIT_FIELD_NPC_FLAGS, npcflag);
+                cr->SetUInt64Value(UNIT_FIELD_NPC_FLAGS, npcflag);
                 // reset gossip options, since the flag change might have added / removed some
                 //cr->ResetGossipOptions();
             }

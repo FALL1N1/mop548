@@ -480,7 +480,7 @@ void ObjectMgr::LoadCreatureTemplates()
         creatureTemplate.expansionUnknown  = uint32(fields[17].GetUInt16());
         creatureTemplate.faction_A         = uint32(fields[18].GetUInt16());
         creatureTemplate.faction_H         = uint32(fields[19].GetUInt16());
-        creatureTemplate.npcflag           = fields[20].GetUInt32();
+        creatureTemplate.npcflag           = fields[20].GetUInt64();
         creatureTemplate.speed_walk        = fields[21].GetFloat();
         creatureTemplate.speed_run         = fields[22].GetFloat();
         creatureTemplate.scale             = fields[23].GetFloat();
@@ -1147,7 +1147,7 @@ uint32 ObjectMgr::ChooseDisplayId(CreatureTemplate const* cinfo, CreatureData co
     return cinfo->GetRandomValidModelId();
 }
 
-void ObjectMgr::ChooseCreatureFlags(const CreatureTemplate* cinfo, uint32& npcflag, uint32& unit_flags, uint32& dynamicflags, const CreatureData* data /*= NULL*/)
+void ObjectMgr::ChooseCreatureFlags(const CreatureTemplate* cinfo, uint64& npcflag, uint32& unit_flags, uint32& dynamicflags, const CreatureData* data /*= NULL*/)
 {
     npcflag = cinfo->npcflag;
     unit_flags = cinfo->unit_flags;
@@ -1619,7 +1619,7 @@ void ObjectMgr::LoadCreatures()
         data.phaseMask      = fields[16].GetUInt32();
         int16 gameEvent     = fields[17].GetInt8();
         uint32 PoolId       = fields[18].GetUInt32();
-        data.npcflag        = fields[19].GetUInt32();
+        data.npcflag        = fields[19].GetUInt64();
         data.unit_flags     = fields[20].GetUInt32();
         data.dynamicflags   = fields[21].GetUInt32();
 

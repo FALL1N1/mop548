@@ -15429,7 +15429,7 @@ void Player::PrepareGossipMenu(WorldObject* source, uint32 menuId /*= 0*/, bool 
 
     if (source->GetTypeId() == TYPEID_UNIT)
     {
-        npcflags = source->GetUInt32Value(UNIT_FIELD_NPC_FLAGS);
+        npcflags = source->GetUInt64Value(UNIT_FIELD_NPC_FLAGS);
         if (showQuests && npcflags & UNIT_NPC_FLAG_QUESTGIVER)
             PrepareQuestMenu(source->GetGUID());
     }
@@ -28318,7 +28318,7 @@ Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
     pet->SetUInt32Value(UNIT_FIELD_FACTION_TEMPLATE, getFaction());
 
     pet->setPowerType(POWER_MANA);
-    pet->SetUInt32Value(UNIT_FIELD_NPC_FLAGS, 0);
+    pet->SetUInt64Value(UNIT_FIELD_NPC_FLAGS, 0);
     pet->SetUInt32Value(UNIT_FIELD_ANIM_TIER, 0);
     pet->InitStatsForLevel(getLevel());
 

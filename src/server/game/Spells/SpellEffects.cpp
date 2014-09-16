@@ -2252,7 +2252,7 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
                     summon->SetUInt32Value(UNIT_FIELD_BATTLE_PET_COMPANION_NAME_TIMESTAMP, battlePet->GetTimestamp());
                     summon->SetUInt64Value(UNIT_FIELD_CREATED_BY, player->GetGUID());
                     summon->SetUInt32Value(UNIT_FIELD_WILD_BATTLE_PET_LEVEL, battlePet->GetLevel());
-                    summon->SetUInt32Value(UNIT_FIELD_NPC_FLAGS, summon->GetCreatureTemplate()->npcflag);
+                    summon->SetUInt64Value(UNIT_FIELD_NPC_FLAGS, summon->GetCreatureTemplate()->npcflag);
 
                     summon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
                     summon->AI()->EnterEvadeMode();

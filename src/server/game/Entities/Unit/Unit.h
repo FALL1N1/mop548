@@ -719,7 +719,8 @@ enum NPCFlags
     UNIT_NPC_FLAG_TRANSMOGRIFIER        = 0x10000000,       // transmogrification
     UNIT_NPC_FLAG_VAULTKEEPER           = 0x20000000,       // void storage
     UNIT_NPC_FLAG_UNK_BPET              = 0x40000000,       // flag related to battlepet battle start
-    UNIT_NPC_FLAG_BLACKMARKET           = 0x80000000        // blackmarket auction
+    UNIT_NPC_FLAG_BLACKMARKET           = 0x80000000,       // blackmarket auction
+    //UNIT_NPC_FLAG_ITEM_UPGRADE          = 0x100000000,      // item upgrade
 };
 
 enum MovementFlags

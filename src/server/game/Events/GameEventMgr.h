@@ -120,7 +120,7 @@ class GameEventMgr
         void StopEvent(uint16 event_id, bool overwrite = false);
         void HandleQuestComplete(uint32 quest_id);  // called on world event type quest completions
         void HandleWorldEventGossip(Player* player, Creature* c);
-        uint32 GetNPCFlag(Creature* cr);
+        uint64 GetNPCFlag(Creature* cr);
         uint32 GetNpcTextId(uint32 guid);
         uint16 GetEventIdForQuest(Quest const* quest) const;
     private:
@@ -158,7 +158,7 @@ class GameEventMgr
         typedef std::list<NPCVendorEntry> NPCVendorList;
         typedef std::vector<NPCVendorList> GameEventNPCVendorMap;
         typedef std::map<uint32 /*quest id*/, GameEventQuestToEventConditionNum> QuestIdToEventConditionMap;
-        typedef std::pair<uint32 /*guid*/, uint32 /*npcflag*/> GuidNPCFlagPair;
+        typedef std::pair<uint64 /*guid*/, uint64 /*npcflag*/> GuidNPCFlagPair;
         typedef std::list<GuidNPCFlagPair> NPCFlagList;
         typedef std::vector<NPCFlagList> GameEventNPCFlagMap;
         typedef std::vector<uint32> GameEventBitmask;

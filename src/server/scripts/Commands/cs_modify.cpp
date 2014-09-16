@@ -312,7 +312,7 @@ public:
         {
             uint32 factionid = target->getFaction();
             uint32 flag      = target->GetUInt32Value(UNIT_FIELD_FLAGS);
-            uint32 npcflag   = target->GetUInt32Value(UNIT_FIELD_NPC_FLAGS);
+            uint64 npcflag   = target->GetUInt64Value(UNIT_FIELD_NPC_FLAGS);
             uint32 dyflag    = target->GetUInt32Value(OBJECT_FIELD_DYNAMIC_FLAGS);
             handler->PSendSysMessage(LANG_CURRENT_FACTION, target->GetGUIDLow(), factionid, flag, npcflag, dyflag);
             return true;
@@ -329,9 +329,9 @@ public:
 
         char* pnpcflag = strtok(NULL, " ");
 
-        uint32 npcflag;
+        uint64 npcflag;
         if (!pnpcflag)
-            npcflag = target->GetUInt32Value(UNIT_FIELD_NPC_FLAGS);
+            npcflag = target->GetUInt64Value(UNIT_FIELD_NPC_FLAGS);
         else
             npcflag = atoi(pnpcflag);
 
@@ -354,7 +354,7 @@ public:
 
         target->setFaction(factionid);
         target->SetUInt32Value(UNIT_FIELD_FLAGS, flag);
-        target->SetUInt32Value(UNIT_FIELD_NPC_FLAGS, npcflag);
+        target->SetUInt64Value(UNIT_FIELD_NPC_FLAGS, npcflag);
         target->SetUInt32Value(OBJECT_FIELD_DYNAMIC_FLAGS, dyflag);
 
         return true;
