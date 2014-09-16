@@ -42,7 +42,12 @@ extern uint32 ItemUpdateFieldFlags[CONTAINER_END];
 extern uint32 UnitUpdateFieldFlags[PLAYER_END];
 extern uint32 GameObjectUpdateFieldFlags[GAMEOBJECT_END];
 extern uint32 DynamicObjectUpdateFieldFlags[DYNAMICOBJECT_END];
+extern uint32 DynamicItemUpdateFieldFlags[ITEM_DYNAMIC_END];
 extern uint32 CorpseUpdateFieldFlags[CORPSE_END];
 extern uint32 AreaTriggerUpdateFieldFlags[AREATRIGGER_END];
+extern uint32 SceneObjectUpdateFieldFlags[SCENEOBJECT_FIELD_END];
+extern uint32 ObjectUpdateFieldFlags[OBJECT_END];
+extern uint32 UnitDynamicField[UNIT_DYNAMIC_END];
+extern uint32 PlayerDynamicField[PLAYER_DYNAMIC_END];
 
 #endif // _UPDATEFIELDFLAGS_H

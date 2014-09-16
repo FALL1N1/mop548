@@ -761,15 +761,12 @@ void Object::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* targe
 
 void Object::BuildDynamicValuesUpdate(ByteBuffer *data) const
 {
-    // Only handle Item type
-    // TODO: Implement Player dynamis fields
-    if (m_objectTypeId != TYPEID_ITEM)
+    if (m_objectTypeId == TYPEMASK_CONTAINER)
     {
         *data << uint8(0);
         return;
     }
 
-    // Dynamic Fields (5.0.5 MoP new fields)
     uint32 dynamicTabMask = 0;
     std::vector<uint32> dynamicFieldsMask;
     dynamicFieldsMask.resize(m_dynamicTab.size());
@@ -892,6 +889,10 @@ uint32 Object::GetUpdateFieldData(Player const* target, uint32*& flags) const
             flags = AreaTriggerUpdateFieldFlags;
             break;
         case TYPEID_OBJECT:
+            flags = ObjectUpdateFieldFlags;
+            break;
+        case TYPEID_SCENEOBJECT:
+            flags = SceneObjectUpdateFieldFlags;
             break;
     }
 

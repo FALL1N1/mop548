@@ -34,6 +34,7 @@ char const Itemfmt[] ="niiiiiii";
 char const ItemCurrencyCostfmt[]="xn";
 char const ItemSparsefmt[]="niiiiffiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiifiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiisssssiiiiiiiiiiiiiiiiiiiiiifiiifii";
 char const ItemExtendedCostEntryfmt[]="nxxiiiiiiiiiiiixiiiiiiiiiiiiiii";
+char const ItemUpgradefmt[] = "niiiii";
 char const KeyChainfmt[] = "nbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb";
 char const QuestPackageItemfmt[] = "niiii";
 char const SceneScriptfmt[] = "nssii";

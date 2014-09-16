@@ -43,6 +43,7 @@ DB2Storage<ItemEntry> sItemStore(Itemfmt, &DB2Utilities::HasItemEntry, &DB2Utili
 DB2Storage<ItemCurrencyCostEntry> sItemCurrencyCostStore(ItemCurrencyCostfmt);
 DB2Storage<ItemExtendedCostEntry> sItemExtendedCostStore(ItemExtendedCostEntryfmt);
 DB2Storage<ItemSparseEntry> sItemSparseStore(ItemSparsefmt, &DB2Utilities::HasItemSparseEntry, &DB2Utilities::WriteItemSparseDbReply);
+DB2Storage<ItemUpgradeEntry> sItemUpgradeStore(ItemUpgradefmt);
 DB2Storage<KeyChainEntry> sKeyChainStore(KeyChainfmt);
 DB2Storage<QuestPackageItemEntry> sQuestPackageItemStore(QuestPackageItemfmt);
 DB2Storage<SceneScriptEntry> sSceneScriptStore(SceneScriptfmt);
@@ -139,6 +140,7 @@ void LoadDB2Stores(std::string const& dataPath)
     LoadDB2(availableDb2Locales, bad_db2_files, sItemCurrencyCostStore, db2Path, "ItemCurrencyCost.db2");
     LoadDB2(availableDb2Locales, bad_db2_files, sItemSparseStore, db2Path, "Item-sparse.db2");
     LoadDB2(availableDb2Locales, bad_db2_files, sItemExtendedCostStore, db2Path, "ItemExtendedCost.db2");
+    LoadDB2(availableDb2Locales, bad_db2_files, sItemUpgradeStore, db2Path, "ItemUpgrade.db2");
     LoadDB2(availableDb2Locales, bad_db2_files, sKeyChainStore, db2Path, "KeyChain.db2");
     LoadDB2(availableDb2Locales, bad_db2_files, sQuestPackageItemStore, db2Path, "QuestPackageItem.db2");
     LoadDB2(availableDb2Locales, bad_db2_files, sSceneScriptStore, db2Path, "SceneScript.db2");
@@ -168,6 +170,7 @@ void LoadDB2Stores(std::string const& dataPath)
         || !sBroadcastTextStore.LookupEntry(77161)          // last broadcast text added in 5.4.8 (18414)
         || !sItemStore.LookupEntry(112353)                  // last item added in 5.4.8 (18414)
         || !sItemExtendedCostStore.LookupEntry(5280)        // last item extended cost added in 5.4.8 (18414)
+        || !sItemUpgradeStore.LookupEntry(507)              // last item upgrade added in 5.4.8 (18414)
         || !sQuestPackageItemStore.LookupEntry(2256)        // last quest package item in 5.4.8 (18414)
         || !sSceneScriptStore.LookupEntry(11156))           // last scene script added in 5.4.8 (18414)
     {

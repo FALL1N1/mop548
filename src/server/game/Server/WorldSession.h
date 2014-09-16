@@ -299,6 +299,7 @@ class WorldSession
         void SendTabardVendorActivate(uint64 guid);
         void SendSpiritResurrect();
         void SendBindPoint(Creature* npc);
+        void SendItemUpgrade(uint64 guid);
 
         void SendAttackStop(Unit const* enemy);
 
@@ -958,6 +959,11 @@ class WorldSession
         // Reforge
         void HandleReforgeItemOpcode(WorldPacket& recvData);
         void SendReforgeResult(bool success);
+
+        // Item Upgrade 
+        void SendItemUpgradeResult(uint32 result);
+        void HandleUpgradeItem(WorldPacket& recvData); 
+        void SendItemUpgrade(uint32 result);
 
         // BlackMarket
         void HandleBlackMarketHelloOpcode(WorldPacket& recvData);

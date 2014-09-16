@@ -5147,7 +5147,7 @@ void Unit::SendAttackStateUpdate(CalcDamageInfo* damageInfo)
     data << uint32(overkill < 0 ? 0 : overkill);            // Overkill
     data << uint8(count);                                   // Sub damage count
 
-    for (uint32 i = 0; i < count; ++i)
+    for (uint32 i = 0; i < count; i++)
     {
         data << uint32(damageInfo->damageSchoolMask);       // School of sub damage
         data << float(damageInfo->damage);                  // sub damage
@@ -5156,7 +5156,7 @@ void Unit::SendAttackStateUpdate(CalcDamageInfo* damageInfo)
 
     if (damageInfo->HitInfo & (HITINFO_FULL_ABSORB | HITINFO_PARTIAL_ABSORB))
     {
-        for (uint32 i = 0; i < count; ++i)
+        for (uint32 i = 0; i < count; i++)
             data << uint32(damageInfo->absorb);             // Absorb
     }
 
@@ -5188,12 +5188,8 @@ void Unit::SendAttackStateUpdate(CalcDamageInfo* damageInfo)
         data << float(0);
         data << float(0);
         data << float(0);
-
-        for (uint8 i = 0; i < 2; ++i)
-        {
-            data << float(0);
-            data << float(0);
-        }
+        data << float(0);
+        data << float(0);
         data << uint32(0);
     }
 

@@ -216,6 +216,16 @@ struct ItemSparseEntry
     int32      CurrencySubstitutionCount;                    // 133
 };
 
+struct ItemUpgradeEntry
+{
+    uint32     UpgradeID;                                    // 0
+    uint32     UpgradeGroupId;                               // 1 groupid from ItemUpgradePath.dbc
+    uint32     IlvlStep;                                     // 2
+    uint32     ItemLvl;                                      // 3 required ilvl
+    uint32     CurrencyType;                                 // 4 CurrencyType cost
+    uint32     CurrencyCost;                                 // 5 CurrencyCost amount
+};
+
 #define MAX_ITEM_EXT_COST_ITEMS         5
 #define MAX_ITEM_EXT_COST_CURRENCIES    5
 
