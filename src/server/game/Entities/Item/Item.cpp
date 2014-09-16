@@ -369,8 +369,8 @@ void Item::SaveToDB(SQLTransaction& trans)
             stmt->setString(++index, ssEnchants.str());
 
             stmt->setInt16 (++index, GetItemRandomPropertyId());
-            stmt->setUInt32(++index, GetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 0)); // reforge Id
-            stmt->setUInt32(++index, GetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 1)); // Transmogrification Id
+            stmt->setUInt32(++index, GetDynamicUInt32Value(ITEM_DYNAMIC_FIELD_MODIFIERS, 0)); // reforge Id
+            stmt->setUInt32(++index, GetDynamicUInt32Value(ITEM_DYNAMIC_FIELD_MODIFIERS, 1)); // Transmogrification Id
             stmt->setUInt16(++index, GetUInt32Value(ITEM_FIELD_DURABILITY));
             stmt->setUInt32(++index, GetUInt32Value(ITEM_FIELD_CREATE_PLAYED_TIME));
             stmt->setString(++index, m_text);
@@ -477,13 +477,13 @@ bool Item::LoadFromDB(uint32 guid, uint64 owner_guid, Field* fields, uint32 entr
 
     if (uint32 reforgeEntry = fields[8].GetInt32())
     {
-        SetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 0, reforgeEntry);
+        SetDynamicUInt32Value(ITEM_DYNAMIC_FIELD_MODIFIERS, 0, reforgeEntry);
         SetFlag(ITEM_FIELD_MODIFIERS_MASK, 1);
     }
 
     if (uint32 transmogId = fields[9].GetInt32())
     {
-        SetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 1, transmogId);
+        SetDynamicUInt32Value(ITEM_DYNAMIC_FIELD_MODIFIERS, 1, transmogId);
         SetFlag(ITEM_FIELD_MODIFIERS_MASK, 3);
     }
 

@@ -1831,7 +1831,7 @@ void WorldSession::HandleTransmogrifyItems(WorldPacket& recvData)
 
         if (!newEntries[i]) // reset look
         {
-            itemTransmogrified->SetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 1, 0);
+            itemTransmogrified->SetDynamicUInt32Value(ITEM_DYNAMIC_FIELD_MODIFIERS, 1, 0);
             itemTransmogrified->RemoveFlag(ITEM_FIELD_MODIFIERS_MASK, 3);
             itemTransmogrified->SetState(ITEM_CHANGED, player);
             player->SetVisibleItemSlot(slots[i], itemTransmogrified);
@@ -1845,7 +1845,7 @@ void WorldSession::HandleTransmogrifyItems(WorldPacket& recvData)
             }
 
             // All okay, proceed
-            itemTransmogrified->SetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 1, newEntries[i]);
+            itemTransmogrified->SetDynamicUInt32Value(ITEM_DYNAMIC_FIELD_MODIFIERS, 1, newEntries[i]);
             itemTransmogrified->SetFlag(ITEM_FIELD_MODIFIERS_MASK, 3);
             player->SetVisibleItemSlot(slots[i], itemTransmogrified);
 
@@ -1917,8 +1917,8 @@ void WorldSession::HandleReforgeItemOpcode(WorldPacket& recvData)
         // Reset the item
         if (item->IsEquipped())
             player->ApplyReforgeEnchantment(item, false);
-        item->SetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 0, 0);
-        if (!item->GetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 1)) // check transmog on item before remove
+        item->SetDynamicUInt32Value(ITEM_DYNAMIC_FIELD_MODIFIERS, 0, 0);
+        if (!item->GetDynamicUInt32Value(ITEM_DYNAMIC_FIELD_MODIFIERS, 1)) // check transmog on item before remove
             item->SetFlag(ITEM_FIELD_MODIFIERS_MASK, 0);
         item->SetState(ITEM_CHANGED, player);
         SendReforgeResult(true);
@@ -1947,7 +1947,7 @@ void WorldSession::HandleReforgeItemOpcode(WorldPacket& recvData)
 
     player->ModifyMoney(-int64(item->GetSpecialPrice()));
 
-    item->SetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 0, reforgeEntry);
+    item->SetDynamicUInt32Value(ITEM_DYNAMIC_FIELD_MODIFIERS, 0, reforgeEntry);
     item->SetFlag(ITEM_FIELD_MODIFIERS_MASK, 1);
     item->SetState(ITEM_CHANGED, player);
 

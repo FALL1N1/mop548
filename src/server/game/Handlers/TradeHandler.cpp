@@ -136,7 +136,7 @@ void WorldSession::SendUpdateTrade(bool trader_data /*= true*/)
 
             itemData << uint32(item->GetUInt32Value(ITEM_FIELD_MAX_DURABILITY));  // ok
             itemData << uint32(0); // unk7
-            itemData << uint32(item->GetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 0));
+            itemData << uint32(item->GetDynamicUInt32Value(ITEM_DYNAMIC_FIELD_MODIFIERS, 0));
 
             itemData.WriteByteSeq(creatorGuid[1]);
             itemData.WriteByteSeq(creatorGuid[5]);

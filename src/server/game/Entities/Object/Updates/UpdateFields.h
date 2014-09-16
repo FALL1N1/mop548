@@ -20,7 +20,7 @@
 #ifndef _UPDATEFIELDS_H
 #define _UPDATEFIELDS_H
 
-// Auto generated for version 5.4.7 18019
+// Auto generated for version 5.4.8.18414
 
 enum EObjectFields
 {
@@ -55,8 +55,8 @@ enum EItemFields
 
 enum ItemDynamicFields
 {
-    ITEM_DYNAMIC_MODIFIERS = 0x0,
-    ITEM_DYNAMIC_END = 0x1
+    ITEM_DYNAMIC_FIELD_MODIFIERS                             = 0x000, //  Flags: OWNER
+    ITEM_DYNAMIC_END                                         = 0x001,
 };
 
 enum EContainerFields
@@ -149,6 +149,13 @@ enum EUnitFields
     UNIT_FIELD_BATTLE_PET_COMPANION_NAME_TIMESTAMP           = OBJECT_END + 0x96, // Size: 1, Flags: UF_FLAG_PUBLIC
     UNIT_FIELD_INTERACT_SPELL_ID                             = OBJECT_END + 0x97, // Size: 1, Flags: UF_FLAG_PUBLIC
     UNIT_END                                                 = OBJECT_END + 0x98
+};
+
+enum UnitDynamicField
+{
+    UNIT_DYNAMIC_FIELD_PASSIVE_SPELLS                        = 0x000, //  Flags: PUBLIC, 0x100
+    UNIT_DYNAMIC_FIELD_WORLD_EFFECTS                         = 0x001, //  Flags: PUBLIC, 0x100
+    UNIT_DYNAMIC_END                                         = 0x002,
 };
 
 enum EPlayerFields
@@ -256,6 +263,14 @@ enum EPlayerFields
     PLAYER_FIELD_OVERRIDE_ZONE_PVPTYPE                       = UNIT_END + 0x721, // Size: 1, Flags: UF_FLAG_PRIVATE, UF_FLAG_URGENT_SELF_ONLY
     PLAYER_FIELD_ITEM_LEVEL_DELTA                            = UNIT_END + 0x722, // Size: 1, Flags: UF_FLAG_PRIVATE
     PLAYER_END                                               = UNIT_END + 0x723
+};
+
+enum PlayerDynamicField
+{
+    PLAYER_DYNAMIC_FIELD_RESERACH_SITE_1                     = 0x000, //  Flags: PRIVATE
+    PLAYER_DYNAMIC_FIELD_RESEARCH_SITE_PROGRESS_1            = 0x001, //  Flags: PRIVATE
+    PLAYER_DYNAMIC_FIELD_DAILY_QUESTS_1                      = 0x002, //  Flags: PRIVATE
+    PLAYER_DYNAMIC_END                                       = 0x003,
 };
 
 enum EGameObjectFields

@@ -14654,7 +14654,7 @@ void Player::ApplyReforgeEnchantment(Item* item, bool apply)
     if (!item)
         return;
 
-    ItemReforgeEntry const* reforge = sItemReforgeStore.LookupEntry(item->GetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 0));
+    ItemReforgeEntry const* reforge = sItemReforgeStore.LookupEntry(item->GetDynamicUInt32Value(ITEM_DYNAMIC_FIELD_MODIFIERS, 0));
     if (!reforge)
         return;
 
