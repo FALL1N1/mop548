@@ -581,6 +581,20 @@ inline void Battleground::_ProcessJoin(uint32 diff)
         }
     }
 
+    if (IsRated()) // Temporary, this should be maybe handled on other place and maybe using functions like player->GetArenaRating etc..
+    {
+        for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
+        {
+            if (Player* player = ObjectAccessor::FindPlayer(itr->first))
+            {
+                RatedInfo* rInfo = sRatedMgr->GetRatedInfo(player->GetGUID());
+                const StatsBySlot* stats = rInfo->GetStatsBySlot(GetRatedType());
+                UpdatePlayerScore(player, SCORE_PRE_MATCH_MMR, stats->MatchMakerRating);
+                UpdatePlayerScore(player, SCORE_PRE_MATCH_PERSONAL_RATING, stats->PersonalRating);
+            }
+        }
+    }
+
     if (GetRemainingTime() > 0 && (m_EndTime -= diff) > 0)
         SetRemainingTime(GetRemainingTime() - diff);
 }
@@ -753,17 +767,13 @@ void Battleground::EndBattleground(uint32 winner)
     if (winner == ALLIANCE)
     {
         winmsg_id = IsBattleground() ? LANG_BG_A_WINS : LANG_ARENA_GOLD_WINS;
-
-        PlaySoundToAll(SOUND_ALLIANCE_WINS);                // alliance wins sound
-
+        PlaySoundToAll(SOUND_ALLIANCE_WINS); // alliance wins sound               
         SetWinner(WINNER_ALLIANCE);
     }
     else if (winner == HORDE)
     {
         winmsg_id = IsBattleground() ? LANG_BG_H_WINS : LANG_ARENA_GREEN_WINS;
-
-        PlaySoundToAll(SOUND_HORDE_WINS);                   // horde wins sound
-
+        PlaySoundToAll(SOUND_HORDE_WINS); // horde wins sound
         SetWinner(WINNER_HORDE);
     }
     else
@@ -784,24 +794,34 @@ void Battleground::EndBattleground(uint32 winner)
     uint8 aliveWinners = GetAlivePlayersCountByTeam(winner);
     for (BattlegroundPlayerMap::iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
     {
+        Player* player = _GetPlayer(itr, "EndBattleground"); // could be NULL till check
         uint32 team = itr->second.Team;
+
+        // Get RatedInfo for each player
         RatedInfo* rInfo = sRatedMgr->GetRatedInfo(itr->first);
-        int16 personalRatingChange, matchmakerRatingChange;
+        ASSERT(rInfo && "RatedInfo must not be nullptr");
+
+        int16 personalRatingChange = 0, matchmakerRatingChange = 0;
+        uint16 winnerMatchmakerRating = GetTeamMatchmakerRating(winner);
+        uint16 loserMatchmakerRating = GetTeamMatchmakerRating(GetOtherTeam(winner));
 
         if (itr->second.OfflineRemoveTime)
         {
-            //if rated match - make member lost!
-            if (IsRated() && rInfo)
+            // for rated matches (rated arenas, rated battlegrounds), make member lost
+            if (IsRated())
             {
                 if (team == winner)
-                    rInfo->UpdateStats(GetRatedType(), GetTeamMatchmakerRating(GetOtherTeam(winner)), personalRatingChange, matchmakerRatingChange, true, true);
+                {
+                    rInfo->UpdateStats(GetRatedType(), loserMatchmakerRating, personalRatingChange, matchmakerRatingChange, true, true);
+                }
                 else
-                    rInfo->UpdateStats(GetRatedType(), GetTeamMatchmakerRating(winner), personalRatingChange, matchmakerRatingChange, false, true);
+                {
+                    rInfo->UpdateStats(GetRatedType(), winnerMatchmakerRating, personalRatingChange, matchmakerRatingChange, false, true);
+                }
             }
             continue;
         }
 
-        Player* player = _GetPlayer(itr, "EndBattleground");
         if (!player)
             continue;
 
@@ -810,7 +830,7 @@ void Battleground::EndBattleground(uint32 winner)
             player->RemoveAurasByType(SPELL_AURA_MOD_SHAPESHIFT);
 
         // Last standing - Rated 5v5 arena & be solely alive player
-        if (team == winner && IsRated() && GetRatedType() == RATED_TYPE_5v5 && aliveWinners == 1 && player->IsAlive())
+        if (team == winner && GetRatedType() == RATED_TYPE_5v5 && player->IsAlive() && aliveWinners == 1)
             player->CastSpell(player, SPELL_THE_LAST_STANDING, true);
 
         if (!player->IsAlive())
@@ -826,27 +846,56 @@ void Battleground::EndBattleground(uint32 winner)
         }
 
         // per player calculation
-        if (IsArena() && IsRated() && rInfo)
+        if (IsRated())
         {
             if (team == winner)
             {
                 // update achievement BEFORE personal rating update
                 uint8 ratedSlot = RatedInfo::GetRatedSlotByType(GetRatedType());
                 uint32 rating = player->GetArenaPersonalRating(ratedSlot);
-                player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_ARENA, rating ? rating : 1);
-                player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_ARENA, GetMapId());
-                player->ModifyCurrency(CURRENCY_TYPE_CONQUEST_META_ARENA, sWorld->getIntConfig(CONFIG_CURRENCY_CONQUEST_POINTS_ARENA_REWARD));
 
-                rInfo->UpdateStats(GetRatedType(), GetTeamMatchmakerRating(GetOtherTeam(winner)), personalRatingChange, matchmakerRatingChange, true, false);
+                if (IsArena())
+                {
+                    player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_ARENA, GetMapId());
+                    player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_ARENA, rating ? rating : 1);
+                    player->ModifyCurrency(CURRENCY_TYPE_CONQUEST_META_ARENA, sWorld->getIntConfig(CONFIG_CURRENCY_CONQUEST_POINTS_ARENA_REWARD));
+                }
+                else // Rated Battleground
+                {
+                    // need to be updated in config
+                    player->ModifyCurrency(CURRENCY_TYPE_CONQUEST_META_RBG, sWorld->getIntConfig(CONFIG_CURRENCY_CONQUEST_POINTS_ARENA_REWARD)); 
+                }
+
+                rInfo->UpdateStats(GetRatedType(), loserMatchmakerRating, personalRatingChange, matchmakerRatingChange, true, false);
             }
-            else
+            else // loser
             {
-                rInfo->UpdateStats(GetRatedType(), GetTeamMatchmakerRating(winner), personalRatingChange, matchmakerRatingChange, false, false);
+                if (IsArena())
+                {
+                    // Arena lost => reset the win_rated_arena having the "no_lose" condition
+                    player->ResetAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_ARENA, ACHIEVEMENT_CRITERIA_CONDITION_NO_LOSE);
+                }                
+                else // Rated Battleground
+                {
+                    // placeholder
+                }
 
-                // Arena lost => reset the win_rated_arena having the "no_lose" condition
-                player->ResetAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_ARENA, ACHIEVEMENT_CRITERIA_CONDITION_NO_LOSE);
+                rInfo->UpdateStats(GetRatedType(), winnerMatchmakerRating, personalRatingChange, matchmakerRatingChange, false, false);                
             }
         }
+
+        // Set personal rating change after calculation
+        UpdatePlayerScore(player, SCORE_PERSONAL_RATING_CHANGE, personalRatingChange);
+        UpdatePlayerScore(player, SCORE_MMR_CHANGE, matchmakerRatingChange);
+
+        auto updateAverageMMRforTeam = [this](uint32 team) -> void
+        {
+            GroupRatedStats statsByGroup = GetBgRaid(team)->GetRatedStats(GetRatedType());
+            SetTeamMatchmakerRating(team, statsByGroup.averageMMR);
+        };
+
+        updateAverageMMRforTeam(winner);
+        updateAverageMMRforTeam(GetOtherTeam(winner));
 
         uint32 winnerKills = player->GetRandomWinner() ? sWorld->getIntConfig(CONFIG_BG_REWARD_WINNER_HONOR_LAST) : sWorld->getIntConfig(CONFIG_BG_REWARD_WINNER_HONOR_FIRST);
         uint32 loserKills = player->GetRandomWinner() ? sWorld->getIntConfig(CONFIG_BG_REWARD_LOSER_HONOR_LAST) : sWorld->getIntConfig(CONFIG_BG_REWARD_LOSER_HONOR_FIRST);
@@ -882,7 +931,7 @@ void Battleground::EndBattleground(uint32 winner)
                         if (IsArena() && IsRated() && rInfo)
                         {
                             StatsBySlot const *stats = rInfo->GetStatsBySlot(GetRatedType());
-                            guild->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_ARENA, std::max<uint32>(stats->PersonalRating, 1), 0, 0, NULL, player);
+                            guild->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_ARENA, std::max<uint16>(stats->PersonalRating, 1), 0, 0, NULL, player);
                         }                            
                     }
             }
@@ -1375,15 +1424,27 @@ void Battleground::UpdatePlayerScore(Player* Source, uint32 type, uint32 value, 
             }
             break;
             // used only in EY, but in MSG_PVP_LOG_DATA opcode
-        case SCORE_DAMAGE_DONE:                             // Damage Done
+        case SCORE_DAMAGE_DONE:
             itr->second->DamageDone += value;
             break;
-        case SCORE_HEALING_DONE:                            // Healing Done
+        case SCORE_HEALING_DONE:
             itr->second->HealingDone += value;
             break;
-        case SCORE_PERSONAL_RATING_CHANGE:                  // Rating Change
+
+        // Container for rated matches
+        case SCORE_PRE_MATCH_PERSONAL_RATING:
+            itr->second->PreMatchPersonalRating = value;
+            break;
+        case SCORE_PRE_MATCH_MMR:
+            itr->second->PreMatchMatchmakerRating = value;
+            break;
+        case SCORE_PERSONAL_RATING_CHANGE:
             itr->second->PersonalRatingChange = value;
             break;
+        case SCORE_MMR_CHANGE:
+            itr->second->MatchmakerRatingChange = value;
+            break;
+
         default:
             TC_LOG_ERROR("bg.battleground", "Battleground::UpdatePlayerScore: unknown score type (%u) for BG (map: %u, instance id: %u)!",
                 type, GetMapId(), GetInstanceID());
