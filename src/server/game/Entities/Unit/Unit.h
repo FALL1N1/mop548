@@ -642,7 +642,7 @@ enum UnitFlags
     UNIT_FLAG_SILENCED              = 0x00002000,           // silenced, 2.1.1
     UNIT_FLAG_UNK_14                = 0x00004000,           // 2.0.8
     UNIT_FLAG_UNK_15                = 0x00008000,
-    UNIT_FLAG_UNK_16                = 0x00010000,
+    UNIT_FLAG_ON_TAXI               = 0x00010000,
     UNIT_FLAG_PACIFIED              = 0x00020000,           // 3.0.3 ok
     UNIT_FLAG_STUNNED               = 0x00040000,           // 3.0.3 ok
     UNIT_FLAG_IN_COMBAT             = 0x00080000,
@@ -655,7 +655,7 @@ enum UnitFlags
     UNIT_FLAG_SKINNABLE             = 0x04000000,
     UNIT_FLAG_MOUNT                 = 0x08000000,
     UNIT_FLAG_UNK_28                = 0x10000000,
-    UNIT_FLAG_UNK_29                = 0x20000000,           // used in Feing Death spell
+    UNIT_FLAG_PREVENT_EMOTES        = 0x20000000,           // used in Feing Death spell
     UNIT_FLAG_SHEATHE               = 0x40000000,
     UNIT_FLAG_UNK_31                = 0x80000000,
     MAX_UNIT_FLAGS = 33
@@ -687,40 +687,40 @@ enum UnitFlags2
 /// Non Player Character flags
 enum NPCFlags
 {
-    UNIT_NPC_FLAG_NONE                  = 0x00000000,
-    UNIT_NPC_FLAG_GOSSIP                = 0x00000001,       // 100%
-    UNIT_NPC_FLAG_QUESTGIVER            = 0x00000002,       // 100%
-    UNIT_NPC_FLAG_UNK1                  = 0x00000004,
-    UNIT_NPC_FLAG_UNK2                  = 0x00000008,
-    UNIT_NPC_FLAG_TRAINER               = 0x00000010,       // 100%
-    UNIT_NPC_FLAG_TRAINER_CLASS         = 0x00000020,       // 100%
-    UNIT_NPC_FLAG_TRAINER_PROFESSION    = 0x00000040,       // 100%
-    UNIT_NPC_FLAG_VENDOR                = 0x00000080,       // 100%
-    UNIT_NPC_FLAG_VENDOR_AMMO           = 0x00000100,       // 100%, general goods vendor
-    UNIT_NPC_FLAG_VENDOR_FOOD           = 0x00000200,       // 100%
-    UNIT_NPC_FLAG_VENDOR_POISON         = 0x00000400,       // guessed
-    UNIT_NPC_FLAG_VENDOR_REAGENT        = 0x00000800,       // 100%
-    UNIT_NPC_FLAG_REPAIR                = 0x00001000,       // 100%
-    UNIT_NPC_FLAG_FLIGHTMASTER          = 0x00002000,       // 100%
-    UNIT_NPC_FLAG_SPIRITHEALER          = 0x00004000,       // guessed
-    UNIT_NPC_FLAG_SPIRITGUIDE           = 0x00008000,       // guessed
-    UNIT_NPC_FLAG_INNKEEPER             = 0x00010000,       // 100%
-    UNIT_NPC_FLAG_BANKER                = 0x00020000,       // 100%
-    UNIT_NPC_FLAG_PETITIONER            = 0x00040000,       // 100% 0xC0000 = guild petitions, 0x40000 = arena team petitions
-    UNIT_NPC_FLAG_TABARDDESIGNER        = 0x00080000,       // 100%
-    UNIT_NPC_FLAG_BATTLEMASTER          = 0x00100000,       // 100%
-    UNIT_NPC_FLAG_AUCTIONEER            = 0x00200000,       // 100%
-    UNIT_NPC_FLAG_STABLEMASTER          = 0x00400000,       // 100%
-    UNIT_NPC_FLAG_GUILD_BANKER          = 0x00800000,       // cause client to send 997 opcode
-    UNIT_NPC_FLAG_SPELLCLICK            = 0x01000000,       // cause client to send 1015 opcode (spell click)
-    UNIT_NPC_FLAG_PLAYER_VEHICLE        = 0x02000000,       // players with mounts that have vehicle data should have it set
-    UNIT_NPC_FLAG_UNK3                  = 0x04000000,       // mail ?
-    UNIT_NPC_FLAG_REFORGER              = 0x08000000,       // reforging
-    UNIT_NPC_FLAG_TRANSMOGRIFIER        = 0x10000000,       // transmogrification
-    UNIT_NPC_FLAG_VAULTKEEPER           = 0x20000000,       // void storage
-    UNIT_NPC_FLAG_UNK_BPET              = 0x40000000,       // flag related to battlepet battle start
-    UNIT_NPC_FLAG_BLACKMARKET           = 0x80000000,       // blackmarket auction
-    //UNIT_NPC_FLAG_ITEM_UPGRADE          = 0x100000000,      // item upgrade
+    UNIT_NPC_FLAG_NONE                  = 0x000000000,
+    UNIT_NPC_FLAG_GOSSIP                = 0x000000001,       // 100%
+    UNIT_NPC_FLAG_QUESTGIVER            = 0x000000002,       // 100%
+    UNIT_NPC_FLAG_UNK1                  = 0x000000004,
+    UNIT_NPC_FLAG_UNK2                  = 0x000000008,
+    UNIT_NPC_FLAG_TRAINER               = 0x000000010,       // 100%
+    UNIT_NPC_FLAG_TRAINER_CLASS         = 0x000000020,       // 100%
+    UNIT_NPC_FLAG_TRAINER_PROFESSION    = 0x000000040,       // 100%
+    UNIT_NPC_FLAG_VENDOR                = 0x000000080,       // 100%
+    UNIT_NPC_FLAG_VENDOR_AMMO           = 0x000000100,       // 100%, general goods vendor
+    UNIT_NPC_FLAG_VENDOR_FOOD           = 0x000000200,       // 100%
+    UNIT_NPC_FLAG_VENDOR_POISON         = 0x000000400,       // guessed
+    UNIT_NPC_FLAG_VENDOR_REAGENT        = 0x000000800,       // 100%
+    UNIT_NPC_FLAG_REPAIR                = 0x000001000,       // 100%
+    UNIT_NPC_FLAG_FLIGHTMASTER          = 0x000002000,       // 100%
+    UNIT_NPC_FLAG_SPIRITHEALER          = 0x000004000,       // guessed
+    UNIT_NPC_FLAG_SPIRITGUIDE           = 0x000008000,       // guessed
+    UNIT_NPC_FLAG_INNKEEPER             = 0x000010000,       // 100%
+    UNIT_NPC_FLAG_BANKER                = 0x000020000,       // 100%
+    UNIT_NPC_FLAG_PETITIONER            = 0x000040000,       // 100% 0xC0000 = guild petitions, 0x40000 = arena team petitions
+    UNIT_NPC_FLAG_TABARDDESIGNER        = 0x000080000,       // 100%
+    UNIT_NPC_FLAG_BATTLEMASTER          = 0x000100000,       // 100%
+    UNIT_NPC_FLAG_AUCTIONEER            = 0x000200000,       // 100%
+    UNIT_NPC_FLAG_STABLEMASTER          = 0x000400000,       // 100%
+    UNIT_NPC_FLAG_GUILD_BANKER          = 0x000800000,       // cause client to send 997 opcode
+    UNIT_NPC_FLAG_SPELLCLICK            = 0x001000000,       // cause client to send 1015 opcode (spell click)
+    UNIT_NPC_FLAG_PLAYER_VEHICLE        = 0x002000000,       // players with mounts that have vehicle data should have it set
+    UNIT_NPC_FLAG_UNK3                  = 0x004000000,       // mail ?
+    UNIT_NPC_FLAG_REFORGER              = 0x008000000,       // reforging
+    UNIT_NPC_FLAG_TRANSMOGRIFIER        = 0x010000000,       // transmogrification
+    UNIT_NPC_FLAG_VAULTKEEPER           = 0x020000000,       // void storage
+    UNIT_NPC_FLAG_UNK_BPET              = 0x040000000,       // flag related to battlepet battle start
+    UNIT_NPC_FLAG_BLACKMARKET           = 0x080000000,       // blackmarket auction
+    //UNIT_NPC_FLAG_ITEM_UPGRADE          = 0x100000000,       // item upgrade
 };
 
 enum MovementFlags

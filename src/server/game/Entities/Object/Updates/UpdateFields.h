@@ -269,7 +269,7 @@ enum PlayerDynamicField
 {
     PLAYER_DYNAMIC_FIELD_RESERACH_SITE_1                     = 0x000, //  Flags: PRIVATE
     PLAYER_DYNAMIC_FIELD_RESEARCH_SITE_PROGRESS_1            = 0x001, //  Flags: PRIVATE
-    PLAYER_DYNAMIC_FIELD_DAILY_QUESTS_1                      = 0x002, //  Flags: PRIVATE
+    PLAYER_DYNAMIC_FIELD_DAILY_QUESTS                        = 0x002, //  Flags: PRIVATE
     PLAYER_DYNAMIC_END                                       = 0x003,
 };
 

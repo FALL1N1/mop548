@@ -16956,15 +16956,15 @@ bool Player::SatisfyQuestDay(Quest const* qInfo, bool msg)
     }
 
     bool have_slot = false;
-    for (uint32 quest_daily_idx = 0; quest_daily_idx < PLAYER_MAX_DAILY_QUESTS; ++quest_daily_idx)
-    {
-        uint32 id = 0;//GetUInt32Value(PLAYER_FIELD_DAILY_QUESTS_1+quest_daily_idx);
-        if (qInfo->GetQuestId() == id)
-            return false;
+    //for (uint32 quest_daily_idx = 0; quest_daily_idx < PLAYER_MAX_DAILY_QUESTS; ++quest_daily_idx)
+    //{
+    //    uint32 id = GetDynamicUInt32Value(PLAYER_DYNAMIC_FIELD_DAILY_QUESTS, quest_daily_idx);
+    //    if (qInfo->GetQuestId() == id)
+    //        return false;
 
-        if (!id)
-            have_slot = true;
-    }
+    //    if (!id)
+    //        have_slot = true;
+    //}
 
     if (!have_slot)
     {
@@ -19572,8 +19572,8 @@ void Player::_LoadQuestStatusRewarded(PreparedQueryResult result)
 
 void Player::_LoadDailyQuestStatus(PreparedQueryResult result)
 {
-    //for (uint32 quest_daily_idx = 0; quest_daily_idx < PLAYER_MAX_DAILY_QUESTS; ++quest_daily_idx)
-        //SetUInt32Value(PLAYER_FIELD_DAILY_QUESTS_1+quest_daily_idx, 0);
+    //for (uint16 quest_daily_idx = 0; quest_daily_idx < PLAYER_MAX_DAILY_QUESTS; ++quest_daily_idx)
+    //    SetDynamicUInt32Value(PLAYER_DYNAMIC_FIELD_DAILY_QUESTS, uint32(quest_daily_idx), 0);
 
     m_DFQuests.clear();
 
@@ -19611,7 +19611,7 @@ void Player::_LoadDailyQuestStatus(PreparedQueryResult result)
             if (!quest)
                 continue;
 
-            //SetUInt32Value(PLAYER_FIELD_DAILY_QUESTS_1+quest_daily_idx, quest_id);
+             //SetDynamicUInt32Value(PLAYER_DYNAMIC_FIELD_DAILY_QUESTS, quest_daily_idx, quest_id);
             ++quest_daily_idx;
 
             TC_LOG_DEBUG("entities.player.loading", "Daily quest (%u) cooldown for player (GUID: %u)", quest_id, GetGUIDLow());
@@ -21021,18 +21021,18 @@ void Player::_SaveDailyQuestStatus(SQLTransaction& trans)
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_QUEST_STATUS_DAILY_CHAR);
     stmt->setUInt32(0, GetGUIDLow());
     trans->Append(stmt);
-    /*for (uint32 quest_daily_idx = 0; quest_daily_idx < PLAYER_MAX_DAILY_QUESTS; ++quest_daily_idx)
-    {
-        if (GetUInt32Value(PLAYER_FIELD_DAILY_QUESTS_1+quest_daily_idx))
-        {
-            stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHARACTER_DAILYQUESTSTATUS);
-            stmt->setUInt32(0, GetGUIDLow());
-            stmt->setUInt32(1, GetUInt32Value(PLAYER_FIELD_DAILY_QUESTS_1+quest_daily_idx));
-            stmt->setUInt64(2, uint64(m_lastDailyQuestTime));
-            trans->Append(stmt);
-        }
-    }
-    */
+    //for (uint32 quest_daily_idx = 0; quest_daily_idx < PLAYER_MAX_DAILY_QUESTS; ++quest_daily_idx)
+    //{ 
+    //    if (GetDynamicUInt32Value(PLAYER_DYNAMIC_FIELD_DAILY_QUESTS, quest_daily_idx))
+    //    {
+    //        stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHARACTER_DAILYQUESTSTATUS);
+    //        stmt->setUInt32(0, GetGUIDLow());
+    //        stmt->setUInt32(1, GetDynamicUInt32Value(PLAYER_DYNAMIC_FIELD_DAILY_QUESTS, quest_daily_idx));
+    //        stmt->setUInt64(2, uint64(m_lastDailyQuestTime));
+    //        trans->Append(stmt);
+    //    }
+    //}
+
     if (!m_DFQuests.empty())
     {
         for (DFQuestsDoneList::iterator itr = m_DFQuests.begin(); itr != m_DFQuests.end(); ++itr)
@@ -25011,16 +25011,16 @@ void Player::SetDailyQuestStatus(uint32 quest_id)
     {
         if (!qQuest->IsDFQuest())
         {
-            for (uint32 quest_daily_idx = 0; quest_daily_idx < PLAYER_MAX_DAILY_QUESTS; ++quest_daily_idx)
-            {
-                /*if (!GetUInt32Value(PLAYER_FIELD_DAILY_QUESTS_1+quest_daily_idx))
-                {
-                    SetUInt32Value(PLAYER_FIELD_DAILY_QUESTS_1+quest_daily_idx, quest_id);
-                    m_lastDailyQuestTime = time(NULL);              // last daily quest time
-                    m_DailyQuestChanged = true;
-                    break;
-                }*/
-            }
+            //for (uint32 quest_daily_idx = 0; quest_daily_idx < PLAYER_MAX_DAILY_QUESTS; ++quest_daily_idx)
+            //{
+            //    if (!GetDynamicUInt32Value(PLAYER_DYNAMIC_FIELD_DAILY_QUESTS, quest_daily_idx))
+            //    {
+            //        SetDynamicUInt32Value(PLAYER_DYNAMIC_FIELD_DAILY_QUESTS, quest_daily_idx, quest_id);
+            //        m_lastDailyQuestTime = time(NULL);              // last daily quest time
+            //        m_DailyQuestChanged = true;
+            //        break;
+            //    }
+            //}
         } else
         {
             m_DFQuests.insert(quest_id);
@@ -25055,7 +25055,7 @@ void Player::SetMonthlyQuestStatus(uint32 quest_id)
 void Player::ResetDailyQuestStatus()
 {
     //for (uint32 quest_daily_idx = 0; quest_daily_idx < PLAYER_MAX_DAILY_QUESTS; ++quest_daily_idx)
-    //    SetUInt32Value(PLAYER_FIELD_DAILY_QUESTS_1+quest_daily_idx, 0);
+        //SetDynamicUInt32Value(PLAYER_DYNAMIC_FIELD_DAILY_QUESTS, quest_daily_idx, 0);
 
     m_DFQuests.clear(); // Dungeon Finder Quests.
 
