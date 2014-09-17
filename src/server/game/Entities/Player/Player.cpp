@@ -8237,7 +8237,7 @@ bool Player::HasCurrency(uint32 id, uint32 count) const
     return itr != _currencyStorage.end() && itr->second.totalCount >= count;
 }
 
-void Player::ModifyCurrency(uint32 id, int32 count, bool printLog/* = true*/, bool ignoreMultipliers/* = false*/)
+void Player::ModifyCurrency(uint32 id, int32 count, bool printLog /*= true*/, bool ignoreMultipliers /* = false */, bool ignoreLimit /* = false */)
 {
     if (!count)
         return;
@@ -8273,14 +8273,14 @@ void Player::ModifyCurrency(uint32 id, int32 count, bool printLog/* = true*/, bo
 
     // count can't be more then weekCap if used (weekCap > 0)
     uint32 weekCap = _GetCurrencyWeekCap(currency);
-    if (weekCap && count > int32(weekCap))
+    if (!ignoreLimit && weekCap && count > int32(weekCap))
         count = weekCap;
 
     int32 newTotalCount = int32(oldTotalCount) + count;
     int32 newWeekCount = 0;
     uint32 newSeasonCount = 0;
     
-    if (count > 0)
+    if (!ignoreLimit && count > 0)
     {
         newWeekCount = int32(oldWeekCount) + count;
         newSeasonCount = oldSeasonCount + count;
@@ -8291,8 +8291,23 @@ void Player::ModifyCurrency(uint32 id, int32 count, bool printLog/* = true*/, bo
         newWeekCount = int32(oldWeekCount);
     }
 
+    if (!ignoreLimit)
+    {
+        if (weekCap && int32(weekCap) < newWeekCount)
+        {
+            newWeekCount = int32(weekCap);
+            newTotalCount = oldTotalCount + (weekCap - oldWeekCount);
+        }
+        if (currency->TotalCap && int32(currency->TotalCap) < newTotalCount)
+        {
+            newTotalCount = int32(currency->TotalCap);
+            newWeekCount = weekCap;
+        }
+    }
+
     if (newWeekCount < 0)
         newWeekCount = 0;
+
     if (newTotalCount < 0)
         newTotalCount = 0;
 
@@ -8350,7 +8365,7 @@ void Player::ModifyCurrency(uint32 id, int32 count, bool printLog/* = true*/, bo
     }
 }
 
-void Player::SetCurrency(uint32 id, uint32 count, bool printLog /*= true*/)
+void Player::SetCurrency(uint32 id, uint32 count, bool /*printLog*/ /*= true*/)
 {
    PlayerCurrenciesMap::iterator itr = _currencyStorage.find(id);
    if (itr == _currencyStorage.end())
@@ -23047,7 +23062,7 @@ inline bool Player::_StoreOrEquipNewItem(uint32 vendorslot, uint32 item, uint8 c
                 continue;
 
             if (iece->RequiredCurrency[i])
-                ModifyCurrency(iece->RequiredCurrency[i], -int32(iece->RequiredCurrencyCount[i] * stacks), true, true);
+                ModifyCurrency(iece->RequiredCurrency[i], -int32(iece->RequiredCurrencyCount[i]  * stacks), true, true);
         }
     }
 
@@ -23193,6 +23208,8 @@ bool Player::BuyCurrencyFromVendorSlot(uint64 vendorGuid, uint32 vendorSlot, uin
                 SendEquipError(EQUIP_ERR_VENDOR_MISSING_TURNINS, NULL, NULL); // Find correct error
                 return false;
             }
+
+            ModifyCurrency(iece->RequiredCurrency[i], -int32(iece->RequiredCurrencyCount[i]), false, true);
         }
 
         // check for personal arena rating requirement
@@ -23233,7 +23250,7 @@ bool Player::BuyCurrencyFromVendorSlot(uint64 vendorGuid, uint32 vendorSlot, uin
         return false;
     }
 
-    ModifyCurrency(currency, count, true, true);
+    ModifyCurrency(currency, int32(crItem->maxcount * proto->GetPrecision()), true, true);
     if (iece)
     {
         for (uint8 i = 0; i < MAX_ITEM_EXT_COST_ITEMS; ++i)
@@ -28095,7 +28112,7 @@ void Player::RefundItem(Item* item)
         uint32 count = iece->RequiredCurrencyCount[i];
         uint32 currencyid = iece->RequiredCurrency[i];
         if (count && currencyid)
-            ModifyCurrency(currencyid, count, true, true);
+            ModifyCurrency(currencyid, count, false, true, true);
     }
 
     // Grant back money

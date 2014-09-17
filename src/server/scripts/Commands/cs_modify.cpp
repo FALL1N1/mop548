@@ -1082,8 +1082,7 @@ public:
         if (!amount)
             return false;
 
-        target->ModifyCurrency(currencyId, amount, true, true);
-
+        target->ModifyCurrency(currencyId, amount, true, true, false);
         return true;
     }
 
