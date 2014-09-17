@@ -5896,7 +5896,15 @@ void Spell::EffectGiveCurrency(SpellEffIndex effIndex)
     if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    unitTarget->ToPlayer()->ModifyCurrency(m_spellInfo->Effects[effIndex].MiscValue, damage);
+    Player* player = unitTarget->ToPlayer();
+
+    uint32 currencyId = m_spellInfo->Effects[effIndex].MiscValue;
+    if (!sCurrencyTypesStore.LookupEntry(currencyId))
+        return;
+
+    int32 amount = m_spellInfo->Effects[effIndex].BasePoints;
+
+    player->ModifyCurrency(currencyId, amount);
 }
 
 void Spell::EffectDestroyItem(SpellEffIndex effIndex)

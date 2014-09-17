@@ -164,6 +164,8 @@ struct PlayerCurrency
    PlayerCurrencyState state;
    uint32 totalCount;
    uint32 weekCount;
+   uint32 seasonCount;
+   uint8 flags;
 };
 
 typedef UNORDERED_MAP<uint32, PlayerTalent*> PlayerTalentMap;
@@ -1453,6 +1455,7 @@ class Player : public Unit, public GridObject<Player>
         void AddRefundReference(uint32 it);
         void DeleteRefundReference(uint32 it);
 
+        void ModifyCurrencyFlag(uint32 id, uint8 flag);
         /// send initialization of new currency for client
         void SendNewCurrency(uint32 id) const;
         /// send full data about all currencies to client
@@ -2761,25 +2764,11 @@ class Player : public Unit, public GridObject<Player>
         uint32 m_currentBuybackSlot;
 
         PlayerCurrenciesMap _currencyStorage;
-
-        /**
-          * @name   GetCurrencyWeekCap
-          * @brief  return week cap for selected currency
-
-          * @param  CurrencyTypesEntry for which to retrieve weekly cap
-        */
-        uint32 GetCurrencyWeekCap(CurrencyTypesEntry const* currency) const;
-
-        /*
-         * @name   GetCurrencyTotalCap
-         * @brief  return total cap for selected currency
-
-         * @param  CurrencyTypesEntry for which to retrieve total cap
-         */
-        uint32 GetCurrencyTotalCap(CurrencyTypesEntry const* currency) const;
+        uint32 _GetCurrencyWeekCap(const CurrencyTypesEntry* currency) const;
 
         /// Updates weekly conquest point cap (dynamic cap)
-        void UpdateConquestCurrencyCap(uint32 currency);
+        void SendCurrencyWeekCap(uint32 id) const;
+        void SendCurrencyWeekCap(const CurrencyTypesEntry* currency) const;
 
         VoidStorageItem* _voidStorageItems[VOID_STORAGE_MAX_SLOT];
 
@@ -2986,6 +2975,8 @@ class Player : public Unit, public GridObject<Player>
         uint32 _activeCheats;
 
         PhaseMgr phaseMgr;
+
+        uint32 _ConquestCurrencytotalWeekCap;
 
         BattlePetMgr* m_battlePetMgr;
 };

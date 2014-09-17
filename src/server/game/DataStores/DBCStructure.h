@@ -25,6 +25,7 @@
 #include "Define.h"
 #include "Path.h"
 #include "Util.h"
+#include "ItemPrototype.h"
 
 #include <map>
 #include <set>
@@ -1259,6 +1260,10 @@ struct CurrencyTypesEntry
     uint32 Flags;                                           // 9
     //uint32 unk5                                           // 10 - Pandaria
     //char* description;                                    // 11
+
+    bool HasPrecision() const   { return Flags & CURRENCY_FLAG_HIGH_PRECISION; }
+    bool HasSeasonCount() const { return Flags & CURRENCY_FLAG_HAS_SEASON_COUNT; }
+    float GetPrecision() const  { return HasPrecision() ? 100.0f : 1.0f; }
 };
 
 struct DestructibleModelDataEntry

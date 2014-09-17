@@ -1001,6 +1001,7 @@ class WorldSession
         void HandleViolenceLevel(WorldPacket& recvPacket);
         void HandleObjectUpdateFailedOpcode(WorldPacket& recvPacket);
         void HandleRequestCategoryCooldowns(WorldPacket& recvPacket);
+        void HandleChangeCurrencyFlags(WorldPacket& recvPacket);
 
         void SendBroadcastText(uint32 entry);
 

@@ -58,7 +58,7 @@ public:
             { "energy",       rbac::RBAC_PERM_COMMAND_MODIFY_ENERGY,       false, &HandleModifyEnergyCommand,        "", NULL },
             { "faction",      rbac::RBAC_PERM_COMMAND_MODIFY_FACTION,      false, &HandleModifyFactionCommand,       "", NULL },
             { "gender",       rbac::RBAC_PERM_COMMAND_MODIFY_GENDER,       false, &HandleModifyGenderCommand,        "", NULL },
-            { "honor",        rbac::RBAC_PERM_COMMAND_MODIFY_HONOR,        false, &HandleModifyHonorCommand,         "", NULL },
+            { "currency",     rbac::RBAC_PERM_COMMAND_MODIFY_HONOR,        false, &HandleModifyCurrencyCommand,      "", NULL },
             { "hp",           rbac::RBAC_PERM_COMMAND_MODIFY_HP,           false, &HandleModifyHPCommand,            "", NULL },
             { "mana",         rbac::RBAC_PERM_COMMAND_MODIFY_MANA,         false, &HandleModifyManaCommand,          "", NULL },
             { "money",        rbac::RBAC_PERM_COMMAND_MODIFY_MONEY,        false, &HandleModifyMoneyCommand,         "", NULL },
@@ -1060,7 +1060,7 @@ public:
         return true;
     }
 
-    static bool HandleModifyHonorCommand(ChatHandler* handler, const char* args)
+    static bool HandleModifyCurrencyCommand(ChatHandler* handler, const char* args)
     {
         if (!*args)
             return false;
@@ -1068,20 +1068,21 @@ public:
         Player* target = handler->getSelectedPlayer();
         if (!target)
         {
-            handler->SendSysMessage(LANG_PLAYER_NOT_FOUND);
+            handler->PSendSysMessage(LANG_PLAYER_NOT_FOUND);
             handler->SetSentErrorMessage(true);
             return false;
         }
 
-        // check online security
-        if (handler->HasLowerSecurity(target, 0))
+        uint32 currencyId = atoi(strtok((char*)args, " "));
+        const CurrencyTypesEntry* currencyType = sCurrencyTypesStore.LookupEntry(currencyId);
+        if (!currencyType)
             return false;
 
-        int32 amount = (uint32)atoi(args);
+        uint32 amount = atoi(strtok(NULL, " "));
+        if (!amount)
+            return false;
 
-        target->ModifyCurrency(CURRENCY_TYPE_HONOR_POINTS, amount, true, true);
-
-        handler->PSendSysMessage(LANG_COMMAND_MODIFY_HONOR, handler->GetNameLink(target).c_str(), target->GetCurrency(CURRENCY_TYPE_HONOR_POINTS, false));
+        target->ModifyCurrency(currencyId, amount, true, true);
 
         return true;
     }
@@ -1328,33 +1329,6 @@ public:
             return false;
 
         target->DeMorph();
-
-        return true;
-    }
-
-    static bool HandleModifyCurrencyCommand(ChatHandler* handler, const char* args)
-    {
-        if (!*args)
-            return false;
-
-        Player* target = handler->getSelectedPlayer();
-        if (!target)
-        {
-            handler->PSendSysMessage(LANG_PLAYER_NOT_FOUND);
-            handler->SetSentErrorMessage(true);
-            return false;
-        }
-
-        uint32 currencyId = atoi(strtok((char*)args, " "));
-        const CurrencyTypesEntry* currencyType =  sCurrencyTypesStore.LookupEntry(currencyId);
-        if (!currencyType)
-            return false;
-
-        uint32 amount = atoi(strtok(NULL, " "));
-        if (!amount)
-            return false;
-
-        target->ModifyCurrency(currencyId, amount, true, true);
 
         return true;
     }
