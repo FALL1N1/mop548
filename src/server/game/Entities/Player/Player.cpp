@@ -889,7 +889,6 @@ Player::Player(WorldSession* session): Unit(true), phaseMgr(this)
     SetPendingBind(0, 0);
 
     _activeCheats = CHEAT_NONE;
-    _maxPersonalArenaRate = 0;
 
     memset(_voidStorageItems, 0, VOID_STORAGE_MAX_SLOT * sizeof(VoidStorageItem*));
     memset(_CUFProfiles, 0, MAX_CUF_PROFILES * sizeof(CUFProfile*));
@@ -8341,10 +8340,10 @@ uint32 Player::GetCurrencyWeekCap(CurrencyTypesEntry const* currency) const
             return std::max(GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_META_ARENA, false), GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_META_RBG, false));
         case CURRENCY_TYPE_CONQUEST_META_ARENA:
             // should add precision mod = 100
-            return Trinity::Currency::ConquestRatingCalculator(_maxPersonalArenaRate) * CURRENCY_PRECISION;
+            return Trinity::Currency::ConquestRatingCalculator(0) * CURRENCY_PRECISION;
         case CURRENCY_TYPE_CONQUEST_META_RBG:
             // should add precision mod = 100
-            return Trinity::Currency::BgConquestRatingCalculator(GetRBGPersonalRating()) * CURRENCY_PRECISION;
+            return Trinity::Currency::BgConquestRatingCalculator(0) * CURRENCY_PRECISION;
     }
 
     return currency->WeekCap;
@@ -14679,6 +14678,9 @@ void Player::ApplyReforgeEnchantment(Item* item, bool apply)
     if (!reforge)
         return;
 
+    item->SetDynamicUInt32Value(ITEM_DYNAMIC_FIELD_MODIFIERS, 0, apply ? reforge->Id : 0);
+    item->SetFlag(ITEM_FIELD_MODIFIERS_MASK, apply ? 1 : 0);
+
     float removeValue = item->GetReforgableStat(ItemModType(reforge->SourceStat)) * reforge->SourceMultiplier;
     float addValue = removeValue * reforge->FinalMultiplier;
 
@@ -15394,6 +15396,7 @@ void Player::SendNewItem(Item* item, uint32 count, bool received, bool created, 
     data.WriteBit(itemGuid[1]);
     data.WriteBit(created);                                 // 0 = received. 1 = created
     data.WriteBit(itemGuid[3]);
+    data.FlushBits();
 
     data.WriteByteSeq(playerGuid[1]);
     data.WriteByteSeq(itemGuid[1]);
@@ -15415,8 +15418,8 @@ void Player::SendNewItem(Item* item, uint32 count, bool received, bool created, 
     data.WriteByteSeq(playerGuid[7]);
     data.WriteByteSeq(itemGuid[5]);
     data.WriteByteSeq(playerGuid[4]);
-    data << uint8(item->GetBagSlot());                      // bag slot
     data << uint32(itemSlot);                               // item slot, but when added to stack: 0xFFFFFFFF
+    data << uint8(item->GetBagSlot());                      // bag slot
     data.WriteByteSeq(playerGuid[3]);
     data.WriteByteSeq(playerGuid[6]);
     data << uint32(0);                                      // battle pet level
