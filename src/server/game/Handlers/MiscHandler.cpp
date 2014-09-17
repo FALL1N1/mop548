@@ -2461,8 +2461,20 @@ void WorldSession::SendLoadCUFProfiles()
 
 void WorldSession::HandleRequestResearchHistory(WorldPacket& recvPacket)
 {
-    sLog->outDebug("network", "WORLD: CMSG_REQUEST_RESEARCH_HISTORY");
+    TC_LOG_DEBUG("network", "WORLD: CMSG_REQUEST_RESEARCH_HISTORY");
 
     _player->SendResearchHistory();
 }
 
+void WorldSession::HandleSetPreferedCemetery(WorldPacket& recvData)
+{
+    TC_LOG_DEBUG("network", "WORLD: Received CMSG_SET_PREFERED_CEMETERY");
+
+    uint32 CemeteryId;
+    recvData >> CemeteryId;
+}
+
+void WorldSession::HandleCemeteryListRequest(WorldPacket& recvPacket)
+{
+    GetPlayer()->SendCemeteryList(false);
+}

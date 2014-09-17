@@ -468,7 +468,7 @@ void OpcodeTable::InitializeClientTable()
     DEFINE_OPCODE_HANDLER(CMSG_REPORT_PVP_AFK,                            0x0000, STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleReportPvPAFK                 );
     DEFINE_OPCODE_HANDLER(CMSG_REQUEST_ACCOUNT_DATA,                      0x1D8A, STATUS_AUTHED,    PROCESS_THREADUNSAFE, &WorldSession::HandleRequestAccountData           ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(CMSG_REQUEST_CATEGORY_COOLDOWNS,                0x0000, STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::HandleRequestCategoryCooldowns     );
-    DEFINE_OPCODE_HANDLER(CMSG_REQUEST_CEMETERY_LIST,                     0x06E4, STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                        ); // 5.4.8 18414
+    DEFINE_OPCODE_HANDLER(CMSG_REQUEST_CEMETERY_LIST,                     0x06E4, STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleCemeteryListRequest          ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(CMSG_REQUEST_HOTFIX,                            0x158D, STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleRequestHotfix                ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(CMSG_REQUEST_INSPECT_RATED_BG_STATS,            0x0000, STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                        );
     DEFINE_OPCODE_HANDLER(CMSG_REQUEST_PARTY_MEMBER_STATS,                0x0000, STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleRequestPartyMemberStatsOpcode);
@@ -511,7 +511,7 @@ void OpcodeTable::InitializeClientTable()
     DEFINE_OPCODE_HANDLER(CMSG_SET_GUILD_BANK_TEXT,                       0x0000, STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleSetGuildBankTabText          );
     DEFINE_OPCODE_HANDLER(CMSG_SET_PET_SLOT,                              0x0000, STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                        );
     DEFINE_OPCODE_HANDLER(CMSG_SET_PLAYER_DECLINED_NAMES,                 0x09E2, STATUS_AUTHED,    PROCESS_THREADUNSAFE, &WorldSession::HandleSetPlayerDeclinedNames       ); // 5.4.8 18414
-    DEFINE_OPCODE_HANDLER(CMSG_SET_PREFERED_CEMETERY,                     0x0000, STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                        );
+    DEFINE_OPCODE_HANDLER(CMSG_SET_PREFERED_CEMETERY,                     0x0000, STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::HandleSetPreferedCemetery          );
     DEFINE_OPCODE_HANDLER(CMSG_SET_PRIMARY_TALENT_TREE,                   0x06C6, STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandeSetTalentSpecialization       ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(CMSG_SET_PVP,                                   0x02C5, STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleSetPvP                       ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(CMSG_SET_RELATIVE_POSITION,                     0x0000, STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                        );
@@ -1189,7 +1189,7 @@ void OpcodeTable::InitializeServerTable()
     DEFINE_OPCODE_HANDLER(SMSG_REFORGE_RESULT,                          0x141E, STATUS_NEVER    ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(SMSG_REMOVED_SPELL,                           0x14C3, STATUS_NEVER    ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(SMSG_REPORT_PVP_AFK_RESULT,                   0x0000, STATUS_UNHANDLED);
-    DEFINE_OPCODE_HANDLER(SMSG_REQUEST_CEMETERY_LIST_RESPONSE,          0x042A, STATUS_UNHANDLED); // 5.4.8 18414
+    DEFINE_OPCODE_HANDLER(SMSG_REQUEST_CEMETERY_LIST_RESPONSE,          0x042A, STATUS_NEVER    ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(SMSG_REQUEST_PVP_REWARDS_RESPONSE,            0x08AA, STATUS_NEVER    ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(SMSG_RESEARCH_COMPLETE,                       0x0C0E, STATUS_NEVER    ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(SMSG_RESEARCH_SETUP_HISTORY,                  0x08AB, STATUS_NEVER    ); // 5.4.8 18414

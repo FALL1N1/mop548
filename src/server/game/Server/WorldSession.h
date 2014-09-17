@@ -831,6 +831,10 @@ class WorldSession
         void HandleRequestPvpOptions(WorldPacket& recvData);
         void HandleRequestPvpReward(WorldPacket& recvData);
 
+        // Cemetery
+        void HandleSetPreferedCemetery(WorldPacket& recvData);
+        void HandleCemeteryListRequest(WorldPacket& recvData);
+
         void HandleWardenDataOpcode(WorldPacket& recvData);
         void HandleWorldTeleportOpcode(WorldPacket& recvData);
         void HandleMinimapPingOpcode(WorldPacket& recvData);
