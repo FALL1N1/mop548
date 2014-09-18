@@ -2529,3 +2529,29 @@ void WorldSession::HandleOpeningCinematic(WorldPacket& /*recvData*/)
             _player->SendCinematicStart(raceEntry->CinematicSequence);
     }
 }
+
+void Player::XPGainAborted()
+{
+    TC_LOG_DEBUG("network", "WORLD: sended SMSG_XP_GAIN_ABORTED");
+
+    // should be sended by gossip menu
+    ObjectGuid guid = GetGUID();
+
+    WorldPacket data(SMSG_XP_GAIN_ABORTED, 1 + 4 + 4 + 4);
+    uint8 bitOrder[8] = {2, 3, 0, 5, 7, 6, 1, 4};
+    data.WriteBitInOrder(guid, bitOrder);
+
+    data.WriteByteSeq(guid[6]);
+    data.WriteByteSeq(guid[5]);
+    data.WriteByteSeq(guid[4]);
+    data << uint32(0); //unk
+    data.WriteByteSeq(guid[7]);
+    data.WriteByteSeq(guid[1]);
+    data << uint32(0); //unk
+    data.WriteByteSeq(guid[3]);
+    data << uint32(0); //unk
+    data.WriteByteSeq(guid[2]);
+    data.WriteByteSeq(guid[0]);
+
+    GetSession()->SendPacket(&data);
+}

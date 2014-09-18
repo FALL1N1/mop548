@@ -28895,7 +28895,7 @@ void Player::_LoadResearchDigsites(PreparedQueryResult result)
         if (tempDigsiteMap[digsiteEntry->MapId].size() >= MAX_DIGSITES_PER_CONTINENT)
         {
             TC_LOG_ERROR("entities.player", "Player::_LoadResearchDigsites - Player %s (GUID: %u) is trying to load digsite %u with map id %u, but he has already %u active digsites in the map. Deleting digsite.", GetName().c_str(),
-                GetGUIDLow(), digsiteId, digsiteEntry->MapId, MAX_DIGSITES_PER_CONTINENT);
+                         GetGUIDLow(), digsiteId, digsiteEntry->MapId, MAX_DIGSITES_PER_CONTINENT);
             PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_RESEARCH_DIGSITE);
             stmt->setUInt32(0, GetGUIDLow());
             stmt->setUInt32(1, digsiteId);
@@ -29010,9 +29010,9 @@ ResearchDigsiteInfo const* Player::GetRandomResearchDigsiteForContinent(uint32 m
 
     std::set<uint32> activeDigsitesById;
     for (uint8 i = 0; i < RESEARCH_CONTINENT_COUNT; ++i)
-    for (uint8 j = 0; j < MAX_DIGSITES_PER_CONTINENT; ++j)
-    if (ResearchDigsite* activeDigsite = _researchDigsites[i][j])
-        activeDigsitesById.insert(activeDigsite->GetDigsiteId());
+        for (uint8 j = 0; j < MAX_DIGSITES_PER_CONTINENT; ++j)
+            if (ResearchDigsite* activeDigsite = _researchDigsites[i][j])
+                activeDigsitesById.insert(activeDigsite->GetDigsiteId());
 
     std::list<ResearchDigsiteInfo const*> availableDigsites;
     for (ResearchDigsiteList::const_iterator digsite = digsites->begin(); digsite != digsites->end(); ++digsite)
@@ -29022,8 +29022,8 @@ ResearchDigsiteInfo const* Player::GetRandomResearchDigsiteForContinent(uint32 m
 
         // Patch 4.1.0: Players now have a much smaller chance of getting a dig site for a race for which they have completed all rare finds.
         if (HasCompletedAllRareProjectsForRace(digsite->branchId))
-        if (!roll_chance_i(25))
-            continue;
+            if (!roll_chance_i(25))
+                continue;
 
         // check if digsite is already active
         if (activeDigsitesById.find(digsite->digsiteId) != activeDigsitesById.end())
@@ -29107,7 +29107,7 @@ void Player::_LoadResearchProjects(PreparedQueryResult result)
         if (_researchProjects.find(projectEntry->ResearchBranchId) != _researchProjects.end())
         {
             TC_LOG_ERROR("entities.player", "Player::_LoadResearchProjects - Player (GUID: %u, name: %s) is trying to load reasearch project (id: %u) for branch id %u, but he is already researching another project for this branch.",
-                GetGUIDLow(), GetName().c_str(), projectId, projectEntry->ResearchBranchId);
+                         GetGUIDLow(), GetName().c_str(), projectId, projectEntry->ResearchBranchId);
             continue;
         }
 
@@ -29204,9 +29204,9 @@ void Player::SolveResearchProject(Spell* spell)
 bool Player::HasCompletedAllRareProjectsForRace(uint32 researchBranchId)
 {
     for (uint32 i = 0; i < sResearchProjectStore.GetNumRows(); ++i)
-    if (ResearchProjectEntry const* projectEntry = sResearchProjectStore.LookupEntry(i))
-    if (projectEntry->ResearchBranchId == researchBranchId && projectEntry->Rarity > 0 && !HasCompletedResearchProject(projectEntry->Id))
-        return false;
+        if (ResearchProjectEntry const* projectEntry = sResearchProjectStore.LookupEntry(i))
+            if (projectEntry->ResearchBranchId == researchBranchId && projectEntry->Rarity > 0 && !HasCompletedResearchProject(projectEntry->Id))
+                return false;
 
     return true;
 }
@@ -29214,16 +29214,16 @@ bool Player::HasCompletedAllRareProjectsForRace(uint32 researchBranchId)
 bool Player::HasCompletedAllCommonProjectsForRace(uint32 researchBranchId, bool onlyAvailable)
 {
     for (uint32 i = 0; i < sResearchProjectStore.GetNumRows(); ++i)
-    if (ResearchProjectEntry const* projectEntry = sResearchProjectStore.LookupEntry(i))
-    if (projectEntry->ResearchBranchId == researchBranchId && projectEntry->Rarity == 0 && !HasCompletedResearchProject(projectEntry->Id))
-    {
+        if (ResearchProjectEntry const* projectEntry = sResearchProjectStore.LookupEntry(i))
+            if (projectEntry->ResearchBranchId == researchBranchId && projectEntry->Rarity == 0 && !HasCompletedResearchProject(projectEntry->Id))
+            {
         if (onlyAvailable)
-        if (ResearchProjectRequirements const* requirements = sObjectMgr->GetResearchProjectRequirements(projectEntry->Id))
-        if (GetSkillValue(SKILL_ARCHAEOLOGY) >= requirements->requiredSkillValue)
-            continue;
+            if (ResearchProjectRequirements const* requirements = sObjectMgr->GetResearchProjectRequirements(projectEntry->Id))
+                if (GetSkillValue(SKILL_ARCHAEOLOGY) >= requirements->requiredSkillValue)
+                    continue;
 
         return false;
-    }
+            }
 
     return true;
 }

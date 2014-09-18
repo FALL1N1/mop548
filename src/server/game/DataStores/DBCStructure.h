@@ -551,7 +551,7 @@ struct AreaTableEntry
     uint32  zone;                                           // 2 if 0 then it's zone, else it's zone id of this area
     uint32  exploreFlag;                                    // 3, main index
     uint32  flags;                                          // 5,
-    //uint32 unk1;                                          // 6, Pandaria
+    //uint32 flags;                                         // 6, Pandaria
     //uint32 soundPreferences;                              // 7,
     //uint32 SoundPreferencesUnderwater;                    // 8,
     //uint32 SoundAmbience;                                 // 9,
@@ -565,13 +565,13 @@ struct AreaTableEntry
     float   MaxDepth;                                       // 20,
     float   AmbientMultiplier;                              // 21 client only?
     uint32  LightId;                                        // 22
-    //uint32 unk20;                                         // 23 4.0.0 - Mounting related
-    //uint32 unk21;                                         // 24 4.0.0
-    //uint32 unk22;                                         // 25 4.0.0
-    //uint32 unk23;                                         // 26 4.0.0
-    //uint32 unk24;                                         // 27 - worldStateId
-    //uint32 unk25;                                         // 28, Pandaria
-    //uint32 unk26;                                         // 29, Pandaria
+    //uint32 mountFlags;                                    // 23
+    //uint32 uwZoneMusic;                                   // 24
+    //uint32 uwAmbience;                                    // 25
+    //uint32 world_pvp_id;                                  // 26
+    //uint32 pvpCombatWorldStateID;                         // 27 - worldStateId
+    //uint32 wildBattlePetLevelMin;                         // 28, Pandaria
+    //uint32 wildBattlePetLevelMax;                         // 29, Pandaria
 
     // helpers
     bool IsSanctuary() const
@@ -615,9 +615,9 @@ struct AreaTriggerEntry
     float   x;                                              // 2        m_x
     float   y;                                              // 3        m_y
     float   z;                                              // 4        m_z
-    //uint32                                                // 5
-    //uint32                                                // 6
-    //uint32                                                // 7
+    //phaseUseFlags                                         // 5
+    //phaseID                                               // 6
+    //phaseGroupID                                          // 7
     float   radius;                                         // 8        m_radius
     float   box_x;                                          // 9        m_box_length
     float   box_y;                                          // 10       m_box_width
@@ -682,7 +682,7 @@ struct BattlemasterListEntry
     uint32 minLevel;                                        // 22, min level (sync with PvPDifficulty.dbc content)
     uint32 maxLevel;                                        // 23, max level (sync with PvPDifficulty.dbc content)
     uint32 maxGroupSizeRated;                               // 24 4.0.1
-    //uint32 unk;                                           // 25 - 4.0.6.13596
+    //uint32 minPlayers;                                    // 25 - 4.0.6.13596
     uint32 maxPlayers;                                      // 26 4.0.1
     //uint32 unk1;                                          // 27 4.0.3, value 2 for Rated Battlegrounds
     //uint32 unk2                                           // 28 - Pandaria
@@ -697,7 +697,7 @@ struct CharStartOutfitEntry
     uint8 Race;                                             // 1
     uint8 Class;                                            // 2
     uint8 Gender;                                           // 3
-    //uint8 Unused;                                         // 4
+    //uint8 outfitID;                                       // 4
     int32 ItemId[MAX_OUTFIT_ITEMS];                         // 5-28
     //int32 ItemDisplayId[MAX_OUTFIT_ITEMS];                // 29-52 not required at server side
     //int32 ItemInventorySlot[MAX_OUTFIT_ITEMS];            // 53-76 not required at server side
@@ -708,11 +708,11 @@ struct CharStartOutfitEntry
 struct CharTitlesEntry
 {
     uint32  ID;                                             // 0, title ids, for example in Quest::GetCharTitleId()
-    //uint32      unk1;                                     // 1 flags?
+    //uint32      Condition_ID;                             // 1
     char* name;                                             // 2        m_name_lang
     //char*       name2;                                    // 3        m_name1_lang
     uint32  bit_index;                                      // 4        m_mask_ID used in PLAYER_FIELD_PLAYER_TITLE and 1<<index in PLAYER__FIELD_KNOWN_TITLES
-    //uint32                                                // 5
+    //uint32 flags                                          // 5
 };
 
 struct ChatChannelsEntry
@@ -739,11 +739,11 @@ struct ChrClassesEntry
     uint32 APPerStrenth;                                    // 10       Attack Power bonus per point of strength
     uint32 APPerAgility;                                    // 11       Attack Power bonus per point of agility
     uint32 RAPPerAgility;                                   // 12       Ranged Attack Power bonus per point of agility
-    //uint32 unk1                                           // 13       Pandaria
-    //uint32 unk1                                           // 14       Pandaria
-    //uint32 unk1                                           // 15       Pandaria
-    //uint32 unk1                                           // 16       Pandaria
-    //uint32 unk1                                           // 17       Pandaria
+    //uint32 defaultSpec                                    // 13       Pandaria
+    //uint32 createScreenFileDataID                         // 14       Pandaria
+    //uint32 selectScreenFileDataID                         // 15       Pandaria
+    //uint32 lowResScreenFileDataID                         // 16       Pandaria
+    //uint32 iconFileDataID                                 // 17       Pandaria
 
 };
 
@@ -800,7 +800,7 @@ struct ChrSpecializationEntry
     //char* unkName;                                        // 1
     uint32 classId;                                         // 2
     uint32 specializationSpell;                             // 3
-    // uint32 unk                                           // 4 - prolly MasterySpellId[1] - always 0
+    // uint32 masterySpellID                                // 4 - prolly MasterySpellId[1] - always 0
     uint32 TabPage;                                         // 5
     uint32 PetTabPage;                                      // 6
     uint32 RoleMask;                                        // 7
@@ -1258,7 +1258,7 @@ struct CurrencyTypesEntry
     uint32 TotalCap;                                        // 7
     uint32 WeekCap;                                         // 8
     uint32 Flags;                                           // 9
-    //uint32 unk5                                           // 10 - Pandaria
+    //uint32 quality                                        // 10 - Pandaria
     //char* description;                                    // 11
 
     bool HasPrecision() const   { return Flags & CURRENCY_FLAG_HIGH_PRECISION; }
@@ -1270,28 +1270,28 @@ struct DestructibleModelDataEntry
 {
     uint32  Id;
     uint32  DamagedDisplayId;
-    //uint32  DamagedUnk1;
-    //uint32  DamagedUnk2;
-    //uint32  DamagedUnk3;
+    //uint32 m_state0ImpactEffectDoodadSet;
+    //uint32 m_state0AmbientDoodadSet;
+    //uint32 m_state0NameSet;
     uint32  DestroyedDisplayId;
-    //uint32  DestroyedUnk1;
-    //uint32  DestroyedUnk2;
-    //uint32  DestroyedUnk3;
-    //uint32  DestroyedUnk4;
+    //uint32 m_state1DestructionDoodadSet;
+    //uint32 m_state1ImpactEffectDoodadSet;
+    //uint32 m_state1AmbientDoodadSet;
+    //uint32 m_state1NameSet;
     uint32  RebuildingDisplayId;
-    //uint32  RebuildingUnk1;
-    //uint32  RebuildingUnk2;
-    //uint32  RebuildingUnk3;
-    //uint32  RebuildingUnk4;
+    //uint32 m_state2DestructionDoodadSet;
+    //uint32 m_state2ImpactEffectDoodadSet;
+    //uint32 m_state2AmbientDoodadSet;
+    //uint32 m_state2NameSet;
     uint32  SmokeDisplayId;
-    //uint32  SmokeUnk1;
-    //uint32  SmokeUnk2;
-    //uint32  SmokeUnk3;
-    //uint32  SmokeUnk4;
-    //uint32  UnkDisplayid;
-    //uint32  Unk6;
-    //uint32  Unk7;
-    //uint32  Unk8;
+    //uint32 m_state3InitDoodadSet;
+    //uint32 m_state3AmbientDoodadSet;
+    //uint32 m_state3NameSet;
+    //uint32 m_ejectDirection;
+    //uint32 m_repairGroundFx;
+    //uint32 m_doNotHighlight;
+    //uint32 m_healEffect;
+    //uint32 m_healEffectSpeed;
 };
 
 struct DungeonEncounterEntry
@@ -1299,7 +1299,7 @@ struct DungeonEncounterEntry
     uint32 id;                                              // 0        unique id
     uint32 mapId;                                           // 1        map id
     int32 difficulty;                                       // 2        instance mode
-    //uint32 unk0;                                          // 3
+    //uint32 orderIndex;                                    // 3
     uint32 encounterIndex;                                  // 4        encounter index for creating completed mask
     char* encounterName;                                    // 5        encounter name
     //uint32 nameFlags;                                     // 6
@@ -1329,7 +1329,7 @@ struct EmotesEntry
     uint32  EmoteType;                                      // 4, Can be 0, 1 or 2 (determine how emote are shown)
     uint32  UnitStandState;                                 // 5, uncomfirmed, may be enum UnitStandStateType
     //uint32 SoundId;                                       // 6, ref to soundEntries
-    //uint32 unk7                                           // 7
+    //uint32 SpellVisualKitID                               // 7
 };
 
 struct EmotesTextEntry
@@ -1354,8 +1354,8 @@ struct FactionEntry
     char*       name;                                       // 23       m_name_lang
     //char*     description;                                // 24       m_description_lang
     uint32      GroupExpansion;                             // 25       m_factionGroupExpansion
-    //uint      unk1                                        // 26 - Pandaria
-    //uint      unk2                                        // 27 - Pandaria
+    //uint      flags                                       // 26 - Pandaria
+    //uint      friendshipRepID                             // 27 - Pandaria
 
     // helpers
     bool CanHaveReputation() const
@@ -1424,7 +1424,7 @@ struct GameObjectDisplayInfoEntry
 {
     uint32      Displayid;                                  // 0        m_ID
     char* filename;                                         // 1
-    //uint32  unk1[10];                                     //2-11
+    //uint32  Sound[10];                                     //2-11
     float   minX;
     float   minY;
     float   minZ;
@@ -2014,7 +2014,7 @@ struct ResearchBranchEntry
 //{
 //    uint32 Id;                                            // 0
 //    char* FieldName;                                      // 1
-//    uint32 unk1;                                          // 2
+//    uint32 slot;                                          // 2
 //};
 
 struct ResearchProjectEntry
@@ -2098,8 +2098,8 @@ struct SkillLineEntry
     uint32    spellIcon;                                    // 5        m_spellIconID
     //char*     alternateVerb;                              // 6        m_alternateVerb_lang
     uint32    canLink;                                      // 7        m_canLink (prof. with recipes)
-    //uint32 unk1                                           // 8 - Pandaria
-    //uint32 unkFlags                                       // 9 - Pandaria
+    //uint32 parentSkillLineID                              // 8 - Pandaria
+    //uint32 flags                                          // 9 - Pandaria
 };
 
 struct SkillLineAbilityEntry
@@ -2185,13 +2185,13 @@ struct SpellAuraOptionsEntry
 {
     uint32    Id;                                           // 0       m_ID
     //uint32  spellId;                                      // 1  - Pandaria
-    //uint32  unk0;                                         // 2  - Panadraia always  after spellId
+    //uint32  difficultyID;                                 // 2  - Panadraia always  after spellId
     uint32    StackAmount;                                  // 3       m_cumulativeAura
     uint32    procChance;                                   // 4       m_procChance
     uint32    procCharges;                                  // 5       m_procCharges
     uint32    procFlags;                                    // 6       m_procTypeMask
-    //uint32  unk1                                          // 7 - Pandaria
-    //uint32  unk2                                          // 8 - Pandaria
+    //uint32  procCategoryRecovery                          // 7 - Pandaria
+    //uint32  spellProcsPerMinuteID                         // 8 - Pandaria
 };
 
 // SpellAuraRestrictions.dbc/
@@ -2267,7 +2267,7 @@ struct SpellMiscEntry
 {
     uint32    Id;                                           // 0        m_ID
     //uint32  SpellId                                       // 1
-    //uint32  Unk                                           // 2
+    //uint32  difficultyID                                  // 2
     uint32    Attributes;                                   // 3        m_attribute
     uint32    AttributesEx;                                 // 4        m_attributesEx
     uint32    AttributesEx2;                                // 5        m_attributesExB
@@ -2308,14 +2308,14 @@ struct SpellCategoriesEntry
 {
     //uint32    Id;                                         // 0        m_ID
     //uint32 spellId;                                       // 1  - Pandaria
-    //uint32 unk0;                                          // 2  - Pandaria always after spellId
+    //uint32 difficultyID;                                  // 2  - Pandaria always after spellId
     uint32    Category;                                     // 3        m_category
     uint32    DmgClass;                                     // 4        m_defenseType
     uint32    Dispel;                                       // 5        m_dispelType
     uint32    Mechanic;                                     // 6        m_mechanic
     uint32    PreventionType;                               // 7        m_preventionType
     uint32    StartRecoveryCategory;                        // 8        m_startRecoveryCategory
-    //uint32 unk1;                                          // 9  - Pandaria
+    //uint32 chargeCategory;                                // 9  - Pandaria
 
 };
 
@@ -2339,10 +2339,10 @@ struct SpellCategoryEntry
 {
     uint32 Id;
     uint32 Flags;
-    // uint32 unk;
+    // uint32 usesPerWeek;
     // char* Name;
-    // uint32 unk  - Pandaria
-    // uint32 unk2 - Pandaria - could be shared CD
+    // uint32 maxCharges  - Pandaria
+    // uint32 chargeRecoveryTime - Pandaria - could be shared CD
 };
 
 struct SpellDifficultyEntry
