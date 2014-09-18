@@ -48,7 +48,7 @@ struct StatsBySlot
 {
     StatsBySlot(RatedType type) : Type(type), WeekGames(0),
         WeekWins(0), SeasonGames(0), SeasonWins(0), WeekBest(0), 
-        SeasonBest(0), PersonalRating(0), MatchMakerRating(0) { }
+        SeasonBest(0), PersonalRating(0) { }
 
     RatedType Type;
     uint16 WeekGames;
@@ -58,10 +58,8 @@ struct StatsBySlot
     uint16 WeekBest;
     uint16 SeasonBest;
     uint16 PersonalRating;
-    uint16 MatchMakerRating;
 
     void ModifyRating(int32 mod);
-    void ModifyMatchmakerRating(int32 mod);
     float GetChanceAgainst(uint32 ownRating, uint32 opponentRating) const;
     int32 GetMatchmakerRatingMod(uint32 ownRating, uint32 opponentRating, bool won) const;
     int32 GetRatingMod(uint32 ownRating, uint32 opponentRating, bool won) const;
@@ -77,9 +75,12 @@ public:
 
     void FinishWeek();
     void SaveToDB(RatedType ratedType);
-    uint64 GetGUID() { return m_guid; } const
+    uint64 GetGUID() const { return m_guid; }
     StatsBySlot* GetStatsBySlot(RatedType ratedType) { return m_ratedStats[ratedType]; }
     void UpdateStats(RatedType ratedType, uint32 againstMatchmakerRating, int16 &ratingChange, int16 &matchmakerRatingChange, bool won, bool offline);
+    uint16 GetMatchMakerRating() const { return m_matchmakerRating; }
+    void SetMatchMakerRating(uint16 mmr) { m_matchmakerRating = mmr; }
+    void ModifyMatchmakerRating(int32 mod);
 
     // Static methods
     static bool IsArenaSlot(uint8 slot) { return (slot < 3); }
@@ -89,6 +90,7 @@ public:
 
 private:
     RatedStats m_ratedStats;
+    uint16 m_matchmakerRating;
     uint64 m_guid;
 };
 

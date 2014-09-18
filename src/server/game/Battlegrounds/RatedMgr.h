@@ -37,6 +37,7 @@ public:
     void LoadRatedInfo();
     void AddRatedInfo(RatedInfo* ratedInfo);
     void RemoveRatedInfo(RatedInfo* ratedInfo);
+    void FinishWeek();
 
     RatedInfoContainer::iterator GetRatedInfoMapBegin() { return m_ratedInfoStore.begin(); }
     RatedInfoContainer::iterator GetRatedInfoMapEnd()   { return m_ratedInfoStore.end();   }

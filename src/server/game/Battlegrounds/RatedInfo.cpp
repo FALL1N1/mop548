@@ -28,15 +28,14 @@
 #include "WorldSession.h"
 #include "Opcodes.h"
 
-RatedInfo::RatedInfo(uint64 guid) : m_guid(guid)
+RatedInfo::RatedInfo(uint64 guid) : m_guid(guid), m_matchmakerRating(sWorld->getIntConfig(CONFIG_ARENA_START_MATCHMAKER_RATING))
 {
     for (uint8 i = 0; i < MAX_RATED_SLOT; ++i)
     {
         RatedType type = GetRatedTypeBySlot(i);        
-        StatsBySlot* statsBySlot = new StatsBySlot(type);        
+        StatsBySlot* statsBySlot = new StatsBySlot(type);
 
-        statsBySlot->PersonalRating     = sWorld->getIntConfig(CONFIG_ARENA_START_RATING);
-        statsBySlot->MatchMakerRating   = sWorld->getIntConfig(CONFIG_ARENA_START_MATCHMAKER_RATING);
+        statsBySlot->PersonalRating = sWorld->getIntConfig(CONFIG_ARENA_START_RATING);
 
         m_ratedStats[type] = statsBySlot;
     }
@@ -59,15 +58,15 @@ RatedInfo::~RatedInfo()
 
 void RatedInfo::UpdateStats(RatedType ratedType, uint32 againstMatchmakerRating, int16 &ratingChange, int16 &matchmakerRatingChange, bool won, bool offline)
 {
-    StatsBySlot* stats = const_cast<StatsBySlot*>(GetStatsBySlot(ratedType));
+    StatsBySlot* stats = GetStatsBySlot(ratedType);
 
     // update rating
     ratingChange = stats->GetRatingMod(stats->PersonalRating, againstMatchmakerRating, !offline);
     stats->ModifyRating(ratingChange);
 
     // update matchmaker rating
-    matchmakerRatingChange = stats->GetMatchmakerRatingMod(stats->MatchMakerRating, againstMatchmakerRating, won);
-    stats->ModifyMatchmakerRating(matchmakerRatingChange);
+    matchmakerRatingChange = stats->GetMatchmakerRatingMod(m_matchmakerRating, againstMatchmakerRating, won);
+    ModifyMatchmakerRating(matchmakerRatingChange);
 
     // update game stats
     stats->SeasonGames += 1;
@@ -85,8 +84,6 @@ void RatedInfo::UpdateStats(RatedType ratedType, uint32 againstMatchmakerRating,
     }
 
     SaveToDB(ratedType);
-
-    return;
 }
 
 void RatedInfo::SaveToDB(RatedType ratedType)
@@ -97,9 +94,8 @@ void RatedInfo::SaveToDB(RatedType ratedType)
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_RATED_BATTLEGROUND_STATS);
-
     StatsBySlot const* stats = GetStatsBySlot(ratedType);
-    stmt->setUInt16(0, GUID_LOPART(GetGUID()));
+    stmt->setUInt32(0, GUID_LOPART(GetGUID()));
     stmt->setUInt8 (1, GetRatedSlotByType(ratedType));
     stmt->setUInt16(2, stats->WeekGames);
     stmt->setUInt16(3, stats->WeekWins);
@@ -108,8 +104,12 @@ void RatedInfo::SaveToDB(RatedType ratedType)
     stmt->setUInt16(6, stats->SeasonWins);
     stmt->setUInt16(7, stats->SeasonBest);
     stmt->setUInt16(8, stats->PersonalRating);
-    stmt->setUInt16(9, stats->MatchMakerRating);
     trans->Append(stmt);
+
+    PreparedStatement* stmt2 = CharacterDatabase.GetPreparedStatement(CHAR_REP_RATED_BATTLEGROUND_MATCHMAKER_RATING);
+    stmt2->setUInt32(0, GUID_LOPART(GetGUID()));
+    stmt2->setUInt16(1, GetMatchMakerRating());
+    trans->Append(stmt2);
 
     CharacterDatabase.CommitTransaction(trans);
 }
@@ -145,24 +145,20 @@ void RatedInfo::FinishWeek()
     for (uint8 i = 0; i < MAX_RATED_SLOT; ++i)
     {
         RatedType ratedType = GetRatedTypeBySlot(i);
-        StatsBySlot* stats = const_cast<StatsBySlot*>(GetStatsBySlot(ratedType));
+        StatsBySlot* stats = GetStatsBySlot(ratedType);
+
         stats->WeekGames = 0;
         stats->WeekWins = 0;
         stats->WeekBest = 0;
-
-        // Finally save settings to db (we should do this globally in order to save db access count);
-        SaveToDB(ratedType);
     }
 }
 
-// ------------------------- End of RatedInfo ----------------------------
-
-void StatsBySlot::ModifyMatchmakerRating(int32 mod)
+void RatedInfo::ModifyMatchmakerRating(int32 mod)
 {
-    if (int32(MatchMakerRating) + mod < 0)
-        MatchMakerRating = 0;
+    if (int32(m_matchmakerRating) + mod < 0)
+        m_matchmakerRating = 0;
     else
-        MatchMakerRating += mod;
+        m_matchmakerRating += mod;
 }
 
 void StatsBySlot::ModifyRating(int32 mod)
@@ -237,5 +233,3 @@ float StatsBySlot::GetChanceAgainst(uint32 ownRating, uint32 opponentRating) con
     // ELO system
     return 1.0f / (1.0f + exp(log(10.0f) * (float)((float)opponentRating - (float)ownRating) / 650.0f));
 }
-
-// ------------------------------- End of StatsBySlot ----------------------------

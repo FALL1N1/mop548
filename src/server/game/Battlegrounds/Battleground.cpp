@@ -589,7 +589,7 @@ inline void Battleground::_ProcessJoin(uint32 diff)
             {
                 RatedInfo* rInfo = sRatedMgr->GetRatedInfo(player->GetGUID());
                 const StatsBySlot* stats = rInfo->GetStatsBySlot(GetRatedType());
-                UpdatePlayerScore(player, SCORE_PRE_MATCH_MMR, stats->MatchMakerRating);
+                UpdatePlayerScore(player, SCORE_PRE_MATCH_MMR, rInfo->GetMatchMakerRating());
                 UpdatePlayerScore(player, SCORE_PRE_MATCH_PERSONAL_RATING, stats->PersonalRating);
             }
         }

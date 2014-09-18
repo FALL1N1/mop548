@@ -52,6 +52,7 @@
 #include "MapManager.h"
 #include "CreatureAIRegistry.h"
 #include "BattlegroundMgr.h"
+#include "RatedMgr.h"
 #include "OutdoorPvPMgr.h"
 #include "TemporarySummon.h"
 #include "WaypointMovementGenerator.h"
@@ -1781,6 +1782,9 @@ void World::SetInitialWorldSettings()
 
     TC_LOG_INFO("server.loading", "Loading GM surveys...");
     sTicketMgr->LoadSurveys();
+
+    TC_LOG_INFO("server.loading", "Loarding Rated Stas...");
+    sRatedMgr->LoadRatedInfo();
 
     TC_LOG_INFO("server.loading", "Loading client addons...");
     AddonMgr::LoadFromDB();

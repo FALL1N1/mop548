@@ -70,15 +70,64 @@ void RatedMgr::RemoveRatedInfo(RatedInfo* info)
     m_ratedInfoStore.erase(itr->first);
 }
 
+void RatedMgr::FinishWeek()
+{
+    // Resets all week stats
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_RATED_BATTLEGROUND_FINISH_WEEK);
+    PreparedQueryResult result = CharacterDatabase.Query(stmt);
+
+    for (RatedInfoContainer::iterator itr = m_ratedInfoStore.begin(); itr != m_ratedInfoStore.end(); ++itr)
+    {
+        itr->second->FinishWeek();
+    }
+}
+
 void RatedMgr::LoadRatedInfo()
 {
     uint32 oldMSTime = getMSTime();
 
-    // Delete incorrect gargage
-    CharacterDatabase.Execute("DELETE FROM character_rated_stats crbs LEFT JOIN characters c ON crbs.guid = c.guid WHERE c.guid IS NULL");
+    // Delete all stats and mmr records with non existent characters
+    CharacterDatabase.Execute("DELETE crs.* FROM character_rated_stats crs LEFT JOIN characters c ON crs.guid = c.guid WHERE c.guid IS NULL");
+    CharacterDatabase.Execute("DELETE crmr.* FROM character_rated_matchmaker_rating crmr LEFT JOIN characters c ON crmr.guid = c.guid WHERE c.guid IS NULL");
 
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_RATED_BATTLEGROUND_STATS);
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_RATED_BATTLEGROUND_MATCHMAKER_RATING);
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
+
+    std::unordered_map<uint64, uint16> playersMMRCache;
+
+    if (result)
+    {
+        do
+        {
+            uint8 index = 0;
+            Field* fields = result->Fetch();
+            uint64 guid = fields[index++].GetUInt32();
+            uint16 matchmakerRating = fields[index++].GetUInt16();
+
+            playersMMRCache[guid] = matchmakerRating;
+        } 
+        while (result->NextRow());
+    }
+    else
+    {
+        TC_LOG_INFO("server.loading", ">> Loaded 0 matchmaker ratings. DB table `character_rated_matchmaker_rating` is empty!");
+    }
+
+    auto getPlayersMMR = [playersMMRCache](uint64 guid) -> uint16
+    {
+        std::unordered_map<uint64, uint16>::const_iterator itr = playersMMRCache.find(guid);
+        if (itr != playersMMRCache.end())
+        {
+            return itr->second;
+        }
+        else // no mmr record in db
+        {
+            return sWorld->getIntConfig(CONFIG_ARENA_START_RATING);
+        }            
+    };
+
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_RATED_BATTLEGROUND_STATS);
+    result = CharacterDatabase.Query(stmt);
 
     if (!result)
     {
@@ -96,8 +145,9 @@ void RatedMgr::LoadRatedInfo()
     {
         Field* fields = result->Fetch();
 
-        uint64 guid = fields[0].GetUInt64();
-        uint8 slot = fields[1].GetUInt8();
+        uint8 index = 0;
+        uint64 guid = fields[index++].GetUInt32();
+        uint8 slot = fields[index++].GetUInt8();
 
         // Validity Check
         if (slot >= MAX_RATED_SLOT)
@@ -110,23 +160,23 @@ void RatedMgr::LoadRatedInfo()
         {
             lastGuid = guid;
             info = new RatedInfo(guid);
+            info->SetMatchMakerRating(getPlayersMMR(guid));
         }
 
         RatedType ratedType = RatedInfo::GetRatedTypeBySlot(slot);
 
         // stats for all stats should be always initialized to default values
-        StatsBySlot* stats = const_cast<StatsBySlot*>(info->GetStatsBySlot(ratedType));
+        StatsBySlot* stats = info->GetStatsBySlot(ratedType);
         ASSERT(stats);
-
+        
         // everything is ok, load stats for current slot
-        stats->WeekGames = fields[2].GetUInt16();
-        stats->WeekWins = fields[3].GetUInt16();
-        stats->WeekBest = fields[4].GetUInt16();
-        stats->SeasonGames = fields[5].GetUInt16();
-        stats->SeasonWins = fields[6].GetUInt16();
-        stats->SeasonBest = fields[7].GetUInt16();
-        stats->PersonalRating = fields[8].GetUInt16();
-        stats->MatchMakerRating = fields[9].GetUInt16();       
+        stats->WeekGames = fields[index++].GetUInt16();
+        stats->WeekWins = fields[index++].GetUInt16();
+        stats->WeekBest = fields[index++].GetUInt16();
+        stats->SeasonGames = fields[index++].GetUInt16();
+        stats->SeasonWins = fields[index++].GetUInt16();
+        stats->SeasonBest = fields[index++].GetUInt16();
+        stats->PersonalRating = fields[index++].GetUInt16();  
 
         ++count;
     }

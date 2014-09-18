@@ -2333,12 +2333,12 @@ GroupRatedStats Group::GetRatedStats(RatedType ratedType)
             continue;
 
         RatedInfo* rinfo = sRatedMgr->GetRatedInfo(member->GetGUID());
-        ASSERT(rinfo);
+        ASSERT(rinfo && "RatedInfo must be initialized");
 
-        StatsBySlot* stats = const_cast<StatsBySlot*>(rinfo->GetStatsBySlot(ratedType));
-        ASSERT(stats);
+        const StatsBySlot* stats = rinfo->GetStatsBySlot(ratedType);
+        ASSERT(stats && "Stats must be initialized");
 
-        matchMakerRating += stats->MatchMakerRating;
+        matchMakerRating += rinfo->GetMatchMakerRating();
         rating += stats->PersonalRating;
         ++playerDivider;
     }

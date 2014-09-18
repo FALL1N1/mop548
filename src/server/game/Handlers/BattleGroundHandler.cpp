@@ -95,14 +95,8 @@ void WorldSession::HandleBattlemasterJoinOpcode(WorldPacket& recvData)
     guid[2] = recvData.ReadBit();
     guid[5] = recvData.ReadBit();
 
-    recvData.ReadByteSeq(guid[7]);
-    recvData.ReadByteSeq(guid[2]);
-    recvData.ReadByteSeq(guid[4]);
-    recvData.ReadByteSeq(guid[5]);
-    recvData.ReadByteSeq(guid[0]);
-    recvData.ReadByteSeq(guid[6]);
-    recvData.ReadByteSeq(guid[3]);
-    recvData.ReadByteSeq(guid[1]);
+    uint8 byteOrder[8] = { 7, 2, 4, 5, 0, 6, 3, 1 };
+    recvData.ReadBytesSeq(guid, byteOrder);
 
     if (hasRoleMask)
         recvData >> roleMask; // Need to set this as group role later
@@ -798,7 +792,7 @@ void WorldSession::HandleRequestRatedInfo(WorldPacket & recvData)
     {
         RatedType ratedType = RatedInfo::GetRatedTypeBySlot(i);
 
-        StatsBySlot const *stats = rInfo->GetStatsBySlot(ratedType);
+        const StatsBySlot* stats = rInfo->GetStatsBySlot(ratedType);
         ASSERT(stats && "Stats must be already initialized");
         
         data << uint32(0); // unk always 0, maybe this should be projected cap
