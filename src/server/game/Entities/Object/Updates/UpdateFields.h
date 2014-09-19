@@ -53,12 +53,6 @@ enum EItemFields
     ITEM_END                                                 = OBJECT_END + 0x3D,
 };
 
-enum ItemDynamicFields
-{
-    ITEM_DYNAMIC_FIELD_MODIFIERS                             = 0x000, //  Flags: OWNER
-    ITEM_DYNAMIC_END                                         = 0x001,
-};
-
 enum EContainerFields
 {
     CONTAINER_FIELD_SLOTS                                    = ITEM_END + 0x00, // Size: 72, Flags: UF_FLAG_PUBLIC
@@ -149,13 +143,6 @@ enum EUnitFields
     UNIT_FIELD_BATTLE_PET_COMPANION_NAME_TIMESTAMP           = OBJECT_END + 0x96, // Size: 1, Flags: UF_FLAG_PUBLIC
     UNIT_FIELD_INTERACT_SPELL_ID                             = OBJECT_END + 0x97, // Size: 1, Flags: UF_FLAG_PUBLIC
     UNIT_END                                                 = OBJECT_END + 0x98
-};
-
-enum UnitDynamicField
-{
-    UNIT_DYNAMIC_FIELD_PASSIVE_SPELLS                        = 0x000, //  Flags: PUBLIC, 0x100
-    UNIT_DYNAMIC_FIELD_WORLD_EFFECTS                         = 0x001, //  Flags: PUBLIC, 0x100
-    UNIT_DYNAMIC_END                                         = 0x002,
 };
 
 enum EPlayerFields
@@ -265,14 +252,6 @@ enum EPlayerFields
     PLAYER_END                                               = UNIT_END + 0x723
 };
 
-enum PlayerDynamicField
-{
-    PLAYER_DYNAMIC_FIELD_RESERACH_SITE_1                     = 0x000, //  Flags: PRIVATE
-    PLAYER_DYNAMIC_FIELD_RESEARCH_SITE_PROGRESS_1            = 0x001, //  Flags: PRIVATE
-    PLAYER_DYNAMIC_FIELD_DAILY_QUESTS                        = 0x002, //  Flags: PRIVATE
-    PLAYER_DYNAMIC_END                                       = 0x003,
-};
-
 enum EGameObjectFields
 {
     GAMEOBJECT_FIELD_CREATED_BY                              = OBJECT_END + 0x0, // Size: 2, Flags: UF_FLAG_PUBLIC
@@ -326,6 +305,32 @@ enum ESceneObjectFields
     SCENEOBJECT_FIELD_CREATED_BY                             = OBJECT_END + 0x2, // Size: 2, Flags: UF_FLAG_PUBLIC
     SCENEOBJECT_FIELD_SCENE_TYPE                             = OBJECT_END + 0x4, // Size: 1, Flags: UF_FLAG_PUBLIC
     SCENEOBJECT_FIELD_END                                    = OBJECT_END + 0x5
+};
+
+enum EObjectDynamicFields
+{
+    OBJECT_DYNAMIC_END                                       = 0x0,
+};
+
+enum EUnitDynamicFields
+{
+    UNIT_DYNAMIC_FIELD_PASSIVE_SPELLS                        = OBJECT_DYNAMIC_END + 0x0, // Size: 0x1
+    UNIT_DYNAMIC_FIELD_WORLD_EFFECTS                         = OBJECT_DYNAMIC_END + 0x1, // Size: 0x1
+    UNIT_DYNAMIC_END                                         = OBJECT_DYNAMIC_END + 0x2,
+};
+
+enum EPlayerDynamicFields
+{
+    PLAYER_DYNAMIC_FIELD_RESERACH_SITE                       = UNIT_DYNAMIC_END + 0x0, // Size: 0x1
+    PLAYER_DYNAMIC_FIELD_RESEARCH_SITE_PROGRESS              = UNIT_DYNAMIC_END + 0x1, // Size: 0x1
+    PLAYER_DYNAMIC_FIELD_DAILY_QUESTS                        = UNIT_DYNAMIC_END + 0x2, // Size: 0x1
+    PLAYER_DYNAMIC_END                                       = UNIT_DYNAMIC_END + 0x3
+};
+
+enum EItemDynamicFields
+{
+    ITEM_DYNAMIC_FIELD_MODIFIERS                             = OBJECT_DYNAMIC_END + 0x0, // Size: 0x1
+    ITEM_DYNAMIC_END                                         = OBJECT_DYNAMIC_END + 0x1
 };
 
 #endif // _UPDATEFIELDS_H

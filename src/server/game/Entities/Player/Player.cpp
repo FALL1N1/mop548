@@ -28946,7 +28946,7 @@ void Player::UpdateResearchDigsites()
             {
                 uint32 field = i * 2 + j / 2;
                 uint32 offset = j & 1; // j % 2
-                //SetUInt16Value(PLAYER_FIELD_RESERACH_SITE_1 + field, offset, _researchDigsites[i][j]->GetDigsiteId());
+                //SetDynamicUInt32Value(PLAYER_DYNAMIC_FIELD_RESERACH_SITE, offset, _researchDigsites[i][j]->GetDigsiteId());
             }
         }
     }
@@ -29324,9 +29324,8 @@ void Player::UpdateResearchProjects()
 
     for (uint8 i = 0; i < RESEARCH_BRANCH_COUNT; ++i)
     {
-        uint32 field = i / 2;
-        uint32 offset = i & 1; // i % 2
-        SetUInt16Value(PLAYER_FIELD_RESEARCHING + field, offset, projectIds[i]);
+        uint32 offset = i % 2;
+        //SetDynamicUInt32Value(PLAYER_DYNAMIC_FIELD_RESEARCH_SITE_PROGRESS, i % 2, projectIds[i]);
     }
 }
 
