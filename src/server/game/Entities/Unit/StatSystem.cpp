@@ -166,6 +166,7 @@ bool Player::UpdateAllStats()
     UpdateExpertise(OFF_ATTACK);
     UpdateExpertise(RANGED_ATTACK);
     RecalculateRating(CR_ARMOR_PENETRATION);
+    UpdateMastery();
     for (int i = SPELL_SCHOOL_NORMAL; i < MAX_SPELL_SCHOOL; ++i)
         UpdateResistances(i);
 
