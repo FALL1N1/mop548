@@ -9283,17 +9283,6 @@ uint32 Unit::SpellDamageBonusTaken(Unit* caster, SpellInfo const* spellProto, ui
 
 int32 Unit::SpellBaseDamageBonusDone(SpellSchoolMask schoolMask) const
 {
-    int32 amount = 0;
-
-    AuraEffectList const& oSPbyAPPct = GetAuraEffectsByType(SPELL_AURA_OVERRIDE_SPELL_POWER_BY_AP_PCT);
-    if (!oSPbyAPPct.empty())
-    {
-        for (AuraEffectList::const_iterator i = oSPbyAPPct.begin(); i != oSPbyAPPct.end(); ++i)
-            amount += (*i)->GetAmount();
-
-        return (int32)GetTotalAttackPowerValue(BASE_ATTACK)*amount / 100;
-    }
-
     int32 DoneAdvertisedBenefit = 0;
 
     AuraEffectList const& mDamageDone = GetAuraEffectsByType(SPELL_AURA_MOD_DAMAGE_DONE);
@@ -9331,7 +9320,16 @@ int32 Unit::SpellBaseDamageBonusDone(SpellSchoolMask schoolMask) const
         for (AuraEffectList::const_iterator i = mDamageDonebyAP.begin(); i != mDamageDonebyAP.end(); ++i)
             if ((*i)->GetMiscValue() & schoolMask)
                 DoneAdvertisedBenefit += int32(CalculatePct(GetTotalAttackPowerValue(BASE_ATTACK), (*i)->GetAmount()));
-
+        
+        AuraEffectList const& mOverrideSpellpower = GetAuraEffectsByType(SPELL_AURA_OVERRIDE_SPELL_POWER_BY_AP_PCT);
+        for (AuraEffectList::const_iterator i = mOverrideSpellpower.begin(); i != mOverrideSpellpower.end(); ++i)
+        {
+            if (((*i)->GetMiscValue() & schoolMask))
+            {
+                int32 attackPower = GetTotalAttackPowerValue(BASE_ATTACK);
+                DoneAdvertisedBenefit = (*i)->GetAmount() * attackPower / 100;
+            }
+        }
     }
 
     AuraEffectList const& mSpellPowerPct = GetAuraEffectsByType(SPELL_AURA_MOD_SPELL_POWER_PCT);

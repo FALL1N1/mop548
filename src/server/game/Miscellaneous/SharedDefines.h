@@ -1027,6 +1027,37 @@ enum SpellEffects
     SPELL_EFFECT_180                                = 180, // Unused (4.3.4)
     SPELL_EFFECT_REMOVE_TALENT                      = 181, // Eg: Tome of the Clear Mind
     SPELL_EFFECT_182                                = 182,
+    SPELL_EFFECT_183                                = 183,
+    SPELL_EFFECT_REPUTATION_REWARD                  = 184, // add 400 (normal) 800 (10/25 player mode) Avengers of Hyjal (TDF ?) see 73843
+    SPELL_EFFECT_185                                = 185, // Scene related
+    SPELL_EFFECT_186                                = 186, // Scene related
+    SPELL_EFFECT_RANDOM_DIGSITE                     = 187, // 126957 only
+    SPELL_EFFECT_STAMPEDE                           = 188, // Stampede 121818
+    SPELL_EFFECT_LOOT_BONUS                         = 189, // Boss loot bonus ?
+    SPELL_EFFECT_190                                = 190, // 1 internal spell
+    SPELL_EFFECT_TELEPORT_TO_DIGSITE                = 191, // Teleport player to an random digsite (Archaeology)
+    SPELL_EFFECT_UNCAGE_PET                         = 192, // Battle pet exchange (123302)
+    SPELL_EFFECT_193                                = 193, // Unused (5.0.5)
+    SPELL_EFFECT_194                                = 194, // Unused (5.0.5)
+    SPELL_EFFECT_195                                = 195, // Scene related
+    SPELL_EFFECT_196                                = 196, // summon multi NPC
+    SPELL_EFFECT_197                                = 197, // 130243 only
+    SPELL_EFFECT_198                                = 198, // Mini scene event
+    SPELL_EFFECT_199                                = 199, // 129857
+    SPELL_EFFECT_HEAL_BATTLEPET_PCT                 = 200, // Battle pet Healing  125439, 125801
+    SPELL_EFFECT_BATTLE_PET                         = 201, // Battle pet first slot and track
+    SPELL_EFFECT_202                                = 202,
+    SPELL_EFFECT_203                                = 203,
+    SPELL_EFFECT_204                                = 204,
+    SPELL_EFFECT_205                                = 205,
+    SPELL_EFFECT_206                                = 206,
+    SPELL_EFFECT_207                                = 207,
+    SPELL_EFFECT_208                                = 208,
+    SPELL_EFFECT_209                                = 209,
+    SPELL_EFFECT_210                                = 210,
+    SPELL_EFFECT_211                                = 211,
+    SPELL_EFFECT_212                                = 212,
+    SPELL_EFFECT_213                                = 213,
     TOTAL_SPELL_EFFECTS                             = 214,
 };
 

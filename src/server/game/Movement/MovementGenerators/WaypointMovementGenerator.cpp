@@ -263,10 +263,14 @@ void FlightPathMovementGenerator::DoFinalize(Player* player)
     player->RemoveFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_TAXI_BENCHMARK);
 }
 
-#define PLAYER_FLIGHT_SPEED 32.0f
-
 void FlightPathMovementGenerator::DoReset(Player* player)
 {
+    float playerFlightSpeed = 32.0f;
+
+    Unit::AuraEffectList const& mIncreaseTaxiFlightSpeed = player->GetAuraEffectsByType(SPELL_AURA_MOD_TAXI_FLIGHT_SPEED);
+    for (Unit::AuraEffectList::const_iterator i = mIncreaseTaxiFlightSpeed.begin(); i != mIncreaseTaxiFlightSpeed.end(); ++i)
+         AddPct(playerFlightSpeed, (*i)->GetAmount());
+
     player->getHostileRefManager().setOnlineOfflineState(false);
     player->AddUnitState(UNIT_STATE_IN_FLIGHT);
     player->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_TAXI_FLIGHT);
@@ -283,7 +287,7 @@ void FlightPathMovementGenerator::DoReset(Player* player)
     init.SetSmooth();
     init.SetUncompressed();
     init.SetWalk(true);
-    init.SetVelocity(PLAYER_FLIGHT_SPEED);
+    init.SetVelocity(playerFlightSpeed);
     init.Launch();
 }
 

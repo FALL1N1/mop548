@@ -434,37 +434,37 @@ enum AuraType
     SPELL_AURA_372                                          = 372,
     SPELL_AURA_373                                          = 373,  // SPELL_AURA_ALLOW_ONLY_ABILITY2 ??
     SPELL_AURA_MODIFY_FALL_DAMAGE_PCT                       = 374,
-    // 375 unusued
+    SPELL_AURA_375                                          = 375,
     SPELL_AURA_MOD_CURRENCY_GAIN2                           = 376,
     SPELL_AURA_CAST_WHILE_WALKING2                          = 377,
-    // 378 unusued
+    SPELL_AURA_378                                          = 378,
     SPELL_AURA_379                                          = 379,
-    // 380 unused
+    SPELL_AURA_380                                          = 380,
     SPELL_AURA_381                                          = 381,
     SPELL_AURA_382                                          = 382,
-    SPELL_AURA_383                                          = 383,
-    // 384 unused
+    SPELL_AURA_ALLOW_CAST_WHILE_IN_COOLDOWN                 = 383,
+    SPELL_AURA_384                                          = 384,
     SPELL_AURA_385                                          = 385,
     SPELL_AURA_386                                          = 386,
     SPELL_AURA_387                                          = 387,
-    SPELL_AURA_388                                          = 388,
-    // 389 unused
-    // 390 unused
-    // 391 unused
-    // 392 unused
+    SPELL_AURA_MOD_TAXI_FLIGHT_SPEED                        = 388,
+    SPELL_AURA_389                                          = 389,
+    SPELL_AURA_390                                          = 390,
+    SPELL_AURA_391                                          = 391,
+    SPELL_AURA_392                                          = 392,
     SPELL_AURA_393                                          = 393,
     SPELL_AURA_394                                          = 394,
     SPELL_AURA_395                                          = 395,
     SPELL_AURA_396                                          = 396,
     SPELL_AURA_397                                          = 397,
     SPELL_AURA_398                                          = 398,
-    // 399 unused
+    SPELL_AURA_399                                          = 399,
     SPELL_AURA_400                                          = 400,
     SPELL_AURA_401                                          = 401,
     SPELL_AURA_402                                          = 402,
     SPELL_AURA_403                                          = 403,
     SPELL_AURA_OVERRIDE_AP_BY_SPELL_POWER_PCT               = 404,
-    SPELL_AURA_405                                          = 405,
+    SPELL_AURA_INCREASE_HASTE_MASTERY_FROM_ITEMS_BY_PCT     = 405,
     SPELL_AURA_406                                          = 406,
     SPELL_AURA_407                                          = 407,
     SPELL_AURA_408                                          = 408,
@@ -475,7 +475,7 @@ enum AuraType
     SPELL_AURA_413                                          = 413,
     SPELL_AURA_414                                          = 414,
     SPELL_AURA_415                                          = 415,
-    SPELL_AURA_416                                          = 416,
+    SPELL_AURA_SANCTITY_OF_BATTLE                           = 416,
     SPELL_AURA_417                                          = 417,
     SPELL_AURA_418                                          = 418,
     SPELL_AURA_419                                          = 419,
@@ -484,7 +484,7 @@ enum AuraType
     SPELL_AURA_422                                          = 422,
     SPELL_AURA_423                                          = 423,
     SPELL_AURA_424                                          = 424,
-    // 425 unused
+    SPELL_AURA_425                                          = 425,
     SPELL_AURA_426                                          = 426,
     SPELL_AURA_427                                          = 427,
     SPELL_AURA_428                                          = 428,
@@ -492,9 +492,9 @@ enum AuraType
     SPELL_AURA_430                                          = 430,
     SPELL_AURA_431                                          = 431,
     SPELL_AURA_432                                          = 432,
-    // 433 unused
+    SPELL_AURA_433                                          = 433,
     SPELL_AURA_434                                          = 434,
-    // 435 unused
+    SPELL_AURA_435                                          = 435,
     SPELL_AURA_436                                          = 436,
     SPELL_AURA_437                                          = 437,
     TOTAL_AURAS                                             = 438   // 5.4.2
