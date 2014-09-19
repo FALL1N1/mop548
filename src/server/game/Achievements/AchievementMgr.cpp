@@ -2911,6 +2911,10 @@ bool AchievementMgr<T>::AdditionalRequirementsSatisfied(CriteriaEntry const* cri
             if (!unit || unit->GetHealthPct() >= reqValue)
                 return false;
             break;
+        case ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_GUILD_REPUTATION: // 62
+            if (referencePlayer->GetReputation(GUILD_FACTION_ID) < reqValue)
+                return false;
+            break;
         default:
             break;
         }

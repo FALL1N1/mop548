@@ -20,6 +20,7 @@
 #include "DatabaseEnv.h"
 #include "ReputationMgr.h"
 #include "DBCStores.h"
+#include "Guild.h"
 #include "Player.h"
 #include "WorldPacket.h"
 #include "World.h"
@@ -402,7 +403,12 @@ bool ReputationMgr::SetOneFactionReputation(FactionEntry const* factionEntry, in
             SetAtWar(&itr->second, true);
 
         if (new_rank > old_rank)
+        {
             _sendFactionIncreased = true;
+
+            if (factionEntry->ID == GUILD_FACTION_ID)
+                _player->CheckAllAchievementCriteria();
+        }
 
         UpdateRankCounters(old_rank, new_rank);
 
