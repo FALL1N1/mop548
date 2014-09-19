@@ -407,7 +407,8 @@ bool ReputationMgr::SetOneFactionReputation(FactionEntry const* factionEntry, in
             _sendFactionIncreased = true;
 
             if (factionEntry->ID == GUILD_FACTION_ID)
-                _player->CheckAllAchievementCriteria();
+                if (Guild* guild = _player->GetGuild())
+                    guild->GetAchievementMgr().CheckAllAchievementCriteria(_player);
         }
 
         UpdateRankCounters(old_rank, new_rank);

@@ -2721,6 +2721,7 @@ void Guild::SendLoginInfo(WorldSession* session)
 
     member->SetStats(player);
     member->AddFlag(GUILDMEMBER_STATUS_ONLINE);
+    GetAchievementMgr().CheckAllAchievementCriteria(player);
     _SendPlayerLogged(player->GetGUID(), player->GetName(), true);
 }
 

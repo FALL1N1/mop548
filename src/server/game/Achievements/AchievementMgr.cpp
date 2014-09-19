@@ -1725,7 +1725,8 @@ void AchievementMgr<T>::SetCriteriaProgress(CriteriaEntry const* entry, uint64 c
         }
 
         // not update (not mark as changed) if counter will have same value
-        if (progress->counter == newValue && !entry->timeLimit)
+        // update if is completed but not saved as completed because of requirements that are satisfied now
+        if (progress->counter == newValue && !entry->timeLimit && (!IsGuild<T>() || !IsCompletedCriteria(entry) || progress->CompletedGUID))
             return;
 
         progress->counter = newValue;
