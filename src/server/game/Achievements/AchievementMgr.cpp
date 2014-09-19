@@ -1860,6 +1860,7 @@ void AchievementMgr<Player>::CompletedAchievement(AchievementEntry const* achiev
     CompletedAchievementData& ca = m_completedAchievements[achievement->ID];
     ca.date = time(NULL);
     ca.changed = true;
+    ca.guids.insert(GetOwner()->GetGUID());
 
     // don't insert for ACHIEVEMENT_FLAG_REALM_FIRST_KILL since otherwise only the first group member would reach that achievement
     /// @todo where do set this instead?
