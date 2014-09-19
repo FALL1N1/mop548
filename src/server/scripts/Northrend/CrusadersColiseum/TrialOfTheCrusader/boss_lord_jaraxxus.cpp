@@ -505,9 +505,9 @@ class spell_mistress_kiss : public SpellScriptLoader
 
             bool Load() override
             {
-                if (GetCaster())
-                    if (sSpellMgr->GetSpellIdForDifficulty(SPELL_MISTRESS_KISS_DAMAGE_SILENCE, GetCaster()))
-                        return true;
+                //if (GetCaster())
+                    //if (sSpellMgr->GetSpellIdForDifficulty(SPELL_MISTRESS_KISS_DAMAGE_SILENCE, GetCaster()))
+                        //return true;
                 return false;
             }
 

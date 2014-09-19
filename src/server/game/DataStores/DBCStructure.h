@@ -2262,6 +2262,8 @@ struct SpellEntry
     uint32 SpellTotemsId;                                   // 22       SpellTotems.dbc
     uint32 ResearchProjectId;                               // 23       ResearchProject.dbc
     uint32 SpellMiscId;                                     // 24       SpellMisc.dbc
+
+    SpellEffectEntry const* GetSpellEffect(uint32 eff, uint32 difficulty) const;
 };
 
 // SpellMisc.dbc
@@ -2919,6 +2921,23 @@ struct TalentSpellPos
 };
 
 typedef std::map<uint32, TalentSpellPos> TalentSpellPosMap;
+
+struct SpellEffect
+{
+    SpellEffect()
+    {
+        for(int i = 0; i < MAX_DIFFICULTY; i++)
+        {
+            for(int y = 0; y < MAX_SPELL_EFFECTS; y++)
+            {
+                effects[i][y] = 0;
+            }
+        }
+    }
+    SpellEffectEntry const* effects[MAX_DIFFICULTY][32];
+};
+
+typedef std::map<uint32, SpellEffect> SpellEffectMap;
 
 struct TaxiPathBySourceAndDestination
 {

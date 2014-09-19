@@ -397,14 +397,14 @@ class boss_professor_putricide : public CreatureScript
                             {
                                 SpellInfo const* spell = sSpellMgr->GetSpellInfo(SPELL_CREATE_CONCOCTION);
                                 DoCast(me, SPELL_CREATE_CONCOCTION);
-                                events.ScheduleEvent(EVENT_PHASE_TRANSITION, sSpellMgr->GetSpellForDifficultyFromSpell(spell, me)->CalcCastTime() + 100);
+                                //events.ScheduleEvent(EVENT_PHASE_TRANSITION, sSpellMgr->GetSpellForDifficultyFromSpell(spell, me)->CalcCastTime() + 100);
                                 break;
                             }
                             case PHASE_COMBAT_3:
                             {
                                 SpellInfo const* spell = sSpellMgr->GetSpellInfo(SPELL_GUZZLE_POTIONS);
                                 DoCast(me, SPELL_GUZZLE_POTIONS);
-                                events.ScheduleEvent(EVENT_PHASE_TRANSITION, sSpellMgr->GetSpellForDifficultyFromSpell(spell, me)->CalcCastTime() + 100);
+                                //events.ScheduleEvent(EVENT_PHASE_TRANSITION, sSpellMgr->GetSpellForDifficultyFromSpell(spell, me)->CalcCastTime() + 100);
                                 break;
                             }
                             default:
@@ -727,8 +727,8 @@ class npc_putricide_oozeAI : public ScriptedAI
 
         void SpellHitTarget(Unit* /*target*/, SpellInfo const* spell) override
         {
-            if (!_newTargetSelectTimer && spell->Id == sSpellMgr->GetSpellIdForDifficulty(_hitTargetSpellId, me))
-                _newTargetSelectTimer = 1000;
+            //if (!_newTargetSelectTimer && spell->Id == sSpellMgr->GetSpellIdForDifficulty(_hitTargetSpellId, me))
+               // _newTargetSelectTimer = 1000;
         }
 
         void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
@@ -1053,12 +1053,12 @@ class spell_putricide_ooze_eruption_searcher : public SpellScriptLoader
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
-                uint32 adhesiveId = sSpellMgr->GetSpellIdForDifficulty(SPELL_VOLATILE_OOZE_ADHESIVE, GetCaster());
-                if (GetHitUnit()->HasAura(adhesiveId))
-                {
-                    GetCaster()->CastSpell(GetHitUnit(), SPELL_OOZE_ERUPTION, true);
-                    GetHitUnit()->RemoveAurasDueToSpell(adhesiveId, GetCaster()->GetGUID(), 0, AURA_REMOVE_BY_ENEMY_SPELL);
-                }
+                //uint32 adhesiveId = sSpellMgr->GetSpellIdForDifficulty(SPELL_VOLATILE_OOZE_ADHESIVE, GetCaster());
+                //if (GetHitUnit()->HasAura(adhesiveId))
+                //{
+                //    GetCaster()->CastSpell(GetHitUnit(), SPELL_OOZE_ERUPTION, true);
+                //    GetHitUnit()->RemoveAurasDueToSpell(adhesiveId, GetCaster()->GetGUID(), 0, AURA_REMOVE_BY_ENEMY_SPELL);
+                //}
             }
 
             void Register() override
@@ -1137,7 +1137,7 @@ class spell_putricide_unbound_plague : public SpellScriptLoader
                 }
 
 
-                targets.remove_if(Trinity::UnitAuraCheck(true, sSpellMgr->GetSpellIdForDifficulty(SPELL_UNBOUND_PLAGUE, GetCaster())));
+                //targets.remove_if(Trinity::UnitAuraCheck(true, sSpellMgr->GetSpellIdForDifficulty(SPELL_UNBOUND_PLAGUE, GetCaster())));
                 Trinity::Containers::RandomResizeList(targets, 1);
             }
 
@@ -1150,27 +1150,27 @@ class spell_putricide_unbound_plague : public SpellScriptLoader
                 if (!instance)
                     return;
 
-                uint32 plagueId = sSpellMgr->GetSpellIdForDifficulty(SPELL_UNBOUND_PLAGUE, GetCaster());
+                //uint32 plagueId = sSpellMgr->GetSpellIdForDifficulty(SPELL_UNBOUND_PLAGUE, GetCaster());
 
-                if (!GetHitUnit()->HasAura(plagueId))
-                {
-                    if (Creature* professor = ObjectAccessor::GetCreature(*GetCaster(), instance->GetData64(DATA_PROFESSOR_PUTRICIDE)))
-                    {
-                        if (Aura* oldPlague = GetCaster()->GetAura(plagueId, professor->GetGUID()))
-                        {
-                            if (Aura* newPlague = professor->AddAura(plagueId, GetHitUnit()))
-                            {
-                                newPlague->SetMaxDuration(oldPlague->GetMaxDuration());
-                                newPlague->SetDuration(oldPlague->GetDuration());
-                                oldPlague->Remove();
-                                GetCaster()->RemoveAurasDueToSpell(SPELL_UNBOUND_PLAGUE_SEARCHER);
-                                GetCaster()->CastSpell(GetCaster(), SPELL_PLAGUE_SICKNESS, true);
-                                GetCaster()->CastSpell(GetCaster(), SPELL_UNBOUND_PLAGUE_PROTECTION, true);
-                                professor->CastSpell(GetHitUnit(), SPELL_UNBOUND_PLAGUE_SEARCHER, true);
-                            }
-                        }
-                    }
-                }
+                //if (!GetHitUnit()->HasAura(plagueId))
+                //{
+                //    if (Creature* professor = ObjectAccessor::GetCreature(*GetCaster(), instance->GetData64(DATA_PROFESSOR_PUTRICIDE)))
+                //    {
+                //        if (Aura* oldPlague = GetCaster()->GetAura(plagueId, professor->GetGUID()))
+                //        {
+                //            if (Aura* newPlague = professor->AddAura(plagueId, GetHitUnit()))
+                //            {
+                //                newPlague->SetMaxDuration(oldPlague->GetMaxDuration());
+                //                newPlague->SetDuration(oldPlague->GetDuration());
+                //                oldPlague->Remove();
+                //                GetCaster()->RemoveAurasDueToSpell(SPELL_UNBOUND_PLAGUE_SEARCHER);
+                //                GetCaster()->CastSpell(GetCaster(), SPELL_PLAGUE_SICKNESS, true);
+                //                GetCaster()->CastSpell(GetCaster(), SPELL_UNBOUND_PLAGUE_PROTECTION, true);
+                //                professor->CastSpell(GetHitUnit(), SPELL_UNBOUND_PLAGUE_SEARCHER, true);
+                //            }
+                //        }
+                //    }
+                //}
             }
 
             void Register() override
@@ -1249,24 +1249,24 @@ class spell_putricide_mutated_plague : public SpellScriptLoader
 
             void HandleTriggerSpell(AuraEffect const* aurEff)
             {
-                PreventDefaultAction();
-                Unit* caster = GetCaster();
-                if (!caster)
-                    return;
+                //PreventDefaultAction();
+                //Unit* caster = GetCaster();
+                //if (!caster)
+                //    return;
 
-                uint32 triggerSpell = GetSpellInfo()->Effects[aurEff->GetEffIndex()].TriggerSpell;
-                SpellInfo const* spell = sSpellMgr->GetSpellInfo(triggerSpell);
-                spell = sSpellMgr->GetSpellForDifficultyFromSpell(spell, caster);
+                //uint32 triggerSpell = GetSpellInfo()->Effects[aurEff->GetEffIndex()].TriggerSpell;
+                //SpellInfo const* spell = sSpellMgr->GetSpellInfo(triggerSpell);
+                //spell = sSpellMgr->GetSpellForDifficultyFromSpell(spell, caster);
 
-                int32 damage = spell->Effects[EFFECT_0].CalcValue(caster);
-                float multiplier = 2.0f;
-                if (GetTarget()->GetMap()->GetSpawnMode() & 1)
-                    multiplier = 3.0f;
+                //int32 damage = spell->Effects[EFFECT_0].CalcValue(caster);
+                //float multiplier = 2.0f;
+                //if (GetTarget()->GetMap()->GetSpawnMode() & 1)
+                //    multiplier = 3.0f;
 
-                damage *= int32(pow(multiplier, GetStackAmount()));
-                damage = int32(damage * 1.5f);
+                //damage *= int32(pow(multiplier, GetStackAmount()));
+                //damage = int32(damage * 1.5f);
 
-                GetTarget()->CastCustomSpell(triggerSpell, SPELLVALUE_BASE_POINT0, damage, GetTarget(), true, NULL, aurEff, GetCasterGUID());
+                //GetTarget()->CastCustomSpell(triggerSpell, SPELLVALUE_BASE_POINT0, damage, GetTarget(), true, NULL, aurEff, GetCasterGUID());
             }
 
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -1534,8 +1534,8 @@ class spell_putricide_clear_aura_effect_value : public SpellScriptLoader
             void HandleScript(SpellEffIndex effIndex)
             {
                 PreventHitDefaultEffect(effIndex);
-                uint32 auraId = sSpellMgr->GetSpellIdForDifficulty(uint32(GetEffectValue()), GetCaster());
-                GetHitUnit()->RemoveAurasDueToSpell(auraId);
+                //uint32 auraId = sSpellMgr->GetSpellIdForDifficulty(uint32(GetEffectValue()), GetCaster());
+                //GetHitUnit()->RemoveAurasDueToSpell(auraId);
             }
 
             void Register() override

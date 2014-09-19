@@ -262,7 +262,7 @@ public:
     float     ComboScalingMultiplier;
 
     SpellEffectInfo() { }
-    SpellEffectInfo(SpellEntry const* spellEntry, SpellInfo const* spellInfo, uint8 effIndex, SpellEffectEntry const* effect);
+    SpellEffectInfo(SpellEntry const* spellEntry, SpellInfo const* spellInfo, uint8 effIndex, uint32 difficulty);
 
     bool IsEffect() const;
     bool IsEffect(SpellEffects effectName) const;
@@ -425,7 +425,7 @@ public:
     SpellShapeshiftEntry const* GetSpellShapeshift() const;
     SpellTotemsEntry const* GetSpellTotems() const;
 
-    SpellInfo(SpellEntry const* spellEntry, SpellEffectEntry const** effects);
+    SpellInfo(SpellEntry const* spellEntry, uint32 difficulty);
     ~SpellInfo();
 
     uint32 GetCategory() const;

@@ -822,11 +822,11 @@ class spell_impale : public SpellScriptLoader
             void HandleDamageCalc(SpellEffIndex /*effIndex*/)
             {
                 Unit* target = GetHitUnit();
-                uint32 permafrost = sSpellMgr->GetSpellIdForDifficulty(SPELL_PERMAFROST, target);
+                //uint32 permafrost = sSpellMgr->GetSpellIdForDifficulty(SPELL_PERMAFROST, target);
 
-                // make sure Impale doesnt do damage if we are standing on permafrost
-                if (target && target->HasAura(permafrost))
-                    SetHitDamage(0);
+                //// make sure Impale doesnt do damage if we are standing on permafrost
+                //if (target && target->HasAura(permafrost))
+                //    SetHitDamage(0);
             }
 
             void Register() override

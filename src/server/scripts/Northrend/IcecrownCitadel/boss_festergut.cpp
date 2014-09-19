@@ -381,10 +381,10 @@ class spell_festergut_pungent_blight : public SpellScriptLoader
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
                 // Get Inhaled Blight id for our difficulty
-                uint32 blightId = sSpellMgr->GetSpellIdForDifficulty(uint32(GetEffectValue()), GetCaster());
+                //uint32 blightId = sSpellMgr->GetSpellIdForDifficulty(uint32(GetEffectValue()), GetCaster());
 
                 // ...and remove it
-                GetCaster()->RemoveAurasDueToSpell(blightId);
+                //GetCaster()->RemoveAurasDueToSpell(blightId);
                 GetCaster()->ToCreature()->AI()->Talk(EMOTE_PUNGENT_BLIGHT);
             }
 
