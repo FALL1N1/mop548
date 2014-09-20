@@ -181,8 +181,8 @@ void ReputationMgr::SendState(FactionState const* faction)
 
     _sendFactionIncreased = false; // Reset
 
-    data << uint32(faction->ReputationListID);
     data << uint32(faction->Standing);
+    data << uint32(faction->ReputationListID);
 
     for (FactionStateList::iterator itr = _factions.begin(); itr != _factions.end(); ++itr)
     {
