@@ -223,6 +223,8 @@ class Item : public Object
         virtual bool Create(uint32 guidlow, uint32 itemid, Player const* owner);
         virtual bool Create(uint32 guidlow, uint32 itemid, uint64 playerGuid);
 
+        virtual void InitializeDynamicUpdateFields() override;
+
         ItemTemplate const* GetTemplate() const;
 
         uint64 GetOwnerGUID()    const { return GetUInt64Value(ITEM_FIELD_OWNER); }

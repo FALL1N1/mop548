@@ -1347,6 +1347,8 @@ class Unit : public WorldObject
 
         virtual ~Unit();
 
+        virtual void InitializeDynamicUpdateFields() override;
+
         UnitAI* GetAI() { return i_AI; }
         void SetAI(UnitAI* newAI) { i_AI = newAI; }
 

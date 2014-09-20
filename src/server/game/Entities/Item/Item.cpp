@@ -263,9 +263,13 @@ Item::Item()
     m_refundRecipient = 0;
     m_paidMoney = 0;
     m_paidExtendedCost = 0;
+}
 
+void Item::InitializeDynamicUpdateFields()
+{
     m_dynamicTab.resize(ITEM_DYNAMIC_END);
     m_dynamicChange.resize(ITEM_DYNAMIC_END);
+
     for (int i = 0; i < ITEM_DYNAMIC_END; i++)
     {
         m_dynamicTab[i] = new uint32[32];

@@ -131,6 +131,18 @@ Object::~Object()
     }
 }
 
+void Object::InitializeDynamicUpdateFields()
+{
+    m_dynamicTab.resize(OBJECT_DYNAMIC_END);
+    m_dynamicChange.resize(OBJECT_DYNAMIC_END);
+
+    for (int i = 0; i < OBJECT_DYNAMIC_END; i++)
+    {
+        m_dynamicTab[i] = new uint32[32];
+        m_dynamicChange[i] = new bool[32];
+    }
+}
+
 void Object::_InitValues()
 {
     m_uint32Values = new uint32[m_valuesCount];
@@ -138,6 +150,10 @@ void Object::_InitValues()
 
     _changesMask.SetCount(m_valuesCount);
 
+    // Every object using dynamic update fields need to have this function overriden
+    InitializeDynamicUpdateFields();
+
+    // Initialize all dynamic update fields to 0s
     for (size_t i = 0; i < m_dynamicTab.size(); ++i)
     {
         memset(m_dynamicTab[i], 0, 32 * sizeof(uint32));
@@ -772,7 +788,9 @@ void Object::BuildDynamicValuesUpdate(ByteBuffer *data) const
     dynamicFieldsMask.resize(m_dynamicTab.size());
 
     for (size_t i = 0; i < m_dynamicTab.size(); i++)
+    {
         dynamicFieldsMask[i] = 0;
+    }
 
     for (size_t i = 0; i < m_dynamicChange.size(); i++)
     {
@@ -787,6 +805,7 @@ void Object::BuildDynamicValuesUpdate(ByteBuffer *data) const
     }
 
     *data << uint8(bool(dynamicTabMask));
+
     if (dynamicTabMask)
     {
         *data << uint32(dynamicTabMask);

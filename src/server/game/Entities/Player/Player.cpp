@@ -904,6 +904,18 @@ Player::Player(WorldSession* session): Unit(true), phaseMgr(this)
     _ConquestCurrencytotalWeekCap = 0;
 }
 
+void Player::InitializeDynamicUpdateFields()
+{
+    m_dynamicTab.resize(PLAYER_DYNAMIC_END);
+    m_dynamicChange.resize(PLAYER_DYNAMIC_END);
+
+    for (int i = 0; i < PLAYER_DYNAMIC_END; i++)
+    {
+        m_dynamicTab[i] = new uint32[32];
+        m_dynamicChange[i] = new bool[32];
+    }
+}
+
 Player::~Player()
 {
     // it must be unloaded already in PlayerLogout and accessed only for loggined player
@@ -28955,9 +28967,7 @@ void Player::UpdateResearchDigsites()
 
             if (_researchDigsites[i][j])
             {
-                uint32 field = i * 2 + j / 2;
-                uint32 offset = j & 1; // j % 2
-                //SetDynamicUInt32Value(PLAYER_DYNAMIC_FIELD_RESERACH_SITE, offset, _researchDigsites[i][j]->GetDigsiteId());
+                SetDynamicUInt32Value(PLAYER_DYNAMIC_FIELD_RESERACH_SITE, i * MAX_DIGSITES_PER_CONTINENT + j, _researchDigsites[i][j]->GetDigsiteId());
             }
         }
     }
@@ -29336,7 +29346,7 @@ void Player::UpdateResearchProjects()
     for (uint8 i = 0; i < RESEARCH_BRANCH_COUNT; ++i)
     {
         uint32 offset = i % 2;
-        //SetDynamicUInt32Value(PLAYER_DYNAMIC_FIELD_RESEARCH_SITE_PROGRESS, i % 2, projectIds[i]);
+        SetUInt16Value(PLAYER_FIELD_RESEARCHING, i % 2, projectIds[i]);
     }
 }
 

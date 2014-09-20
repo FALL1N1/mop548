@@ -239,6 +239,7 @@ class Object
         Object();
 
         void _InitValues();
+        virtual void InitializeDynamicUpdateFields();
         void _Create(uint32 guidlow, uint32 entry, HighGuid guidhigh);
         std::string _ConcatFields(uint16 startIndex, uint16 size) const;
         void _LoadIntoDataField(std::string const& data, uint32 startOffset, uint32 count);

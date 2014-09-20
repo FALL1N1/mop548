@@ -1264,6 +1264,8 @@ class Player : public Unit, public GridObject<Player>
         explicit Player(WorldSession* session);
         ~Player();
 
+        virtual void InitializeDynamicUpdateFields() override;
+
         void CleanupsBeforeDelete(bool finalCleanup = true);
 
         void AddToWorld();

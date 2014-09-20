@@ -15882,6 +15882,18 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form) const
     return modelid;
 }
 
+void Unit::InitializeDynamicUpdateFields()
+{
+    m_dynamicTab.resize(UNIT_DYNAMIC_END);
+    m_dynamicChange.resize(UNIT_DYNAMIC_END);
+
+    for (int i = 0; i < UNIT_DYNAMIC_END; i++)
+    {
+        m_dynamicTab[i] = new uint32[32];
+        m_dynamicChange[i] = new bool[32];
+    }
+}
+
 uint32 Unit::GetModelForTotem(PlayerTotemType totemType)
 {
     if (totemType == 3211)
