@@ -32,7 +32,7 @@ enum RatedType
     RATED_TYPE_NOT_RATED    = 0,
     RATED_TYPE_2v2          = 2,
     RATED_TYPE_3v3          = 3,
-    RATED_TYPE_5v5          = 4,
+    RATED_TYPE_5v5          = 5,
     RATED_TYPE_10v10        = 10
 };
 

@@ -159,7 +159,7 @@ enum EPlayerFields
     PLAYER_FIELD_GUILD_TIME_STAMP                            = UNIT_END + 0x00A, // Size: 1, Flags: UF_FLAG_PUBLIC
     PLAYER_FIELD_QUEST_LOG                                   = UNIT_END + 0x00B, // Size: 750, Flags: UF_FLAG_PARTY
     PLAYER_FIELD_VISIBLE_ITEMS                               = UNIT_END + 0x2F9, // Size: 19, Flags: UF_FLAG_PUBLIC
-    PLAYER_FIELD_VISIBLE_ITEM_NCHANTMENTS                    = UNIT_END + 0x30D, // Size: 19, Flags: UF_FLAG_PARTY
+    PLAYER_FIELD_VISIBLE_ITEM_NCHANTMENTS                    = UNIT_END + 0x30C, // Size: 19, Flags: UF_FLAG_PARTY
     PLAYER_FIELD_PLAYER_TITLE                                = UNIT_END + 0x31F, // Size: 1, Flags: UF_FLAG_PUBLIC
     PLAYER_FIELD_FAKE_INEBRIATION                            = UNIT_END + 0x320, // Size: 1, Flags: UF_FLAG_PUBLIC
     PLAYER_FIELD_VIRTUAL_PLAYER_REALM                        = UNIT_END + 0x321, // Size: 1, Flags: UF_FLAG_PUBLIC
@@ -183,7 +183,7 @@ enum EPlayerFields
     PLAYER_FIELD_SKILL_STARTING_RANKS                        = UNIT_END + 0x04A1, // Size: 64, Flags: UF_FLAG_PRIVATE
     PLAYER_FIELD_SKILL_MAX_RANKS                             = UNIT_END + 0x04E1, // Size: 64, Flags: UF_FLAG_PRIVATE
     PLAYER_FIELD_SKILL_MODIFIERS                             = UNIT_END + 0x0521, // Size: 64, Flags: UF_FLAG_PRIVATE
-    PLAYER_FIELD_SKILL_TALENTS                               = UNIT_END + 0x056F, // Size: 64, Flags: UF_FLAG_PRIVATE
+    PLAYER_FIELD_SKILL_TALENTS                               = UNIT_END + 0x0561, // Size: 64, Flags: UF_FLAG_PRIVATE
     PLAYER_FIELD_CHARACTER_POINTS                            = UNIT_END + 0x5A1, // Size: 1, Flags: UF_FLAG_PRIVATE
     PLAYER_FIELD_MAX_TALENT_TIERS                            = UNIT_END + 0x5A2, // Size: 1, Flags: UF_FLAG_PRIVATE
     PLAYER_FIELD_TRACK_CREATURE_MASK                         = UNIT_END + 0x5A3, // Size: 1, Flags: UF_FLAG_PRIVATE
