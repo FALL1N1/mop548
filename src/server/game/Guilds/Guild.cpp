@@ -3861,26 +3861,26 @@ void Guild::_SendBankContentUpdate(uint8 tabId, SlotIds slots) const
 
 void Guild::_BroadcastEvent(GuildEvents guildEvent, uint64 guid, const char* param1, const char* param2, const char* param3) const
 {
-    uint8 count = !param3 ? (!param2 ? (!param1 ? 0 : 1) : 2) : 3;
+    //uint8 count = !param3 ? (!param2 ? (!param1 ? 0 : 1) : 2) : 3;
 
-    WorldPacket data(SMSG_GUILD_EVENT, 1 + 1 + count + (guid ? 8 : 0));
-    data << uint8(guildEvent);
-    data << uint8(count);
+    //WorldPacket data(SMSG_GUILD_EVENT, 1 + 1 + count + (guid ? 8 : 0));
+    //data << uint8(guildEvent);
+    //data << uint8(count);
 
-    if (param3)
-        data << param1 << param2 << param3;
-    else if (param2)
-        data << param1 << param2;
-    else if (param1)
-        data << param1;
+    //if (param3)
+    //    data << param1 << param2 << param3;
+    //else if (param2)
+    //    data << param1 << param2;
+    //else if (param1)
+    //    data << param1;
 
-    if (guid)
-        data << uint64(guid);
+    //if (guid)
+    //    data << uint64(guid);
 
-    BroadcastPacket(&data);
+    //BroadcastPacket(&data);
 
-    if (sLog->ShouldLog("guild", LOG_LEVEL_DEBUG))
-        TC_LOG_DEBUG("guild", "SMSG_GUILD_EVENT [Broadcast] Event: %s (%u)", _GetGuildEventString(guildEvent).c_str(), guildEvent);
+    //if (sLog->ShouldLog("guild", LOG_LEVEL_DEBUG))
+    //    TC_LOG_DEBUG("guild", "SMSG_GUILD_EVENT [Broadcast] Event: %s (%u)", _GetGuildEventString(guildEvent).c_str(), guildEvent);
 }
 
 void Guild::SendBankList(WorldSession* session, uint8 tabId, bool withContent, bool withTabInfo) const
