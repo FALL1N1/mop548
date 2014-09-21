@@ -3693,10 +3693,10 @@ public:
                 if (!digsite->IsEmptyDigsite())
                     player->SaveResearchDigsiteToDB(digsite);
 
+                player->SendSurveryCastInfo(digsite, true); // needs to be send just before the digsite is removed
                 player->UpdateResearchDigsites();
-                go = player->SummonGameObject(find->goEntry, find->x, find->y, find->z, 0, 0, 0, 0, 1, 30); // TODO: verify despawn time
 
-                player->SendSurveryCastInfo(digsite, true);
+                go = player->SummonGameObject(find->goEntry, find->x, find->y, find->z, 0, 0, 0, 0, 1, 30); // TODO: verify despawn time
             }
             else
             {
