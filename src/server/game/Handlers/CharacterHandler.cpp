@@ -790,7 +790,7 @@ void WorldSession::HandleCharDeleteOpcode(WorldPacket& recvData)
     if (sGuildMgr->GetGuildByLeader(guid))
     {
         WorldPacket data(SMSG_CHAR_DELETE, 1);
-        data << uint8(CHAR_DELETE_FAILED_GUILD_LEADER);
+        data << uint8(CHAR_DELETE_FAILED_GUILD_LEADER + 1); // value different! Looks like all values have been offset by 1, needs more investigation.
         SendPacket(&data);
         return;
     }
