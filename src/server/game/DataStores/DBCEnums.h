@@ -333,7 +333,9 @@ enum Difficulty
     RAID_DIFFICULTY_10MAN_HEROIC        = 5,    // difficulty_entry_5
     RAID_DIFFICULTY_25MAN_HEROIC        = 6,    // difficulty_entry_6
     RAID_DIFFICULTY_25MAN_LFR           = 7,    // difficulty_entry_7
+
     DUNGEON_DIFFICULTY_CHALLENGE        = 8,    // difficulty_entry_8
+
     RAID_DIFFICULTY_40MAN_DIFFICULTY    = 9,    // difficulty_entry_9
                                                 // difficulty_entry_10
     SCENARIO_DIFFICULTY_HEROIC          = 11,   // difficulty_entry_11
@@ -342,7 +344,7 @@ enum Difficulty
     RAID_DIFFICULTY_FLEXIBLE            = 14,   // difficulty_entry_14
 };
 
-#define MAX_DUNGEON_DIFFICULTY     DUNGEON_DIFFICULTY_HEROIC + 1
+#define MAX_DUNGEON_DIFFICULTY     DUNGEON_DIFFICULTY_CHALLENGE + 1
 #define MAX_RAID_DIFFICULTY        RAID_DIFFICULTY_40MAN_DIFFICULTY + 1
 #define MAX_DIFFICULTY             RAID_DIFFICULTY_FLEXIBLE + 1
 

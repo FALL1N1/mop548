@@ -1183,22 +1183,25 @@ MapDifficulty const* GetMapDifficultyData(uint32 mapId, Difficulty difficulty)
     return itr != sMapDifficultyMap.end() ? &itr->second : NULL;
 }
 
+// @todo: add support for the new difficulty SCENARIO_HEROIC_DIFFICULTY, SCENARIO_DIFFICULTY, and DYNAMIC_DIFFICULTY
 MapDifficulty const* GetDownscaledMapDifficultyData(uint32 mapId, Difficulty &difficulty)
 {
     uint32 tmpDiff = difficulty;
     MapDifficulty const* mapDiff = GetMapDifficultyData(mapId, Difficulty(tmpDiff));
     if (!mapDiff)
     {
-        if (tmpDiff > RAID_DIFFICULTY_25MAN_NORMAL) // heroic, downscale to normal
-            tmpDiff -= 2;
+        if (tmpDiff == RAID_DIFFICULTY_25MAN_HEROIC)
+            tmpDiff = RAID_DIFFICULTY_25MAN_NORMAL;
+        else if (tmpDiff == RAID_DIFFICULTY_10MAN_HEROIC)
+            tmpDiff = RAID_DIFFICULTY_10MAN_NORMAL;
         else
-            tmpDiff -= 1;   // any non-normal mode for raids like tbc (only one mode)
+            tmpDiff = REGULAR_DIFFICULTY;
 
         // pull new data
         mapDiff = GetMapDifficultyData(mapId, Difficulty(tmpDiff)); // we are 10 normal or 25 normal
         if (!mapDiff)
         {
-            tmpDiff -= 1;
+            tmpDiff = RAID_DIFFICULTY_10MAN_NORMAL;
             mapDiff = GetMapDifficultyData(mapId, Difficulty(tmpDiff)); // 10 normal
         }
     }
