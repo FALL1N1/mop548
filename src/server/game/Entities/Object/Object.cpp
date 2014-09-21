@@ -146,7 +146,7 @@ void Object::InitializeDynamicUpdateFields()
 void Object::_InitValues()
 {
     m_uint32Values = new uint32[m_valuesCount];
-    memset(m_uint32Values, 0, m_valuesCount*sizeof(uint32));
+    memset(m_uint32Values, 0, m_valuesCount * sizeof(uint32));
 
     _changesMask.SetCount(m_valuesCount);
 
@@ -157,7 +157,7 @@ void Object::_InitValues()
     for (size_t i = 0; i < m_dynamicTab.size(); ++i)
     {
         memset(m_dynamicTab[i], 0, 32 * sizeof(uint32));
-        memset(m_dynamicChange[i], 0, 32 * sizeof(bool));
+        memset(m_dynamicChange[i], false, 32 * sizeof(bool));
     }
 
     m_objectUpdated = false;
@@ -179,6 +179,7 @@ std::string Object::_ConcatFields(uint16 startIndex, uint16 size) const
     std::ostringstream ss;
     for (uint16 index = 0; index < size; ++index)
         ss << GetUInt32Value(index + startIndex) << ' ';
+
     return ss.str();
 }
 
@@ -278,7 +279,7 @@ void Object::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) c
     buf << uint8(updateType);
     buf.append(GetPackGUID());
     buf << uint8(m_objectTypeId);
-
+    
     BuildMovementUpdate(&buf, flags);
     BuildValuesUpdate(updateType, &buf, target);
     data->AddUpdateBlock(buf);
@@ -298,7 +299,6 @@ void Object::SendUpdateToPlayer(Player* player)
 void Object::BuildValuesUpdateBlockForPlayer(UpdateData* data, Player* target) const
 {
     ByteBuffer buf(500);
-
     buf << uint8(UPDATETYPE_VALUES);
     buf.append(GetPackGUID());
 
@@ -772,12 +772,11 @@ void Object::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* targe
     updateMask.AppendToPacket(data);
     data->append(fieldBuffer);
     BuildDynamicValuesUpdate(data);
-
 }
 
 void Object::BuildDynamicValuesUpdate(ByteBuffer *data) const
 {
-    if (m_objectTypeId == TYPEMASK_CONTAINER)
+    if (m_objectTypeId == TYPEID_CONTAINER)
     {
         *data << uint8(0);
         return;
@@ -836,7 +835,7 @@ void Object::ClearUpdateMask(bool remove)
     if (m_objectUpdated)
     {
         for (size_t i = 0; i < m_dynamicTab.size(); i++)
-            memset(m_dynamicChange[i], 0, 32 * sizeof(bool));
+            memset(m_dynamicChange[i], false, 32 * sizeof(bool));
 
         if (remove)
             sObjectAccessor->RemoveUpdateObject(this);
@@ -1142,6 +1141,7 @@ void Object::ApplyModUInt32Value(uint16 index, int32 val, bool apply)
     cur += (apply ? val : -val);
     if (cur < 0)
         cur = 0;
+
     SetUInt32Value(index, cur);
 }
 
@@ -1172,6 +1172,7 @@ void Object::ApplyModPositiveFloatValue(uint16 index, float  val, bool apply)
     cur += (apply ? val : -val);
     if (cur < 0)
         cur = 0;
+
     SetFloatValue(index, cur);
 }
 

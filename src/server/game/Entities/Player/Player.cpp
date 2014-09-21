@@ -27367,10 +27367,12 @@ void Player::SendEquipmentSetList()
     {
         if (itr->second.state == EQUIPMENT_SET_DELETED)
             continue;
+
         data.appendPackGUID(itr->second.Guid);
         data << uint32(itr->first);
         data << itr->second.Name;
         data << itr->second.IconName;
+
         for (uint32 i = 0; i < EQUIPMENT_SLOT_END; ++i)
         {
             // ignored slots stored in IgnoreMask, client wants "1" as raw GUID, so no HIGHGUID_ITEM
