@@ -652,7 +652,6 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
         *data << float(self->GetSpeed(MOVE_RUN));
         *data << float(self->GetSpeed(MOVE_SWIM));
         *data << float(self->GetPositionZMinusOffset());
-
     }
 
     if (hasTransportPosition)

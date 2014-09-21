@@ -1223,7 +1223,7 @@ private:
 #define RESEARCH_CONTINENT_COUNT    5
 #define RESEARCH_BRANCH_COUNT       10
 #define MAX_DIGSITES_PER_CONTINENT  4
-#define MAX_FINDS_PER_DIGSITE       3
+#define MAX_FINDS_PER_DIGSITE       6
 
 const uint32 ResearchContinents[RESEARCH_CONTINENT_COUNT] = { 0, 1, 530, 571, 870}; // Eastern Kingdoms, Kalimdor, Outland, Northrend, Pandaria
 
@@ -2620,6 +2620,7 @@ class Player : public Unit, public GridObject<Player>
         bool HasCompletedAllCommonProjectsForRace(uint32 researchBranchId, bool onlyAvailable);
         uint32 GetRandomResearchProjectForRace(uint32 researchBranchId);
         void UpdateResearchProjects();
+        void SendSurveryCastInfo(ResearchDigsite* digsite, bool success);
 
     protected:
         // Gamemaster whisper whitelist

@@ -3688,12 +3688,15 @@ public:
             if (dist <= SURVEY_CLOSE_DIST) // 5yd or less (archaeology find is dug)
             {
                 digsite->SelectNewArchaeologyFind(false);
+
                 // save only if digsite is not empty (if digsite is empty, it will be removed in UpdateResearchDigsites and replaced by new digsite)
                 if (!digsite->IsEmptyDigsite())
                     player->SaveResearchDigsiteToDB(digsite);
 
                 player->UpdateResearchDigsites();
                 go = player->SummonGameObject(find->goEntry, find->x, find->y, find->z, 0, 0, 0, 0, 1, 30); // TODO: verify despawn time
+
+                player->SendSurveryCastInfo(digsite, true);
             }
             else
             {
@@ -3710,6 +3713,8 @@ public:
                 float z = player->GetMap()->GetHeight(pos.m_positionX, pos.m_positionY, pos.m_positionZ + 2.0f);
                 float ang = pos.GetAngle(find->x, find->y);
                 go = player->SummonGameObject(goEntry, pos.m_positionX, pos.m_positionY, z, ang, 0, 0, 0, 0, 30); // TODO: verify despawn time
+
+                player->SendSurveryCastInfo(digsite, false);
             }
 
             if (go)

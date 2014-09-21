@@ -28959,6 +28959,21 @@ void Player::_LoadResearchDigsites(PreparedQueryResult result)
     }
 }
 
+void Player::SendSurveryCastInfo(ResearchDigsite* digsite, bool success)
+{
+    if (!digsite)
+        return;
+
+    WorldPacket data(SMSG_ARCHAEOLOGY_SURVERY_CAST, 13);
+    data << uint32(MAX_FINDS_PER_DIGSITE);
+    data << uint32(MAX_FINDS_PER_DIGSITE - digsite->GetRemainingFindCount());
+    data << uint32(digsite->GetDigsiteId());
+    data.WriteBit(success);
+    data.FlushBits(); // Client needs this
+
+    GetSession()->SendPacket(&data);
+}
+
 void Player::UpdateResearchDigsites()
 {
     for (uint8 i = 0; i < RESEARCH_CONTINENT_COUNT; ++i)
@@ -28978,6 +28993,7 @@ void Player::UpdateResearchDigsites()
             if (_researchDigsites[i][j])
             {
                 SetDynamicUInt32Value(PLAYER_DYNAMIC_FIELD_RESERACH_SITE, i * MAX_DIGSITES_PER_CONTINENT + j, _researchDigsites[i][j]->GetDigsiteId());
+                SetDynamicUInt32Value(PLAYER_DYNAMIC_FIELD_RESEARCH_SITE_PROGRESS, i * MAX_DIGSITES_PER_CONTINENT + j, MAX_FINDS_PER_DIGSITE - _researchDigsites[i][j]->GetRemainingFindCount());
             }
         }
     }
