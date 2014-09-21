@@ -19854,6 +19854,9 @@ void Player::_LoadGroup(PreparedQueryResult result)
     {
         if (Group* group = sGroupMgr->GetGroupByDbStoreId((*result)[0].GetUInt32()))
         {
+            if (group->IsLeader(GetGUID()))
+                SetFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_GROUP_LEADER);
+
             uint8 subgroup = group->GetMemberGroup(GetGUID());
             SetGroup(group, subgroup);
             if (getLevel() >= LEVELREQUIREMENT_HEROIC)
@@ -19863,6 +19866,11 @@ void Player::_LoadGroup(PreparedQueryResult result)
                 SetRaidDifficulty(group->GetRaidDifficulty());
             }
         }
+    }
+
+    if (!GetGroup() || !GetGroup()->IsLeader(GetGUID()))
+    {
+        RemoveFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_GROUP_LEADER);
     }
 }
 
