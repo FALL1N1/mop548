@@ -802,9 +802,10 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
     PetType petType = MAX_PET_TYPE;
     if (IsPet() && GetOwner()->GetTypeId() == TYPEID_PLAYER)
     {
-        if (GetOwner()->getClass() == CLASS_WARLOCK
-                || GetOwner()->getClass() == CLASS_SHAMAN        // Fire Elemental
-                || GetOwner()->getClass() == CLASS_DEATH_KNIGHT) // Risen Ghoul
+        if ((m_owner->getClass() == CLASS_WARLOCK)
+            || (m_owner->getClass() == CLASS_SHAMAN)        // Fire Elemental
+            || (m_owner->getClass() == CLASS_PRIEST)        // Shadowfiend and Mindbender
+            || (m_owner->getClass() == CLASS_DEATH_KNIGHT)) // Risen Ghoul
         {
             petType = SUMMON_PET;
         }
@@ -916,17 +917,33 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
         {
             switch (GetEntry())
             {
-                case PET_ENTRY_WATER_ELEMENTAL: // Summon Water Elemental Spell
+                case PET_ENTRY_IMP:
+                case PET_ENTRY_VOIDWALKER:
+                case PET_ENTRY_SUCCUBUS:
+                case PET_ENTRY_FELHUNTER:
+                case PET_ENTRY_FELGUARD:
                 {
-                    SetBonusDamage(int32(GetOwner()->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_FROST) * 0.33f));
+                    if (getPowerType() != POWER_ENERGY)
+                        setPowerType(POWER_ENERGY);
+
+                    SetMaxPower(POWER_ENERGY, GetCreatePowers(POWER_ENERGY));
+                    SetPower(POWER_ENERGY, GetCreatePowers(POWER_ENERGY));
                     break;
                 }
-                case PET_ENTRY_TREANT_BALANCE: // Force of Nature
+                case PET_ENTRY_WATER_ELEMENTAL: // Summon Water Elemental Spell
                 {
-                    if (!pInfo)
-                        SetCreateHealth(30 + 30 * petlevel);
-
-                    float bonusDmg = GetOwner()->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_NATURE) * 0.15f;
+                    SetCreateHealth(m_owner->CountPctFromMaxHealth(50));
+                    SetCreateMana(m_owner->GetMaxPower(POWER_MANA));
+                    SetBonusDamage(int32(m_owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_FROST)));
+                    break;
+                }
+                case PET_ENTRY_TREANT_GUARDIAN:
+                case PET_ENTRY_TREANT_FERAL:
+                case PET_ENTRY_TREANT_BALANCE:
+                case PET_ENTRY_TREANT_RESTO:
+                {
+                    SetCreateHealth(m_owner->CountPctFromMaxHealth(10));
+                    float bonusDmg = m_owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_NATURE) * 0.15f;
                     SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, float(petlevel * 2.5f - (petlevel / 2) + bonusDmg));
                     SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, float(petlevel * 2.5f + (petlevel / 2) + bonusDmg));
                     break;
@@ -1020,17 +1037,28 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
                         SetCreateHealth(28 + 30*petlevel);
                     }
 
-                    SetBonusDamage(int32(GetOwner()->GetTotalAttackPowerValue(BASE_ATTACK) * 0.5f));
+                    // Convert Owner's haste into the Gargoyle spell haste
+                    float ownerHaste = 1.0f  +  ((Player*)m_owner)->GetUInt32Value(PLAYER_FIELD_COMBAT_RATINGS + CR_HASTE_MELEE) *
+                                                ((Player*)m_owner)->GetRatingMultiplier(CR_HASTE_MELEE) / 100.0f;
+                    ApplyPercentModFloatValue(UNIT_FIELD_MOD_CASTING_SPEED, ownerHaste, false);
+
+                    // also make gargoyle benefit from haste auras, like unholy presence
+                    int meleeHaste = ((Player*)m_owner)->GetTotalAuraModifier(SPELL_AURA_MOD_MELEE_HASTE);
+                    ApplyCastTimePercentMod(meleeHaste, true);
+
+                    SetBonusDamage(int32(m_owner->GetTotalAttackPowerValue(BASE_ATTACK) * 0.5f));
                     SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, float(petlevel - (petlevel / 4)));
                     SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, float(petlevel + (petlevel / 4)));
                     break;
                 }
                 case PET_ENTRY_BLOODWORM:
                 {
-                    SetCreateHealth(4 * petlevel);
-                    SetBonusDamage(int32(GetOwner()->GetTotalAttackPowerValue(BASE_ATTACK) * 0.006f));
+                    SetCreateHealth(m_owner->CountPctFromMaxHealth(6));
+                    SetBonusDamage(int32(m_owner->GetTotalAttackPowerValue(BASE_ATTACK) * 0.006f));
                     SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, float(petlevel - 30 - (petlevel / 4)));
                     SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, float(petlevel - 30 + (petlevel / 4)));
+
+                    break;
                 }
             }
             break;

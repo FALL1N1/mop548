@@ -822,6 +822,7 @@ enum UnitTypeMask
 
 enum TalentSpecialization
 {
+    CHAR_SPECIALIZATION_NONE                    = 0,
     CHAR_SPECIALIZATION_MAGE_ARCANE             = 62,
     CHAR_SPECIALIZATION_MAGE_FIRE               = 63,
     CHAR_SPECIALIZATION_MAGE_FROST              = 64,
