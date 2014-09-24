@@ -575,8 +575,7 @@ void OpcodeTable::InitializeClientTable()
     DEFINE_OPCODE_HANDLER(CMSG_VOID_STORAGE_UNLOCK,                       0x0444, STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleVoidStorageUnlock            ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(CMSG_VOID_SWAP_ITEM,                            0x0655, STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::HandleVoidSwapItem                 ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(CMSG_WARDEN_DATA,                               0x1816, STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleWardenDataOpcode             ); // 5.4.8 18414
-    DEFINE_OPCODE_HANDLER(CMSG_WARGAME_ACCEPT,                            0x0000, STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                        );
-    DEFINE_OPCODE_HANDLER(CMSG_WARGAME_START,                             0x0000, STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                        );
+    DEFINE_OPCODE_HANDLER(CMSG_WARGAME_REQUEST,                           0x15BA, STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleWargameRequest               ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(CMSG_WHO,                                       0x18A3, STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleWhoOpcode                    ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(CMSG_WHOIS,                                     0x0000, STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleWhoisOpcode                  );
     DEFINE_OPCODE_HANDLER(CMSG_WORLD_STATE_UI_TIMER_UPDATE,               0x15AB, STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleWorldStateUITimerUpdate      ); // 5.4.8 18414
@@ -1369,7 +1368,7 @@ void OpcodeTable::InitializeServerTable()
     DEFINE_OPCODE_HANDLER(SMSG_WAIT_QUEUE_UPDATE,                       0x0000, STATUS_UNHANDLED);
     DEFINE_OPCODE_HANDLER(SMSG_WARDEN_DATA,                             0x0C0A, STATUS_NEVER    ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(SMSG_WARGAME_CHECK_ENTRY,                     0x0000, STATUS_UNHANDLED);
-    DEFINE_OPCODE_HANDLER(SMSG_WARGAME_REQUEST_SENT,                    0x0CAE, STATUS_UNHANDLED); // 5.4.8 18414
+    DEFINE_OPCODE_HANDLER(SMSG_WARGAME_REQUEST_SENT,                    0x0CAE, STATUS_NEVER    ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(SMSG_WEATHER,                                 0x06AB, STATUS_NEVER    ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(SMSG_WEEKLY_LAST_RESET,                       0x0000, STATUS_UNHANDLED);
     DEFINE_OPCODE_HANDLER(SMSG_WEEKLY_RESET_CURRENCY,                   0x023E, STATUS_NEVER    ); // 5.4.8 18414

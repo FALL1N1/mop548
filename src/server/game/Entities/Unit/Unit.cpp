@@ -4945,7 +4945,7 @@ void Unit::SendPeriodicAuraLog(SpellPeriodicAuraLogInfo* pInfo)
     {
         data.WriteBit(!hasOverdamage);
         data.WriteBit(!hasAbsorb);
-        data.WriteBit(pInfo->isCritical);
+        data.WriteBit(pInfo->critical);
         data.WriteBit(!hasResist);
         data.WriteBit(!hasSchoolMaskOrPowerType);
     };

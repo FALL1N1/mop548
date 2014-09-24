@@ -119,6 +119,7 @@ class BattlegroundMgr
         static BattlegroundQueueTypeId BGQueueTypeId(BattlegroundTypeId bgTypeId, RatedType ratedType);
         static BattlegroundTypeId BGTemplateId(BattlegroundQueueTypeId bgQueueTypeId);
         static RatedType GetRatedTypeByQueue(BattlegroundQueueTypeId bgQueueTypeId);
+        static BattlegroundTypeId GetBattlegroundTypeIdFromGUID(uint64 guid) { return BattlegroundTypeId(guid & 0x00000000000000FF); }
 
         static HolidayIds BGTypeToWeekendHolidayId(BattlegroundTypeId bgTypeId);
         static BattlegroundTypeId WeekendHolidayIdToBGType(HolidayIds holiday);
