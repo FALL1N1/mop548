@@ -4941,11 +4941,11 @@ void Unit::SendPeriodicAuraLog(SpellPeriodicAuraLogInfo* pInfo)
 
     data.WriteBit(targetGuid[0]);
 
-    auto fillBits = [&data] (bool hasOverdamage, bool hasAbsorb, bool hasResist, bool hasSchoolMaskOrPowerType)
+    auto fillBits = [&data, pInfo] (bool hasOverdamage, bool hasAbsorb, bool hasResist, bool hasSchoolMaskOrPowerType)
     {
         data.WriteBit(!hasOverdamage);
         data.WriteBit(!hasAbsorb);
-        data.WriteBit(false);
+        data.WriteBit(pInfo->isCritical);
         data.WriteBit(!hasResist);
         data.WriteBit(!hasSchoolMaskOrPowerType);
     };
