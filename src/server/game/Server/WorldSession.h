@@ -830,6 +830,7 @@ class WorldSession
         void HandleRequestRatedInfo(WorldPacket& recvData);
         void HandleRequestPvpOptions(WorldPacket& recvData);
         void HandleRequestPvpReward(WorldPacket& recvData);
+        void HandleWargameRequest(WorldPacket& recvData);
 
         // Cemetery
         void HandleSetPreferedCemetery(WorldPacket& recvData);
