@@ -152,9 +152,9 @@ void WorldSession::HandleBlackMarketBidOpcode(WorldPacket& recvData)
 
 void WorldSession::SendBlackMarketBidResult()
 {
-    TC_LOG_DEBUG("network", "WORLD: Received SMSG_BLACKMARKET_BID_RESULT");
+    TC_LOG_DEBUG("network", "WORLD: Received SMSG_BLACK_MARKET_BID_RESULT");
 
-    WorldPacket data(SMSG_BLACKMARKET_BID_RESULT, 5);
+    WorldPacket data(SMSG_BLACK_MARKET_BID_RESULT, 5);
 
     data << uint32(0); //unk
     data.WriteBits(0, 2);

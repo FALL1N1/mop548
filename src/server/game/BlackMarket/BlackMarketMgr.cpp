@@ -310,7 +310,7 @@ std::string BMAuctionEntry::BuildAuctionMailBody(uint32 lowGuid)
 
 void BlackMarketMgr::SendAuctionOutbidded(BMAuctionEntry* auction, uint32 newPrice, Player* newBidder, SQLTransaction& trans)
 {
-    WorldPacket data(SMSG_BLACKMARKET_OUT_BID, 12);
+    WorldPacket data(SMSG_BLACK_MARKET_OUT_BID, 12);
 
     data << uint32(1);
     data << uint32(auction->bm_template->itemEntry);
