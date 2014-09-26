@@ -137,11 +137,6 @@ bool IS_VEHICLE_GUID(uint64 guid)
     return GUID_HIPART(guid) == HIGHGUID_VEHICLE;
 }
 
-bool IS_BATTLEGROUND_GUID(uint64 guid)
-{
-    return GUID_HIPART(guid) == HIGHGUID_BATTLEGROUND;
-}
-
 bool IS_CRE_OR_VEH_GUID(uint64 guid)
 {
     return IS_CREATURE_GUID(guid) || IS_VEHICLE_GUID(guid);
