@@ -69,7 +69,6 @@ void WorldSession::HandleSubmitBugOpcode(WorldPacket& recvData)
 
     LoginDatabase.ExecuteOrAppend(trans, stmt);
 }
-
 void WorldSession::HandleSubmitSuggestionOpcode(WorldPacket& recvData)
 {
     TC_LOG_DEBUG("network", "WORLD: CMSG_SUGGESTION_SUBMIT");

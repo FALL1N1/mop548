@@ -26,28 +26,27 @@
 #include "World.h"
 #include "DBCStores.h"
 
-DB2Storage<BattlePetAbilityEntry> sBattlePetAbilityStore(BattlePetAbilityfmt);
-DB2Storage<BattlePetAbilityStateEntry> sBattlePetAbilityStateStore(BattlePetAbilityStatefmt);
-DB2Storage<BattlePetBreedStateEntry> sBattlePetBreedStateStore(BattlePetBreedStatefmt);
-DB2Storage<BattlePetSpeciesEntry> sBattlePetSpeciesStore(BattlePetSpeciesfmt);
-DB2Storage<BattlePetSpeciesStateEntry> sBattlePetSpeciesStateStore(BattlePetSpeciesStatefmt);
-DB2Storage<BattlePetSpeciesXAbilityEntry> sBattlePetSpeciesXAbilityStore(BattlePetSpeciesXAbilityfmt);
-DB2Storage<BattlePetStateEntry> sBattlePetStateStore(BattlePetStatefmt);
-DB2Storage<ItemToBattlePetEntry> sItemToBattlePetStore(ItemToBattlePetfmt);
+DB2Storage<BattlePetAbilityEntry>           sBattlePetAbilityStore(BattlePetAbilityfmt);
+DB2Storage<BattlePetAbilityStateEntry>      sBattlePetAbilityStateStore(BattlePetAbilityStatefmt);
+DB2Storage<BattlePetBreedStateEntry>        sBattlePetBreedStateStore(BattlePetBreedStatefmt);
+DB2Storage<BattlePetSpeciesEntry>           sBattlePetSpeciesStore(BattlePetSpeciesfmt);
+DB2Storage<BattlePetSpeciesStateEntry>      sBattlePetSpeciesStateStore(BattlePetSpeciesStatefmt);
+DB2Storage<BattlePetSpeciesXAbilityEntry>   sBattlePetSpeciesXAbilityStore(BattlePetSpeciesXAbilityfmt);
+DB2Storage<BattlePetStateEntry>             sBattlePetStateStore(BattlePetStatefmt);
+DB2Storage<ItemToBattlePetEntry>            sItemToBattlePetStore(ItemToBattlePetfmt);
+DB2Storage<BroadcastTextEntry>              sBroadcastTextStore(BroadcastTextfmt/*, &DB2Utilities::HasBroadcastTextEntry, &DB2Utilities::WriteBroadcastTextDbReply*/);
+DB2Storage<ItemEntry>                       sItemStore(Itemfmt, &DB2Utilities::HasItemEntry, &DB2Utilities::WriteItemDbReply);
+DB2Storage<ItemCurrencyCostEntry>           sItemCurrencyCostStore(ItemCurrencyCostfmt);
+DB2Storage<ItemExtendedCostEntry>           sItemExtendedCostStore(ItemExtendedCostEntryfmt);
+DB2Storage<ItemSparseEntry>                 sItemSparseStore(ItemSparsefmt, &DB2Utilities::HasItemSparseEntry, &DB2Utilities::WriteItemSparseDbReply);
+DB2Storage<ItemUpgradeEntry>                sItemUpgradeStore(ItemUpgradefmt);
+DB2Storage<KeyChainEntry>                   sKeyChainStore(KeyChainfmt);
+DB2Storage<QuestPackageItemEntry>           sQuestPackageItemStore(QuestPackageItemfmt);
+DB2Storage<SceneScriptEntry>                sSceneScriptStore(SceneScriptfmt);
+DB2Storage<SpellReagentsEntry>              sSpellReagentsStore(SpellReagentsfmt);
 
-BattlePetBreedSet sBattlePetBreedSet;
-BattlePetItemXSpeciesStore sBattlePetItemXSpeciesStore;
-
-DB2Storage<BroadcastTextEntry> sBroadcastTextStore(BroadcastTextfmt/*, &DB2Utilities::HasBroadcastTextEntry, &DB2Utilities::WriteBroadcastTextDbReply*/);
-DB2Storage<ItemEntry> sItemStore(Itemfmt, &DB2Utilities::HasItemEntry, &DB2Utilities::WriteItemDbReply);
-DB2Storage<ItemCurrencyCostEntry> sItemCurrencyCostStore(ItemCurrencyCostfmt);
-DB2Storage<ItemExtendedCostEntry> sItemExtendedCostStore(ItemExtendedCostEntryfmt);
-DB2Storage<ItemSparseEntry> sItemSparseStore(ItemSparsefmt, &DB2Utilities::HasItemSparseEntry, &DB2Utilities::WriteItemSparseDbReply);
-DB2Storage<ItemUpgradeEntry> sItemUpgradeStore(ItemUpgradefmt);
-DB2Storage<KeyChainEntry> sKeyChainStore(KeyChainfmt);
-DB2Storage<QuestPackageItemEntry> sQuestPackageItemStore(QuestPackageItemfmt);
-DB2Storage<SceneScriptEntry> sSceneScriptStore(SceneScriptfmt);
-DB2Storage<SpellReagentsEntry> sSpellReagentsStore(SpellReagentsfmt);
+BattlePetBreedSet                           sBattlePetBreedSet;
+BattlePetItemXSpeciesStore                  sBattlePetItemXSpeciesStore;
 
 typedef std::list<std::string> DB2StoreProblemList;
 
@@ -116,35 +115,33 @@ void LoadDB2Stores(std::string const& dataPath)
     DB2StoreProblemList bad_db2_files;
     uint32 availableDb2Locales = 0xFF;
 
-    LoadDB2(availableDb2Locales, bad_db2_files, sBattlePetAbilityStore, db2Path, "BattlePetAbility.db2");
-    LoadDB2(availableDb2Locales, bad_db2_files, sBattlePetAbilityStateStore, db2Path, "BattlePetAbilityState.db2");
-    LoadDB2(availableDb2Locales, bad_db2_files, sBattlePetBreedStateStore, db2Path, "BattlePetBreedState.db2");
+    LoadDB2(availableDb2Locales, bad_db2_files, sBattlePetAbilityStore,         db2Path, "BattlePetAbility.db2");
+    LoadDB2(availableDb2Locales, bad_db2_files, sBattlePetAbilityStateStore,    db2Path, "BattlePetAbilityState.db2");
+    LoadDB2(availableDb2Locales, bad_db2_files, sBattlePetBreedStateStore,      db2Path, "BattlePetBreedState.db2");
+    LoadDB2(availableDb2Locales, bad_db2_files, sBattlePetSpeciesStore,         db2Path, "BattlePetSpecies.db2");
+    LoadDB2(availableDb2Locales, bad_db2_files, sBattlePetSpeciesStateStore,    db2Path, "BattlePetSpeciesState.db2");
+    LoadDB2(availableDb2Locales, bad_db2_files, sBattlePetSpeciesXAbilityStore, db2Path, "BattlePetSpeciesXAbility.db2");
+    LoadDB2(availableDb2Locales, bad_db2_files, sBattlePetStateStore,           db2Path, "BattlePetState.db2");
+    LoadDB2(availableDb2Locales, bad_db2_files, sItemToBattlePetStore,          db2Path, "ItemToBattlePet.db2");
+    LoadDB2(availableDb2Locales, bad_db2_files, sBroadcastTextStore,            db2Path, "BroadcastText.db2");
+    LoadDB2(availableDb2Locales, bad_db2_files, sItemStore,                     db2Path, "Item.db2");
+    LoadDB2(availableDb2Locales, bad_db2_files, sItemCurrencyCostStore,         db2Path, "ItemCurrencyCost.db2");
+    LoadDB2(availableDb2Locales, bad_db2_files, sItemSparseStore,               db2Path, "Item-sparse.db2");
+    LoadDB2(availableDb2Locales, bad_db2_files, sItemExtendedCostStore,         db2Path, "ItemExtendedCost.db2");
+    LoadDB2(availableDb2Locales, bad_db2_files, sItemUpgradeStore,              db2Path, "ItemUpgrade.db2");
+    LoadDB2(availableDb2Locales, bad_db2_files, sKeyChainStore,                 db2Path, "KeyChain.db2");
+    LoadDB2(availableDb2Locales, bad_db2_files, sQuestPackageItemStore,         db2Path, "QuestPackageItem.db2");
+    LoadDB2(availableDb2Locales, bad_db2_files, sSceneScriptStore,              db2Path, "SceneScript.db2");
+    LoadDB2(availableDb2Locales, bad_db2_files, sSpellReagentsStore,            db2Path, "SpellReagents.db2");
 
     for (uint32 i = 0; i < sBattlePetBreedStateStore.GetNumRows(); i++)
         if (BattlePetBreedStateEntry const* breedStateEntry = sBattlePetBreedStateStore.LookupEntry(i))
             if (sBattlePetBreedSet.find(breedStateEntry->BreedId) == sBattlePetBreedSet.end())
                 sBattlePetBreedSet.insert(breedStateEntry->BreedId);
 
-    LoadDB2(availableDb2Locales, bad_db2_files, sBattlePetSpeciesStore, db2Path, "BattlePetSpecies.db2");
-    LoadDB2(availableDb2Locales, bad_db2_files, sBattlePetSpeciesStateStore, db2Path, "BattlePetSpeciesState.db2");
-    LoadDB2(availableDb2Locales, bad_db2_files, sBattlePetSpeciesXAbilityStore, db2Path, "BattlePetSpeciesXAbility.db2");
-    LoadDB2(availableDb2Locales, bad_db2_files, sBattlePetStateStore, db2Path, "BattlePetState.db2");
-    LoadDB2(availableDb2Locales, bad_db2_files, sItemToBattlePetStore, db2Path, "ItemToBattlePet.db2");
-
     for (uint32 i = 0; i < sItemToBattlePetStore.GetNumRows(); i++)
         if (ItemToBattlePetEntry const* itemEntry = sItemToBattlePetStore.LookupEntry(i))
             sBattlePetItemXSpeciesStore.insert(std::make_pair(itemEntry->ItemId, itemEntry->SpeciesId));
-
-    LoadDB2(availableDb2Locales, bad_db2_files, sBroadcastTextStore, db2Path, "BroadcastText.db2");
-    LoadDB2(availableDb2Locales, bad_db2_files, sItemStore, db2Path, "Item.db2");
-    LoadDB2(availableDb2Locales, bad_db2_files, sItemCurrencyCostStore, db2Path, "ItemCurrencyCost.db2");
-    LoadDB2(availableDb2Locales, bad_db2_files, sItemSparseStore, db2Path, "Item-sparse.db2");
-    LoadDB2(availableDb2Locales, bad_db2_files, sItemExtendedCostStore, db2Path, "ItemExtendedCost.db2");
-    LoadDB2(availableDb2Locales, bad_db2_files, sItemUpgradeStore, db2Path, "ItemUpgrade.db2");
-    LoadDB2(availableDb2Locales, bad_db2_files, sKeyChainStore, db2Path, "KeyChain.db2");
-    LoadDB2(availableDb2Locales, bad_db2_files, sQuestPackageItemStore, db2Path, "QuestPackageItem.db2");
-    LoadDB2(availableDb2Locales, bad_db2_files, sSceneScriptStore, db2Path, "SceneScript.db2");
-    LoadDB2(availableDb2Locales, bad_db2_files, sSpellReagentsStore, db2Path, "SpellReagents.db2");
 
     // error checks
     if (bad_db2_files.size() >= DB2FilesCount)
@@ -196,9 +193,9 @@ DB2StorageBase const* GetDB2Storage(uint32 type)
 
 float BattlePetSpeciesMainStat(uint16 stateId, uint16 speciesId)
 {
-    if (stateId != BATTLE_PET_STATE_STAT_POWER
-        && stateId != BATTLE_PET_STATE_STAT_STAMINA
-        && stateId != BATTLE_PET_STATE_STAT_SPEED)
+    if (stateId != BATTLE_PET_STATE_STAT_POWER &&
+        stateId != BATTLE_PET_STATE_STAT_STAMINA &&
+        stateId != BATTLE_PET_STATE_STAT_SPEED)
         return 0;
 
     for (uint32 i = 0; i < sBattlePetSpeciesStateStore.GetNumRows(); i++)
@@ -216,9 +213,9 @@ float BattlePetSpeciesMainStat(uint16 stateId, uint16 speciesId)
 
 float BattlePetBreedMainStatModifier(uint16 stateId, uint8 breedId)
 {
-    if (stateId != BATTLE_PET_STATE_STAT_POWER
-        && stateId != BATTLE_PET_STATE_STAT_STAMINA
-        && stateId != BATTLE_PET_STATE_STAT_SPEED)
+    if (stateId != BATTLE_PET_STATE_STAT_POWER &&
+        stateId != BATTLE_PET_STATE_STAT_STAMINA &&
+        stateId != BATTLE_PET_STATE_STAT_SPEED)
         return 0;
 
     for (uint32 i = 0; i < sBattlePetBreedStateStore.GetNumRows(); i++)

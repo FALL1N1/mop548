@@ -24,27 +24,26 @@
 #include "DB2Structure.h"
 #include <string>
 
-extern DB2Storage<BattlePetAbilityEntry> sBattlePetAbilityStore;
-extern DB2Storage<BattlePetAbilityStateEntry> sBattlePetAbilityStateStore;
-extern DB2Storage<BattlePetBreedStateEntry> sBattlePetBreedStateStore;
-extern DB2Storage<BattlePetSpeciesEntry> sBattlePetSpeciesStore;
-extern DB2Storage<BattlePetSpeciesStateEntry> sBattlePetSpeciesStateStore;
-extern DB2Storage<BattlePetSpeciesXAbilityEntry> sBattlePetSpeciesXAbilityStore;
-extern DB2Storage<BattlePetStateEntry> sBattlePetStateStore;
-extern DB2Storage<ItemToBattlePetEntry> sItemToBattlePetStore;
+extern DB2Storage<BattlePetAbilityEntry>            sBattlePetAbilityStore;
+extern DB2Storage<BattlePetAbilityStateEntry>       sBattlePetAbilityStateStore;
+extern DB2Storage<BattlePetBreedStateEntry>         sBattlePetBreedStateStore;
+extern DB2Storage<BattlePetSpeciesEntry>            sBattlePetSpeciesStore;
+extern DB2Storage<BattlePetSpeciesStateEntry>       sBattlePetSpeciesStateStore;
+extern DB2Storage<BattlePetSpeciesXAbilityEntry>    sBattlePetSpeciesXAbilityStore;
+extern DB2Storage<BattlePetStateEntry>              sBattlePetStateStore;
+extern DB2Storage<ItemToBattlePetEntry>             sItemToBattlePetStore;
+extern DB2Storage<BroadcastTextEntry>               sBroadcastTextStore;
+extern DB2Storage<ItemEntry>                        sItemStore;
+extern DB2Storage<ItemCurrencyCostEntry>            sItemCurrencyCostStore;
+extern DB2Storage<ItemExtendedCostEntry>            sItemExtendedCostStore;
+extern DB2Storage<ItemSparseEntry>                  sItemSparseStore;
+extern DB2Storage<ItemUpgradeEntry>                 sItemUpgradeStore;
+extern DB2Storage<KeyChainEntry>                    sKeyChainStore;
+extern DB2Storage<SceneScriptEntry>                 sSceneScriptStore;
+extern DB2Storage<SpellReagentsEntry>               sSpellReagentsStore;
 
-extern BattlePetBreedSet sBattlePetBreedSet;
-extern BattlePetItemXSpeciesStore sBattlePetItemXSpeciesStore;
-
-extern DB2Storage<BroadcastTextEntry> sBroadcastTextStore;
-extern DB2Storage<ItemEntry> sItemStore;
-extern DB2Storage<ItemCurrencyCostEntry> sItemCurrencyCostStore;
-extern DB2Storage<ItemExtendedCostEntry> sItemExtendedCostStore;
-extern DB2Storage<ItemSparseEntry> sItemSparseStore;
-extern DB2Storage<ItemUpgradeEntry> sItemUpgradeStore;
-extern DB2Storage<KeyChainEntry> sKeyChainStore;
-extern DB2Storage<SceneScriptEntry> sSceneScriptStore;
-extern DB2Storage<SpellReagentsEntry> sSpellReagentsStore;
+extern BattlePetBreedSet                            sBattlePetBreedSet;
+extern BattlePetItemXSpeciesStore                   sBattlePetItemXSpeciesStore;
 
 void LoadDB2Stores(std::string const& dataPath);
 

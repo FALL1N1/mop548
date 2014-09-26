@@ -22995,6 +22995,8 @@ void Player::InitDataForForm(bool reapplyMods)
 
     switch (form)
     {
+        case FORM_FIERCE_TIGER:
+        case FORM_STURDY_OX:
         case FORM_GHOUL:
         case FORM_CAT:
         {
@@ -23011,7 +23013,7 @@ void Player::InitDataForForm(bool reapplyMods)
         case FORM_WISE_SERPENT:
         {
             if (getPowerType() != POWER_MANA)
-            setPowerType(POWER_MANA);
+                setPowerType(POWER_MANA);
             break;
         }
         default:                                            // 0, for example
