@@ -2715,6 +2715,9 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
 
             switch (spellInfo->Id)
             {
+                case 12975:// Last Stand
+                    spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_MOD_INCREASE_HEALTH_PERCENT;
+                    break;
                 case 111546:// Chaotic Energy
                     spellInfo->Effects[1].Effect = 0;
                     spellInfo->Effects[1].BasePoints = 0;

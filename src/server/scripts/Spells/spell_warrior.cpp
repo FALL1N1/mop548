@@ -30,24 +30,77 @@
 
 enum WarriorSpells
 {
-
+    WARRIOR_SPELL_RALLYING_CRY                      = 97463,
+    WARRIOR_SPELL_SWORD_AND_BOARD                   = 50227,
+    WARRIOR_SPELL_SHIELD_SLAM                       = 23922,
+    WARRIOR_SPELL_SHIELD_BLOCK_TRIGGERED            = 132404,
 };
 
-enum WarriorSpellIcons
+class spell_warr_sword_and_board : public SpellScriptLoader
 {
-    WARRIOR_ICON_ID_SUDDEN_DEATH                    = 1989
+public:
+    spell_warr_sword_and_board() : SpellScriptLoader("spell_warr_sword_and_board") { }
+
+    class spell_warr_sword_and_board_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_warr_sword_and_board_SpellScript);
+
+        void HandleOnHit()
+        {
+            if (Player* _player = GetCaster()->ToPlayer())
+            {
+                if (Unit* target = GetHitUnit())
+                {
+                    if (roll_chance_i(30))
+                    {
+                        _player->CastSpell(_player, WARRIOR_SPELL_SWORD_AND_BOARD, true);
+                        _player->RemoveSpellCooldown(WARRIOR_SPELL_SHIELD_SLAM, true);
+                    }
+                }
+            }
+        }
+
+        void Register()
+        {
+            OnHit += SpellHitFn(spell_warr_sword_and_board_SpellScript::HandleOnHit);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_warr_sword_and_board_SpellScript();
+    }
 };
 
-
-enum MiscSpells
+class spell_warr_shield_block : public SpellScriptLoader
 {
-    SPELL_PALADIN_BLESSING_OF_SANCTUARY             = 20911,
-    SPELL_PALADIN_GREATER_BLESSING_OF_SANCTUARY     = 25899,
-    SPELL_PRIEST_RENEWED_HOPE                       = 63944
-};
+public:
+    spell_warr_shield_block() : SpellScriptLoader("spell_warr_shield_block") { }
 
+    class spell_warr_shield_block_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_warr_shield_block_SpellScript);
+
+        void HandleOnHit()
+        {
+            if (Player* _player = GetCaster()->ToPlayer())
+                _player->CastSpell(_player, WARRIOR_SPELL_SHIELD_BLOCK_TRIGGERED, true);
+        }
+
+        void Register()
+        {
+            OnHit += SpellHitFn(spell_warr_shield_block_SpellScript::HandleOnHit);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_warr_shield_block_SpellScript();
+    }
+};
 
 void AddSC_warrior_spell_scripts()
 {
-
+    new spell_warr_sword_and_board();
+    new spell_warr_shield_block();
 }

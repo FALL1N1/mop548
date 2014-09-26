@@ -268,7 +268,7 @@ public:
 
         void Register()
         {
-            OnEffectPeriodic += AuraEffectPeriodicFn(spell_warl_nightfall_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+            OnEffectPeriodic += AuraEffectPeriodicFn(spell_warl_nightfall_AuraScript::OnTick, EFFECT_1, SPELL_AURA_PERIODIC_DAMAGE);
         }
     };
 

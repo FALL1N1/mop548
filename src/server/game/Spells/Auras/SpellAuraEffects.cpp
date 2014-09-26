@@ -662,6 +662,58 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
 
             break;
         }
+        case SPELL_AURA_PERIODIC_ENERGIZE:
+        {
+            switch (m_spellInfo->Id)
+            {
+                case 5171:  // Slice and Dice
+                {
+                    if (!caster)
+                        break;
+
+                    Player* plr = caster->ToPlayer();
+                    if (!plr)
+                        break;
+
+                    if (!plr->HasAura(76808))
+                        break;
+
+                    float Mastery = plr->GetMasterySpellCoefficient();
+                    AddPct(amount, Mastery);
+
+                    break;
+                }
+                default:
+                    break;
+            }
+            break;
+        }
+        case SPELL_AURA_MOD_MELEE_HASTE_3:
+        {
+            switch (GetId())
+            {
+                case 5171:  // Slice and Dice
+                {
+                    if (!caster)
+                        break;
+
+                    Player* plr = caster->ToPlayer();
+                    if (!plr)
+                        break;
+
+                    if (!plr->HasAura(76808))
+                        break;
+
+                    float Mastery = plr->GetMasterySpellCoefficient();
+                    AddPct(amount, Mastery);
+
+                    break;
+                }
+                default:
+                    break;
+            }
+            break;
+        }
         default:
             break;
     }
