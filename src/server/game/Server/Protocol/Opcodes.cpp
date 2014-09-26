@@ -72,7 +72,7 @@ void OpcodeTable::InitializeClientTable()
     DEFINE_OPCODE_HANDLER(CMSG_ADD_VOICE_IGNORE,                          0x0000, STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                        );
     DEFINE_OPCODE_HANDLER(CMSG_ADDON_REGISTERED_PREFIXES,                 0x040E, STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleAddonRegisteredPrefixesOpcode); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(CMSG_ALTER_APPEARANCE,                          0x07F0, STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleAlterAppearance              ); // 5.4.8 18414
-    DEFINE_OPCODE_HANDLER(CMSG_AREA_SPIRIT_HEALER_QUERY,                  0x0000, STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleAreaSpiritHealerQueryOpcode  );
+    DEFINE_OPCODE_HANDLER(CMSG_AREA_SPIRIT_HEALER_QUERY,                  0x03F1, STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleAreaSpiritHealerQueryOpcode  ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(CMSG_AREA_TRIGGER,                              0x1C44, STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleAreaTriggerOpcode            ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(CMSG_ATTACK_STOP,                               0x0345, STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleAttackStopOpcode             ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(CMSG_ATTACK_SWING,                              0x02E7, STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleAttackSwingOpcode            ); // 5.4.8 18414
