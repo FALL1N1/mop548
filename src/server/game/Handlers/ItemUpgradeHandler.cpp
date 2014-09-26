@@ -84,20 +84,3 @@ void WorldSession::HandleUpgradeItem(WorldPacket& recvData)
 
     SendItemUpgradeResult(true);
 }
-
-void WorldSession::SendItemUpgrade(uint64 guid)
-{
-    TC_LOG_DEBUG("network", "WORLD: SMSG_SEND_ITEM_UPGRADE");
-
-    ObjectGuid itemGuid = guid;
-
-    WorldPacket data(SMSG_SEND_ITEM_UPGRADE, 1 + 8);
-
-    uint8 bitOrder[8] = {7, 4, 2, 6, 5, 3, 1, 0};
-    data.WriteBitInOrder(itemGuid, bitOrder);
-
-    uint8 byteOrder[8] = {4, 0, 6, 7, 1, 2, 3, 5};
-    data.WriteBytesSeq(itemGuid, byteOrder);
-
-    SendPacket(&data);
-}
