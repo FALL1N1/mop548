@@ -572,7 +572,7 @@ void Player::UpdateMastery()
 void Player::UpdatePVPPower(int32 amount)
 {
     SetStatFloatValue(PLAYER_FIELD_PVP_POWER_DAMAGE, GetUInt32Value(PLAYER_FIELD_COMBAT_RATINGS + CR_PVP_POWER) * GetRatingMultiplier(CR_PVP_POWER));
-    SetStatFloatValue(PLAYER_FIELD_PVP_POWER_HEALING, GetUInt32Value(PLAYER_FIELD_COMBAT_RATINGS + CR_PVP_POWER) * GetRatingMultiplier(CR_PVP_POWER));
+    SetStatFloatValue(PLAYER_FIELD_PVP_POWER_HEALING, (GetUInt32Value(PLAYER_FIELD_COMBAT_RATINGS + CR_PVP_POWER) * GetRatingMultiplier(CR_PVP_POWER)) / 2);
 }
 
 const float m_diminishing_k[MAX_CLASSES] =
