@@ -2180,7 +2180,7 @@ void WorldSession::HandleRequestHotfix(WorldPacket& recvPacket)
         recvPacket.ReadByteSeq(guids[i][3]);
 
         // temp: this should be moved once broadcast text is properly implemented
-        if (type == DB2_REPLY_BROADCAST)
+        if (type == DB2_REPLY_BroadcastText)
         {
             SendBroadcastText(entry);
             continue;
@@ -2242,7 +2242,7 @@ void WorldSession::SendBroadcastText(uint32 entry)
     WorldPacket data(SMSG_DB_REPLY);
     data << uint32(entry);
     data << uint32(time(NULL));
-    data << uint32(DB2_REPLY_BROADCAST);
+    data << uint32(DB2_REPLY_BroadcastText);
     data << uint32(buffer.size());
     data.append(buffer);
 
