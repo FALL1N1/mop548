@@ -271,7 +271,7 @@ class AchievementMgr
         bool IsCompletedCriteria(CriteriaEntry const* criteria);
         bool IsCompletedAchievement(AchievementEntry const* entry);
         bool IsCompletedCriteriaForAchievement(CriteriaEntry const* criteria, AchievementEntry const* achievementEntry);
-        bool CanUpdateCriteria(CriteriaEntry const* criteria, AchievementEntry const* achievement, uint64 miscValue1, uint64 miscValue2, uint64 miscValue3, Unit const* unit, Player* referencePlayer);
+        bool CanUpdateCriteria(CriteriaEntry const* criteria, uint64 miscValue1, uint64 miscValue2, uint64 miscValue3, Unit const* unit, Player* referencePlayer);
         void SendPacket(WorldPacket* data) const;
 
         bool ConditionsSatisfied(CriteriaEntry const* criteria, Player* referencePlayer) const;

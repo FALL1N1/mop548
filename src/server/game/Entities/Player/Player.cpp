@@ -17603,6 +17603,8 @@ void Player::KilledMonsterCredit(uint32 entry, uint64 guid /*= 0*/)
 
     StartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_CREATURE, realEntry);   // MUST BE CALLED FIRST
     UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE, realEntry, addKillCount, 0, killed);
+    if (Guild const* guild = GetGuild())
+        GetGuild()->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE, realEntry, addKillCount, 0, killed, this);
 
     for (uint8 i = 0; i < MAX_QUEST_LOG_SIZE; ++i)
     {
@@ -25875,6 +25877,51 @@ bool Player::IsAtRecruitAFriendDistance(WorldObject const* pOther) const
         return false;
 
     return pOther->GetDistance(player) <= sWorld->getFloatConfig(CONFIG_MAX_RECRUIT_A_FRIEND_DISTANCE);
+}
+
+bool Player::SatisfiesGuildGroupCriteria() const
+{
+    if (!GetMap() || !GetGuildId() || !GetGroup())
+        return false;
+
+    uint32 requiredPlayers = 0;
+
+    if (GetMap()->IsNonRaidDungeon())
+        requiredPlayers = 3;
+    else if (GetMap()->IsRaid())
+    {
+        if (GetMap()->GetDifficulty() == RAID_DIFFICULTY_40MAN_DIFFICULTY)
+            requiredPlayers = 10;
+        // Not implemented and probably never will be
+        /*else if (GetMap()->GetDifficulty() == RAID_DIFFICULTY_FLEXIBLE)
+            requiredPercent = 80;*/
+        else if (GetMap()->Is25ManRaid())
+            requiredPlayers = 20;
+        else
+            requiredPlayers = 8;
+    }
+    else if (GetMap()->IsBattleArena())
+    {
+        //requiredPercent = 100;
+        return false;
+    }
+    else if (Battleground const* bg = GetBattleground())
+        requiredPlayers = bg->GetMaxPlayers() * 0.8f;
+    else
+        return false;
+
+    for (Group::MemberSlotList::const_iterator itr = GetGroup()->GetMemberSlots().begin(); itr != GetGroup()->GetMemberSlots().end(); itr++)
+    {
+        Player* groupMember = ObjectAccessor::GetPlayer(*this, itr->guid);
+        if (!groupMember || !groupMember->IsSelfOrInSameMap(this))
+            continue;
+
+        if (groupMember->GetGuildId() == GetGuildId())
+            if (--requiredPlayers == 0)
+                return true;
+    }
+
+    return false;
 }
 
 void Player::ResurectUsingRequestData()

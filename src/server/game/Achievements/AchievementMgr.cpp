@@ -1092,7 +1092,7 @@ void AchievementMgr<T>::UpdateAchievementCriteria(AchievementCriteriaTypes type,
     {
         CriteriaEntry const* achievementCriteria = (*i);
 
-        if (!CanUpdateCriteria(achievementCriteria, NULL, miscValue1, miscValue2, miscValue3, unit, referencePlayer))
+        if (!CanUpdateCriteria(achievementCriteria, miscValue1, miscValue2, miscValue3, unit, referencePlayer))
             continue;
 
         // requirements not found in the dbc
@@ -2339,26 +2339,43 @@ bool AchievementMgr<Player>::HasAchieved(uint32 achievementId) const
 }
 
 template<class T>
-bool AchievementMgr<T>::CanUpdateCriteria(CriteriaEntry const* criteria, AchievementEntry const* achievement, uint64 miscValue1, uint64 miscValue2, uint64 miscValue3, Unit const* unit, Player* referencePlayer)
+bool AchievementMgr<T>::CanUpdateCriteria(CriteriaEntry const* criteria, uint64 miscValue1, uint64 miscValue2, uint64 miscValue3, Unit const* unit, Player* referencePlayer)
 {
+    AchievementCriteriaTreeList achievementCriteriaTreeList = sAchievementMgr->GetAchievementCriteriaTreeList(criteria);
+    for (AchievementCriteriaTreeList::const_iterator iter = achievementCriteriaTreeList.begin(); iter != achievementCriteriaTreeList.end(); iter++)
+    {
+        AchievementEntry const* achievement = sAchievementMgr->GetAchievementEntryByCriteriaTree(*iter);
+
+        if (!achievement)
+            continue;
+
+        // Prevents update Guild Achievments for player
+        if (!IsGuild<T>() && (achievement->flags & ACHIEVEMENT_FLAG_GUILD))
+            return false;
+
+        // Prevents update Player Achievements for guild
+        if (IsGuild<T>() && !(achievement->flags & ACHIEVEMENT_FLAG_GUILD))
+            return false;
+
+        if (achievement->mapID != -1 && referencePlayer->GetMapId() != uint32(achievement->mapID))
+        {
+            TC_LOG_TRACE("achievement", "CanUpdateCriteria: (Id: %u Type %s) Wrong map",
+                criteria->ID, AchievementGlobalMgr::GetCriteriaTypeString(criteria->type));
+            return false;
+        }
+
+        if ((achievement->requiredFaction == ACHIEVEMENT_FACTION_HORDE && referencePlayer->GetTeam() != HORDE) ||
+            (achievement->requiredFaction == ACHIEVEMENT_FACTION_ALLIANCE && referencePlayer->GetTeam() != ALLIANCE))
+        {
+            TC_LOG_TRACE("achievement", "CanUpdateCriteria: (Id: %u Type %s) Wrong faction",
+                criteria->ID, AchievementGlobalMgr::GetCriteriaTypeString(criteria->type));
+            return false;
+        }
+    }
+
     if (DisableMgr::IsDisabledFor(DISABLE_TYPE_ACHIEVEMENT_CRITERIA, criteria->ID, NULL))
     {
         TC_LOG_TRACE("achievement", "CanUpdateCriteria: (Id: %u Type %s) Disabled",
-            criteria->ID, AchievementGlobalMgr::GetCriteriaTypeString(criteria->type));
-        return false;
-    }
-
-    if (achievement && achievement->mapID != -1 && referencePlayer->GetMapId() != uint32(achievement->mapID))
-    {
-        TC_LOG_TRACE("achievement", "CanUpdateCriteria: (Id: %u Type %s) Wrong map",
-            criteria->ID, AchievementGlobalMgr::GetCriteriaTypeString(criteria->type));
-        return false;
-    }
-
-    if (achievement && ((achievement->requiredFaction == ACHIEVEMENT_FACTION_HORDE    && referencePlayer->GetTeam() != HORDE) ||
-        (achievement->requiredFaction == ACHIEVEMENT_FACTION_ALLIANCE && referencePlayer->GetTeam() != ALLIANCE)))
-    {
-        TC_LOG_TRACE("achievement", "CanUpdateCriteria: (Id: %u Type %s) Wrong faction",
             criteria->ID, AchievementGlobalMgr::GetCriteriaTypeString(criteria->type));
         return false;
     }
@@ -2369,7 +2386,6 @@ bool AchievementMgr<T>::CanUpdateCriteria(CriteriaEntry const* criteria, Achieve
             criteria->ID, AchievementGlobalMgr::GetCriteriaTypeString(criteria->type));
         return false;
     }
-
 
     if (!RequirementsSatisfied(criteria, miscValue1, miscValue2, miscValue3, unit, referencePlayer))
     {
@@ -2910,6 +2926,10 @@ bool AchievementMgr<T>::AdditionalRequirementsSatisfied(CriteriaEntry const* cri
                 return false;
         case ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_TARGET_HEALTH_PERCENT_BELOW: // 46
             if (!unit || unit->GetHealthPct() >= reqValue)
+                return false;
+            break;
+        case ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_REQUIRES_GUILD_GROUP:
+            if (!referencePlayer->SatisfiesGuildGroupCriteria())
                 return false;
             break;
         case ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_GUILD_REPUTATION: // 62
