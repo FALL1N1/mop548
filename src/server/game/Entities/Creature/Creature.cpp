@@ -1072,14 +1072,16 @@ void Creature::SelectLevel(const CreatureTemplate* cinfo)
     {
         case CLASS_WARRIOR:
             setPowerType(POWER_RAGE);
+            SetMaxPower(POWER_RAGE, GetCreatePowers(POWER_RAGE));
+            SetPower(POWER_RAGE, GetCreatePowers(POWER_RAGE));
             break;
         case CLASS_ROGUE:
             setPowerType(POWER_ENERGY);
-            break;
-        case CLASS_MONK:
-            setPowerType(POWER_CHI);
+            SetMaxPower(POWER_ENERGY, GetCreatePowers(POWER_ENERGY));
+            SetPower(POWER_ENERGY, GetCreatePowers(POWER_ENERGY));
             break;
         default:
+            setPowerType(POWER_MANA);
             SetMaxPower(POWER_MANA, mana);
             SetPower(POWER_MANA, mana);
             break;
