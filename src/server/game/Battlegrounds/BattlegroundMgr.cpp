@@ -1178,13 +1178,30 @@ void BattlegroundMgr::SendToBattleground(Player* player, uint32 instanceId, Batt
         TC_LOG_ERROR("bg.battleground", "BattlegroundMgr::SendToBattleground: Instance %u (bgType %u) not found while trying to teleport player %s", instanceId, bgTypeId, player->GetName().c_str());
 }
 
-void BattlegroundMgr::SendAreaSpiritHealerQueryOpcode(Player* player, Battleground* bg, uint64 guid)
+void BattlegroundMgr::SendAreaSpiritHealerQueryOpcode(Player* player, Battleground* bg, ObjectGuid guid)
 {
-    WorldPacket data(SMSG_AREA_SPIRIT_HEALER_TIME, 12);
     uint32 time_ = 30000 - bg->GetLastResurrectTime();      // resurrect every 30 seconds
+    
     if (time_ == uint32(-1))
         time_ = 0;
-    data << guid << time_;
+
+    WorldPacket data(SMSG_AREA_SPIRIT_HEALER_TIME, 12);
+
+    uint8 bitOrder[8] = {5, 2, 7, 6, 1, 0, 3, 4};
+    data.WriteBitInOrder(guid, bitOrder);
+
+    data.WriteByteSeq(guid[2]);
+    data.WriteByteSeq(guid[3]);
+    data.WriteByteSeq(guid[5]);
+    data.WriteByteSeq(guid[4]);
+    data.WriteByteSeq(guid[6]);
+
+    data << time_;
+
+    data.WriteByteSeq(guid[7]);
+    data.WriteByteSeq(guid[0]);
+    data.WriteByteSeq(guid[1]);
+
     player->GetSession()->SendPacket(&data);
 }
 

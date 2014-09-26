@@ -241,6 +241,7 @@ bool IsGuidHaveEnPart(uint64 guid)
         case HIGHGUID_CORPSE:
         case HIGHGUID_GROUP:
         case HIGHGUID_GUILD:
+        case HIGHGUID_BATTLEGROUND:
             return false;
         case HIGHGUID_GAMEOBJECT:
         case HIGHGUID_TRANSPORT:
@@ -271,6 +272,7 @@ char const* GetLogNameForGuid(uint64 guid)
         case HIGHGUID_GROUP:        return "group";
         case HIGHGUID_GUILD:        return "guild";
         case HIGHGUID_AREATRIGGER:  return "areatrigger";
+        case HIGHGUID_BATTLEGROUND: return "battleground";
         default:
             return "<unknown>";
     }

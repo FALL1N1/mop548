@@ -83,7 +83,7 @@ class BattlegroundMgr
         void BuildPvpLogDataPacket(WorldPacket* data, Battleground* bg);
         void BuildBattlegroundStatusPacket(WorldPacket* data, Battleground* bg, Player* player, uint8 queueSlot, uint8 statusId, uint32 time1, uint32 time2, RatedType ratedType);
         void BuildPlaySoundPacket(WorldPacket* data, uint32 soundId);
-        void SendAreaSpiritHealerQueryOpcode(Player* player, Battleground* bg, uint64 guid);
+        void SendAreaSpiritHealerQueryOpcode(Player* player, Battleground* bg, ObjectGuid guid);
 
         /* Battlegrounds */
         Battleground* GetBattlegroundThroughClientInstance(uint32 instanceId, BattlegroundTypeId bgTypeId);
