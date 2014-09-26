@@ -5387,6 +5387,18 @@ void Spell::HandleHolyPower(Player* caster)
     if (!caster)
         return;
 
+    // Templar's Verdict and Eternal Flame - Don't remove power twice
+    if (m_spellInfo->Id == 85256 || m_spellInfo->Id == 114163)
+        return;
+
+    // Word of Glory - Don't remove power twice (idem for Light of Dawn)
+    if (m_spellInfo->Id == 85673 || m_spellInfo->Id == 85222)
+        return;
+
+    // Shield of the Righteous - Don't remove power twice
+    if (m_spellInfo->Id == 53600)
+        return;
+
     bool hit = true;
     Player* modOwner = caster->GetSpellModOwner();
 

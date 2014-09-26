@@ -902,6 +902,8 @@ Player::Player(WorldSession* session): Unit(true), phaseMgr(this)
     m_battlePetMgr = new BattlePetMgr(this);
 
     _ConquestCurrencytotalWeekCap = 0;
+
+    m_knockBackTimer = 0;
 }
 
 void Player::InitializeDynamicUpdateFields()
@@ -1730,8 +1732,17 @@ void Player::Update(uint32 p_time)
                             setAttackTimer(OFF_ATTACK, ATTACK_DISPLAY_DELAY);
 
                     // do attack
-                    AttackerStateUpdate(victim, BASE_ATTACK);
-                    resetAttackTimer(BASE_ATTACK);
+                    if (!HasAura(121471))
+                    {
+                        AttackerStateUpdate(victim, BASE_ATTACK);
+                        resetAttackTimer(BASE_ATTACK);
+                    }
+                    // Shadow Blade - Main Hand
+                    else if (HasAura(121471))
+                    {
+                        CastSpell(victim, 121473, true);
+                        resetAttackTimer(BASE_ATTACK);
+                    }
                 }
             }
 
@@ -1748,8 +1759,17 @@ void Player::Update(uint32 p_time)
                         setAttackTimer(BASE_ATTACK, ATTACK_DISPLAY_DELAY);
 
                     // do attack
-                    AttackerStateUpdate(victim, OFF_ATTACK);
-                    resetAttackTimer(OFF_ATTACK);
+                    if (!HasAura(121471))
+                    {
+                        AttackerStateUpdate(victim, OFF_ATTACK);
+                        resetAttackTimer(OFF_ATTACK);
+                    }
+                    // Shadow Blades - Off Hand
+                    else if (HasAura(121471))
+                    {
+                        CastSpell(victim, 121474, true);
+                        resetAttackTimer(OFF_ATTACK);
+                    }
                 }
             }
 
@@ -1882,6 +1902,12 @@ void Player::Update(uint32 p_time)
         }
         else
             m_deathTimer -= p_time;
+    }
+
+    if (m_knockBackTimer)
+    {
+        if( m_knockBackTimer + 2000 < getMSTime())
+            m_knockBackTimer = 0;
     }
 
     UpdateEnchantTime(p_time);
@@ -3736,7 +3762,6 @@ void Player::InitStatsForLevel(bool reapplyMods)
         SetFloatValue(PLAYER_FIELD_MOD_DAMAGE_DONE_PERCENT+i, 1.0f);
     }
 
-    SetFloatValue(PLAYER_FIELD_MOD_RESILIENCE_PERCENT, -77.0f);
     SetFloatValue(PLAYER_FIELD_MOD_SPELL_POWER_PERCENT, 1.0f);
 
     //reset attack power, damage and attack speed fields

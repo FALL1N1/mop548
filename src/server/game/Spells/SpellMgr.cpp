@@ -2715,7 +2715,17 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
 
             switch (spellInfo->Id)
             {
-                case 12975:// Last Stand
+                case 109259: // Powershot
+                    spellInfo->Effects[1].BasePoints = 60;
+                    spellInfo->Effects[2].BasePoints = 800;
+                    break;
+                case 117050: // Glaive Toss (talent)
+                    spellInfo->Effects[1].TargetA = TARGET_UNIT_TARGET_ENEMY;
+                    break;
+                case 120755: // Glaive Toss (Glaive right)
+                    spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
+                    break;
+                case 12975: // Last Stand
                     spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_MOD_INCREASE_HEALTH_PERCENT;
                     break;
                 case 111546:// Chaotic Energy
@@ -3707,6 +3717,8 @@ void SpellMgr::LoadSpellClassInfo()
         if (!classEntry)
             continue;
 
+        // Player base resilience (40% base resilience)
+        mSpellClassInfo[ClassID].insert(115043);
         // Player mastery activation
         mSpellClassInfo[ClassID].insert(114585);
 

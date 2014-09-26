@@ -34,23 +34,33 @@
 
 enum HunterSpells
 {
-    SPELL_HUNTER_SERPENT_STING                  = 118253,
-    SPELL_HUNTER_GENERIC_ENERGIZE_FOCUS         = 91954,
-    SPELL_HUNTER_CHIMERA_SHOT_HEAL              = 53353,
-    SPELL_HUNTER_STEADY_SHOT_FOCUS              = 77443,
-    SPELL_HUNTER_CAMOUFLAGE                     = 51755,
-    SPELL_HUNTER_CAMOUFLAGE_DUMMY               = 51753,
-    SPELL_HUNTER_CAMOUFLAGE_STEALTH             = 80325,
-    SPELL_HUNTER_CAMOUFLAGE_VISUAL              = 80326,
-    SPELL_HUNTER_GLYPH_OF_CAMOUFLAGE            = 119449,
-    SPELL_HUNTER_GLYPH_OF_CAMOUFLAGE_STEALTH    = 119450,
-    SPELL_HUNTER_NARROW_ESCAPE_TALENT           = 109298,
-    SPELL_HUNTER_NARROW_ESCAPE_DUMMY            = 115928,
-    SPELL_HUNTER_NARROW_ESCAPT_MISSILE          = 128405,
-    SPELL_HUNTER_POSTHASTE_TALENT               = 109215,
-    SPELL_HUNTER_POSTHASTE                      = 118922,
-    SPELL_HUNTER_PET_HOT_PHOENIX_TRIGGERED      = 54114,
-    SPELL_HUNTER_PET_HOT_PHOENIX_DEBUFF         = 55711,
+    SPELL_HUNTER_SERPENT_STING                      = 118253,
+    SPELL_HUNTER_GENERIC_ENERGIZE_FOCUS             = 91954,
+    SPELL_HUNTER_CHIMERA_SHOT_HEAL                  = 53353,
+    SPELL_HUNTER_STEADY_SHOT_FOCUS                  = 77443,
+    SPELL_HUNTER_CAMOUFLAGE                         = 51755,
+    SPELL_HUNTER_CAMOUFLAGE_DUMMY                   = 51753,
+    SPELL_HUNTER_CAMOUFLAGE_STEALTH                 = 80325,
+    SPELL_HUNTER_CAMOUFLAGE_VISUAL                  = 80326,
+    SPELL_HUNTER_GLYPH_OF_CAMOUFLAGE                = 119449,
+    SPELL_HUNTER_GLYPH_OF_CAMOUFLAGE_STEALTH        = 119450,
+    SPELL_HUNTER_NARROW_ESCAPE_TALENT               = 109298,
+    SPELL_HUNTER_NARROW_ESCAPE_DUMMY                = 115928,
+    SPELL_HUNTER_NARROW_ESCAPT_MISSILE              = 128405,
+    SPELL_HUNTER_POSTHASTE_TALENT                   = 109215,
+    SPELL_HUNTER_POSTHASTE                          = 118922,
+    SPELL_HUNTER_PET_HOT_PHOENIX_TRIGGERED          = 54114,
+    SPELL_HUNTER_PET_HOT_PHOENIX_DEBUFF             = 55711,
+    SPELL_HUNTER_GLAIVE_TOSS_AURA                   = 117050,
+    SPELL_HUNTER_GLAIVE_TOSS_RIGHT                  = 120755,
+    SPELL_HUNTER_GLAIVE_TOSS_LEFT                   = 120756,
+    SPELL_HUNTER_GLAIVE_TOSS_DAMAGE_AND_SNARE_LEFT  = 120761,
+    SPELL_HUNTER_GLAIVE_TOSS_DAMAGE_AND_SNARE_RIGHT = 121414,
+    SPELL_HUNTER_BLINK_STRIKE                       = 130393,
+    SPELL_HUNTER_BARRAGE                            = 120360,
+    SPELL_HUNTER_KILL_COMMAND                       = 34026,
+    SPELL_HUNTER_KILL_COMMAND_TRIGGER               = 83381,
+    SPELL_HUNTER_MASTERY_MASTER_OF_THE_BEAST        = 76657,
 };
 
 class spell_hun_cobra_shot : public SpellScriptLoader
@@ -389,6 +399,356 @@ public:
     }
 };
 
+class spell_hun_glaive_toss_damage : public SpellScriptLoader
+{
+public:
+    spell_hun_glaive_toss_damage() : SpellScriptLoader("spell_hun_glaive_toss_damage") { }
+
+    class spell_hun_glaive_toss_damage_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_hun_glaive_toss_damage_SpellScript);
+
+        uint64 mainTargetGUID;
+
+        bool Load()
+        {
+            mainTargetGUID = 0;
+            return true;
+        }
+
+        void CorrectDamageRange(std::list<WorldObject*>& targets)
+        {
+            targets.clear();
+
+            std::list<Unit*> targetList;
+            float radius = 50.0f;
+
+            Trinity::NearestAttackableUnitInObjectRangeCheck u_check(GetCaster(), GetCaster(), radius);
+            Trinity::UnitListSearcher<Trinity::NearestAttackableUnitInObjectRangeCheck> searcher(GetCaster(), targetList, u_check);
+            GetCaster()->VisitNearbyObject(radius, searcher);
+
+            for (auto itr : targetList)
+            {
+                if (itr->HasAura(SPELL_HUNTER_GLAIVE_TOSS_AURA))
+                {
+                    mainTargetGUID = itr->GetGUID();
+                    break;
+                }
+            }
+
+            if (!mainTargetGUID)
+                return;
+
+            Unit* target = ObjectAccessor::FindUnit(mainTargetGUID);
+            if (!target)
+                return;
+
+            targets.push_back(target);
+
+            for (auto itr : targetList)
+                if (itr->IsInBetween(GetCaster(), target, 5.0f))
+                    targets.push_back(itr);
+        }
+
+        void CorrectSnareRange(std::list<WorldObject*>& targets)
+        {
+            targets.clear();
+
+            std::list<Unit*> targetList;
+            float radius = 50.0f;
+
+            Trinity::NearestAttackableUnitInObjectRangeCheck u_check(GetCaster(), GetCaster(), radius);
+            Trinity::UnitListSearcher<Trinity::NearestAttackableUnitInObjectRangeCheck> searcher(GetCaster(), targetList, u_check);
+            GetCaster()->VisitNearbyObject(radius, searcher);
+
+            for (auto itr : targetList)
+            {
+                if (itr->HasAura(SPELL_HUNTER_GLAIVE_TOSS_AURA))
+                {
+                    mainTargetGUID = itr->GetGUID();
+                    break;
+                }
+            }
+
+            if (!mainTargetGUID)
+                return;
+
+            Unit* target = ObjectAccessor::FindUnit(mainTargetGUID);
+            if (!target)
+                return;
+
+            targets.push_back(target);
+
+            for (auto itr : targetList)
+                if (itr->IsInBetween(GetCaster(), target, 5.0f))
+                    targets.push_back(itr);
+        }
+
+        void OnDamage()
+        {
+            if (!mainTargetGUID)
+                return;
+
+            Unit* target = ObjectAccessor::FindUnit(mainTargetGUID);
+            if (!target)
+                return;
+
+            if (GetHitUnit())
+                if (GetHitUnit() == target)
+                    SetHitDamage(GetHitDamage() * 4);
+        }
+
+        void Register()
+        {
+            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_hun_glaive_toss_damage_SpellScript::CorrectDamageRange, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
+            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_hun_glaive_toss_damage_SpellScript::CorrectSnareRange, EFFECT_1, TARGET_UNIT_DEST_AREA_ENEMY);
+            OnHit += SpellHitFn(spell_hun_glaive_toss_damage_SpellScript::OnDamage);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_hun_glaive_toss_damage_SpellScript();
+    }
+};
+
+class spell_hun_glaive_toss_missile : public SpellScriptLoader
+{
+public:
+    spell_hun_glaive_toss_missile() : SpellScriptLoader("spell_hun_glaive_toss_missile") { }
+
+    class spell_hun_glaive_toss_missile_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_hun_glaive_toss_missile_SpellScript);
+
+        void HandleAfterCast()
+        {
+            if (GetSpellInfo()->Id == SPELL_HUNTER_GLAIVE_TOSS_RIGHT)
+            {
+                if (Player* plr = GetCaster()->ToPlayer())
+                    plr->CastSpell(plr, SPELL_HUNTER_GLAIVE_TOSS_DAMAGE_AND_SNARE_RIGHT, true);
+                else if (GetOriginalCaster())
+                {
+                    if (Player* caster = GetOriginalCaster()->ToPlayer())
+                        caster->CastSpell(caster, SPELL_HUNTER_GLAIVE_TOSS_DAMAGE_AND_SNARE_RIGHT, true);
+                }
+            }
+            else
+            {
+                if (Player* plr = GetCaster()->ToPlayer())
+                    plr->CastSpell(plr, SPELL_HUNTER_GLAIVE_TOSS_DAMAGE_AND_SNARE_LEFT, true);
+                else if (GetOriginalCaster())
+                {
+                    if (Player* caster = GetOriginalCaster()->ToPlayer())
+                        caster->CastSpell(caster, SPELL_HUNTER_GLAIVE_TOSS_DAMAGE_AND_SNARE_LEFT, true);
+                }
+            }
+
+            if (Unit* target = GetExplTargetUnit())
+                if (GetCaster() == GetOriginalCaster())
+                    GetCaster()->AddAura(SPELL_HUNTER_GLAIVE_TOSS_AURA, target);
+        }
+
+        void HandleOnHit()
+        {
+            if (GetSpellInfo()->Id == SPELL_HUNTER_GLAIVE_TOSS_RIGHT)
+            {
+                if (Unit* caster = GetCaster())
+                    if (Unit* target = GetHitUnit())
+                        if (caster == GetOriginalCaster())
+                            target->CastSpell(caster, SPELL_HUNTER_GLAIVE_TOSS_LEFT, true, NULL, NULL, caster->GetGUID());
+            }
+            else
+            {
+                if (Unit* caster = GetCaster())
+                    if (Unit* target = GetHitUnit())
+                        if (caster == GetOriginalCaster())
+                            target->CastSpell(caster, SPELL_HUNTER_GLAIVE_TOSS_RIGHT, true, NULL, NULL, caster->GetGUID());
+            }
+        }
+
+        void Register()
+        {
+            AfterCast += SpellCastFn(spell_hun_glaive_toss_missile_SpellScript::HandleAfterCast);
+            OnHit += SpellHitFn(spell_hun_glaive_toss_missile_SpellScript::HandleOnHit);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_hun_glaive_toss_missile_SpellScript();
+    }
+};
+
+class spell_hun_powershot : public SpellScriptLoader
+{
+public:
+    spell_hun_powershot() : SpellScriptLoader("spell_hun_powershot") { }
+
+    class spell_hun_powershot_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_hun_powershot_SpellScript);
+
+        void HandleAfterHit()
+        {
+            if (Player* _player = GetCaster()->ToPlayer())
+            {
+                if (Unit* target = GetHitUnit())
+                {
+                    std::list<Unit*> tempUnitMap;
+                    _player->GetAttackableUnitListInRange(tempUnitMap, _player->GetDistance(target));
+
+                    for (auto itr : tempUnitMap)
+                    {
+                        if (!itr->IsValidAttackTarget(_player))
+                            continue;
+
+                        if (itr->GetGUID() == _player->GetGUID())
+                            continue;
+
+                        if (!itr->IsInBetween(_player, target, 1.0f))
+                            continue;
+
+                        SpellNonMeleeDamage damageInfo(_player, itr, GetSpellInfo()->Id, GetSpellInfo()->SchoolMask);
+                        damageInfo.damage = int32(GetHitDamage() / 2);
+                        _player->SendSpellNonMeleeDamageLog(&damageInfo);
+                        _player->DealSpellDamage(&damageInfo, true);
+
+                        if (Creature* creatureTarget = itr->ToCreature())
+                            if (creatureTarget->isWorldBoss() || creatureTarget->IsDungeonBoss())
+                                continue;
+
+                        if (itr->GetTypeId() == TYPEID_PLAYER)
+                            if (itr->ToPlayer()->GetKnockBackTime())
+                                continue;
+
+                        if (itr->IsNonMeleeSpellCasted(true))
+                            itr->InterruptNonMeleeSpells(true);
+
+                        float ratio = 0.1f;
+                        float speedxy = float(GetSpellInfo()->Effects[EFFECT_1].MiscValue) * ratio;
+                        float speedz = float(GetSpellInfo()->Effects[EFFECT_1].BasePoints) * ratio;
+                        if (speedxy < 0.1f && speedz < 0.1f)
+                            return;
+
+                        float x, y;
+                        _player->GetPosition(x, y);
+
+                        itr->KnockbackFrom(x, y, speedxy, speedz);
+
+                        if (itr->GetTypeId() == TYPEID_PLAYER)
+                            itr->ToPlayer()->SetKnockBackTime(getMSTime());
+                    }
+                }
+            }
+        }
+
+        void Register()
+        {
+            AfterHit += SpellHitFn(spell_hun_powershot_SpellScript::HandleAfterHit);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_hun_powershot_SpellScript();
+    }
+};
+
+class spell_hun_barrage : public SpellScriptLoader
+{
+public:
+    spell_hun_barrage() : SpellScriptLoader("spell_hun_barrage") { }
+
+    class spell_hun_barrage_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_hun_barrage_SpellScript);
+
+        void HandleOnHit()
+        {
+            if (Player* _player = GetCaster()->ToPlayer())
+                if (Unit* target = GetHitUnit())
+                    if (!target->HasAura(SPELL_HUNTER_BARRAGE))
+                        SetHitDamage(GetHitDamage() / 2);
+        }
+
+        void Register()
+        {
+            OnHit += SpellHitFn(spell_hun_barrage_SpellScript::HandleOnHit);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_hun_barrage_SpellScript();
+    }
+};
+
+class spell_hun_kill_command : public SpellScriptLoader
+{
+public:
+    spell_hun_kill_command() : SpellScriptLoader("spell_hun_kill_command") { }
+
+    class spell_hun_kill_command_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_hun_kill_command_SpellScript);
+
+        bool Validate(SpellInfo const* /*SpellEntry*/)
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_HUNTER_KILL_COMMAND))
+                return false;
+            return true;
+        }
+
+        SpellCastResult CheckCastMeet()
+        {
+            Unit* pet = GetCaster()->GetGuardianPet();
+            Unit* petTarget = GetExplTargetUnit();
+
+            if (!pet || pet->isDead())
+                return SPELL_FAILED_NO_PET;
+
+            if (!petTarget || !pet->IsWithinDist(petTarget, 25.0f, true))
+                return SPELL_FAILED_DONT_REPORT;
+
+            return SPELL_CAST_OK;
+        }
+
+        void HandleDummy(SpellEffIndex /*effIndex*/)
+        {
+            if (Unit* pet = GetCaster()->GetGuardianPet())
+            {
+                if (!pet)
+                    return;
+
+                if (!GetExplTargetUnit())
+                    return;
+
+                pet->CastSpell(GetExplTargetUnit(), SPELL_HUNTER_KILL_COMMAND_TRIGGER, true);
+
+                if (pet->GetVictim())
+                {
+                    pet->AttackStop();
+                    pet->ToCreature()->AI()->AttackStart(GetExplTargetUnit());
+                }
+                else
+                    pet->ToCreature()->AI()->AttackStart(GetExplTargetUnit());
+            }
+        }
+
+        void Register()
+        {
+            OnCheckCast += SpellCheckCastFn(spell_hun_kill_command_SpellScript::CheckCastMeet);
+            OnEffectHit += SpellEffectFn(spell_hun_kill_command_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_hun_kill_command_SpellScript();
+    }
+};
+
 //! Pet spells
 
 class spell_hun_pet_heart_of_the_phoenix : public SpellScriptLoader
@@ -438,6 +798,7 @@ public:
         return new spell_hun_pet_heart_of_the_phoenix_SpellScript();
     }
 };
+
 void AddSC_hunter_spell_scripts()
 {
     new spell_hun_cobra_shot();
@@ -449,4 +810,9 @@ void AddSC_hunter_spell_scripts()
     new spell_hun_disengage();
     new spell_hun_narrow_escape();
     new spell_hun_pet_heart_of_the_phoenix();
+    new spell_hun_glaive_toss_damage();
+    new spell_hun_glaive_toss_missile();
+    new spell_hun_powershot();
+    new spell_hun_barrage();
+    new spell_hun_kill_command();
 }

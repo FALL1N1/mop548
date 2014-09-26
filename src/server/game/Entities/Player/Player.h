@@ -2622,6 +2622,9 @@ class Player : public Unit, public GridObject<Player>
         void UpdateResearchProjects();
         void SendSurveryCastInfo(ResearchDigsite* digsite, bool success);
 
+        void SetKnockBackTime(uint32 timer) { m_knockBackTimer = timer; }
+        uint32 GetKnockBackTime() const { return m_knockBackTimer; }
+
     protected:
         // Gamemaster whisper whitelist
         WhisperListContainer WhisperList;
@@ -2983,6 +2986,8 @@ class Player : public Unit, public GridObject<Player>
         uint32 _ConquestCurrencytotalWeekCap;
 
         BattlePetMgr* m_battlePetMgr;
+
+        uint32 m_knockBackTimer;
 };
 
 void AddItemsSetItem(Player*player, Item* item);
