@@ -150,6 +150,7 @@ enum SpellSpecificType
 {
     SPELL_SPECIFIC_NORMAL                        = 0,
     SPELL_SPECIFIC_SEAL                          = 1,
+    SPELL_SPECIFIC_BLESSING                      = 2,
     SPELL_SPECIFIC_AURA                          = 3,
     SPELL_SPECIFIC_STING                         = 4,
     SPELL_SPECIFIC_CURSE                         = 5,
@@ -161,6 +162,7 @@ enum SpellSpecificType
     SPELL_SPECIFIC_MAGE_POLYMORPH                = 11,
     SPELL_SPECIFIC_JUDGEMENT                     = 13,
     SPELL_SPECIFIC_WARLOCK_CORRUPTION            = 17,
+    SPELL_SPECIFIC_WELL_FED                      = 18,
     SPELL_SPECIFIC_FOOD                          = 19,
     SPELL_SPECIFIC_DRINK                         = 20,
     SPELL_SPECIFIC_FOOD_AND_DRINK                = 21,
@@ -172,7 +174,8 @@ enum SpellSpecificType
     SPELL_SPECIFIC_PRIEST_DIVINE_SPIRIT          = 27,
     SPELL_SPECIFIC_HAND                          = 28,
     SPELL_SPECIFIC_PHASE                         = 29,
-    SPELL_SPECIFIC_BANE                          = 30
+    SPELL_SPECIFIC_BANE                          = 30,
+    SPELL_SPECIFIC_CHAKRA                        = 31,
 };
 
 enum SpellCustomAttributes

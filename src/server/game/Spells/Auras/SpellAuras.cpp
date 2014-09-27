@@ -1793,10 +1793,6 @@ bool Aura::IsProcTriggeredOnEvent(AuraApplication* aurApp, ProcEventInfo& eventI
                     item = target->ToPlayer()->GetUseableItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
                 else if (attType == OFF_ATTACK)
                     item = target->ToPlayer()->GetUseableItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
-                else if(attType == RANGED_ATTACK && target->getClass() == CLASS_HUNTER)
-                    item = target->ToPlayer()->GetUseableItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
-                else if(attType == RANGED_ATTACK && target->getClass() != CLASS_HUNTER)
-                    item = target->ToPlayer()->GetUseableItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
 
                 if (!item || item->IsBroken() || item->GetTemplate()->Class != ITEM_CLASS_WEAPON || !((1<<item->GetTemplate()->SubClass) & GetSpellInfo()->EquippedItemSubClassMask))
                     return false;

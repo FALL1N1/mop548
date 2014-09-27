@@ -107,7 +107,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleAuraTrackResources,                        // 45 SPELL_AURA_TRACK_RESOURCES
     &AuraEffect::HandleNULL,                                      // 46 SPELL_AURA_46 (used in test spells 54054 and 54058, and spell 48050) (3.0.8a)
     &AuraEffect::HandleAuraModParryPercent,                       // 47 SPELL_AURA_MOD_PARRY_PERCENT
-    &AuraEffect::HandleNULL,                                      // 48 SPELL_AURA_48 spell Napalm (area damage spell with additional delayed damage effect)
+    &AuraEffect::HandleNULL,                                      // 48 SPELL_AURA_PERIODIC_TRIGGER_BY_CLIENT
     &AuraEffect::HandleAuraModDodgePercent,                       // 49 SPELL_AURA_MOD_DODGE_PERCENT
     &AuraEffect::HandleNoImmediateEffect,                         // 50 SPELL_AURA_MOD_CRITICAL_HEALING_AMOUNT implemented in Unit::SpellCriticalHealingBonus
     &AuraEffect::HandleAuraModBlockPercent,                       // 51 SPELL_AURA_MOD_BLOCK_PERCENT
@@ -385,7 +385,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleUnused,                                    //323 unused (4.3.4)
     &AuraEffect::HandleNULL,                                      //324 SPELL_AURA_324
     &AuraEffect::HandleUnused,                                    //325 unused (4.3.4)
-    &AuraEffect::HandleNULL,                                      //326 SPELL_AURA_326
+    &AuraEffect::HandleNULL,                                      //326 SPELL_AURA_PHASE_2
     &AuraEffect::HandleUnused,                                    //327 unused (4.3.4)
     &AuraEffect::HandleNoImmediateEffect,                         //328 SPELL_AURA_PROC_ON_POWER_AMOUNT implemented in Unit::HandleAuraProcOnPowerAmount
     &AuraEffect::HandleNULL,                                      //329 SPELL_AURA_MOD_RUNE_REGEN_SPEED
@@ -394,7 +394,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNoImmediateEffect,                         //332 SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS implemented in WorldSession::HandleCastSpellOpcode
     &AuraEffect::HandleNoImmediateEffect,                         //333 SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS_2 implemented in WorldSession::HandleCastSpellOpcode
     &AuraEffect::HandleNULL,                                      //334 SPELL_AURA_MOD_BLIND
-    &AuraEffect::HandleNULL,                                      //335 SPELL_AURA_335
+    &AuraEffect::HandleNULL,                                      //335 SPELL_AURA_SEE_WHILE_INVISIBLE
     &AuraEffect::HandleNULL,                                      //336 SPELL_AURA_MOD_FLYING_RESTRICTIONS
     &AuraEffect::HandleNoImmediateEffect,                         //337 SPELL_AURA_MOD_VENDOR_ITEMS_PRICES
     &AuraEffect::HandleNoImmediateEffect,                         //338 SPELL_AURA_MOD_DURABILITY_LOSS
@@ -402,7 +402,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //340 SPELL_AURA_MOD_RESURRECTED_HEALTH_BY_GUILD_MEMBER
     &AuraEffect::HandleNULL,                                      //341 SPELL_AURA_MOD_SPELL_CATEGORY_COOLDOWN
     &AuraEffect::HandleModMeleeRangedSpeedPct,                    //342 SPELL_AURA_MOD_MELEE_RANGED_HASTE_2
-    &AuraEffect::HandleNULL,                                      //343 SPELL_AURA_343
+    &AuraEffect::HandleNULL,                                      //343 SPELL_AURA_MOD_AUTOATTACK_DAMAGE_TARGET
     &AuraEffect::HandleNULL,                                      //344 SPELL_AURA_MOD_AUTOATTACK_DAMAGE
     &AuraEffect::HandleNoImmediateEffect,                         //345 SPELL_AURA_BYPASS_ARMOR_FOR_CASTER
     &AuraEffect::HandleEnableAltPower,                            //346 SPELL_AURA_ENABLE_ALT_POWER
@@ -410,12 +410,12 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNoImmediateEffect,                         //348 SPELL_AURA_DEPOSIT_BONUS_MONEY_IN_GUILD_BANK_ON_LOOT implemented in WorldSession::HandleLootMoneyOpcode
     &AuraEffect::HandleNoImmediateEffect,                         //349 SPELL_AURA_MOD_CURRENCY_GAIN implemented in Player::ModifyCurrency
     &AuraEffect::HandleNULL,                                      //350 SPELL_AURA_MOD_GATHERING_ITEMS_GAINED_PERCENT
-    &AuraEffect::HandleNULL,                                      //351 SPELL_AURA_351
-    &AuraEffect::HandleNULL,                                      //352 SPELL_AURA_352
+    &AuraEffect::HandleNULL,                                      //351 SPELL_AURA_MOD_CURRENCY_LOOT
+    &AuraEffect::HandleNULL,                                      //352 SPELL_AURA_ALLOW_WORGEN_TRANSFORM
     &AuraEffect::HandleNULL,                                      //353 SPELL_AURA_MOD_CAMOUFLAGE
-    &AuraEffect::HandleNULL,                                      //354 SPELL_AURA_354
+    &AuraEffect::HandleNULL,                                      //354 SPELL_AURA_MOD_HEALING_DONE_FROM_PCT_HEALTH
     &AuraEffect::HandleUnused,                                    //355 unused (4.3.4)
-    &AuraEffect::HandleNULL,                                      //356 SPELL_AURA_356
+    &AuraEffect::HandleNULL,                                      //356 SPELL_AURA_MOD_DAMAGE_DONE_FROM_PCT_POWER
     &AuraEffect::HandleNULL,                                      //357 SPELL_AURA_ENABLE_BOSS1_UNIT_FRAME
     &AuraEffect::HandleNULL,                                      //358 SPELL_AURA_358
     &AuraEffect::HandleNULL,                                      //359 SPELL_AURA_359
@@ -5179,14 +5179,6 @@ void AuraEffect::HandleChannelDeathItem(AuraApplication const* aurApp, uint8 mod
     if (GetSpellInfo()->Effects[m_effIndex].ItemType == 0)
         return;
 
-    // Soul Shard
-    if (GetSpellInfo()->Effects[m_effIndex].ItemType == 6265)
-    {
-        // Soul Shard only from units that grant XP or honor
-        if (!plCaster->isHonorOrXPTarget(target) ||
-            (target->GetTypeId() == TYPEID_UNIT && !target->ToCreature()->isTappedBy(plCaster)))
-            return;
-    }
 
     //Adding items
     uint32 noSpaceForCount = 0;
@@ -6065,7 +6057,7 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
         }
 
         // Curse of Agony damage-per-tick calculation
-        if (GetSpellInfo()->SpellFamilyName == SPELLFAMILY_WARLOCK && (GetSpellInfo()->SpellFamilyFlags[0] & 0x400) && GetSpellInfo()->SpellIconID == 544)
+        if (GetSpellInfo()->Id == 980)
         {
             uint32 totalTick = GetTotalTicks();
             // 1..4 ticks, 1/2 from normal tick damage

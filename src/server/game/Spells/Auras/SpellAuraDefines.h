@@ -106,7 +106,7 @@ enum AuraType
     SPELL_AURA_TRACK_RESOURCES                              = 45,
     SPELL_AURA_46                                           = 46,   // Ignore all Gear test spells
     SPELL_AURA_MOD_PARRY_PERCENT                            = 47,
-    SPELL_AURA_48                                           = 48,   // One periodic spell
+    SPELL_AURA_PERIODIC_TRIGGER_BY_CLIENT                   = 48,  // Client periodic trigger spell by self (3 spells in 3.3.5a)
     SPELL_AURA_MOD_DODGE_PERCENT                            = 49,
     SPELL_AURA_MOD_CRITICAL_HEALING_AMOUNT                  = 50,
     SPELL_AURA_MOD_BLOCK_PERCENT                            = 51,
@@ -384,7 +384,7 @@ enum AuraType
     SPELL_AURA_323                                          = 323,  // Not used in 4.3.4
     SPELL_AURA_324                                          = 324,  // spell critical chance (probably by school mask)
     SPELL_AURA_325                                          = 325,  // Not used in 4.3.4
-    SPELL_AURA_326                                          = 326,  // phase related
+    SPELL_AURA_PHASE_2                                      = 326,  // phase related
     SPELL_AURA_327                                          = 327,  // Not used in 4.3.4
     SPELL_AURA_PROC_ON_POWER_AMOUNT                         = 328,
     SPELL_AURA_MOD_RUNE_REGEN_SPEED                         = 329,  // NYI
@@ -393,7 +393,7 @@ enum AuraType
     SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS                    = 332,
     SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS_2                  = 333,
     SPELL_AURA_MOD_BLIND                                    = 334,  // NYI
-    SPELL_AURA_335                                          = 335,
+    SPELL_AURA_SEE_WHILE_INVISIBLE                          = 335,  // NYI
     SPELL_AURA_MOD_FLYING_RESTRICTIONS                      = 336,  // NYI
     SPELL_AURA_MOD_VENDOR_ITEMS_PRICES                      = 337,
     SPELL_AURA_MOD_DURABILITY_LOSS                          = 338,
@@ -401,7 +401,7 @@ enum AuraType
     SPELL_AURA_MOD_RESURRECTED_HEALTH_BY_GUILD_MEMBER       = 340,  // Increases health gained when resurrected by a guild member by X
     SPELL_AURA_MOD_SPELL_CATEGORY_COOLDOWN                  = 341,  // Modifies cooldown of all spells using affected category
     SPELL_AURA_MOD_MELEE_RANGED_HASTE_2                     = 342,
-    SPELL_AURA_343                                          = 343,
+    SPELL_AURA_MOD_AUTOATTACK_DAMAGE_TARGET                 = 343,
     SPELL_AURA_MOD_AUTOATTACK_DAMAGE                        = 344,  // NYI
     SPELL_AURA_BYPASS_ARMOR_FOR_CASTER                      = 345,
     SPELL_AURA_ENABLE_ALT_POWER                             = 346,  // NYI
@@ -409,12 +409,12 @@ enum AuraType
     SPELL_AURA_DEPOSIT_BONUS_MONEY_IN_GUILD_BANK_ON_LOOT    = 348,  // NYI
     SPELL_AURA_MOD_CURRENCY_GAIN                            = 349,
     SPELL_AURA_MOD_GATHERING_ITEMS_GAINED_PERCENT           = 350,  // NYI
-    SPELL_AURA_351                                          = 351,
-    SPELL_AURA_352                                          = 352,
-    SPELL_AURA_MOD_CAMOUFLAGE                               = 353,  // NYI
-    SPELL_AURA_354                                          = 354,  // Restoration Shaman mastery - mod healing based on target's health (less = more healing)
+    SPELL_AURA_MOD_CURRENCY_LOOT                            = 351,
+    SPELL_AURA_ALLOW_WORGEN_TRANSFORM                       = 352,
+    SPELL_AURA_MOD_CAMOUFLAGE                               = 353,  // Used by Camouflage
+    SPELL_AURA_MOD_HEALING_DONE_FROM_PCT_HEALTH             = 354,  // Restoration Shaman mastery - mod healing based on target's health (less = more healing)
     SPELL_AURA_355                                          = 355,
-    SPELL_AURA_356                                          = 356,  // Arcane Mage mastery - mod damage based on current mana
+    SPELL_AURA_MOD_DAMAGE_DONE_FROM_PCT_POWER               = 356,  // Arcane Mage mastery - mod damage based on current mana
     SPELL_AURA_ENABLE_BOSS1_UNIT_FRAME                      = 357,
     SPELL_AURA_WORGEN_ALTERED_FORM                          = 358,
     SPELL_AURA_359                                          = 359,
