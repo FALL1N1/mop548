@@ -829,7 +829,7 @@ void AuraEffect::CalculateSpellMod()
 void AuraEffect::ChangeAmount(int32 newAmount, bool mark, bool onStackOrReapply)
 {
     // Reapply if amount change
-    uint8 handleMask = 0;
+    uint32 handleMask = 0;
     if (newAmount != GetAmount())
         handleMask |= AURA_EFFECT_HANDLE_CHANGE_AMOUNT;
     if (onStackOrReapply)

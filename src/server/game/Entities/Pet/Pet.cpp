@@ -1364,7 +1364,7 @@ void Pet::_SaveAuras(SQLTransaction& trans)
         int32 damage[MAX_SPELL_EFFECTS];
         int32 baseDamage[MAX_SPELL_EFFECTS];
         uint32 effMask = 0;
-        uint8 recalculateMask = 0;
+        uint32 recalculateMask = 0;
         for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
         {
             if (aura->GetEffect(i))

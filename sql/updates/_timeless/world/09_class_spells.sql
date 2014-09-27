@@ -12,7 +12,6 @@ DELETE FROM `spell_bonus_data` WHERE `entry` IN (2098, 83381, 114919, 119952, 31
 2912, 78674, 93402, 18562, 779, 48438, 102792, 88751, 78777, 5176, 106998, 102352, 108196, 48721, 55078, 55095, 45477, 117952,
 123996, 118022, 123586, 122036, 119611, 115310, 115175);
 INSERT INTO `spell_bonus_data` (`entry`, `direct_bonus`, `dot_bonus`, `ap_bonus`, `ap_dot_bonus`, `comments`) VALUES
-('2098', '0', '0', '0', '0', 'Rogue - Eviscerate'),
 ('114919', '0.321', '-1', '-1', '-1', 'Paladin - Arcing Light (damage)'),
 ('119952', '0.321', '-1', '-1', '-1', 'Paladin - Arcing Light (heal)'),
 ('31935', '0.315', '-1', '0.8175', '-1', 'Paladin - Avenger Shield'),

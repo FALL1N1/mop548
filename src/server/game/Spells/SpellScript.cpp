@@ -66,9 +66,9 @@ _SpellScript::EffectHook::EffectHook(uint8 _effIndex)
     effIndex = _effIndex;
 }
 
-uint8 _SpellScript::EffectHook::GetAffectedEffectsMask(SpellInfo const* spellEntry)
+uint32 _SpellScript::EffectHook::GetAffectedEffectsMask(SpellInfo const* spellEntry)
 {
-    uint8 mask = 0;
+    uint32 mask = 0;
     if ((effIndex == EFFECT_ALL) || (effIndex == EFFECT_FIRST_FOUND))
     {
         for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
@@ -76,13 +76,13 @@ uint8 _SpellScript::EffectHook::GetAffectedEffectsMask(SpellInfo const* spellEnt
             if ((effIndex == EFFECT_FIRST_FOUND) && mask)
                 return mask;
             if (CheckEffect(spellEntry, i))
-                mask |= (uint8)1<<i;
+                mask |= (uint32)1<<i;
         }
     }
     else
     {
         if (CheckEffect(spellEntry, effIndex))
-            mask |= (uint8)1<<effIndex;
+            mask |= (uint32)1<<effIndex;
     }
     return mask;
 }

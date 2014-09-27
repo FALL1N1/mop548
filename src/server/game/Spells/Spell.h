@@ -595,7 +595,7 @@ class Spell
             uint64 timeDelay;
             SpellMissInfo missCondition:8;
             SpellMissInfo reflectResult:8;
-            uint8  effectMask:8;
+            uint32  effectMask:32;
             bool   processed:1;
             bool   alive:1;
             bool   crit:1;
@@ -603,13 +603,13 @@ class Spell
             int32  damage;
         };
         std::list<TargetInfo> m_UniqueTargetInfo;
-        uint8 m_channelTargetEffectMask;                        // Mask req. alive targets
+        uint32 m_channelTargetEffectMask;                        // Mask req. alive targets
 
         struct GOTargetInfo
         {
             uint64 targetGUID;
             uint64 timeDelay;
-            uint8  effectMask:8;
+            uint32  effectMask:32;
             bool   processed:1;
         };
         std::list<GOTargetInfo> m_UniqueGOTargetInfo;
@@ -617,7 +617,7 @@ class Spell
         struct ItemTargetInfo
         {
             Item  *item;
-            uint8 effectMask;
+            uint32 effectMask;
         };
         std::list<ItemTargetInfo> m_UniqueItemInfo;
 
