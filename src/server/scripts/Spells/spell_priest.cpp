@@ -38,18 +38,6 @@ enum PriestSpells
     SPELL_PRIEST_ANGELIC_BULWARK_HIDDEN_CD  = 114216,
 };
 
-enum PriestSpellIcons
-{
-    PRIEST_ICON_ID_BORROWED_TIME                    = 2899,
-    PRIEST_ICON_ID_DIVINE_TOUCH_TALENT              = 3021,
-    PRIEST_ICON_ID_PAIN_AND_SUFFERING               = 2874
-};
-
-enum MiscSpells
-{
-    SPELL_GEN_REPLENISHMENT                         = 57669
-};
-
 class spell_pri_power_word_shield : public SpellScriptLoader
 {
 public:
@@ -153,7 +141,7 @@ public:
 
         bool Load() override
         {
-            reqHealthPct = (uint32)GetSpellInfo()->Effects[EFFECT_0].BasePoints;
+            reqHealthPct = (uint32) GetSpellInfo()->Effects[EFFECT_0].BasePoints;
             return true;
         }
 
