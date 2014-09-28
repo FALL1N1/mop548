@@ -9291,7 +9291,7 @@ int32 Unit::SpellBaseDamageBonusDone(SpellSchoolMask schoolMask) const
         DoneAdvertisedBenefit += ToPlayer()->GetBaseSpellPowerBonus();
 
         // Check if we are ever using mana - PaperDollFrame.lua
-        if (GetPowerIndex(POWER_MANA) != MAX_POWERS)
+        if (GetPowerIndexByClass(POWER_MANA, getClass()) != MAX_POWERS)
             DoneAdvertisedBenefit += std::max(0, int32(GetStat(STAT_INTELLECT)) - 10); // spellpower from intellect
 
         // Damage bonus from stats
@@ -9851,8 +9851,8 @@ int32 Unit::SpellBaseHealingBonusDone(SpellSchoolMask schoolMask) const
         advertisedBenefit += ToPlayer()->GetBaseSpellPowerBonus();
 
         // Check if we are ever using mana - PaperDollFrame.lua
-        if (GetPowerIndex(POWER_MANA) != MAX_POWERS)
-            advertisedBenefit += std::max(0, int32(GetStat(STAT_INTELLECT)) - 10); // spellpower from intellect
+        if (GetPowerIndexByClass(POWER_MANA, getClass()) != MAX_POWERS)
+            advertisedBenefit += std::max(0, int32(GetStat(STAT_INTELLECT)) - 10);  // spellpower from intellect
 
         // Healing bonus from stats
         AuraEffectList const& mHealingDoneOfStatPercent = GetAuraEffectsByType(SPELL_AURA_MOD_SPELL_HEALING_OF_STAT_PERCENT);
@@ -12264,9 +12264,40 @@ void Unit::SetMaxHealth(uint32 val)
         SetHealth(val);
 }
 
+uint32 Unit::GetPowerIndexByClass(uint32 powerId, uint32 classId) const
+{
+    if (powerId == POWER_ENERGY)
+    {
+        if (ToPet() && ToPet()->IsWarlockPet())
+            return 0;
+    }
+
+    ChrClassesEntry const* classEntry = sChrClassesStore.LookupEntry(classId);
+
+    ASSERT(classEntry && "Class not found");
+
+    uint32 index = 0;
+    for (uint32 i = 0; i <= sChrPowerTypesStore.GetNumRows(); ++i)
+    {
+        ChrPowerTypesEntry const* powerEntry = sChrPowerTypesStore.LookupEntry(i);
+        if (!powerEntry)
+            continue;
+
+        if (powerEntry->classId != classId)
+            continue;
+
+        if (powerEntry->power == powerId)
+            return index;
+
+        ++index;
+    }
+
+    return MAX_POWERS;
+};
+
 int32 Unit::GetPower(Powers power) const
 {
-    uint32 powerIndex = GetPowerIndex(power);
+    uint32 powerIndex = GetPowerIndexByClass(power, getClass());
     if (powerIndex == MAX_POWERS)
         return 0;
 
@@ -12275,7 +12306,7 @@ int32 Unit::GetPower(Powers power) const
 
 int32 Unit::GetMaxPower(Powers power) const
 {
-    uint32 powerIndex = GetPowerIndex(power);
+    uint32 powerIndex = GetPowerIndexByClass(power, getClass());
     if (powerIndex == MAX_POWERS)
         return 0;
 
@@ -12284,7 +12315,7 @@ int32 Unit::GetMaxPower(Powers power) const
 
 void Unit::SetPower(Powers power, int32 val)
 {
-    uint32 powerIndex = GetPowerIndex(power);
+    uint32 powerIndex = GetPowerIndexByClass(power, getClass());
     if (powerIndex == MAX_POWERS)
         return;
 
@@ -12347,7 +12378,7 @@ void Unit::SetPower(Powers power, int32 val)
 
 void Unit::SetMaxPower(Powers power, int32 val)
 {
-    uint32 powerIndex = GetPowerIndex(power);
+    uint32 powerIndex = GetPowerIndexByClass(power, getClass());
     if (powerIndex == MAX_POWERS)
         return;
 
@@ -12372,14 +12403,6 @@ void Unit::SetMaxPower(Powers power, int32 val)
 
     if (val < cur_power)
         SetPower(power, val);
-}
-
-uint32 Unit::GetPowerIndex(uint32 powerType) const
-{
-    uint32 classId = getClass();
-    if (ToPet() && ToPet()->getPetType() == HUNTER_PET)
-        classId = CLASS_HUNTER;
-    return GetPowerIndexByClass(powerType, classId);
 }
 
 int32 Unit::GetCreatePowers(Powers power) const

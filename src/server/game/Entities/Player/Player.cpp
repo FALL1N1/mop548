@@ -1038,11 +1038,11 @@ bool Player::Create(uint32 guidlow, CharacterCreateInfo* createInfo)
         SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE);
     }
 
-    SetFloatValue(UNIT_FIELD_MOD_CASTING_SPEED, 1.0f);
-    SetFloatValue(UNIT_FIELD_MOD_SPELL_HASTE, 1.0f);
-    SetFloatValue(UNIT_FIELD_MOD_HASTE, 1.0f);
-    SetFloatValue(UNIT_FIELD_MOD_HASTE_REGEN, 1.0f);
-    SetFloatValue(UNIT_FIELD_MOD_RANGED_HASTE, 1.0f);
+    //SetFloatValue(UNIT_FIELD_MOD_CASTING_SPEED, 1.0f);
+    //SetFloatValue(UNIT_FIELD_MOD_SPELL_HASTE, 1.0f);
+    //SetFloatValue(UNIT_FIELD_MOD_HASTE, 1.0f);
+    //SetFloatValue(UNIT_FIELD_MOD_HASTE_REGEN, 1.0f);
+    //SetFloatValue(UNIT_FIELD_MOD_RANGED_HASTE, 1.0f);
 
     SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_REGENERATE_POWER);
     SetFloatValue(UNIT_FIELD_HOVER_HEIGHT, 1.0f);            // default for players in 3.0.3
@@ -2743,7 +2743,7 @@ void Player::Regenerate(Powers power)
         return;
 
     // Skip regeneration for power type we cannot have
-    uint32 powerIndex = GetPowerIndex(power);
+    uint32 powerIndex = GetPowerIndexByClass(power, getClass());
     if (powerIndex == MAX_POWERS)
         return;
 
@@ -3726,7 +3726,6 @@ void Player::InitStatsForLevel(bool reapplyMods)
     SetFloatValue(UNIT_FIELD_MOD_CASTING_SPEED, 1.0f);
     SetFloatValue(UNIT_FIELD_MOD_SPELL_HASTE, 1.0f);
     SetFloatValue(UNIT_FIELD_MOD_HASTE, 1.0f);
-    SetFloatValue(UNIT_FIELD_MOD_HASTE_REGEN, 1.0f);
     SetFloatValue(UNIT_FIELD_MOD_RANGED_HASTE, 1.0f);
 
     // reset size before reapply auras
@@ -18828,7 +18827,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
     uint32 loadedPowers = 0;
     for (uint32 i = 0; i < MAX_POWERS; ++i)
     {
-        if (GetPowerIndex(i) != MAX_POWERS)
+        if (GetPowerIndexByClass(Powers(i), getClass()) != MAX_POWERS)
         {
             uint32 savedPower = fields[47+loadedPowers].GetUInt32();
             uint32 maxPower = GetUInt32Value(UNIT_FIELD_MAX_POWER + loadedPowers);
@@ -20471,7 +20470,7 @@ void Player::SaveToDB(bool create /*=false*/)
         uint32 storedPowers = 0;
         for (uint32 i = 0; i < MAX_POWERS; ++i)
         {
-            if (GetPowerIndex(i) != MAX_POWERS)
+            if (GetPowerIndexByClass(Powers(i), getClass()) != MAX_POWERS)
             {
                 stmt->setUInt32(index++, GetUInt32Value(UNIT_FIELD_POWER + storedPowers));
                 if (++storedPowers >= MAX_POWERS_PER_CLASS)
@@ -20594,7 +20593,7 @@ void Player::SaveToDB(bool create /*=false*/)
         uint32 storedPowers = 0;
         for (uint32 i = 0; i < MAX_POWERS; ++i)
         {
-            if (GetPowerIndex(i) != MAX_POWERS)
+            if (GetPowerIndexByClass(Powers(i), getClass()) != MAX_POWERS)
             {
                 stmt->setUInt32(index++, GetUInt32Value(UNIT_FIELD_POWER + storedPowers));
                 if (++storedPowers >= MAX_POWERS_PER_CLASS)

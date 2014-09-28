@@ -785,20 +785,17 @@ void Player::UpdateManaRegen()
         {
             combat_regen = 0.01f * GetMaxPower(POWER_MANA) + spirit_regen + GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, POWER_MANA);
             base_regen = 0.01f * GetMaxPower(POWER_MANA) + GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, POWER_MANA);
-        }
-
+        } else
         // Chaotic Energy : Increase Mana regen by 625%
-        if (HasAura(111546))
         {
             combat_regen = HastePct * (combat_regen + (combat_regen * 6.25f));
             base_regen = HastePct * (base_regen + (base_regen * 6.25f));
         }
     }
 
-    // Mana Meditation && Meditation
-    int32 modManaRegenInterrupt = GetTotalAuraModifier(SPELL_AURA_MOD_MANA_REGEN_INTERRUPT);
-    if (modManaRegenInterrupt)
-        base_regen += modManaRegenInterrupt * spirit_regen;
+    // Mana Meditation && Meditation - Allows 50% of your mana regeneration from Spirit to continue while in combat.
+    if (HasAuraType(SPELL_AURA_MOD_MANA_REGEN_INTERRUPT))
+        base_regen += 0.5 * spirit_regen; 
 
     // Rune of Power : Increase Mana regeneration by 100%
     if (HasAura(116014))
@@ -806,6 +803,7 @@ void Player::UpdateManaRegen()
         combat_regen *= 2;
         base_regen *= 2;
     }
+
     // Incanter's Ward : Increase Mana regen by 65%
     if (HasAura(118858))
     {
@@ -819,6 +817,7 @@ void Player::UpdateManaRegen()
         combat_regen *= HastePct;
         base_regen *= HastePct;
     }
+
     // Mana Attunement : Increase Mana regen by 50%
     if (HasAura(121039))
     {
@@ -834,7 +833,7 @@ void Player::UpdateManaRegen()
 
 void Player::UpdateEnergyRegen()
 {
-    int index = GetPowerIndex(POWER_ENERGY);
+    int index = (GetPowerIndexByClass(POWER_ENERGY, getClass()) != MAX_POWERS);
     
     if (index == MAX_POWERS)
         return;
@@ -851,7 +850,7 @@ void Player::UpdateEnergyRegen()
 
 void Player::UpdateFocusRegen()
 {
-    int index = GetPowerIndex(POWER_FOCUS);
+    int index = (GetPowerIndexByClass(POWER_FOCUS, getClass()) != MAX_POWERS);
     
     if (index == MAX_POWERS)
         return;
