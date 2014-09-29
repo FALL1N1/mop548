@@ -7307,6 +7307,22 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
 
             break;
         }
+        case 2823:  // Deadly Poison
+        case 3408:  // Crippling Poison
+        case 5761:  // Mind-Numbling Poison
+        case 8679:  // Wound Poison
+        case 108211:// Leeching Poison
+        case 108215:// Paralytic Poison
+        {
+            if (GetTypeId() != TYPEID_PLAYER)
+                return false;
+
+            // Don't trigger poison if no damage dealed (except for absorb)
+            if (!damage && !(procEx & PROC_EX_ABSORB))
+                return false;
+
+            break;
+        }
         // Persistent Shield (Scarab Brooch trinket)
         // This spell originally trigger 13567 - Dummy Trigger (vs dummy efect)
         case 26467:
