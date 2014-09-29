@@ -41,10 +41,10 @@ class ProcInfo;
 
 class AuraApplication
 {
-    friend void Unit::_ApplyAura(AuraApplication * aurApp, uint32 effMask);
+    friend void Unit::_ApplyAura(AuraApplication* aurApp, uint32 effMask);
     friend void Unit::_UnapplyAura(AuraApplicationMap::iterator &i, AuraRemoveMode removeMode);
     friend void Unit::_ApplyAuraEffect(Aura* aura, uint8 effIndex);
-    friend void Unit::RemoveAura(AuraApplication * aurApp, AuraRemoveMode mode);
+    friend void Unit::RemoveAura(AuraApplication* aurApp, AuraRemoveMode mode);
     friend AuraApplication * Unit::_CreateAuraApplication(Aura* aura, uint32 effMask);
     private:
         Unit* const _target;
@@ -109,8 +109,8 @@ class Aura
 
         AuraObjectType GetType() const;
 
-        virtual void _ApplyForTarget(Unit* target, Unit* caster, AuraApplication * auraApp);
-        virtual void _UnapplyForTarget(Unit* target, Unit* caster, AuraApplication * auraApp);
+        virtual void _ApplyForTarget(Unit* target, Unit* caster, AuraApplication* auraApp);
+        virtual void _UnapplyForTarget(Unit* target, Unit* caster, AuraApplication* auraApp);
         void _Remove(AuraRemoveMode removeMode);
         virtual void Remove(AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT) = 0;
 

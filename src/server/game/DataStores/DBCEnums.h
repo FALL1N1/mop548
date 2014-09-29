@@ -326,8 +326,10 @@ enum AreaFlags
 enum Difficulty
 {
     REGULAR_DIFFICULTY                  = 0,    // entry
+
     DUNGEON_DIFFICULTY_NORMAL           = 1,    // difficulty_entry_1 
     DUNGEON_DIFFICULTY_HEROIC           = 2,    // difficulty_entry_2
+
     RAID_DIFFICULTY_10MAN_NORMAL        = 3,    // difficulty_entry_3
     RAID_DIFFICULTY_25MAN_NORMAL        = 4,    // difficulty_entry_4
     RAID_DIFFICULTY_10MAN_HEROIC        = 5,    // difficulty_entry_5

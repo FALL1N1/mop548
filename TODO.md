@@ -1,52 +1,53 @@
 ## To-do list (Try to keep the order by importance)
-* Bank / Guild Bank
-* Reputations
-* Achievements / Guild Acievements / Implement acc achievements
-* Update ingame damage / stats calculation, (including newest formulas from paper doll)
-* Implement dynamic update fieldss
-* Implement PvP Power / Update resil
-* Battlegrounds
-* Implement Premade characters
-* Instance Locking
-* Professions
-* Void Storage
 * Calendair & Events
-* Arenas - needs full rewrite O.o
-* Pets / Pet Battles
-* Scenarios
-* Ingame Shop
-* Archaeology
-* Rated Battlegrounds
 * Dungeon Finder
 * Guild Finder
+* Ingame Shop
+* Instance Locking
+* Pets / Pet Battles
+* Professions
 * Raid Finder
-* Implement char boost
+* Rated Battlegrounds
+* Reputations
+* Scenarios
+* Update ingame damage / stats calculation, (including newest formulas from paper doll)
+* Update resil
+* Void Storage
 
 ## Finished Stuff
-* Auth
-* Char Enum
-* World Login
-* Talents / Known spells
-* Char name / Realm queries
-* Messagechat
-* Basic player movement
-* Implement addons packets - To prevent ingame spam
-* Teleporting / Move speed changes - SMSG movement
-* Creature/Gameobject queries
-* Creature movement
-* Combat / Autoattack / Attacker stats ...
-* Item swapping / equiping
-* Gameobejct transparency (general bug - not structure related, wrong values in update fields)
-* Spell casting / casting results
-* Auras
-* Creature / Gameobject gossips (including vendors and trainers)
-* Glyphs
-* Properly finish living part of object update
-* XP Related Stuff
-* Loot
-* Groups (Parties / Raids)
-* Mounts
-* Guilds
-* Quests
-* Mail
+* Achievements / Guild Acievements / Implement acc achievements
+* Archaeology
+* Arenas - needs full rewrite O.o
 * Auction House
+* Auras
+* Auth
+* Bank / Guild Bank
+* Basic player movement
+* Battlegrounds
+* Char Enum
+* Char name / Realm queries
+* Combat / Autoattack / Attacker stats ...
+* Creature / Gameobject gossips (including vendors and trainers)
+* Creature movement
+* Creature/Gameobject queries
+* Gameobejct transparency (general bug - not structure related, wrong values in update fields)
+* Glyphs
+* Groups (Parties / Raids)
+* Guilds
+* Implement addons packets - To prevent ingame spam
+* Implement char boost
+* Implement dynamic update fieldss
+* Implement Premade characters
+* Implement PvP Power
+* Item swapping / equiping
+* Loot
+* Mail
+* Messagechat
+* Mounts
+* Properly finish living part of object update
+* Quests
+* Spell casting / casting results
+* Talents / Known spells
+* Teleporting / Move speed changes - SMSG movement
+* World Login
+* XP Related Stuff
