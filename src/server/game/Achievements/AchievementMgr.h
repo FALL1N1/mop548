@@ -382,7 +382,7 @@ class AchievementGlobalMgr
                 case ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET:         // NYI
                 case ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_ARENA:
                 case ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET2:        // NYI
-                case ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_BATTLEGROUND:  // NYI
+                case ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_BATTLEGROUND:
                     return true;
                 default:
                     break;

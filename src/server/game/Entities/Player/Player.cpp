@@ -613,6 +613,7 @@ void KillRewarder::_RewardGroup()
                 _groupRate = Trinity::XP::xp_in_group_rate(_count, isRaid);
             }
 
+            std::set<uint32> guildIDs;
             // 3.1.3. Reward each group member (even dead or corpse) within reward distance.
             for (GroupReference* itr = _group->GetFirstMember(); itr != NULL; itr = itr->next())
             {
@@ -622,6 +623,15 @@ void KillRewarder::_RewardGroup()
                     {
                         _RewardPlayer(member, isDungeon);
                         member->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_SPECIAL_PVP_KILL, 1, 0, 0, _victim);
+
+                        // 3.1.4. Update guild achievements.
+                        if (member->GetGuildId() && (guildIDs.find(member->GetGuildId()) == guildIDs.end()))
+                        {
+                            guildIDs.insert(member->GetGuildId());
+                            if (Guild* guild = sGuildMgr->GetGuildById(member->GetGuildId()))
+                                guild->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE, _victim->GetEntry(), 1, 0, _victim, member);
+
+                        }
                     }
                 }
             }
@@ -649,16 +659,11 @@ void KillRewarder::Reward()
     }
 
     // 5. Credit instance encounter.
-    // 6. Update guild achievements.
     if (Creature* victim = _victim->ToCreature())
     {
         if (victim->IsDungeonBoss())
             if (InstanceScript* instance = _victim->GetInstanceScript())
                 instance->UpdateEncounterState(ENCOUNTER_CREDIT_KILL_CREATURE, _victim->GetEntry(), _victim);
-
-        if (uint32 guildId = victim->GetMap()->GetOwnerGuildId())
-            if (Guild* guild = sGuildMgr->GetGuildById(guildId))
-                guild->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE, victim->GetEntry(), 1, 0, victim, _killer);
     }
 
 }
@@ -17602,8 +17607,6 @@ void Player::KilledMonsterCredit(uint32 entry, uint64 guid /*= 0*/)
 
     StartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_CREATURE, realEntry);   // MUST BE CALLED FIRST
     UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE, realEntry, addKillCount, 0, killed);
-    if (Guild const* guild = GetGuild())
-        GetGuild()->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE, realEntry, addKillCount, 0, killed, this);
 
     for (uint8 i = 0; i < MAX_QUEST_LOG_SIZE; ++i)
     {
@@ -25893,13 +25896,17 @@ bool Player::SatisfiesGuildGroupCriteria() const
         else
             requiredPlayers = 8;
     }
-    else if (GetMap()->IsBattleArena())
-    {
-        //requiredPercent = 100;
-        return false;
-    }
     else if (Battleground const* bg = GetBattleground())
-        requiredPlayers = bg->GetMaxPlayers() * 0.8f;
+    {
+        if (!bg->IsRated())
+            return false;
+
+        requiredPlayers = bg->GetMaxPlayers();
+        if (!bg->IsArena())
+            requiredPlayers *= 0.8f;
+    }
+    else if ((GetMap()->GetDifficulty() == SCENARIO_DIFFICULTY) || (GetMap()->GetDifficulty() == SCENARIO_DIFFICULTY_HEROIC))
+        requiredPlayers = 3;
     else
         return false;
 

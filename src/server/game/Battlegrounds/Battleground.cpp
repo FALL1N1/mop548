@@ -785,7 +785,7 @@ void Battleground::EndBattleground(uint32 winner)
     //we must set it this way, because end time is sent in packet!
     SetRemainingTime(TIME_AUTOCLOSE_BATTLEGROUND);
 
-    bool guildAwarded = false;
+    std::set<uint32> guildIDs;
     WorldPacket pvpLogData;
     sBattlegroundMgr->BuildPvpLogDataPacket(&pvpLogData, this);
 
@@ -921,20 +921,31 @@ void Battleground::EndBattleground(uint32 winner)
                 player->ModifyCurrency(CURRENCY_TYPE_CONQUEST_META_ARENA, sWorld->getIntConfig(CONFIG_BG_REWARD_WINNER_CONQUEST_LAST));
 
             player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_BG, 1);
-            if (!guildAwarded)
+
+            if (player->GetGuildId() && (guildIDs.find(player->GetGuildId()) == guildIDs.end()))
             {
-                guildAwarded = true;
-                if (uint32 guildId = GetBgMap()->GetOwnerGuildId(player->GetTeam()))
-                    if (Guild* guild = sGuildMgr->GetGuildById(guildId))
+                guildIDs.insert(player->GetGuildId());
+                if (Guild* guild = sGuildMgr->GetGuildById(player->GetGuildId()))
+                {
+                    guild->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_BG, 1, 0, 0, NULL, player);
+
+                    if (IsRated())
                     {
-                        guild->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_BG, 1, 0, 0, NULL, player);
-                        if (IsArena() && IsRated() && rInfo)
+                        if (IsBattleground())
+                            guild->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_BATTLEGROUND, 1, 0, 0, NULL, player);
+                        else
                         {
-                            StatsBySlot const *stats = rInfo->GetStatsBySlot(GetRatedType());
-                            guild->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_ARENA, std::max<uint16>(stats->PersonalRating, 1), 0, 0, NULL, player);
-                        }                            
+                            guild->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_ARENA, 1, 0, 0, NULL, player);
+                            if (rInfo)
+                            {
+                                // probably should update for every player... or not?
+                                StatsBySlot const *stats = rInfo->GetStatsBySlot(GetRatedType());
+                                guild->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_TEAM_RATING, stats->PersonalRating, 0, 0, NULL, player);
+                            }
+                        }
                     }
-            }
+                }
+            }                                 
         }
         else
         {
