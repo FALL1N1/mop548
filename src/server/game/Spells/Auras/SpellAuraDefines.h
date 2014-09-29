@@ -467,7 +467,7 @@ enum AuraType
     SPELL_AURA_INCREASE_HASTE_MASTERY_FROM_ITEMS_BY_PCT     = 405,
     SPELL_AURA_406                                          = 406,
     SPELL_AURA_407                                          = 407,
-    SPELL_AURA_408                                          = 408,
+    SPELL_AURA_CONSUME_PROC                                 = 408,
     SPELL_AURA_409                                          = 409,
     SPELL_AURA_410                                          = 410,
     SPELL_AURA_411                                          = 411,

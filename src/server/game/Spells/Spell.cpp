@@ -3286,6 +3286,11 @@ void Spell::cast(bool skipCheck)
         handle_immediate();
     }
 
+    Unit::AuraEffectList consumeProc = m_caster->GetAuraEffectsByType(SPELL_AURA_CONSUME_PROC);
+    for (Unit::AuraEffectList::const_iterator i = consumeProc.begin(); i != consumeProc.end(); ++i)
+    if (sSpellMgr->GetSpellInfo((*i)->GetId())->Effects[(*i)->GetEffIndex()].TriggerSpell==this->GetSpellInfo()->Id)
+            (*i)->GetBase()->ModStackAmount(-1);
+
     CallScriptAfterCastHandlers();
 
     if (const std::vector<int32> *spell_triggered = sSpellMgr->GetSpellLinked(m_spellInfo->Id))
