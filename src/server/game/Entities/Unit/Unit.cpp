@@ -7323,6 +7323,24 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
 
             break;
         }
+        case 76857: // Mastery : Critical Block
+        case 58410: // Master Poisoner
+        case 79147: // Sanguinary Vein
+        case 91023: // Find Weakness
+        case 108942:// Phantasm
+        case 113043:// Omen of Clarity (new)
+        case 122464:// Dematerialize
+        case 122280:// Healing Elixirs
+        case 54927: // Glyph of Avenging Wrath
+        case 124487:// Zen Focus
+        case 88764: // Rolling Thunder
+        case 12598: // Counterspell
+        case 115946:// Glyph of Burning Anger
+        case 88821: // Daybreak
+        case 131542:// Relentless Grip
+        case 56420: // Glyph of Denounce
+        case 126046:// Adaptation
+            return false;
             // Master Marksmann
         case 34487:
         {
