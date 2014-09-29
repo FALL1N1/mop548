@@ -41,54 +41,54 @@ enum MageSpells
 
 class npc_pet_mage_mirror_image : public CreatureScript
 {
-    public:
-        npc_pet_mage_mirror_image() : CreatureScript("npc_pet_mage_mirror_image") { }
+public:
+    npc_pet_mage_mirror_image() : CreatureScript("npc_pet_mage_mirror_image") { }
 
-        struct npc_pet_mage_mirror_imageAI : CasterAI
+    struct npc_pet_mage_mirror_imageAI : CasterAI
+    {
+        npc_pet_mage_mirror_imageAI(Creature* creature) : CasterAI(creature) { }
+
+        void InitializeAI() override
         {
-            npc_pet_mage_mirror_imageAI(Creature* creature) : CasterAI(creature) { }
-
-            void InitializeAI() override
-            {
-                CasterAI::InitializeAI();
-                Unit* owner = me->GetOwner();
-                if (!owner)
-                    return;
-                // Inherit Master's Threat List (not yet implemented)
-                owner->CastSpell((Unit*)NULL, SPELL_MAGE_MASTERS_THREAT_LIST, true);
-                // here mirror image casts on summoner spell (not present in client dbc) 49866
-                // here should be auras (not present in client dbc): 35657, 35658, 35659, 35660 selfcasted by mirror images (stats related?)
-                // Clone Me!
-                owner->CastSpell(me, SPELL_MAGE_CLONE_ME, false);
-            }
-
-            // Do not reload Creature templates on evade mode enter - prevent visual lost
-            void EnterEvadeMode() override
-            {
-                if (me->IsInEvadeMode() || !me->IsAlive())
-                    return;
-
-                Unit* owner = me->GetCharmerOrOwner();
-
-                me->CombatStop(true);
-                if (owner && !me->HasUnitState(UNIT_STATE_FOLLOW))
-                {
-                    me->GetMotionMaster()->Clear(false);
-                    me->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, me->GetFollowAngle(), MOTION_SLOT_ACTIVE);
-                }
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return new npc_pet_mage_mirror_imageAI(creature);
+            CasterAI::InitializeAI();
+            Unit* owner = me->GetOwner();
+            if (!owner)
+                return;
+            // Inherit Master's Threat List (not yet implemented)
+            owner->CastSpell((Unit*) NULL, SPELL_MAGE_MASTERS_THREAT_LIST, true);
+            // here mirror image casts on summoner spell (not present in client dbc) 49866
+            // here should be auras (not present in client dbc): 35657, 35658, 35659, 35660 selfcasted by mirror images (stats related?)
+            // Clone Me!
+            owner->CastSpell(me, SPELL_MAGE_CLONE_ME, false);
         }
+
+        // Do not reload Creature templates on evade mode enter - prevent visual lost
+        void EnterEvadeMode() override
+        {
+            if (me->IsInEvadeMode() || !me->IsAlive())
+                return;
+
+            Unit* owner = me->GetCharmerOrOwner();
+
+            me->CombatStop(true);
+            if (owner && !me->HasUnitState(UNIT_STATE_FOLLOW))
+            {
+                me->GetMotionMaster()->Clear(false);
+                me->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, me->GetFollowAngle(), MOTION_SLOT_ACTIVE);
+            }
+        }
+    };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_pet_mage_mirror_imageAI(creature);
+    }
 };
 
 class npc_mage_frozen_orb : public CreatureScript
 {
 public:
-    npc_mage_frozen_orb() : CreatureScript("npc_mage_frozen_orb") {}
+    npc_mage_frozen_orb() : CreatureScript("npc_mage_frozen_orb") { }
 
     struct npc_mage_frozen_orbAI : public ScriptedAI
     {
@@ -127,9 +127,9 @@ public:
             me->GetMotionMaster()->MovePoint(0, newx, newy, z);
         }
 
-        void MoveInLineOfSight(Unit* /*who*/) override {}
+        void MoveInLineOfSight(Unit* /*who*/) override { }
 
-        void EnterEvadeMode() override {}
+        void EnterEvadeMode() override { }
 
         void UpdateAI(uint32 diff) override
         {

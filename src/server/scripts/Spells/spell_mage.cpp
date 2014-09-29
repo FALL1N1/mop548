@@ -174,7 +174,7 @@ public:
 class spell_mage_cauterize : public SpellScriptLoader
 {
 public:
-    spell_mage_cauterize() : SpellScriptLoader("spell_mage_cauterize") {}
+    spell_mage_cauterize() : SpellScriptLoader("spell_mage_cauterize") { }
 
     class spell_mage_cauterize_AuraScript : public AuraScript
     {
@@ -320,7 +320,7 @@ public:
 class spell_mage_flameglow : public SpellScriptLoader
 {
 public:
-    spell_mage_flameglow() : SpellScriptLoader("spell_mage_flameglow") {}
+    spell_mage_flameglow() : SpellScriptLoader("spell_mage_flameglow") { }
 
     class spell_mage_flameglow_AuraScript : public AuraScript
     {
@@ -368,7 +368,7 @@ public:
 class CastRingOfFrostInstant : public BasicEvent
 {
 public:
-    CastRingOfFrostInstant(Unit* caster, float x, float y, float z) : _caster(caster), _x(x), _y(y), _z(z) {};
+    CastRingOfFrostInstant(Unit* caster, float x, float y, float z) : _caster(caster), _x(x), _y(y), _z(z) { };
 
     bool Execute(uint64 e_time, uint32 p_time)
     {
@@ -538,7 +538,7 @@ public:
                 if (Unit* unit = target->ToUnit())
                     return unit->HasAura(SPELL_MAGE_RING_OF_FROST_IMUNITY) || unit->HasAura(SPELL_MAGE_RING_OF_FROST_FREEZE) || unit->GetExactDist(GetExplTargetDest()) > outRadius || unit->GetExactDist(GetExplTargetDest()) < inRadius;
 
-                else 
+                else
                     return true;
             });
 
@@ -622,7 +622,7 @@ public:
                     if (roll_chance_i(sSpellMgr->GetSpellInfo(SPELL_MAGE_FINGERS_OF_FROST)->Effects[EFFECT_0].BasePoints))
                         caster->CastSpell(caster, SPELL_MAGE_FINGERS_OF_FROST_PROC, true);
         }
-        
+
         void Register() override
         {
             AfterHit += SpellHitFn(spell_mage_frostbolt_SpellScript::HandleAfterHit);
@@ -684,9 +684,9 @@ class spell_mage_frozen_orb_dmg : public SpellScriptLoader
 public:
     spell_mage_frozen_orb_dmg() : SpellScriptLoader("spell_mage_frozen_orb_dmg") { }
 
-	class spell_mage_frozen_orb_dmg_SpellScript : public SpellScript
+    class spell_mage_frozen_orb_dmg_SpellScript : public SpellScript
     {
-		PrepareSpellScript(spell_mage_frozen_orb_dmg_SpellScript);
+        PrepareSpellScript(spell_mage_frozen_orb_dmg_SpellScript);
 
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
@@ -709,13 +709,13 @@ public:
 
         void Register() override
         {
-			AfterHit += SpellHitFn(spell_mage_frozen_orb_dmg_SpellScript::HandleAfterHit);
+            AfterHit += SpellHitFn(spell_mage_frozen_orb_dmg_SpellScript::HandleAfterHit);
         }
     };
 
     SpellScript* GetSpellScript() const override
     {
-		return new spell_mage_frozen_orb_dmg_SpellScript();
+        return new spell_mage_frozen_orb_dmg_SpellScript();
     }
 
 };
@@ -724,11 +724,11 @@ public:
 class spell_mage_blizzard_dmg : public SpellScriptLoader
 {
 public:
-	spell_mage_blizzard_dmg() : SpellScriptLoader("spell_mage_blizzard_dmg") { }
+    spell_mage_blizzard_dmg() : SpellScriptLoader("spell_mage_blizzard_dmg") { }
 
-	class spell_mage_blizzard_dmg_SpellScript : public SpellScript
+    class spell_mage_blizzard_dmg_SpellScript : public SpellScript
     {
-		PrepareSpellScript(spell_mage_blizzard_dmg_SpellScript);
+        PrepareSpellScript(spell_mage_blizzard_dmg_SpellScript);
 
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
@@ -751,13 +751,13 @@ public:
 
         void Register() override
         {
-			AfterHit += SpellHitFn(spell_mage_blizzard_dmg_SpellScript::HandleAfterHit);
+            AfterHit += SpellHitFn(spell_mage_blizzard_dmg_SpellScript::HandleAfterHit);
         }
     };
 
     SpellScript* GetSpellScript() const override
     {
-		return new spell_mage_blizzard_dmg_SpellScript();
+        return new spell_mage_blizzard_dmg_SpellScript();
     }
 
 };
@@ -778,24 +778,24 @@ public:
                 return false;
             return true;
         }
-		void AfterApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
-		{
-			if (GetStackAmount()>1)
-				if (Unit* caster = GetCaster())
-					caster->AddAura(SPELL_MAGE_FINGERS_OF_FROST_VISUAL, caster);
-		}
-		void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-		{
-			if (GetStackAmount()<2)
-				if (Unit* caster = GetCaster())
-					if (caster->HasAura(SPELL_MAGE_FINGERS_OF_FROST_VISUAL))
-						caster->RemoveAura(SPELL_MAGE_FINGERS_OF_FROST_VISUAL);
-		}
+        void AfterApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+        {
+            if (GetStackAmount() > 1)
+                if (Unit* caster = GetCaster())
+                    caster->AddAura(SPELL_MAGE_FINGERS_OF_FROST_VISUAL, caster);
+        }
+        void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+            if (GetStackAmount() < 2)
+                if (Unit* caster = GetCaster())
+                    if (caster->HasAura(SPELL_MAGE_FINGERS_OF_FROST_VISUAL))
+                        caster->RemoveAura(SPELL_MAGE_FINGERS_OF_FROST_VISUAL);
+        }
 
         void Register() override
         {
-			AfterEffectApply += AuraEffectApplyFn(spell_mage_fingers_of_frost_proc_AuraScript::AfterApply, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
-			AfterEffectRemove += AuraEffectRemoveFn(spell_mage_fingers_of_frost_proc_AuraScript::AfterRemove, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+            AfterEffectApply += AuraEffectApplyFn(spell_mage_fingers_of_frost_proc_AuraScript::AfterApply, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+            AfterEffectRemove += AuraEffectRemoveFn(spell_mage_fingers_of_frost_proc_AuraScript::AfterRemove, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
         }
     };
 
@@ -825,7 +825,7 @@ public:
         }
 
         Aura* fofAura;
-        
+
         void HandleOnCast()
         {
             fofAura = GetCaster()->GetAura(SPELL_MAGE_FINGERS_OF_FROST_PROC);
@@ -834,7 +834,7 @@ public:
         void RecalculateDamage()
         {
             int32 damage = GetHitDamage();
-            
+
             if (GetHitUnit()->HasAuraState(AURA_STATE_FROZEN, GetSpellInfo(), GetCaster()) || fofAura)
                 damage *= 4;
 
@@ -905,8 +905,8 @@ void AddSC_mage_spell_scripts()
     new spell_mage_ring_of_frost_freeze();
     new spell_mage_frostbolt();
     new spell_mage_frostfire_bolt();
-	new spell_mage_frozen_orb_dmg();
-	new spell_mage_blizzard_dmg();
+    new spell_mage_frozen_orb_dmg();
+    new spell_mage_blizzard_dmg();
     new spell_mage_fingers_of_frost_proc();
     new spell_mage_ice_lance();
     new spell_mage_deep_freeze();
