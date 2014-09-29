@@ -2789,23 +2789,6 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
 
         switch (spellInfo->Id)
         {
-                case 109259: // Powershot
-                    spellInfo->Effects[1].BasePoints = 60;
-                    spellInfo->Effects[2].BasePoints = 800;
-                    break;
-                case 117050: // Glaive Toss (talent)
-                    spellInfo->Effects[1].TargetA = TARGET_UNIT_TARGET_ENEMY;
-                    break;
-                case 120755: // Glaive Toss (Glaive right)
-                    spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
-                    break;
-                case 12975: // Last Stand
-                    spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_MOD_INCREASE_HEALTH_PERCENT;
-                    break;
-            case 111546:// Chaotic Energy
-                spellInfo->Effects[1].Effect = 0;
-                spellInfo->Effects[1].BasePoints = 0;
-                break;
             // override list
             case 34433: // Shadowfiend
                 spellInfo->OverrideSpellList.push_back(123040); // Add Mindbender to override spell list of Shadowfiend
@@ -3089,6 +3072,31 @@ void SpellMgr::LoadSpellInfoCorrections()
 
         switch (spellInfo->Id)
         {
+            case 130493:// Nightstalker
+                spellInfo->Effects[1].Effect = 0;
+                spellInfo->Effects[1].ApplyAuraName = 0;
+                spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_MOD_DAMAGE_PERCENT_DONE;
+                spellInfo->Effects[0].MiscValue = SPELL_SCHOOL_MASK_ALL;
+                break;
+            case 82926: // Fire ! (for Master Marksman)
+                spellInfo->Effects[0].Effect = SPELL_EFFECT_APPLY_AURA;
+                spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_ADD_PCT_MODIFIER;
+                spellInfo->Effects[0].MiscValue = SPELLMOD_CASTING_TIME;
+                spellInfo->Effects[0].BasePoints = -100;
+                spellInfo->Effects[0].SpellClassMask[0] |= 0x20000;
+                break;
+            case 109259: // Powershot
+                spellInfo->Effects[2].BasePoints = 100;
+                break;
+            case 117050: // Glaive Toss (talent)
+                spellInfo->Effects[1].TargetA = TARGET_UNIT_TARGET_ENEMY;
+                break;
+            case 120755: // Glaive Toss (Glaive right)
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
+                break;
+            case 12975: // Last Stand
+                spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_MOD_INCREASE_HEALTH_PERCENT;
+                break;
             case 42730: // Woe Strike
                 spellInfo->Effects[EFFECT_1].TriggerSpell = 42739;
                 break;
