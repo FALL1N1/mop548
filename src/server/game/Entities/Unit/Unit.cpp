@@ -7323,6 +7323,27 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
 
             break;
         }
+            // Master Marksmann
+        case 34487:
+        {
+            if (!procSpell || procSpell->Id != 56641) // Steady Shot
+                return false;
+
+            if (GetTypeId() != TYPEID_PLAYER || getClass() != CLASS_HUNTER)
+                return false;
+
+            Aura* aimed = GetAura(trigger_spell_id);
+            //  After reaching 3 stacks, your next Aimed Shot's cast time and Focus cost are reduced by 100% for 10 sec
+            if (aimed && aimed->GetStackAmount() >= 2)
+            {
+                RemoveAura(trigger_spell_id);
+                CastSpell(this, 82926, true); // Fire !
+
+                return false;
+            }
+
+            break;
+        }
         // Persistent Shield (Scarab Brooch trinket)
         // This spell originally trigger 13567 - Dummy Trigger (vs dummy efect)
         case 26467:
