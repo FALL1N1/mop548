@@ -42,7 +42,12 @@ enum MageSpells
     SPELL_MAGE_RING_OF_FROST_SUMMON         = 113724,
     SPELL_MAGE_RING_OF_FROST_IMUNITY        = 91264,
     SPELL_MAGE_RING_OF_FROST_INSTANT        = 140384,
-    SPELL_MAGE_PRESENCE_OF_MIND             = 12043
+    SPELL_MAGE_PRESENCE_OF_MIND             = 12043,
+    SPELL_MAGE_MASTERY_ICICLES              = 76613,
+    SPELL_MAGE_FINGERS_OF_FROST_PROC        = 44544,
+    SPELL_MAGE_FINGERS_OF_FROST             = 112965,
+    SPELL_MAGE_FINGERS_OF_FROST_VISUAL      = 126084,
+    SPELL_MAGE_ICE_LANCE                    = 30455
 };
 
 enum MageIcons
@@ -589,6 +594,304 @@ public:
     }
 };
 
+// 116 Frostbolt
+class spell_mage_frostbolt : public SpellScriptLoader
+{
+public:
+    spell_mage_frostbolt() : SpellScriptLoader("spell_mage_frostbolt") { }
+
+    class spell_mage_frostbolt_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_mage_frostbolt_SpellScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_MASTERY_ICICLES))
+                return false;
+            if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_FINGERS_OF_FROST))
+                return false;
+            if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_FINGERS_OF_FROST_PROC))
+                return false;
+            return true;
+        }
+
+        void HandleAfterHit()
+        {
+            if (Unit* caster = GetCaster())
+                if (caster->HasAura(SPELL_MAGE_MASTERY_ICICLES))
+                    if (roll_chance_i(sSpellMgr->GetSpellInfo(SPELL_MAGE_FINGERS_OF_FROST)->Effects[EFFECT_0].BasePoints))
+                        caster->CastSpell(caster, SPELL_MAGE_FINGERS_OF_FROST_PROC, true);
+        }
+        
+        void Register() override
+        {
+            AfterHit += SpellHitFn(spell_mage_frostbolt_SpellScript::HandleAfterHit);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_mage_frostbolt_SpellScript();
+    }
+
+};
+
+// 44614 Frostfire Bolt
+class spell_mage_frostfire_bolt : public SpellScriptLoader
+{
+public:
+    spell_mage_frostfire_bolt() : SpellScriptLoader("spell_mage_frostfire_bolt") { }
+
+    class spell_mage_frostfire_bolt_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_mage_frostfire_bolt_SpellScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_MASTERY_ICICLES))
+                return false;
+            if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_FINGERS_OF_FROST))
+                return false;
+            if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_FINGERS_OF_FROST_PROC))
+                return false;
+            return true;
+        }
+
+        void HandleAfterHit()
+        {
+            if (Unit* caster = GetCaster())
+                if (caster->HasAura(SPELL_MAGE_MASTERY_ICICLES))
+                    if (roll_chance_i(sSpellMgr->GetSpellInfo(SPELL_MAGE_FINGERS_OF_FROST)->Effects[EFFECT_0].BasePoints))
+                        caster->CastSpell(caster, SPELL_MAGE_FINGERS_OF_FROST_PROC, true);
+        }
+
+        void Register() override
+        {
+            AfterHit += SpellHitFn(spell_mage_frostfire_bolt_SpellScript::HandleAfterHit);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_mage_frostfire_bolt_SpellScript();
+    }
+
+};
+
+// 84721 Frozen Orb damage
+class spell_mage_frozen_orb_dmg : public SpellScriptLoader
+{
+public:
+    spell_mage_frozen_orb_dmg() : SpellScriptLoader("spell_mage_frozen_orb_dmg") { }
+
+	class spell_mage_frozen_orb_dmg_SpellScript : public SpellScript
+    {
+		PrepareSpellScript(spell_mage_frozen_orb_dmg_SpellScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_MASTERY_ICICLES))
+                return false;
+            if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_FINGERS_OF_FROST))
+                return false;
+            if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_FINGERS_OF_FROST_PROC))
+                return false;
+            return true;
+        }
+
+        void HandleAfterHit()
+        {
+            if (Unit* caster = GetCaster())
+                if (caster->HasAura(SPELL_MAGE_MASTERY_ICICLES))
+                    if (roll_chance_i(sSpellMgr->GetSpellInfo(SPELL_MAGE_FINGERS_OF_FROST)->Effects[EFFECT_0].BasePoints))
+                        caster->CastSpell(caster, SPELL_MAGE_FINGERS_OF_FROST_PROC, true);
+        }
+
+        void Register() override
+        {
+			AfterHit += SpellHitFn(spell_mage_frozen_orb_dmg_SpellScript::HandleAfterHit);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+		return new spell_mage_frozen_orb_dmg_SpellScript();
+    }
+
+};
+
+// 42208 Blizzard damage
+class spell_mage_blizzard_dmg : public SpellScriptLoader
+{
+public:
+	spell_mage_blizzard_dmg() : SpellScriptLoader("spell_mage_blizzard_dmg") { }
+
+	class spell_mage_blizzard_dmg_SpellScript : public SpellScript
+    {
+		PrepareSpellScript(spell_mage_blizzard_dmg_SpellScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_MASTERY_ICICLES))
+                return false;
+            if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_FINGERS_OF_FROST))
+                return false;
+            if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_FINGERS_OF_FROST_PROC))
+                return false;
+            return true;
+        }
+
+        void HandleAfterHit()
+        {
+            if (Unit* caster = GetCaster())
+                if (caster->HasAura(SPELL_MAGE_MASTERY_ICICLES))
+                    if (roll_chance_i(sSpellMgr->GetSpellInfo(SPELL_MAGE_FINGERS_OF_FROST)->Effects[EFFECT_1].BasePoints))
+                        caster->CastSpell(caster, SPELL_MAGE_FINGERS_OF_FROST_PROC, true);
+        }
+
+        void Register() override
+        {
+			AfterHit += SpellHitFn(spell_mage_blizzard_dmg_SpellScript::HandleAfterHit);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+		return new spell_mage_blizzard_dmg_SpellScript();
+    }
+
+};
+
+// 44544 Fingers of Frost proc
+class spell_mage_fingers_of_frost_proc : public SpellScriptLoader
+{
+public:
+    spell_mage_fingers_of_frost_proc() : SpellScriptLoader("spell_mage_fingers_of_frost_proc") { }
+
+    class spell_mage_fingers_of_frost_proc_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_mage_fingers_of_frost_proc_AuraScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_FINGERS_OF_FROST_VISUAL))
+                return false;
+            return true;
+        }
+		void AfterApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+		{
+			if (GetStackAmount()>1)
+				if (Unit* caster = GetCaster())
+					caster->AddAura(SPELL_MAGE_FINGERS_OF_FROST_VISUAL, caster);
+		}
+		void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+		{
+			if (GetStackAmount()<2)
+				if (Unit* caster = GetCaster())
+					if (caster->HasAura(SPELL_MAGE_FINGERS_OF_FROST_VISUAL))
+						caster->RemoveAura(SPELL_MAGE_FINGERS_OF_FROST_VISUAL);
+		}
+
+        void Register() override
+        {
+			AfterEffectApply += AuraEffectApplyFn(spell_mage_fingers_of_frost_proc_AuraScript::AfterApply, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+			AfterEffectRemove += AuraEffectRemoveFn(spell_mage_fingers_of_frost_proc_AuraScript::AfterRemove, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+        }
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_mage_fingers_of_frost_proc_AuraScript();
+    }
+};
+
+// 30455 Ice Lance
+class spell_mage_ice_lance : public SpellScriptLoader
+{
+public:
+    spell_mage_ice_lance() : SpellScriptLoader("spell_mage_ice_lance") { }
+
+    class spell_mage_ice_lance_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_mage_ice_lance_SpellScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_FINGERS_OF_FROST))
+                return false;
+            if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_FINGERS_OF_FROST_PROC))
+                return false;
+            return true;
+        }
+
+        Aura* fofAura;
+        
+        void HandleOnCast()
+        {
+            fofAura = GetCaster()->GetAura(SPELL_MAGE_FINGERS_OF_FROST_PROC);
+        }
+
+        void RecalculateDamage()
+        {
+            int32 damage = GetHitDamage();
+            
+            if (GetHitUnit()->HasAuraState(AURA_STATE_FROZEN, GetSpellInfo(), GetCaster()) || fofAura)
+                damage *= 4;
+
+            if (fofAura)
+                AddPct(damage, sSpellMgr->GetSpellInfo(SPELL_MAGE_FINGERS_OF_FROST)->Effects[EFFECT_3].BasePoints);
+
+            SetHitDamage(damage);
+        }
+
+        void Register() override
+        {
+            OnHit += SpellHitFn(spell_mage_ice_lance_SpellScript::RecalculateDamage);
+            OnCast += SpellCastFn(spell_mage_ice_lance_SpellScript::HandleOnCast);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_mage_ice_lance_SpellScript();
+    }
+};
+
+// 44572 Deep Freeze
+class spell_mage_deep_freeze : public SpellScriptLoader
+{
+public:
+    spell_mage_deep_freeze() : SpellScriptLoader("spell_mage_deep_freeze") { }
+
+    class spell_mage_deep_freeze_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_mage_deep_freeze_SpellScript);
+
+        bool Validate(SpellInfo const* /*spellEntry*/)
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_FINGERS_OF_FROST_PROC))
+                return false;
+            return true;
+        }
+
+        void HandleOnCast()
+        {
+            if (Aura* fofAura = GetCaster()->GetAura(SPELL_MAGE_FINGERS_OF_FROST_PROC))
+                fofAura->ModStackAmount(-1);
+        }
+
+        void Register()
+        {
+            OnCast += SpellCastFn(spell_mage_deep_freeze_SpellScript::HandleOnCast);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_mage_deep_freeze_SpellScript();
+    }
+};
+
 void AddSC_mage_spell_scripts()
 {
     new spell_mage_conjure_refreshment();
@@ -600,4 +903,11 @@ void AddSC_mage_spell_scripts()
     new spell_mage_ring_of_frost_instant();
     new spell_mage_ring_of_frost_periodic();
     new spell_mage_ring_of_frost_freeze();
+    new spell_mage_frostbolt();
+    new spell_mage_frostfire_bolt();
+	new spell_mage_frozen_orb_dmg();
+	new spell_mage_blizzard_dmg();
+    new spell_mage_fingers_of_frost_proc();
+    new spell_mage_ice_lance();
+    new spell_mage_deep_freeze();
 }

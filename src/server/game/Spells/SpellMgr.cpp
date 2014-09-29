@@ -3241,13 +3241,6 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 88819: // Daybreak
                 spellInfo->ProcCharges = 1;
                 break;
-            case 44544: // Fingers of Frost
-                spellInfo->Effects[EFFECT_0].SpellClassMask = flag128(685904631, 1151048, 0, 0);
-                break;
-            case 74396: // Fingers of Frost visual buff
-                spellInfo->ProcCharges = 2;
-                spellInfo->StackAmount = 0;
-                break;
             case 28200: // Ascendance (Talisman of Ascendance trinket)
                 spellInfo->ProcCharges = 6;
                 break;
