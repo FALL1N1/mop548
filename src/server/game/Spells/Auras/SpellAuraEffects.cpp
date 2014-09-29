@@ -469,7 +469,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //405 SPELL_AURA_405
     &AuraEffect::HandleNULL,                                      //406 SPELL_AURA_406
     &AuraEffect::HandleNULL,                                      //407 SPELL_AURA_407
-    &AuraEffect::HandleNULL,                                      //408 SPELL_AURA_408
+    &AuraEffect::HandleNoImmediateEffect,                         //408 SPELL_AURA_CONSUME_PROC
     &AuraEffect::HandleNULL,                                      //409 SPELL_AURA_409
     &AuraEffect::HandleNULL,                                      //410 SPELL_AURA_410 (used in spell 57902) (5.4.2)
     &AuraEffect::HandleNULL,                                      //411 SPELL_AURA_411

@@ -92,7 +92,7 @@ public:
 
     struct npc_mage_frozen_orbAI : public ScriptedAI
     {
-        npc_mage_frozen_orbAI(Creature *creature) : ScriptedAI(creature)
+        npc_mage_frozen_orbAI(Creature* creature) : ScriptedAI(creature)
         {
             summoner = me->ToTempSummon()->GetSummoner();
             x = me->GetPositionX();
