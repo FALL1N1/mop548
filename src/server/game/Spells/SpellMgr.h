@@ -561,6 +561,8 @@ typedef std::pair<SkillLineAbilityMap::const_iterator, SkillLineAbilityMap::cons
 typedef std::multimap<uint32, uint32> PetLevelupSpellSet;
 typedef std::map<uint32, PetLevelupSpellSet> PetLevelupSpellMap;
 
+typedef std::map<uint32, uint32> SpellDifficultySearcherMap;
+
 struct PetDefaultSpellsEntry
 {
     uint32 spellid[MAX_CREATURE_SPELL_DATA_SLOT];
@@ -615,6 +617,12 @@ class SpellMgr
     public:
         // Spell correctness for client using
         static bool IsSpellValid(SpellInfo const* spellInfo, Player* player = NULL, bool msg = true);
+
+        // Spell difficulty
+        uint32 GetSpellDifficultyId(uint32 spellId) const;
+        void SetSpellDifficultyId(uint32 spellId, uint32 id);
+        uint32 GetSpellIdForDifficulty(uint32 spellId, Unit const* caster) const;
+        SpellInfo const* GetSpellForDifficultyFromSpell(SpellInfo const* spell, Unit const* caster) const;
 
         // Spell Ranks table
         SpellChainNode const* GetSpellChainNode(uint32 spell_id) const;
@@ -686,16 +694,21 @@ class SpellMgr
         SpellAreaForAreaMapBounds GetSpellAreaForAreaMapBounds(uint32 area_id) const;
 
         // SpellInfo object management
-        SpellInfo const* GetSpellInfo(uint32 spellId, Difficulty difficulty = REGULAR_DIFFICULTY) const;
-        uint32 GetSpellInfoStoreSize() const { return mSpellInfoMap[REGULAR_DIFFICULTY].size(); }
+        SpellInfo const* GetSpellInfo(uint32 spellId) const { return spellId < GetSpellInfoStoreSize() ?  mSpellInfoMap[spellId] : NULL; }
+        uint32 GetSpellInfoStoreSize() const { return mSpellInfoMap.size(); }
         std::set<uint32> GetSpellClassList(uint8 ClassID) const { return mSpellClassInfo[ClassID]; }
         std::list<uint32> const* GetSpellOverrideInfo(uint32 spellId) { return mSpellOverrideInfo.find(spellId) == mSpellOverrideInfo.end() ? NULL : &mSpellOverrideInfo[spellId]; }
         bool IsTalent(uint32 spellId) { return mTalentSpellInfo.find(spellId) != mTalentSpellInfo.end() ?  true :  false; }
+
+    private:
+        SpellInfo* _GetSpellInfo(uint32 spellId) { return spellId < GetSpellInfoStoreSize() ?  mSpellInfoMap[spellId] : NULL; }
 
     // Modifiers
     public:
 
         // Loading data at server startup
+        void UnloadSpellInfoChains();
+        void LoadSpellTalentRanks();
         void LoadSpellRanks();
         void LoadSpellRequired();
         void LoadSpellLearnSkills();
@@ -724,6 +737,7 @@ class SpellMgr
         void LoadSpellClassInfo();
 
     private:
+        SpellDifficultySearcherMap mSpellDifficultySearcherMap;
         SpellChainMap              mSpellChains;
         SpellsRequiringSpellMap    mSpellsReqSpell;
         SpellRequiredMap           mSpellReq;
@@ -749,10 +763,10 @@ class SpellMgr
         SkillLineAbilityMap        mSkillLineAbilityMap;
         PetLevelupSpellMap         mPetLevelupSpellMap;
         PetDefaultSpellsMap        mPetDefaultSpellsMap;           // only spells not listed in related mPetLevelupSpellMap entry
+        SpellInfoMap               mSpellInfoMap;
         SpellClassList             mSpellClassInfo;
         TalentSpellSet             mTalentSpellInfo;
         SpellOverrideInfo          mSpellOverrideInfo;
-        SpellInfoMap               mSpellInfoMap[MAX_DIFFICULTY];
 };
 
 #define sSpellMgr ACE_Singleton<SpellMgr, ACE_Null_Mutex>::instance()

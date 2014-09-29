@@ -235,7 +235,6 @@ DBCStorage <StableSlotPricesEntry> sStableSlotPricesStore(StableSlotPricesfmt);
 DBCStorage <SummonPropertiesEntry> sSummonPropertiesStore(SummonPropertiesfmt);
 DBCStorage <TalentEntry> sTalentStore(TalentEntryfmt);
 TalentSpellPosMap sTalentSpellPosMap;
-SpellEffectMap sSpellEffectMap;
 typedef std::map<uint32, std::vector<uint32> > SpecializationSpellsMap;
 
 SpecializationSpellsMap sSpecializationSpellsMap;
@@ -577,15 +576,6 @@ void LoadDBCStores(const std::string& dataPath)
     //LoadDBC(availableDbcLocales, bad_dbc_files, sSpellItemEnchantmentStore,   dbcPath, "SpellItemEnchantment.dbc");//15595
     LoadDBC(availableDbcLocales, bad_dbc_files, sSpellMiscStore,              dbcPath, "SpellMisc.dbc");//17538
     LoadDBC(availableDbcLocales, bad_dbc_files, sSpellEffectScalingStore,     dbcPath, "SpellEffectScaling.dbc");//17538
-
-    for (uint32 i = 1; i < sSpellEffectStore.GetNumRows(); ++i)
-    {
-        if (SpellEffectEntry const *spellEffect = sSpellEffectStore.LookupEntry(i))
-        {
-            sSpellEffectMap[spellEffect->EffectSpellId].effects[spellEffect->EffectDifficulty][spellEffect->EffectIndex] = spellEffect;
-        }
-    }
-
     LoadDBC(availableDbcLocales, bad_dbc_files, sSpellItemEnchantmentConditionStore, dbcPath, "SpellItemEnchantmentCondition.dbc");//15595
     LoadDBC(availableDbcLocales, bad_dbc_files, sSpellRadiusStore,            dbcPath, "SpellRadius.dbc");//15595
     LoadDBC(availableDbcLocales, bad_dbc_files, sSpellRangeStore,             dbcPath, "SpellRange.dbc");//15595
@@ -594,6 +584,15 @@ void LoadDBCStores(const std::string& dataPath)
     LoadDBC(availableDbcLocales, bad_dbc_files, sSpellShapeshiftFormStore,    dbcPath, "SpellShapeshiftForm.dbc");//15595
     //LoadDBC(availableDbcLocales, bad_dbc_files, sStableSlotPricesStore,       dbcPath, "StableSlotPrices.dbc");
     LoadDBC(availableDbcLocales, bad_dbc_files, sSummonPropertiesStore,       dbcPath, "SummonProperties.dbc");//15595
+
+    for (uint32 j = 0; j < sSpellEffectScalingStore.GetNumRows(); j++)
+    {
+        SpellEffectScalingEntry const* spellEffectScaling = sSpellEffectScalingStore.LookupEntry(j);
+        if (!spellEffectScaling)
+            continue;
+
+        sSpellEffectScallingByEffectId.insert(std::make_pair(spellEffectScaling->SpellEffectId, j));
+    }
 
     std::map<std::string, uint32> classIdByName;
     for (uint32 j = 0; j < sChrClassesStore.GetNumRows(); j++)
@@ -687,6 +686,34 @@ void LoadDBCStores(const std::string& dataPath)
     }
 
     LoadDBC(availableDbcLocales, bad_dbc_files, sTalentStore,                 dbcPath, "Talent.dbc");//15595
+
+    // Create Spelldifficulty searcher
+    for (uint32 i = 0; i < sSpellDifficultyStore.GetNumRows(); ++i)
+    {
+        SpellDifficultyEntry const* spellDiff = sSpellDifficultyStore.LookupEntry(i);
+        if (!spellDiff)
+            continue;
+
+        SpellDifficultyEntry newEntry;
+        memset(newEntry.SpellID, 0, 4*sizeof(uint32));
+        for (uint32 x = 0; x < MAX_DIFFICULTY; ++x)
+        {
+            if (spellDiff->SpellID[x] <= 0 || !sSpellStore.LookupEntry(spellDiff->SpellID[x]))
+            {
+                if (spellDiff->SpellID[x] > 0)//don't show error if spell is <= 0, not all modes have spells and there are unknown negative values
+                    TC_LOG_ERROR("sql.sql", "spelldifficulty_dbc: spell %i at field id:%u at spellid%i does not exist in SpellStore (spell.dbc), loaded as 0", spellDiff->SpellID[x], spellDiff->ID, x);
+                newEntry.SpellID[x] = 0;//spell was <= 0 or invalid, set to 0
+            }
+            else
+                newEntry.SpellID[x] = spellDiff->SpellID[x];
+        }
+
+        if (newEntry.SpellID[0] <= 0 || newEntry.SpellID[1] <= 0)//id0-1 must be always set!
+            continue;
+
+        for (uint32 x = 0; x < MAX_DIFFICULTY; ++x)
+            sSpellMgr->SetSpellDifficultyId(uint32(newEntry.SpellID[x]), spellDiff->ID);
+    }
 
     // create talent spells set
     for (unsigned int i = 0; i < sTalentStore.GetNumRows(); ++i)
@@ -900,23 +927,6 @@ char const* GetPetName(uint32 petfamily, uint32 /*dbclang*/)
     if (!pet_family)
         return NULL;
     return pet_family->Name ? pet_family->Name : NULL;
-}
-
-SpellEffectEntry const* GetSpellEffectEntry(uint32 spellId, uint32 effect, uint32 difficulty)
-{
-    SpellEffectMap::const_iterator itr = sSpellEffectMap.find(spellId);
-    if (itr == sSpellEffectMap.end())
-        return NULL;
-
-    if (itr->second.effects[difficulty][effect])
-        return itr->second.effects[difficulty][effect];
-
-    return itr->second.effects[REGULAR_DIFFICULTY][effect];
-}
-
-SpellEffectScalingEntry const* GetSpellEffectScalingEntry(uint32 effectId)
-{
-    return sSpellEffectScalingStore.LookupEntry(effectId);
 }
 
 TalentSpellPos const* GetTalentSpellPos(uint32 spellId)
