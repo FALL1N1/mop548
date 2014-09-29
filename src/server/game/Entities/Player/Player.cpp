@@ -4340,7 +4340,7 @@ bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent
     {
         SetUsedTalentCount(GetUsedTalentCount() + 1);
         SetFreeTalentPoints(GetFreeTalentPoints() -1);
-        //CastPassiveTalentSpell(spellInfo->Id);
+        CastPassiveTalentSpell(spellInfo->Id);
     }
 
     // update free primary prof.points (if any, can be none in case GM .learn prof. learning)
@@ -4625,6 +4625,8 @@ void Player::removeSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
         if (freeProfs <= sWorld->getIntConfig(CONFIG_MAX_PRIMARY_TRADE_SKILL))
             SetFreePrimaryProfessions(freeProfs);
     }
+
+    RemovePassiveTalentSpell(spell_id);
 
     // remove dependent skill
     SpellLearnSkillNode const* spellLearnSkill = sSpellMgr->GetSpellLearnSkill(spell_id);
@@ -27254,7 +27256,7 @@ bool Player::LearnTalent(uint32 talentId)
     // learn! (other talent ranks will unlearned at learning)
     learnSpell(spellid, false);
     AddTalent(spellid, GetActiveSpec(), true);
-    //CastPassiveTalentSpell(spellid);
+    CastPassiveTalentSpell(spellid);
 
     TC_LOG_INFO("misc", "TalentID: %u Spell: %u Spec: %u\n", talentId, spellid, GetActiveSpec());
     return true;
@@ -29462,4 +29464,83 @@ float Player::GetMasterySpellCoefficient() const
         return (GetFloatValue(PLAYER_FIELD_MASTERY) * mastery->Effects[EFFECT_0].BonusMultiplier);
 
     return 1.0f;
+}
+
+void Player::CastPassiveTalentSpell(uint32 spellId)
+{
+    switch (spellId)
+    {
+        case 1463:  // Incanter's Ward
+            if (!HasAura(118858))
+            {
+                CastSpell(this, 118858, true); // +6% damage and 65% mana regen
+                UpdateManaRegen();
+            }
+            break;
+        case 16188: // Ancestral Swiftness
+            if (!HasAura(51470))
+                CastSpell(this, 51470, true);  // +5% spell haste
+            if (!HasAura(121617))
+                CastSpell(this, 121617, true); // +5% melee haste
+            break;
+        case 96268: // Death's Advance
+            if (!HasAura(124285))
+                CastSpell(this, 124285, true); // +10% speed
+            break;
+        case 108288:// Heart of the Wild
+            if (!HasAura(17005))
+                CastSpell(this, 17005, true); // +6% stats
+            break;
+        case 108415:// Soul Link
+        {
+            RemoveAura(108503); // Remove Grimoire of sacrifice
+            break;
+        }
+        case 108499:// Grimoire of Supremacy
+            if (!HasAura(108499))
+                AddAura(108499, this);
+            break;
+        default:
+            break;
+    }
+}
+
+void Player::RemovePassiveTalentSpell(uint32 spellId)
+{
+    switch (spellId)
+    {
+        case 54637: // Blood of the North (restore runes on passive remove)
+            for (uint8 rune = 0; rune < 6; rune++)
+                RestoreBaseRune(rune);
+            break;
+        case 1463:  // Incanter's Ward
+            RemoveAura(118858);
+            break;
+        case 16188: // Ancestral Swiftness
+            RemoveAura(51470);
+            RemoveAura(121617);
+            break;
+        case 96268: // Death's Advance
+            RemoveAura(124285);
+            break;
+        case 108288:// Heart of the Wild
+            RemoveAura(17005);
+            break;
+        case 108415:// Soul Link
+            RemoveAura(108446);
+            if (Aura* GoS = GetAura(108503))
+            {
+                if (GoS->GetEffect(EFFECT_6))
+                    GoS->GetEffect(EFFECT_6)->SetAmount(20);
+                RemoveAura(108503);
+            }
+            break;
+        case 108499:// Grimoire of Supremacy
+            RemoveAura(108499);
+            if (Pet* pet = GetPet())
+                pet->DespawnOrUnsummon();
+            break;
+        default:
+            break;
+    }
 }
