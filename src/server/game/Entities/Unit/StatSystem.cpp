@@ -775,27 +775,21 @@ void Player::UpdateManaRegen()
     float spirit_regen = OCTRegenMPPerSpirit();
     spirit_regen *= GetTotalAuraMultiplierByMiscValue(SPELL_AURA_MOD_POWER_REGEN_PERCENT, POWER_MANA);
     float HastePct = 1.0f + GetUInt32Value(PLAYER_FIELD_COMBAT_RATINGS + CR_HASTE_SPELL) * GetRatingMultiplier(CR_HASTE_SPELL) / 100.0f;
+    float mod = (GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, POWER_MANA) / 5.0f);
 
-    float combat_regen = 0.004f * GetMaxPower(POWER_MANA) + spirit_regen + (GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, POWER_MANA) / 5.0f);
-    float base_regen = 0.004f * GetMaxPower(POWER_MANA) + (GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, POWER_MANA) / 5.0f);
+    float combat_regen = 0.004f * GetMaxPower(POWER_MANA) + spirit_regen + mod;
+    float base_regen = 0.004f * GetMaxPower(POWER_MANA) + mod;
+    
+    // Mana Meditation && Meditation
+    int32 modManaRegenInterrupt = GetTotalAuraModifier(SPELL_AURA_MOD_MANA_REGEN_INTERRUPT);
+    if (modManaRegenInterrupt)
+        combat_regen += modManaRegenInterrupt * spirit_regen;  // Allows 50% of your mana regeneration from Spirit to continue while in combat.
 
     if (getClass() == CLASS_WARLOCK)
     {
-        if (!HasAura(111546))
-        {
-            combat_regen = 0.01f * GetMaxPower(POWER_MANA) + spirit_regen + GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, POWER_MANA);
-            base_regen = 0.01f * GetMaxPower(POWER_MANA) + GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, POWER_MANA);
-        } else
-        // Chaotic Energy : Increase Mana regen by 625%
-        {
-            combat_regen = HastePct * (combat_regen + (combat_regen * 6.25f));
-            base_regen = HastePct * (base_regen + (base_regen * 6.25f));
-        }
+        combat_regen = 0.01f * GetMaxPower(POWER_MANA) + spirit_regen + GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, POWER_MANA);
+        base_regen = 0.01f * GetMaxPower(POWER_MANA) + GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, POWER_MANA);
     }
-
-    // Mana Meditation && Meditation - Allows 50% of your mana regeneration from Spirit to continue while in combat.
-    if (HasAuraType(SPELL_AURA_MOD_MANA_REGEN_INTERRUPT))
-        base_regen += 0.5 * spirit_regen; 
 
     // Rune of Power : Increase Mana regeneration by 100%
     if (HasAura(116014))
@@ -803,26 +797,38 @@ void Player::UpdateManaRegen()
         combat_regen *= 2;
         base_regen *= 2;
     }
-
     // Incanter's Ward : Increase Mana regen by 65%
     if (HasAura(118858))
     {
         combat_regen *= 1.65f;
         base_regen *= 1.65f;
     }
+    // Chaotic Energy : Increase Mana regen by 625%
+    if (HasAura(111546))
+    {
+        // haste also increase your mana regeneration
+        HastePct = 1.0f + GetUInt32Value(PLAYER_FIELD_COMBAT_RATINGS + CR_HASTE_MELEE) * GetRatingMultiplier(CR_HASTE_MELEE) / 100.0f;
 
+        combat_regen = combat_regen + (combat_regen * 6.25f);
+        combat_regen *= HastePct;
+        base_regen = base_regen + (base_regen * 6.25f);
+        base_regen *= HastePct;
+    }
     // Nether Attunement - 117957 : Haste also increase your mana regeneration
     if (HasAura(117957))
     {
+        HastePct = 1.0f + GetUInt32Value(PLAYER_FIELD_COMBAT_RATINGS + CR_HASTE_MELEE) * GetRatingMultiplier(CR_HASTE_MELEE) / 100.0f;
+
         combat_regen *= HastePct;
         base_regen *= HastePct;
     }
-
     // Mana Attunement : Increase Mana regen by 50%
     if (HasAura(121039))
     {
-        combat_regen = HastePct * (combat_regen + (combat_regen * 0.5f));
-        base_regen = HastePct * (base_regen + (base_regen * 0.5f));
+        combat_regen = combat_regen + (combat_regen * 0.5f);
+        combat_regen *= HastePct;
+        base_regen = base_regen + (base_regen * 0.5f);
+        base_regen *= HastePct;
     }
     
     // Not In Combat : 2% of base mana + spirit_regen

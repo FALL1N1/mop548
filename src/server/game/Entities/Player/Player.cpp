@@ -1043,11 +1043,11 @@ bool Player::Create(uint32 guidlow, CharacterCreateInfo* createInfo)
         SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE);
     }
 
-    //SetFloatValue(UNIT_FIELD_MOD_CASTING_SPEED, 1.0f);
-    //SetFloatValue(UNIT_FIELD_MOD_SPELL_HASTE, 1.0f);
-    //SetFloatValue(UNIT_FIELD_MOD_HASTE, 1.0f);
-    //SetFloatValue(UNIT_FIELD_MOD_HASTE_REGEN, 1.0f);
-    //SetFloatValue(UNIT_FIELD_MOD_RANGED_HASTE, 1.0f);
+    SetFloatValue(UNIT_FIELD_MOD_CASTING_SPEED, 1.0f);
+    SetFloatValue(UNIT_FIELD_MOD_SPELL_HASTE, 1.0f);
+    SetFloatValue(UNIT_FIELD_MOD_HASTE, 1.0f);
+    SetFloatValue(UNIT_FIELD_MOD_HASTE_REGEN, 1.0f);
+    SetFloatValue(UNIT_FIELD_MOD_RANGED_HASTE, 1.0f);
 
     SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_REGENERATE_POWER);
     SetFloatValue(UNIT_FIELD_HOVER_HEIGHT, 1.0f);            // default for players in 3.0.3
@@ -6588,7 +6588,6 @@ void Player::UpdateRating(CombatRating cr)
         SetFloatValue(UNIT_FIELD_MOD_RANGED_HASTE, haste);
         SetFloatValue(UNIT_FIELD_MOD_SPELL_HASTE, haste);
         SetFloatValue(UNIT_FIELD_MOD_HASTE, haste);
-        UpdateManaRegen();
     }
 
     switch (cr)
@@ -6663,6 +6662,7 @@ void Player::UpdateRating(CombatRating cr)
             UpdatePVPPower(amount);
             break;
     }
+    UpdateManaRegen();
 }
 
 void Player::UpdateAllRatings()
@@ -18823,6 +18823,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
     //apply all stat bonuses from items and auras
     SetCanModifyStats(true);
     UpdateAllStats();
+    UpdateManaRegen();
 
     // restore remembered power/health values (but not more max values)
     uint32 savedHealth = fields[46].GetUInt32();
