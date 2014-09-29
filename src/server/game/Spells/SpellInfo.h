@@ -533,6 +533,7 @@ public:
     bool _IsPositiveEffect(uint8 effIndex, bool deep) const;
     bool _IsPositiveSpell() const;
     static bool _IsPositiveTarget(uint32 targetA, uint32 targetB);
+    bool CanTriggerHotStreak() const;
 
     // unloading helpers
     void _UnloadImplicitTargetConditionLists();

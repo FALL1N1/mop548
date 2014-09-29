@@ -5758,28 +5758,48 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
         }
         case SPELLFAMILY_MAGE:
         {
-            // Hot Streak & Improved Hot Streak
-            if (dummySpell->SpellIconID == 2999)
+            switch (dummySpell->Id)
             {
-                if (effIndex != 0)
-                    return false;
-                AuraEffect* counter = triggeredByAura->GetBase()->GetEffect(EFFECT_1);
-                if (!counter)
-                    return true;
-
-                // Count spell criticals in a row in second aura
-                if (procEx & PROC_EX_CRITICAL_HIT)
+                case 44448: // Improved Hot Streak
                 {
-                    counter->SetAmount(counter->GetAmount() * 2);
-                    if (counter->GetAmount() < 100 && dummySpell->Id != 44445) // not enough or Hot Streak spell
-                        return true;
-                    // Crititcal counted -> roll chance
-                    if (roll_chance_i(triggerAmount))
-                        CastSpell(this, 48108, true, castItem, triggeredByAura);
+                    if (effIndex != 0)
+                        return false;
+
+                    if (!damage)
+                        return false;
+
+                    if (!procSpell)
+                        return false;
+
+                    if (procEx & PROC_EX_INTERNAL_DOT)
+                        return false;
+
+                    if (!procSpell->CanTriggerHotStreak())
+                        return false;
+
+                    if (procEx & PROC_EX_CRITICAL_HIT)
+                    {
+                        if (!HasAura(48107))
+                        {
+                            CastSpell(this, 48107, true);
+                            return true;
+                        }
+                        else
+                        {
+                            RemoveAura(48107);
+                            triggered_spell_id = 48108;
+                            target = this;
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        RemoveAura(48107);
+                        return false;
+                    }
                 }
-                counter->SetAmount(25);
-                return true;
             }
+
             // Incanter's Regalia set (add trigger chance to Mana Shield)
             if (dummySpell->SpellFamilyFlags[0] & 0x8000)
             {
