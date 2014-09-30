@@ -9566,7 +9566,25 @@ bool Unit::isSpellCrit(Unit* victim, SpellInfo const* spellProto, SpellSchoolMas
                             default:
                                 break;
                         }
-                    break;
+                        break;
+                    }
+                    case SPELLFAMILY_WARRIOR:
+                    {
+                        switch (spellProto->Id)
+                        {
+                            case 7384:  // Overpower has a 60% increased chance to be a critical strike.
+                                crit_chance += 60.0f;
+                                break;
+                            case 23881: // Bloodthirst has double critical chance
+                                crit_chance *= 2;
+                                break;
+                            case 118000:// Dragon Roar is always a critical hit
+                                return 100.0f;
+                            default:
+                                break;
+                        }
+                        break;
+                    }
                 }
             }
         /// Intentional fallback. Calculate critical strike chance for both Ranged and Melee spells
