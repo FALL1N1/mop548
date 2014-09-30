@@ -721,6 +721,19 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
 
             switch (GetId())
             {
+                case 90361: // Spirit Mend
+                {
+                    if (!caster->GetOwner())
+                        break;
+
+                    Player* m_owner = caster->GetOwner()->ToPlayer();
+                    if (!m_owner)
+                        break;
+
+                    amount += int32(m_owner->GetTotalAttackPowerValue(RANGED_ATTACK) * 0.35f * 0.335f);
+
+                    break;
+                }
                 case 114163:// Eternal Flame
                 {
                     amount += int32(0.0585f * caster->SpellBaseDamageBonusDone(SpellSchoolMask(m_spellInfo->SchoolMask)));
