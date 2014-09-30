@@ -47,7 +47,11 @@ enum MageSpells
     SPELL_MAGE_FINGERS_OF_FROST_PROC        = 44544,
     SPELL_MAGE_FINGERS_OF_FROST             = 112965,
     SPELL_MAGE_FINGERS_OF_FROST_VISUAL      = 126084,
-    SPELL_MAGE_ICE_LANCE                    = 30455
+    SPELL_MAGE_ICE_LANCE                    = 30455,
+    SPELL_MAGE_COMBUSTION_DOT               = 83853,
+    SPELL_MAGE_COMBUSTION_IMPACT            = 118271,
+    SPELL_MAGE_INFERNO_BLAST                = 108853,
+    SPELL_MAGE_INFERNO_BLAST_IMPACT         = 118280,
 };
 
 enum MageIcons
@@ -134,7 +138,6 @@ public:
     }
 };
 
-// 43987 Conjure Refreshment Table
 class spell_mage_conjure_refreshment_table : public SpellScriptLoader
 {
 public:
@@ -170,7 +173,6 @@ public:
     }
 };
 
-// 86949 Cauterize talent aura
 class spell_mage_cauterize : public SpellScriptLoader
 {
 public:
@@ -231,7 +233,6 @@ public:
     }
 };
 
-// 11426 - Ice Barrier
 class spell_mage_ice_barrier : public SpellScriptLoader
 {
 public:
@@ -241,13 +242,12 @@ public:
     {
         PrepareAuraScript(spell_mage_ice_barrier_AuraScript);
 
-        void CalculateAmount(AuraEffect const * /*aurEff*/, int32 & amount, bool & canBeRecalculated)
+        void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& canBeRecalculated)
         {
             canBeRecalculated = false;
             if (Unit* caster = GetCaster())
             {
                 int32 sp = caster->SpellBaseDamageBonusDone(GetSpellInfo()->GetSchoolMask());
-                // 330% SP bonus
                 sp *= 3.3;
                 amount += sp;
             }
@@ -265,7 +265,6 @@ public:
     }
 };
 
-//115610 Temporal Shield
 class spell_mage_temporal_shield : public SpellScriptLoader
 {
 public:
@@ -316,7 +315,6 @@ public:
     }
 };
 
-// 140468 Flameglow
 class spell_mage_flameglow : public SpellScriptLoader
 {
 public:
@@ -333,19 +331,19 @@ public:
             return true;
         }
 
-        void CalculateAmount(AuraEffect const * /*aurEff*/, int32 & amount, bool & canBeRecalculated)
+        void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& canBeRecalculated)
         {
             amount = -1;
         }
 
         void Absorb(AuraEffect* aurEff, DamageInfo & dmgInfo, uint32 & absorbAmount)
         {
-            Unit * caster = GetCaster();
+            Unit* caster = GetCaster();
 
             if (!caster)
                 return;
 
-            uint32 fullabsorb = caster->SpellBaseDamageBonusDone(GetSpellInfo()->GetSchoolMask())*GetSpellInfo()->Effects[1].BasePoints / 100;
+            uint32 fullabsorb = caster->SpellBaseDamageBonusDone(GetSpellInfo()->GetSchoolMask()) * GetSpellInfo()->Effects[1].BasePoints / 100;
 
             absorbAmount = (fullabsorb <= dmgInfo.GetDamage()*GetSpellInfo()->Effects[2].BasePoints / 100) ? fullabsorb : dmgInfo.GetDamage()*GetSpellInfo()->Effects[2].BasePoints / 100;
 
@@ -364,7 +362,6 @@ public:
     }
 };
 
-// 140376 Ring of Frost Instant
 class CastRingOfFrostInstant : public BasicEvent
 {
 public:
@@ -439,7 +436,6 @@ public:
     }
 };
 
-// 136511 - Ring of Frost Periodic Trigger
 class spell_mage_ring_of_frost_periodic : public SpellScriptLoader
 {
 public:
@@ -507,7 +503,6 @@ public:
     }
 };
 
-// 82691 - Ring of Frost (freeze efect)
 class spell_mage_ring_of_frost_freeze : public SpellScriptLoader
 {
 public:
@@ -594,7 +589,6 @@ public:
     }
 };
 
-// 116 Frostbolt
 class spell_mage_frostbolt : public SpellScriptLoader
 {
 public:
@@ -636,7 +630,6 @@ public:
 
 };
 
-// 44614 Frostfire Bolt
 class spell_mage_frostfire_bolt : public SpellScriptLoader
 {
 public:
@@ -678,7 +671,6 @@ public:
 
 };
 
-// 84721 Frozen Orb damage
 class spell_mage_frozen_orb_dmg : public SpellScriptLoader
 {
 public:
@@ -720,7 +712,6 @@ public:
 
 };
 
-// 42208 Blizzard damage
 class spell_mage_blizzard_dmg : public SpellScriptLoader
 {
 public:
@@ -762,7 +753,6 @@ public:
 
 };
 
-// 44544 Fingers of Frost proc
 class spell_mage_fingers_of_frost_proc : public SpellScriptLoader
 {
 public:
@@ -805,7 +795,6 @@ public:
     }
 };
 
-// 30455 Ice Lance
 class spell_mage_ice_lance : public SpellScriptLoader
 {
 public:
@@ -857,7 +846,6 @@ public:
     }
 };
 
-// 44572 Deep Freeze
 class spell_mage_deep_freeze : public SpellScriptLoader
 {
 public:
@@ -892,6 +880,60 @@ public:
     }
 };
 
+class spell_mage_combustion : public SpellScriptLoader
+{
+public:
+    spell_mage_combustion() : SpellScriptLoader("spell_mage_combustion") { }
+
+    class spell_mage_combustion_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_mage_combustion_SpellScript);
+
+        void HandleOnHit()
+        {
+            Player* caster = GetCaster()->ToPlayer();
+            Unit* target = GetHitUnit();
+            if (!caster || !target)
+                return;
+
+            caster->CastSpell(target, SPELL_MAGE_COMBUSTION_IMPACT, true);
+
+            if (caster->HasSpellCooldown(SPELL_MAGE_INFERNO_BLAST))
+            {
+                caster->RemoveSpellCooldown(SPELL_MAGE_INFERNO_BLAST, true);
+                caster->RemoveSpellCooldown(SPELL_MAGE_INFERNO_BLAST_IMPACT, true);
+            }
+
+            int32 combustionBp = 0;
+
+            Unit::AuraEffectList const& aurasPereodic = target->GetAuraEffectsByType(SPELL_AURA_PERIODIC_DAMAGE);
+            for (Unit::AuraEffectList::const_iterator i = aurasPereodic.begin(); i != aurasPereodic.end(); ++i)
+            {
+                if ((*i)->GetCasterGUID() != caster->GetGUID() || (*i)->GetSpellInfo()->SchoolMask != SPELL_SCHOOL_MASK_FIRE)
+                    continue;
+
+                if (!(*i)->GetAmplitude())
+                    continue;
+
+                combustionBp += caster->SpellDamageBonusDone(target, (*i)->GetSpellInfo(), (*i)->GetAmount(), DOT) * 1000 / (*i)->GetAmplitude();
+            }
+
+            if (combustionBp)
+                caster->CastCustomSpell(target, SPELL_MAGE_COMBUSTION_DOT, &combustionBp, NULL, NULL, true);
+        }
+
+        void Register()
+        {
+            OnHit += SpellHitFn(spell_mage_combustion_SpellScript::HandleOnHit);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_mage_combustion_SpellScript();
+    }
+};
+
 void AddSC_mage_spell_scripts()
 {
     new spell_mage_conjure_refreshment();
@@ -910,4 +952,5 @@ void AddSC_mage_spell_scripts()
     new spell_mage_fingers_of_frost_proc();
     new spell_mage_ice_lance();
     new spell_mage_deep_freeze();
+    new spell_mage_combustion();
 }

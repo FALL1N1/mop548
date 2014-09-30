@@ -14079,7 +14079,15 @@ bool Unit::IsTriggeredAtSpellProcEvent(Unit* victim, Aura* aura, SpellInfo const
 
     // Check spellProcEvent data requirements
     if (!sSpellMgr->IsSpellProcEventCanTriggeredBy(spellProcEvent, EventProcFlag, procSpell, procFlag, procExtra, active))
-        return false;
+    {
+        // Inferno Blast, Combustion and Pyroblast can Trigger Pyroblast!
+        if (spellProto && spellProto->Id == 44448 && procSpell &&
+            (procSpell->Id == 108853 || procSpell->Id == 11366 || procSpell->Id == 11129))
+            return true;
+        else
+            return false;
+    }
+
     // In most cases req get honor or XP from kill
     if (EventProcFlag & PROC_FLAG_KILL && GetTypeId() == TYPEID_PLAYER)
     {

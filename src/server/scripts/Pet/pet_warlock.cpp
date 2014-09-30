@@ -42,7 +42,7 @@ public:
     {
         uint32 charges;
 
-        npc_wild_impAI(Creature *creature) : ScriptedAI(creature)
+        npc_wild_impAI(Creature* creature) : ScriptedAI(creature)
         {
             charges = 10;
             me->SetReactState(REACT_ASSIST);
@@ -57,7 +57,7 @@ public:
                     AttackStart(me->GetOwner()->GetVictim());
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (me->GetReactState() != REACT_ASSIST)
                 me->SetReactState(REACT_ASSIST);
