@@ -8942,6 +8942,10 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uin
     float ApCoeffMod = 1.0f;
     int32 DoneTotal = 0;
 
+    // Pyroblast - 11366 / Pyroblast ! - 48108 : Next Pyroblast damage increased by 25%
+    if (GetTypeId() == TYPEID_PLAYER && spellProto && spellProto->Id == 11366 && damagetype == SPELL_DIRECT_DAMAGE && HasAura(48108))
+        AddPct(DoneTotalMod, 25);
+
     // 76547 - Mastery : Mana Adept
     if (spellProto && GetTypeId() == TYPEID_PLAYER)
     {
