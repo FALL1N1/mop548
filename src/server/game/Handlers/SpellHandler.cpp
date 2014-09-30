@@ -1122,6 +1122,37 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
             spellInfo = actualSpellInfo;
     }
 
+    // Mage Bomb - 125430 and  Living Bomb - 44457
+    if (spellInfo->Id == 125430 && _player->HasSpell(44457))
+    {
+        SpellInfo const* newSpellInfo = sSpellMgr->GetSpellInfo(44457);
+        if (newSpellInfo)
+        {
+            spellInfo = newSpellInfo;
+            spellId = newSpellInfo->Id;
+        }
+    }
+    // Mage Bomb - 125430 and Frost Bomb - 112948
+    else if (spellInfo->Id == 125430 && _player->HasSpell(112948))
+    {
+        SpellInfo const* newSpellInfo = sSpellMgr->GetSpellInfo(112948);
+        if (newSpellInfo)
+        {
+            spellInfo = newSpellInfo;
+            spellId = newSpellInfo->Id;
+        }
+    }
+    // Mage Bomb - 125430 and  Nether Tempest - 114923
+    else if (spellInfo->Id == 125430 && _player->HasSpell(114923))
+    {
+        SpellInfo const* newSpellInfo = sSpellMgr->GetSpellInfo(114923);
+        if (newSpellInfo)
+        {
+            spellInfo = newSpellInfo;
+            spellId = newSpellInfo->Id;
+        }
+    }
+
     Spell* spell = new Spell(caster, spellInfo, TRIGGERED_NONE, 0, false);
     spell->m_cast_count = castCount;                       // set count of casts
     spell->m_glyphIndex = glyphIndex;

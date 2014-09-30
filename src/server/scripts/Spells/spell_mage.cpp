@@ -52,6 +52,9 @@ enum MageSpells
     SPELL_MAGE_COMBUSTION_IMPACT            = 118271,
     SPELL_MAGE_INFERNO_BLAST                = 108853,
     SPELL_MAGE_INFERNO_BLAST_IMPACT         = 118280,
+    SPELL_MAGE_LIVING_BOMB_TRIGGERED        = 44461,
+    SPELL_MAGE_BRAIN_FREEZE                 = 44549,
+    SPELL_MAGE_BRAIN_FREEZE_TRIGGERED       = 57761,
 };
 
 enum MageIcons
@@ -934,6 +937,44 @@ public:
     }
 };
 
+class spell_mage_living_bomb : public SpellScriptLoader
+{
+public:
+    spell_mage_living_bomb() : SpellScriptLoader("spell_mage_living_bomb") { }
+
+    class spell_mage_living_bomb_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_mage_living_bomb_AuraScript);
+
+        void AfterRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+        {
+            AuraRemoveMode removeMode = GetTargetApplication()->GetRemoveMode();
+            if (removeMode != AURA_REMOVE_BY_DEATH && removeMode != AURA_REMOVE_BY_EXPIRE)
+                return;
+
+            Unit* caster = GetCaster();
+            if (!caster)
+                return;
+
+            caster->CastSpell(GetTarget(), SPELL_MAGE_LIVING_BOMB_TRIGGERED, true);
+
+            if (caster->HasAura(SPELL_MAGE_BRAIN_FREEZE))
+                caster->CastSpell(caster, SPELL_MAGE_BRAIN_FREEZE_TRIGGERED, true);
+
+        }
+
+        void Register()
+        {
+            AfterEffectRemove += AuraEffectRemoveFn(spell_mage_living_bomb_AuraScript::AfterRemove, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_mage_living_bomb_AuraScript();
+    }
+};
+
 void AddSC_mage_spell_scripts()
 {
     new spell_mage_conjure_refreshment();
@@ -953,4 +994,5 @@ void AddSC_mage_spell_scripts()
     new spell_mage_ice_lance();
     new spell_mage_deep_freeze();
     new spell_mage_combustion();
+    new spell_mage_living_bomb();
 }
