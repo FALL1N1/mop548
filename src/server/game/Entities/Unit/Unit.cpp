@@ -9470,7 +9470,8 @@ bool Unit::isSpellCrit(Unit* victim, SpellInfo const* spellProto, SpellSchoolMas
                         case  911:
                             if (!victim->HasAuraState(AURA_STATE_FROZEN, spellProto, this))
                                 break;
-                            AddPct(crit_chance, (*i)->GetAmount()*20);
+                            crit_chance *= 2;     // double the critical chance against frozen targets
+                            crit_chance += 50.0f; // plus an additional 50%
                             break;
                         case 7917: // Glyph of Shadowburn
                             if (victim->HasAuraState(AURA_STATE_HEALTHLESS_35_PERCENT, spellProto, this))
