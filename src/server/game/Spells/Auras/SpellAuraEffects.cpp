@@ -714,6 +714,41 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
             }
             break;
         }
+        case SPELL_AURA_PERIODIC_HEAL:
+        {
+            if (!caster)
+                break;
+
+            switch (GetId())
+            {
+                case 114163:// Eternal Flame
+                {
+                    amount += int32(0.0585f * caster->SpellBaseDamageBonusDone(SpellSchoolMask(m_spellInfo->SchoolMask)));
+
+                    int32 holyPower = caster->GetPower(POWER_HOLY_POWER) + 1;
+
+                    if (holyPower > 3)
+                        holyPower = 3;
+
+                    // Divine Purpose
+                    if (caster->HasAura(90174))
+                        holyPower = 3;
+
+                    amount *= holyPower;
+
+                    caster->ModifyPower(POWER_HOLY_POWER, (holyPower > 1) ? (-(holyPower - 1)) : 0);
+
+                    // Item - Paladin PvP Set Holy 4P Bonus
+                    if (caster->HasAura(131665) && holyPower == 3)
+                        caster->ModifyPower(POWER_HOLY_POWER, 1);
+
+                    break;
+                }
+                default:
+                    break;
+            }
+            break;
+        }
         default:
             break;
     }
