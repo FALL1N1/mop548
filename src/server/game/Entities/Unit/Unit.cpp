@@ -9513,45 +9513,20 @@ bool Unit::isSpellCrit(Unit* victim, SpellInfo const* spellProto, SpellSchoolMas
                                 crit_chance *= 1.3f;
                         break;
                     case SPELLFAMILY_DRUID:
-                        // Improved Faerie Fire
-                        if (victim->HasAuraState(AURA_STATE_FAERIE_FIRE))
-                            if (AuraEffect const* aurEff = GetDummyAuraEffect(SPELLFAMILY_DRUID, 109, 0))
-                                crit_chance += aurEff->GetAmount();
-
-                        // cumulative effect - don't break
-
-                        // Starfire
-                        if (spellProto->SpellFamilyFlags[0] & 0x4 && spellProto->SpellIconID == 1485)
+                    {
+                        switch (spellProto->Id)
                         {
-                            // Improved Insect Swarm
-                            if (AuraEffect const* aurEff = GetDummyAuraEffect(SPELLFAMILY_DRUID, 1771, 0))
-                                if (victim->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_DRUID, 0x00000002, 0, 0))
-                                    crit_chance += aurEff->GetAmount();
-                           break;
+                            case 8936:  // Regrowth has a 60% increased chance for a critical effect.
+                                crit_chance += 60.0f;
+                                // Glyph of Regrowth - Increases the critical strike chance of your Regrowth by 40%, but removes the periodic component of the spell.
+                                if (HasAura(116218))
+                                    return 100.0f;
+                                break;
+                            default:
+                                break;
                         }
-                    break;
-                    case SPELLFAMILY_ROGUE:
-                        // Shiv-applied poisons can't crit
-                        if (FindCurrentSpellBySpellId(5938))
-                            crit_chance = 0.0f;
                         break;
-                    case SPELLFAMILY_PALADIN:
-                        // Flash of light
-                        if (spellProto->SpellFamilyFlags[0] & 0x40000000)
-                        {
-                            // Sacred Shield
-                            if (AuraEffect const* aura = victim->GetAuraEffect(58597, 1, GetGUID()))
-                                crit_chance += aura->GetAmount();
-                            break;
-                        }
-                        // Exorcism
-                        else if (spellProto->GetCategory() == 19)
-                        {
-                            if (victim->GetCreatureTypeMask() & CREATURE_TYPEMASK_DEMON_OR_UNDEAD)
-                                return true;
-                            break;
-                        }
-                    break;
+                    }
                     case SPELLFAMILY_SHAMAN:
                     {
                         switch (spellProto->Id)
