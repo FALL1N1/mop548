@@ -3247,18 +3247,11 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 57761: // Fireball!
             case 64823: // Item - Druid T8 Balance 4P Bonus
             case 88819: // Daybreak
+            case 114250:// Selfless Healer
                 spellInfo->ProcCharges = 1;
                 break;
             case 28200: // Ascendance (Talisman of Ascendance trinket)
                 spellInfo->ProcCharges = 6;
-                break;
-            case 47201: // Everlasting Affliction (1)
-            case 47202: // Everlasting Affliction (2)
-            case 47203: // Everlasting Affliction (3)
-            case 47204: // Everlasting Affliction (4)
-            case 47205: // Everlasting Affliction (5)
-                // add corruption to affected spells
-                spellInfo->Effects[EFFECT_1].SpellClassMask[0] |= 2;
                 break;
             case 51852: // The Eye of Acherus (no spawn in phase 2 in db)
                 spellInfo->Effects[EFFECT_0].MiscValue |= 1;

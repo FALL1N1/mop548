@@ -64,8 +64,9 @@ enum PaladinSpells
     SPELL_PALADIN_DIVINE_SHIELD                     = 642,
     SPELL_PALADIN_LAY_ON_HANDS                      = 633,
     SPELL_PALADIN_DIVINE_PROTECTION                 = 498,
+    SPELL_PALADIN_SELFLESS_HEALER_STACK             = 114250,
 
-    PALADIN_ITEM_PVP_HOLY_4P_BONUS               = 131665,
+    PALADIN_ITEM_PVP_HOLY_4P_BONUS                  = 131665,
 };
 
 class spell_pal_holy_shock : public SpellScriptLoader
@@ -662,6 +663,42 @@ public:
     }
 };
 
+class spell_pal_selfless_healer : public SpellScriptLoader
+{
+public:
+    spell_pal_selfless_healer() : SpellScriptLoader("spell_pal_selfless_healer") { }
+
+    class spell_pal_selfless_healer_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_pal_selfless_healer_SpellScript);
+
+        void HandleOnHit()
+        {
+            Player* caster = GetCaster()->ToPlayer();
+            Unit* target = GetHitUnit();
+            if (!caster || !target)
+                return;
+
+            if (caster->HasAura(SPELL_PALADIN_SELFLESS_HEALER_STACK))
+            {
+                int32 charges = caster->GetAura(SPELL_PALADIN_SELFLESS_HEALER_STACK)->GetStackAmount();
+
+                if (caster->IsValidAssistTarget(target) && target != caster)
+                    SetHitHeal(int32(GetHitHeal() + ((GetHitHeal() * 0.35f) * charges)));
+            }
+        }
+
+        void Register()
+        {
+            OnHit += SpellHitFn(spell_pal_selfless_healer_SpellScript::HandleOnHit);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_pal_selfless_healer_SpellScript();
+    }
+};
 
 void AddSC_paladin_spell_scripts()
 {
@@ -678,4 +715,5 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_sacred_shield();
     new spell_pal_sacred_shield_absorb();
     new spell_pal_unbreakable_spirit();
+    new spell_pal_selfless_healer();
 }
