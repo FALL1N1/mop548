@@ -9553,14 +9553,18 @@ bool Unit::isSpellCrit(Unit* victim, SpellInfo const* spellProto, SpellSchoolMas
                         }
                     break;
                     case SPELLFAMILY_SHAMAN:
-                        // Lava Burst
-                        if (spellProto->SpellFamilyFlags[1] & 0x00001000)
+                    {
+                        switch (spellProto->Id)
                         {
-                            if (victim->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_SHAMAN, 0x10000000, 0, 0, GetGUID()))
-                                if (victim->GetTotalAuraModifier(SPELL_AURA_MOD_ATTACKER_SPELL_AND_WEAPON_CRIT_CHANCE) > -100)
-                                    return true;
-                            break;
+                            case 8004:  // Healing Surge
+                                if (HasAura(53390))
+                                    crit_chance += 30.0f;
+                                break;
+                            default:
+                                break;
                         }
+                        break;
+                    }
                     break;
                 }
             }
