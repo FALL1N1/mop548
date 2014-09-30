@@ -49,6 +49,9 @@ enum WarlockSpells
     SPELL_WARLOCK_DRAIN_LIFE                      = 689,
     SPELL_WARLOCK_SHADOW_BOLT                     = 686,
     SPELL_WARLOCK_LIFE_TAP                        = 1454,
+    SPELL_WARLOCK_WILD_IMP_SUMMON                 = 104317,
+    SPELL_WARLOCK_DEMONIC_CALL                    = 114925,
+    SPELL_WARLOCK_DISRUPTED_NETHER                = 114736,
 };
 
 class spell_warl_rain_of_fire_damage : public SpellScriptLoader
@@ -693,6 +696,41 @@ public:
     }
 };
 
+class spell_warl_demonic_call : public SpellScriptLoader
+{
+public:
+    spell_warl_demonic_call() : SpellScriptLoader("spell_warl_demonic_call") { }
+
+    class spell_warl_demonic_call_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_warl_demonic_call_SpellScript);
+
+        void HandleOnHit()
+        {
+            Player* caster = GetCaster()->ToPlayer();
+            Unit* target = GetHitUnit();
+            if (!caster || !target)
+                return;
+
+            if (caster->HasAura(SPELL_WARLOCK_DEMONIC_CALL) && !caster->HasAura(SPELL_WARLOCK_DISRUPTED_NETHER))
+            {
+                caster->CastSpell(caster, SPELL_WARLOCK_WILD_IMP_SUMMON, true);
+                caster->RemoveAura(SPELL_WARLOCK_DEMONIC_CALL);
+            }
+        }
+
+        void Register()
+        {
+            OnHit += SpellHitFn(spell_warl_demonic_call_SpellScript::HandleOnHit);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_warl_demonic_call_SpellScript();
+    }
+};
+
 void AddSC_warlock_spell_scripts()
 {
     new spell_warl_rain_of_fire_damage();
@@ -711,4 +749,5 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_soulburn_harvest_life();
     new spell_warl_harvest_life();
     new spell_warl_life_tap();
+    new spell_warl_demonic_call();
 }
