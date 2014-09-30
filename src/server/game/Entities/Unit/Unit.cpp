@@ -9500,7 +9500,6 @@ bool Unit::isSpellCrit(Unit* victim, SpellInfo const* spellProto, SpellSchoolMas
                             default:
                                 break;
                         }
-
                         break;
                     }
                     case SPELLFAMILY_MAGE:

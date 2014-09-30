@@ -55,6 +55,8 @@ enum MageSpells
     SPELL_MAGE_LIVING_BOMB_TRIGGERED        = 44461,
     SPELL_MAGE_BRAIN_FREEZE                 = 44549,
     SPELL_MAGE_BRAIN_FREEZE_TRIGGERED       = 57761,
+    SPELL_MAGE_IGNITE                       = 12654,
+    SPELL_MAGE_MASTERY_IGNITE               = 12846,
 };
 
 enum MageIcons
@@ -975,6 +977,55 @@ public:
     }
 };
 
+class spell_mage_mastery_ignite : public SpellScriptLoader
+{
+public:
+    spell_mage_mastery_ignite() : SpellScriptLoader("spell_mage_mastery_ignite") { }
+
+    class spell_mage_mastery_ignite_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_mage_mastery_ignite_SpellScript);
+
+        void HandleAfterHit()
+        {
+            Unit* caster = GetCaster();
+            Unit* target = GetHitUnit();
+            if (!caster || !target)
+                return;
+
+            if (caster->GetTypeId() == TYPEID_PLAYER && caster->HasAura(SPELL_MAGE_MASTERY_IGNITE))
+            {
+                uint32 procSpellId = GetSpellInfo()->Id ? GetSpellInfo()->Id : 0;
+                if (procSpellId != SPELL_MAGE_IGNITE)
+                {
+                    float Mastery = caster->ToPlayer()->GetMasterySpellCoefficient();
+
+                    int32 bp = GetHitDamage();
+                    bp = int32(bp * Mastery / 2);
+
+                    if (target->HasAura(SPELL_MAGE_IGNITE, caster->GetGUID()))
+                    {
+                        bp += target->GetRemainingPeriodicAmount(caster->GetGUID(), SPELL_MAGE_IGNITE, SPELL_AURA_PERIODIC_DAMAGE);
+                        bp = int32(bp * 0.66f);
+                    }
+
+                    caster->CastCustomSpell(target, SPELL_MAGE_IGNITE, &bp, NULL, NULL, true);
+                }
+            }
+        }
+
+        void Register()
+        {
+            AfterHit += SpellHitFn(spell_mage_mastery_ignite_SpellScript::HandleAfterHit);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_mage_mastery_ignite_SpellScript();
+    }
+};
+
 void AddSC_mage_spell_scripts()
 {
     new spell_mage_conjure_refreshment();
@@ -995,4 +1046,5 @@ void AddSC_mage_spell_scripts()
     new spell_mage_deep_freeze();
     new spell_mage_combustion();
     new spell_mage_living_bomb();
+    new spell_mage_mastery_ignite();
 }
