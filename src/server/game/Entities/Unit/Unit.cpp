@@ -9552,14 +9552,19 @@ bool Unit::isSpellCrit(Unit* victim, SpellInfo const* spellProto, SpellSchoolMas
                 switch (spellProto->SpellFamilyName)
                 {
                     case SPELLFAMILY_DRUID:
-                        // Rend and Tear - bonus crit chance for Ferocious Bite on bleeding targets
-                        if (spellProto->SpellFamilyFlags[0] & 0x00800000
-                            && spellProto->SpellIconID == 1680
-                            && victim->HasAuraState(AURA_STATE_BLEEDING))
+                    {
+                        switch (spellProto->Id)
                         {
-                            if (AuraEffect const* rendAndTear = GetDummyAuraEffect(SPELLFAMILY_DRUID, 2859, 1))
-                                crit_chance += rendAndTear->GetAmount();
-                            break;
+                            case 6785: // Ravage has a 50% increased chance to critically strike targets with over 80% health.
+                                if (victim->GetHealthPct() > 80.0f)
+                                    crit_chance += 50.0f;
+                                break;
+                            case 22568: // Ferocious Bite - +25% crit chance for Ferocious Bite on bleeding targets
+                                if (victim->HasAuraState(AURA_STATE_BLEEDING))
+                                    crit_chance += 25.0f;
+                                break;
+                            default:
+                                break;
                         }
                     break;
                 }
