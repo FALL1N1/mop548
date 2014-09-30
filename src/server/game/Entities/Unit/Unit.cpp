@@ -9489,6 +9489,20 @@ bool Unit::isSpellCrit(Unit* victim, SpellInfo const* spellProto, SpellSchoolMas
                 // Custom crit by class
                 switch (spellProto->SpellFamilyName)
                 {
+                    case SPELLFAMILY_WARLOCK:
+                    {
+                        switch (spellProto->Id)
+                        {
+                            case 6353:  // Soul Fire
+                            case 104027:// Soul Fire (Metamorphosis)
+                            case 116858:// Chaos Bolt
+                                return 100.0f;
+                            default:
+                                break;
+                        }
+
+                        break;
+                    }
                     case SPELLFAMILY_MAGE:
                         // Glyph of Fire Blast
                         if (spellProto->SpellFamilyFlags[0] == 0x2 && spellProto->SpellIconID == 12)
