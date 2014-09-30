@@ -157,7 +157,7 @@ namespace MMAP
         {
             mmap->mmapLoadedTiles.insert(std::pair<uint32, dtTileRef>(packedGridPos, tileRef));
             ++loadedTiles;
-            TC_LOG_INFO("maps", "MMAP:loadMap: Loaded mmtile %03i[%02i, %02i] into %03i[%02i, %02i]", mapId, x, y, mapId, header->x, header->y);
+            TC_LOG_DEBUG("maps", "MMAP:loadMap: Loaded mmtile %03i[%02i, %02i] into %03i[%02i, %02i]", mapId, x, y, mapId, header->x, header->y);
             return true;
         }
         else
@@ -206,7 +206,7 @@ namespace MMAP
         {
             mmap->mmapLoadedTiles.erase(packedGridPos);
             --loadedTiles;
-            TC_LOG_INFO("maps", "MMAP:unloadMap: Unloaded mmtile %03i[%02i, %02i] from %03i", mapId, x, y, mapId);
+            TC_LOG_DEBUG("maps", "MMAP:unloadMap: Unloaded mmtile %03i[%02i, %02i] from %03i", mapId, x, y, mapId);
             return true;
         }
 
@@ -233,13 +233,13 @@ namespace MMAP
             else
             {
                 --loadedTiles;
-                TC_LOG_INFO("maps", "MMAP:unloadMap: Unloaded mmtile %03i[%02i, %02i] from %03i", mapId, x, y, mapId);
+                TC_LOG_DEBUG("maps", "MMAP:unloadMap: Unloaded mmtile %03i[%02i, %02i] from %03i", mapId, x, y, mapId);
             }
         }
 
         delete mmap;
         loadedMMaps.erase(mapId);
-        TC_LOG_INFO("maps", "MMAP:unloadMap: Unloaded %03i.mmap", mapId);
+        TC_LOG_DEBUG("maps", "MMAP:unloadMap: Unloaded %03i.mmap", mapId);
 
         return true;
     }
@@ -265,7 +265,7 @@ namespace MMAP
 
         dtFreeNavMeshQuery(query);
         mmap->navMeshQueries.erase(instanceId);
-        TC_LOG_INFO("maps", "MMAP:unloadMapInstance: Unloaded mapId %03u instanceId %u", mapId, instanceId);
+        TC_LOG_DEBUG("maps", "MMAP:unloadMapInstance: Unloaded mapId %03u instanceId %u", mapId, instanceId);
 
         return true;
     }
