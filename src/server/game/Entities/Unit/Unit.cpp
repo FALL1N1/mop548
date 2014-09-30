@@ -8924,10 +8924,12 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uin
     // Some spells don't benefit from done mods
     if (spellProto->AttributesEx3 & SPELL_ATTR3_NO_DONE_BONUS)
         return pdamage;
-
-    // small exception for Deep Wounds, can't find any general rule
+    
+    // small exception for some spells, can't find any general rule
     // should ignore ALL damage mods, they already calculated in trigger spell
-    if (spellProto->Id == 12721) // Deep Wounds
+    if (spellProto->Id == 122233 || spellProto->Id == 96172  || // Crimson Tempest and Hand of Light
+        spellProto->Id == 83077  || spellProto->Id == 89775  || // Improved Serpent Sting  and Hemorrhage
+        spellProto->Id == 77489  || spellProto->Id == 12654)    // Echo of Light and Ignite
         return pdamage;
 
     // For totems get damage bonus from owner
@@ -8939,6 +8941,20 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uin
     float DoneTotalMod = 1.0f;
     float ApCoeffMod = 1.0f;
     int32 DoneTotal = 0;
+
+    // 76547 - Mastery : Mana Adept
+    if (spellProto && GetTypeId() == TYPEID_PLAYER)
+    {
+        if (HasAura(76547))
+        {
+            float Mastery = ToPlayer()->GetMasterySpellCoefficient();
+            float manapct = float(GetPower(POWER_MANA)) / float(GetMaxPower(POWER_MANA)) * 100.0f;
+            float bonus = 0;
+            bonus = (1.5f * Mastery * manapct);
+
+            AddPct(DoneTotalMod, bonus);
+        }
+    }
 
     // 77215 - Mastery : Potent Afflictions
     // Increase periodic damage of Corruption, Agony and Unstable Affliction
