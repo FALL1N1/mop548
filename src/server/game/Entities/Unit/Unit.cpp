@@ -9603,17 +9603,7 @@ uint32 Unit::SpellCriticalDamageBonus(SpellInfo const* spellProto, uint32 damage
     int32 crit_bonus = damage;
     float crit_mod = 0.0f;
 
-    switch (spellProto->DmgClass)
-    {
-        case SPELL_DAMAGE_CLASS_MELEE:                      // for melee based spells is 100%
-        case SPELL_DAMAGE_CLASS_RANGED:
-            /// @todo write here full calculation for melee/ranged spells
-            crit_bonus += damage;
-            break;
-        default:
-            crit_bonus += damage / 2;                       // for spells is 50%
-            break;
-    }
+    crit_bonus += damage; // 200% for all damage type
 
     crit_mod += (GetTotalAuraMultiplierByMiscMask(SPELL_AURA_MOD_CRIT_DAMAGE_BONUS, spellProto->GetSchoolMask()) - 1.0f) * 100;
 
