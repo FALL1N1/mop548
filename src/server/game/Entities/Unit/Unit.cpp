@@ -9496,7 +9496,7 @@ bool Unit::isSpellCrit(Unit* victim, SpellInfo const* spellProto, SpellSchoolMas
                             case 6353:  // Soul Fire
                             case 104027:// Soul Fire (Metamorphosis)
                             case 116858:// Chaos Bolt
-                                return 100.0f;
+                                crit_chance = 100.0f;
                             default:
                                 break;
                         }
@@ -9506,7 +9506,7 @@ bool Unit::isSpellCrit(Unit* victim, SpellInfo const* spellProto, SpellSchoolMas
                     case SPELLFAMILY_MAGE:
                         // Inferno Blast
                         if (spellProto->Id == 108853)
-                            return 100.0f;
+                            crit_chance = 100.0f;
                         // Critical Mass - 117216 - Fireball, Frost Fire Bolt, Pyroblast and Scorch have 30% more crit chance
                         if (spellProto->Id == 133 || spellProto->Id == 44614 || spellProto->Id == 11366 || spellProto->Id == 2948)
                             if (HasAura(117216))
@@ -9520,7 +9520,7 @@ bool Unit::isSpellCrit(Unit* victim, SpellInfo const* spellProto, SpellSchoolMas
                                 crit_chance += 60.0f;
                                 // Glyph of Regrowth - Increases the critical strike chance of your Regrowth by 40%, but removes the periodic component of the spell.
                                 if (HasAura(116218))
-                                    return 100.0f;
+                                    crit_chance = 100.0f;
                                 break;
                             default:
                                 break;
@@ -9579,7 +9579,7 @@ bool Unit::isSpellCrit(Unit* victim, SpellInfo const* spellProto, SpellSchoolMas
                                 crit_chance *= 2;
                                 break;
                             case 118000:// Dragon Roar is always a critical hit
-                                return 100.0f;
+                                 crit_chance = 100.0f;
                             default:
                                 break;
                         }
