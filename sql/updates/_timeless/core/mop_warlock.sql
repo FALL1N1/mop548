@@ -1,5 +1,6 @@
 DELETE FROM `spell_script_names` WHERE `spell_id` in
-(42223, 29341, 17962, 29722, 108685, 114654, 77799, 172, 1120, 47960, 686, 6353, 89420, 103958, 104025, 5857, 689, 115707, 108371, 1454);
+(42223, 29341, 17962, 29722, 108685, 114654, 77799, 172, 1120, 47960, 686, 6353, 89420, 103958, 104025, 5857, 689, 115707,
+108371, 1454, 103964);
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 	('42223', 'spell_warl_rain_of_fire_damage'),
 	('29341', 'spell_warl_shadowburn'),
@@ -20,4 +21,9 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 	('689', 'spell_warl_drain_life'),
 	('115707', 'spell_warl_soulburn_harvest_life'),
 	('108371', 'spell_warl_harvest_life'),
-	('1454', 'spell_warl_life_tap');
+	('1454', 'spell_warl_life_tap'),
+	('686', 'spell_warl_demonic_call'),
+	('6353', 'spell_warl_demonic_call'),
+	('103964', 'spell_warl_demonic_call');
+
+UPDATE `creature_template` SET `ScriptName`='npc_wild_imp' WHERE `entry` = '55659';
