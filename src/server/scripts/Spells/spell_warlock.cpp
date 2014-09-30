@@ -48,6 +48,7 @@ enum WarlockSpells
     SPELL_WARLOCK_HARVEST_LIFE_HEAL               = 125314,
     SPELL_WARLOCK_DRAIN_LIFE                      = 689,
     SPELL_WARLOCK_SHADOW_BOLT                     = 686,
+    SPELL_WARLOCK_LIFE_TAP                        = 1454,
 };
 
 class spell_warl_rain_of_fire_damage : public SpellScriptLoader
@@ -652,6 +653,46 @@ public:
     }
 };
 
+class spell_warl_life_tap : public SpellScriptLoader
+{
+public:
+    spell_warl_life_tap() : SpellScriptLoader("spell_warl_life_tap") { }
+
+    class spell_warl_life_tap_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_warl_life_tap_SpellScript);
+
+        SpellCastResult CheckLife()
+        {
+            if (GetCaster()->GetHealthPct() > 15.0f)
+                return SPELL_CAST_OK;
+            return SPELL_FAILED_FIZZLE;
+        }
+
+        void HandleOnHit()
+        {
+            if (Player* caster = GetCaster()->ToPlayer())
+            {
+                int32 healthCost = int32(caster->GetMaxHealth() * 0.15f);
+
+                caster->SetHealth(caster->GetHealth() - healthCost);
+                caster->EnergizeBySpell(caster, SPELL_WARLOCK_LIFE_TAP, healthCost, POWER_MANA);
+            }
+        }
+
+        void Register()
+        {
+            OnCheckCast += SpellCheckCastFn(spell_warl_life_tap_SpellScript::CheckLife);
+            OnHit += SpellHitFn(spell_warl_life_tap_SpellScript::HandleOnHit);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_warl_life_tap_SpellScript();
+    }
+};
+
 void AddSC_warlock_spell_scripts()
 {
     new spell_warl_rain_of_fire_damage();
@@ -669,4 +710,5 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_drain_life();
     new spell_warl_soulburn_harvest_life();
     new spell_warl_harvest_life();
+    new spell_warl_life_tap();
 }
