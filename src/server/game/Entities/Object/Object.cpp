@@ -425,12 +425,17 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
     uint32 movementFlags;
     uint32 movementFlagsExtra;
 
+    uint32 stopFrameCount = 0;
+    if (GameObject const* go = ToGameObject())
+        if (go->GetGoType() == GAMEOBJECT_TYPE_TRANSPORT)
+            stopFrameCount = go->GetGOValue()->Transport.StopFrames->size();
+
     data->WriteBit(0);
     data->WriteBit(hasAnimKits);
     data->WriteBit(hasLiving);
     data->WriteBit(0);
     data->WriteBit(0);
-    data->WriteBits(0, 22);
+    data->WriteBits(stopFrameCount, 22);
     data->WriteBit(hasVehicle);
     data->WriteBit(0);
     data->WriteBit(0);
@@ -561,6 +566,10 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
     }
 
     data->FlushBits();
+
+    if (GameObject const* go = ToGameObject())
+        for (uint32 i = 0; i < stopFrameCount; ++i)
+            *data << uint32(go->GetGOValue()->Transport.StopFrames->at(i));
 
     if (hasLiving)
     {
