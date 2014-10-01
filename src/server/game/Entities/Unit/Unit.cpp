@@ -7121,18 +7121,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
                         }
                         break;
                     }
-                    // Druid T9 Feral Relic (Lacerate, Swipe, Mangle, and Shred)
-                    case 67353:
-                    {
-                        switch (GetShapeshiftForm())
-                        {
-                            case FORM_CAT:      trigger_spell_id = 67355; break;
-                            case FORM_BEAR:     trigger_spell_id = 67354; break;
-                            default:
-                                return false;
-                        }
-                        break;
-                    }
                     default:
                         break;
                 }
@@ -8935,6 +8923,16 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uin
     float ApCoeffMod = 1.0f;
     int32 DoneTotal = 0;
 
+    // 77493 - Mastery : Razor Claws
+    if (GetTypeId() == TYPEID_PLAYER && spellProto && damagetype == DOT)
+    {
+        if (HasAura(77493))
+        {
+            float  Mastery = ToPlayer()->GetMasterySpellCoefficient();
+            AddPct(DoneTotalMod, Mastery);
+        }
+    }
+
     // Pyroblast - 11366 / Pyroblast ! - 48108 : Next Pyroblast damage increased by 25%
     if (GetTypeId() == TYPEID_PLAYER && spellProto && spellProto->Id == 11366 && damagetype == SPELL_DIRECT_DAMAGE && HasAura(48108))
         AddPct(DoneTotalMod, 25);
@@ -8944,7 +8942,7 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uin
     {
         if (HasAura(76547))
         {
-            float Mastery = ToPlayer()->GetMasterySpellCoefficient();
+            float Mastery = ToPlayer()->GetMasterySpellCoefficient() / 100.f;
             float manapct = float(GetPower(POWER_MANA)) / float(GetMaxPower(POWER_MANA)) * 100.0f;
             float bonus = 0;
             bonus = (1.5f * Mastery * manapct);

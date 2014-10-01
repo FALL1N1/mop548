@@ -998,7 +998,7 @@ public:
                 uint32 procSpellId = GetSpellInfo()->Id ? GetSpellInfo()->Id : 0;
                 if (procSpellId != SPELL_MAGE_IGNITE)
                 {
-                    float Mastery = caster->ToPlayer()->GetMasterySpellCoefficient();
+                    float Mastery = caster->ToPlayer()->GetMasterySpellCoefficient() / 100.0f;
 
                     int32 bp = GetHitDamage();
                     bp = int32(bp * Mastery / 2);
