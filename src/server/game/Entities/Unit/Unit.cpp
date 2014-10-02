@@ -8923,6 +8923,26 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uin
     float ApCoeffMod = 1.0f;
     int32 DoneTotal = 0;
 
+    // 77514 - Mastery : Frozen Heart
+    if (GetTypeId() == TYPEID_PLAYER && victim && pdamage != 0 && spellProto && spellProto->SchoolMask == SPELL_SCHOOL_MASK_FROST)
+    {
+        if (HasAura(77514))
+        {
+            float  Mastery = ToPlayer()->GetMasterySpellCoefficient();
+            AddPct(DoneTotalMod, Mastery);
+        }
+    }
+
+    // 77515 - Mastery : Dreadblade
+    if (GetTypeId() == TYPEID_PLAYER && victim && pdamage != 0 && spellProto && spellProto->SchoolMask == SPELL_SCHOOL_MASK_SHADOW)
+    {
+        if (HasAura(77515))
+        {
+            float  Mastery = ToPlayer()->GetMasterySpellCoefficient();
+            AddPct(DoneTotalMod, Mastery);
+        }
+    }
+
     // 77493 - Mastery : Razor Claws
     if (GetTypeId() == TYPEID_PLAYER && spellProto && damagetype == DOT)
     {
@@ -10172,6 +10192,26 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
     // Done total percent damage auras
     float DoneTotalMod = 1.0f;
        
+    // 77514 - Mastery : Frozen Heart
+    if (GetTypeId() == TYPEID_PLAYER && victim && pdamage != 0 && spellProto && spellProto->SchoolMask == SPELL_SCHOOL_MASK_FROST)
+    {
+        if (HasAura(77514))
+        {
+            float Mastery = ToPlayer()->GetMasterySpellCoefficient();
+            AddPct(DoneTotalMod, Mastery);
+        }
+    }
+
+    // 77515 - Mastery : Dreadblade
+    if (GetTypeId() == TYPEID_PLAYER && victim && pdamage != 0 && spellProto && spellProto->SchoolMask == SPELL_SCHOOL_MASK_SHADOW)
+    {
+        if (HasAura(77515))
+        {
+            float Mastery = ToPlayer()->GetMasterySpellCoefficient();
+            AddPct(DoneTotalMod, Mastery);
+        }
+    }
+
     // Sword of Light - 53503
     if (pdamage > 0 && GetTypeId() == TYPEID_PLAYER && HasAura(53503) && ToPlayer()->IsTwoHandUsed() && attType == BASE_ATTACK)
         AddPct(DoneTotalMod, 10);
