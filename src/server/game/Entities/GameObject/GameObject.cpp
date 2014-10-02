@@ -206,10 +206,16 @@ bool GameObject::Create(uint32 guidlow, uint32 name_id, Map* map, uint32 phaseMa
         return false;
     }
 
+    // GameObjects type 11 (Transports have special behaviour)
     if (goinfo->type == GAMEOBJECT_TYPE_TRANSPORT)
+    {
         m_updateFlag |= UPDATEFLAG_TRANSPORT;
-
-    Object::_Create(guidlow, goinfo->entry, HIGHGUID_GAMEOBJECT);
+        Object::_Create(guidlow, goinfo->entry, HIGHGUID_MO_TRANSPORT);
+    }
+    else
+    {
+        Object::_Create(guidlow, goinfo->entry, HIGHGUID_GAMEOBJECT);
+    }
 
     m_goInfo = goinfo;
 
