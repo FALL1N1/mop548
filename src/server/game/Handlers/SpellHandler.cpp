@@ -1061,15 +1061,28 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
         caster = _player;
     }
 
-
-    if (!(spellInfo->AttributesEx8 & SPELL_ATTR8_RAID_MARKER))
+    auto IsExcludedSpell = [spellInfo, castFlags] () -> bool
     {
-        if (caster->GetTypeId() == TYPEID_PLAYER && !caster->ToPlayer()->HasActiveSpell(spellId) && spellId != 67869 && !(castFlags & 0x8))
+        if (spellInfo->AttributesEx8 & SPELL_ATTR8_RAID_MARKER)
+            return true;
+
+        if (castFlags & 0x8)
+            return true;
+
+        switch (spellInfo->Id)
         {
-            // not have spell in spellbook
-            recvPacket.rfinish(); // prevent spam at ignore packet
-            return;
+            case 67869: // Knocking
+                return true;
+            default:
+                return false;
         }
+    };
+        
+    if (caster->GetTypeId() == TYPEID_PLAYER && !caster->ToPlayer()->HasActiveSpell(spellId) && !IsExcludedSpell())
+    {       
+        // not have spell in spellbook
+        recvPacket.rfinish(); // prevent spam at ignore packet
+        return;
     }
 
     Unit::AuraEffectList swaps = mover->GetAuraEffectsByType(SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS);
