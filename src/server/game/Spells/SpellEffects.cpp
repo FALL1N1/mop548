@@ -4095,7 +4095,7 @@ void Spell::EffectDuel(SpellEffIndex effIndex)
         delete pGameObj;
         return;
     }
-
+    
     pGameObj->SetUInt32Value(GAMEOBJECT_FIELD_FACTION_TEMPLATE, m_caster->getFaction());
     pGameObj->SetUInt32Value(GAMEOBJECT_FIELD_LEVEL, m_caster->getLevel()+1);
     int32 duration = m_spellInfo->GetDuration();
@@ -4521,29 +4521,11 @@ void Spell::EffectSummonRaidMarker(SpellEffIndex effIndex)
     if (!((group->isRaidGroup() && isEligibleDueToRaid) || (!group->isRaidGroup())))
         return;
 
-    float radius = m_spellInfo->Effects[effIndex].CalcRadius();
-    uint8 slot = damage;
-
-    if (Player* modOwner = m_caster->GetSpellModOwner())
-        modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_RADIUS, radius);
-
     Position pos;
-    if (m_targets.GetTargetMask() & TARGET_FLAG_DEST_LOCATION)
-        m_targets.GetDstPos()->GetPosition(&pos);
-    else if (Unit* target = m_targets.GetUnitTarget())
-        target->GetPosition(&pos);
-    else
-        m_caster->GetPosition(&pos);
+    ASSERT(m_targets.GetTargetMask() & TARGET_FLAG_DEST_LOCATION);
+    m_targets.GetDstPos()->GetPosition(&pos);
 
-    DynamicObject* dynObj = new DynamicObject(false);
-    if (!dynObj->CreateDynamicObject(sObjectMgr->GenerateLowGuid(HIGHGUID_DYNAMICOBJECT), m_caster, m_spellInfo, pos, radius, DYNAMIC_OBJECT_RAID_MARKER))
-    {
-        delete dynObj;
-        return;
-    }
-
-    group->SetRaidMarker(slot, m_caster->ToPlayer(), dynObj->GetGUID());
-    m_caster->GetMap()->AddToMap<DynamicObject>(dynObj);
+    group->SetWorldMarker(damage, pos, m_caster->GetMapId());
 }
 
 void Spell::EffectResurrect(SpellEffIndex effIndex)

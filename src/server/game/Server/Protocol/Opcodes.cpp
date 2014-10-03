@@ -38,7 +38,7 @@ void OpcodeTable::ValidateAndSetOpcode<true, true>(uint16 opcode, uint16 opcodeN
         return;
     }
 
-    if (opcodeNumber == NULL)
+    if (!opcodeNumber)
         return;
 
     _internalTable[opcode] = new OpcodeHandler(opcodeNumber, name, status, processing, handler);
@@ -180,7 +180,7 @@ void OpcodeTable::InitializeClientTable()
     DEFINE_OPCODE_HANDLER(CMSG_CHAT_FILTERED,                             0x0000, STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                        );
     DEFINE_OPCODE_HANDLER(CMSG_CHAT_IGNORED,                              0x048A, STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleChatIgnoredOpcode            ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(CMSG_CLEAR_CHANNEL_WATCH,                       0x0000, STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                        );
-    DEFINE_OPCODE_HANDLER(CMSG_CLEAR_RAID_MARKER,                         0x1443, STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleClearRaidMarkerOpcode        ); // 5.4.8 18414
+    DEFINE_OPCODE_HANDLER(CMSG_CLEAR_WORLD_MARKER,                        0x1443, STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleClearWorldMarkerOpcode       ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(CMSG_CLEAR_TRADE_ITEM,                          0x00A7, STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleClearTradeItemOpcode         ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(CMSG_COMMENTATOR_ENABLE,                        0x0000, STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                        );
     DEFINE_OPCODE_HANDLER(CMSG_COMMENTATOR_ENTER_INSTANCE,                0x0000, STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                        );
@@ -1219,7 +1219,7 @@ void OpcodeTable::InitializeServerTable()
     DEFINE_OPCODE_HANDLER(SMSG_RAID_GROUP_ONLY,                         0x0000, STATUS_UNHANDLED);
     DEFINE_OPCODE_HANDLER(SMSG_RAID_INSTANCE_INFO,                      0x16BF, STATUS_UNHANDLED); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(SMSG_RAID_INSTANCE_MESSAGE,                   0x0CAF, STATUS_UNHANDLED); // 5.4.8 18414
-    DEFINE_OPCODE_HANDLER(SMSG_RAID_MARKERS_CHANGED,                    0x008A, STATUS_NEVER    ); // 5.4.8 18414
+    DEFINE_OPCODE_HANDLER(SMSG_WORLD_MARKERS_CHANGED,                   0x008A, STATUS_NEVER    ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(SMSG_RAID_READY_CHECK,                        0x1C8E, STATUS_NEVER    ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(SMSG_RAID_READY_CHECK_COMPLETED,              0x15C2, STATUS_NEVER    ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(SMSG_RAID_READY_CHECK_CONFIRM,                0x02AF, STATUS_NEVER    ); // 5.4.8 18414

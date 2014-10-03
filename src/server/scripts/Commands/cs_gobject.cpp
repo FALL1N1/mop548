@@ -663,7 +663,9 @@ public:
         int32 objectState = atoi(state);
 
         if (objectType < 4)
-            object->SetByteValue(GAMEOBJECT_FIELD_STATE_SPELL_VISUAL_ID, objectType, objectState);
+        {
+            object->SetByteValue(GAMEOBJECT_FIELD_VISUAL_BYTES, objectType, objectState);
+        }
         else if (objectType == 4)
         {
             ObjectGuid GUID = object->GetGUID();

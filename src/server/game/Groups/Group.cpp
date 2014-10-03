@@ -64,8 +64,8 @@ m_subGroupsCounts(NULL), m_guid(0), m_counter(0), m_maxEnchantingLevel(0), m_dbS
     for (uint8 i = 0; i < TARGETICONCOUNT; ++i)
         m_targetIcons[i] = 0;
 
-    for (uint8 i = 0; i < RAID_MARKER_COUNT; ++i)
-        m_raidMarkers[i] = 0;
+    for (uint8 i = 0; i < WORLD_MARKER_COUNT; ++i)
+        m_worldMarkers[i] = nullptr;
 }
 
 Group::~Group()
@@ -92,6 +92,12 @@ Group::~Group()
     for (uint8 i = 0; i < MAX_DIFFICULTY; ++i)
         for (BoundInstancesMap::iterator itr2 = m_boundInstances[i].begin(); itr2 != m_boundInstances[i].end(); ++itr2)
             itr2->second.save->RemoveGroup(this);
+
+    for (uint8 i = 0; i < WORLD_MARKER_COUNT; ++i)
+    {
+        if (m_worldMarkers[i])
+            delete m_worldMarkers[i];
+    }        
 
     // Sub group counters clean up
     delete[] m_subGroupsCounts;
@@ -138,9 +144,9 @@ bool Group::Create(Player* leader)
 
         stmt->setUInt32(index++, m_dbStoreId);
         stmt->setUInt32(index++, GUID_LOPART(m_leaderGuid));
-        stmt->setUInt8(index++, uint8(m_lootMethod));
+        stmt->setUInt8 (index++, uint8(m_lootMethod));
         stmt->setUInt32(index++, GUID_LOPART(m_looterGuid));
-        stmt->setUInt8(index++, uint8(m_lootThreshold));
+        stmt->setUInt8 (index++, uint8(m_lootThreshold));
         stmt->setUInt32(index++, uint32(m_targetIcons[0]));
         stmt->setUInt32(index++, uint32(m_targetIcons[1]));
         stmt->setUInt32(index++, uint32(m_targetIcons[2]));
@@ -149,7 +155,7 @@ bool Group::Create(Player* leader)
         stmt->setUInt32(index++, uint32(m_targetIcons[5]));
         stmt->setUInt32(index++, uint32(m_targetIcons[6]));
         stmt->setUInt32(index++, uint32(m_targetIcons[7]));
-        stmt->setUInt8(index++, uint8(m_groupType));
+        stmt->setUInt8 (index++, uint8(m_groupType));
         stmt->setUInt32(index++, uint8(m_dungeonDifficulty));
         stmt->setUInt32(index++, uint8(m_raidDifficulty));
 
@@ -1522,7 +1528,7 @@ void Group::SendTargetIconList(WorldSession* session)
 
     for (uint8 i = 0; i < TARGETICONCOUNT; ++i)
     {
-        if (m_targetIcons[i] == 0)
+        if (!m_targetIcons[i])
             continue;
 
         ObjectGuid guid = ObjectGuid(m_targetIcons[i]);
@@ -1543,7 +1549,7 @@ void Group::SendTargetIconList(WorldSession* session)
 
     for (uint8 i = 0; i < TARGETICONCOUNT; ++i)
     {
-        if (m_targetIcons[i] == 0)
+        if (!m_targetIcons[i])
             continue;
 
         ObjectGuid guid = ObjectGuid(m_targetIcons[i]);
@@ -1562,46 +1568,39 @@ void Group::SendTargetIconList(WorldSession* session)
     session->SendPacket(&data);
 }
 
-// --------------------------------------------------------------------------------------
-// --------------------------------- RAID MARKERS ---------------------------------------
-// --------------------------------------------------------------------------------------
-void Group::SetRaidMarker(uint8 id, Player* who, uint64 targetGuid, bool update /*=true*/)
+void Group::SetWorldMarker(uint8 slot, const Position& pos, uint32 mapID)
 {
-    if (!who)
-        return;
+    ASSERT(slot < WORLD_MARKER_COUNT && "World Marker slot must be at the maximum value of 4");
 
-    if (id >= RAID_MARKER_COUNT)
-    {
-        // remove all markers
-        for (uint8 i = 0; i < RAID_MARKER_COUNT; ++i)
-            m_raidMarkers[i] = 0;
-    }
-    else
-        m_raidMarkers[id] = targetGuid;
+    WorldMarkerPosition* position = new WorldMarkerPosition();
+    position->mapID = mapID;
+    position->position = pos;
 
-    if (update)
-        SendRaidMarkerUpdate();
+    m_worldMarkers[slot] = position;        
+    SendWorldMarkerUpdate();
 }
 
-void Group::SendRaidMarkerUpdate()
+void Group::SendWorldMarkerUpdate()
 {
-    uint8 count = GetRaidMarkersCount();
+    uint8 count = std::count_if(m_worldMarkers.begin(), m_worldMarkers.end(),
+        [](std::map<uint8, WorldMarkerPosition*>::value_type const& marker) { return marker.second; });
 
-    WorldPacket data(SMSG_RAID_MARKERS_CHANGED, count * 18 + 6);
+    ObjectGuid guid = ObjectGuid(0);
+
+    WorldPacket data(SMSG_WORLD_MARKERS_CHANGED, count * 18 + 6);
 
     uint32 mask = 0;
-    for (uint8 i = 0; i < RAID_MARKER_COUNT; ++i)
-        if (HasRaidMarker(i))
+    for (uint8 i = 0; i < WORLD_MARKER_COUNT; ++i)
+        if (m_worldMarkers[i])
             mask |= 1 << i;
     
-    data << uint8(0); // unk - prob. always zero
+    data << uint8(0);
     data << uint32(mask);
-    data.WriteBits(count, 3);
+    data.WriteBits(count, 3);    
     
-    for (uint8 i = 0; i < RAID_MARKER_COUNT; ++i)
+    for (uint8 i = 0; i < WORLD_MARKER_COUNT; ++i)
     {
-        ObjectGuid guid = GetRaidMarker(i);        
-        if (!guid)
+        if (!m_worldMarkers[i])
             continue;
 
         data.WriteBit(guid[6]);
@@ -1614,63 +1613,53 @@ void Group::SendRaidMarkerUpdate()
         data.WriteBit(guid[0]);
     }
 
-    for (uint8 i = 0; i < RAID_MARKER_COUNT; ++i)
+    for (uint8 i = 0; i < WORLD_MARKER_COUNT; ++i)
     {
-        ObjectGuid guid = GetRaidMarker(i);        
-        if (!guid)
+        const WorldMarkerPosition* marker = m_worldMarkers[i];
+        if (!marker)
             continue;
 
-        if (DynamicObject* marker = ObjectAccessor::FindDynamicObject(guid))
-        {
-            data.WriteByteSeq(guid[6]);
-            data << float(marker->GetPositionX());
-            data.WriteByteSeq(guid[2]);
-            data << float(marker->GetPositionY());
-            data.WriteByteSeq(guid[7]);
-            data.WriteByteSeq(guid[5]);
-            data.WriteByteSeq(guid[0]);
-            data.WriteByteSeq(guid[4]);
-            data << float(marker->GetPositionZ());
-            data.WriteByteSeq(guid[3]);
-            data.WriteByteSeq(guid[1]);
-            data << uint32(marker->GetMapId());
-        }
+        data.WriteByteSeq(guid[6]);
+        data << float(marker->position.GetPositionY());
+        data.WriteByteSeq(guid[2]);
+        data << float(marker->position.GetPositionX());
+        data.WriteByteSeq(guid[7]);
+        data.WriteByteSeq(guid[5]);
+        data.WriteByteSeq(guid[0]);
+        data.WriteByteSeq(guid[4]);
+        data << float(marker->position.GetPositionZ());
+        data.WriteByteSeq(guid[3]);
+        data.WriteByteSeq(guid[1]);
+        data << uint32(marker->mapID);
     }
 
     BroadcastPacket(&data, false);
 }
 
-void Group::ClearRaidMarker(uint64 guid)
+void Group::ClearWorldMarker(uint8 slot)
 {
-    if (uint8 id = IsGroupRaidMarker(guid))
+    if (slot == WORLD_MARKER_COUNT)
     {
-        m_raidMarkers[id] = 0;
-        SendRaidMarkerUpdate();
+        for (uint8 i = 0; i < WORLD_MARKER_COUNT; ++i)
+        {
+            if (!m_worldMarkers[i])
+                continue;
+
+            delete m_worldMarkers[i];
+            m_worldMarkers[i] = nullptr;
+        }
+
+        SendWorldMarkerUpdate();
+        return;
+    }
+    else if (m_worldMarkers[slot])
+    {
+        delete m_worldMarkers[slot];
+        m_worldMarkers[slot] = nullptr;
+
+        SendWorldMarkerUpdate();
     }
 }
-
-uint8 Group::IsGroupRaidMarker(ObjectGuid guid) const
-{
-    for (uint8 i = 0; i < RAID_MARKER_COUNT; ++i)
-        if (m_raidMarkers[i] == guid)
-            return i;
-    
-    return 0;
-}
-
-uint8 Group::GetRaidMarkersCount() const
-{
-    uint8 tempSum = 0;
-    for (uint8 i = 0; i < RAID_MARKER_COUNT; ++i)
-        if (HasRaidMarker(i))
-            tempSum++;
-
-    return tempSum;
-}
-// --------------------------------------------------------------------------------------
-// ------------------------------ END OF RAID MARKERS -----------------------------------
-// --------------------------------------------------------------------------------------
-
 
 void Group::SendUpdate()
 {

@@ -1552,13 +1552,13 @@ void WorldSession::HandleOptOutOfLootOpcode(WorldPacket& recvData)
     GetPlayer()->SetPassOnGroupLoot(passOnLoot);
 }
 
-void WorldSession::HandleClearRaidMarkerOpcode(WorldPacket& recv_data)
+void WorldSession::HandleClearWorldMarkerOpcode(WorldPacket& recv_data)
 {
-    int8 id;
-    recv_data >> id;
+    uint8 slot;
+    recv_data >> slot;
 
-    TC_LOG_DEBUG("network", "WORLD: Received CMSG_CLEAR_RAID_MARKER from %s (%u) unk: %i",
-        GetPlayerName().c_str(), GetAccountId(), id);
+    TC_LOG_DEBUG("network", "WORLD: Received CMSG_CLEAR_WORLD_MARKER from %s (%u) slot: %u",
+        GetPlayerName().c_str(), GetAccountId(), slot);
 
     Group* group = _player->GetGroup();
     if (!group)
@@ -1566,7 +1566,7 @@ void WorldSession::HandleClearRaidMarkerOpcode(WorldPacket& recv_data)
 
     bool isEligibleDueToRaid = group->IsAssistant(_player->GetGUID()) || group->IsLeader(_player->GetGUID());
     if ((group->isRaidGroup() && isEligibleDueToRaid) || (!group->isRaidGroup()))
-        group->SetRaidMarker(id, _player, ObjectGuid());
+        group->ClearWorldMarker(slot);
 }
 
 void WorldSession::HandleSetEveryoneIsAssistant(WorldPacket& recv_data)
@@ -1576,14 +1576,13 @@ void WorldSession::HandleSetEveryoneIsAssistant(WorldPacket& recv_data)
     TC_LOG_DEBUG("network", "WORLD: Received CMSG_SET_EVERYONE_IS_ASSISTANT from %s (%u) apply: %u",
         GetPlayerName().c_str(), GetAccountId(), apply ? 1 : 0);
 
+    // Only raid groups may have assistant
     Group* group = _player->GetGroup();
-    if (!group || !group->isRaidGroup())    // Only raid groups may have assistant
+    if (!group || !group->isRaidGroup()) 
         return;
 
-    /** error handling **/
     if (!group->IsLeader(_player->GetGUID()))
         return;
-    /********************/
 
     for (Group::member_citerator itr = group->GetMemberSlots().begin(); itr != group->GetMemberSlots().end(); ++itr)
         group->SetGroupMemberFlag(itr->guid, true, MEMBER_FLAG_ASSISTANT);

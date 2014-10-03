@@ -260,8 +260,8 @@ enum EGameObjectFields
     GAMEOBJECT_FIELD_PARENT_ROTATION                         = OBJECT_END + 0x4, // Size: 4, Flags: UF_FLAG_PUBLIC
     GAMEOBJECT_FIELD_FACTION_TEMPLATE                        = OBJECT_END + 0x8, // Size: 1, Flags: UF_FLAG_PUBLIC
     GAMEOBJECT_FIELD_LEVEL                                   = OBJECT_END + 0x9, // Size: 1, Flags: UF_FLAG_PUBLIC
-    GAMEOBJECT_FIELD_PERCENT_HEALTH                          = OBJECT_END + 0xA, // Size: 1, Flags: UF_FLAG_PUBLIC, UF_FLAG_URGENT
-    GAMEOBJECT_FIELD_STATE_SPELL_VISUAL_ID                   = OBJECT_END + 0xB, // Size: 1, Flags: UF_FLAG_PUBLIC, UF_FLAG_URGENT
+    GAMEOBJECT_FIELD_BYTES                                   = OBJECT_END + 0xA, // Size: 1, Flags: UF_FLAG_PUBLIC, UF_FLAG_URGENT
+    GAMEOBJECT_FIELD_VISUAL_BYTES                            = OBJECT_END + 0xB, // Size: 1, Flags: UF_FLAG_PUBLIC, UF_FLAG_URGENT
     GAMEOBJECT_END                                           = OBJECT_END + 0xC
 };
 

@@ -724,18 +724,18 @@ class GameObject : public WorldObject, public GridObject<GameObject>, public Map
         void Refresh();
         void Delete();
         void getFishLoot(Loot* loot, Player* loot_owner);
-        GOState GetGoState() const { return GOState(GetByteValue(GAMEOBJECT_FIELD_PERCENT_HEALTH, 0)); }
+        GOState GetGoState() const { return GOState(GetByteValue(GAMEOBJECT_FIELD_BYTES, 0)); }
         void SetGoState(GOState state);
         uint32 GetTransportPeriod() const;
         void SetTransportState(GOState state, uint32 stopFrame = 0);
-        GameobjectTypes GetGoType() const { return GameobjectTypes(GetByteValue(GAMEOBJECT_FIELD_PERCENT_HEALTH, 1)); }
-        void SetGoType(GameobjectTypes type) { SetByteValue(GAMEOBJECT_FIELD_PERCENT_HEALTH, 1, type); }
-        void SetGoHealth(uint8 health) { SetByteValue(GAMEOBJECT_FIELD_PERCENT_HEALTH, 3, health); }
-        uint8 GetGoArtKit() const { return GetByteValue(GAMEOBJECT_FIELD_STATE_SPELL_VISUAL_ID, 1); }
+        GameobjectTypes GetGoType() const { return GameobjectTypes(GetByteValue(GAMEOBJECT_FIELD_BYTES, 1)); }
+        void SetGoType(GameobjectTypes type) { SetByteValue(GAMEOBJECT_FIELD_BYTES, 1, type); }
+        void SetGoHealth(uint8 health) { SetByteValue(GAMEOBJECT_FIELD_BYTES, 3, health); }
+        uint8 GetGoArtKit() const { return GetByteValue(GAMEOBJECT_FIELD_VISUAL_BYTES, 1); }
         void SetGoArtKit(uint8 artkit);
-        uint8 GetGoAnimProgress() const { return GetByteValue(GAMEOBJECT_FIELD_STATE_SPELL_VISUAL_ID, 3); }
-        void SetGoAnimProgress(uint8 animprogress) { SetByteValue(GAMEOBJECT_FIELD_STATE_SPELL_VISUAL_ID, 3, animprogress); }
-        void SetGameobjectTransparence(uint8 transparency) { SetByteValue(GAMEOBJECT_FIELD_STATE_SPELL_VISUAL_ID, 0, transparency); }
+        uint8 GetGoAnimProgress() const { return GetByteValue(GAMEOBJECT_FIELD_VISUAL_BYTES, 3); }
+        void SetGoAnimProgress(uint8 animprogress) { SetByteValue(GAMEOBJECT_FIELD_VISUAL_BYTES, 3, animprogress); }
+        void SetGameobjectTransparence(uint8 transparency) { SetByteValue(GAMEOBJECT_FIELD_VISUAL_BYTES, 0, transparency); }
         static void SetGoArtKit(uint8 artkit, GameObject* go, uint32 lowguid = 0);
 
         void SetPhaseMask(uint32 newPhaseMask, bool update);

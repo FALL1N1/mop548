@@ -1082,8 +1082,11 @@ void WorldSession::HandleAddonRegisteredPrefixesOpcode(WorldPacket& recvPacket)
     if (_registeredAddonPrefixes.size() > REGISTERED_ADDON_PREFIX_SOFTCAP) // shouldn't happen
     {
         _filterAddonMessages = false;
+        recvPacket.rfinish();
         return;
     }
+
+    _filterAddonMessages = true;
 }
 
 void WorldSession::SetPlayer(Player* player)

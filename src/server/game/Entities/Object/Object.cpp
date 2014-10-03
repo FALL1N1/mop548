@@ -2103,20 +2103,6 @@ bool WorldObject::CanSeeOrDetect(WorldObject const* obj, bool ignoreStealth, boo
         }
     }
 
-    // Visibility of Raid Markers
-    if (const DynamicObject *thisDynObj = obj->ToDynObject())
-    {
-        if (thisDynObj->GetType() == DYNAMIC_OBJECT_RAID_MARKER)
-        {
-            if (Player const* thisPlayer = ToPlayer())
-            if (Group const* thisGroup = thisPlayer->GetGroup())
-            if (thisGroup->HasRaidMarker(thisDynObj->GetGUID()))
-                return true;
-
-            return false;
-        }
-    }
-
     if (obj->IsInvisibleDueToDespawn())
         return false;
 

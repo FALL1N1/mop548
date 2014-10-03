@@ -30,7 +30,7 @@
 #include "Group.h"
 
 DynamicObject::DynamicObject(bool isWorldObject) : WorldObject(isWorldObject),
-    _aura(NULL), _removedAura(NULL), _caster(NULL), _group(NULL), _duration(0), _isViewpoint(false)
+    _aura(NULL), _removedAura(NULL), _caster(NULL), _duration(0), _isViewpoint(false)
 {
     m_objectType |= TYPEMASK_DYNAMICOBJECT;
     m_objectTypeId = TYPEID_DYNAMICOBJECT;
@@ -56,11 +56,8 @@ void DynamicObject::AddToWorld()
     {
         sObjectAccessor->AddObject(this);
         WorldObject::AddToWorld();
-        
-        if (GetType() == DYNAMIC_OBJECT_RAID_MARKER)
-            BindToGroup();
-        else
-            BindToCaster();
+
+        BindToCaster();
     }
 }
 
@@ -79,10 +76,7 @@ void DynamicObject::RemoveFromWorld()
         if (!IsInWorld())
             return;
 
-        if (GetType() == DYNAMIC_OBJECT_RAID_MARKER)
-            UnbindFromGroup();
-        else
-            UnbindFromCaster();
+        UnbindFromCaster();
 
         WorldObject::RemoveFromWorld();
         sObjectAccessor->RemoveObject(this);
@@ -120,52 +114,33 @@ bool DynamicObject::CreateDynamicObject(uint32 guidlow, Unit* caster, SpellInfo 
 
 void DynamicObject::Update(uint32 p_time)
 {
-    if (GetType() == DYNAMIC_OBJECT_RAID_MARKER)
+    // caster has to be always available and in the same map
+    ASSERT(_caster);
+    ASSERT(_caster->GetMap() == GetMap());
+
+    bool expired = false;
+
+    if (_aura)
     {
-        if (_group)
-        {
-            if (!_group->IsGroupRaidMarker(GetGUID()))
-            {
-                Remove();
-                return;
-            }
-        }
-        else
-        {
-            Remove();
-            return;
-        }
+        if (!_aura->IsRemoved())
+            _aura->UpdateOwner(p_time, this);
+
+        // _aura may be set to null in Aura::UpdateOwner call
+        if (_aura && (_aura->IsRemoved() || _aura->IsExpired()))
+            expired = true;
     }
     else
     {
-        // caster has to be always available and in the same map
-        ASSERT(_caster);
-        ASSERT(_caster->GetMap() == GetMap());
-
-        bool expired = false;
-
-        if (_aura)
-        {
-            if (!_aura->IsRemoved())
-                _aura->UpdateOwner(p_time, this);
-
-            // _aura may be set to null in Aura::UpdateOwner call
-            if (_aura && (_aura->IsRemoved() || _aura->IsExpired()))
-                expired = true;
-        }
+        if (GetDuration() > int32(p_time))
+            _duration -= p_time;
         else
-        {
-            if (GetDuration() > int32(p_time))
-                _duration -= p_time;
-            else
-                expired = true;
-        }
-
-        if (expired)
-            Remove();
-        else
-            sScriptMgr->OnDynamicObjectUpdate(this, p_time);
+            expired = true;
     }
+
+    if (expired)
+        Remove();
+    else
+        sScriptMgr->OnDynamicObjectUpdate(this, p_time);
 }
 
 void DynamicObject::Remove()
@@ -241,21 +216,6 @@ void DynamicObject::BindToCaster()
     _caster->_RegisterDynObject(this);
 }
 
-void DynamicObject::BindToGroup()
-{
-    // Pointers must be initialized to NULLs
-    ASSERT(!_group);
-    ASSERT(!_caster);
-
-    _caster = ObjectAccessor::GetUnit(*this, GetCasterGUID());
-
-    // Caster must the only player
-    ASSERT(_caster->ToPlayer());
-
-    // Group must be initialized
-    _group = _caster->ToPlayer()->GetGroup();
-    ASSERT(_group);
-}
 
 void DynamicObject::UnbindFromCaster()
 {
@@ -265,15 +225,4 @@ void DynamicObject::UnbindFromCaster()
     // Clean up
     _caster->_UnregisterDynObject(this);
     _caster = NULL;
-}
-
-void DynamicObject::UnbindFromGroup()
-{
-    // Group must exist
-    ASSERT(_group);
-
-    // Clean up
-    _group->ClearRaidMarker(GetGUID());
-    _caster = NULL;
-    _group = NULL;
 }

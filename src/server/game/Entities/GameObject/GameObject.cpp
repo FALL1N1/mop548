@@ -383,7 +383,7 @@ void GameObject::Update(uint32 diff)
                             if (visualStateBefore != visualStateAfter)
                             {
                                 ForceValuesUpdateAtIndex(GAMEOBJECT_FIELD_LEVEL);
-                                ForceValuesUpdateAtIndex(GAMEOBJECT_FIELD_PERCENT_HEALTH);
+                                ForceValuesUpdateAtIndex(GAMEOBJECT_FIELD_BYTES);
                             }
                         }
 
@@ -1129,7 +1129,7 @@ void GameObject::UseDoorOrButton(uint32 time_to_restore, bool alternative /* = f
 
 void GameObject::SetGoArtKit(uint8 kit)
 {
-    SetByteValue(GAMEOBJECT_FIELD_STATE_SPELL_VISUAL_ID, 1, kit);
+    SetByteValue(GAMEOBJECT_FIELD_VISUAL_BYTES, 1, kit);
     GameObjectData* data = const_cast<GameObjectData*>(sObjectMgr->GetGOData(m_DBTableGuid));
     if (data)
         data->artKit = kit;
@@ -2075,7 +2075,7 @@ void GameObject::SetLootState(LootState state, Unit* unit)
 
 void GameObject::SetGoState(GOState state)
 {
-    SetByteValue(GAMEOBJECT_FIELD_PERCENT_HEALTH, 0, state);
+    SetByteValue(GAMEOBJECT_FIELD_BYTES, 0, state);
     sScriptMgr->OnGameObjectStateChanged(this, state);
     if (m_model)
     {
@@ -2295,7 +2295,7 @@ void GameObject::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* t
                 else
                     fieldBuffer << m_uint32Values[index];
             }
-            else if (index == GAMEOBJECT_FIELD_PERCENT_HEALTH)
+            else if (index == GAMEOBJECT_FIELD_BYTES)
             {
                 uint32 bytes1 = m_uint32Values[index];
                 if (isStoppableTransport && GetGoState() == GO_STATE_TRANSPORT_ACTIVE)

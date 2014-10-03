@@ -737,7 +737,7 @@ void Player::UpdateExpertise(WeaponAttackType attack)
             expertise += (*itr)->GetAmount();
     }
 
-    if (expertise < 0)
+    if (expertise < 0.0f)
         expertise = 0.0f;
 
     switch (attack)
