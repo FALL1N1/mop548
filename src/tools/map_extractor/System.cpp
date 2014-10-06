@@ -1121,7 +1121,7 @@ void ExtractDB2Files(int l, bool basicLocale)
     if (listFile)
     {
         std::string outputPath = output_path;
-        outputPath += "/dbc/";
+        outputPath += "/db2/";
         if (!basicLocale)
         {
             outputPath += Locales[l];
