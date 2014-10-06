@@ -271,7 +271,7 @@ bool AchievementCriteriaData::IsValid(CriteriaEntry const* criteria)
             }
             return true;
         default:
-            TC_LOG_ERROR("sql.sql", "Table `achievement_criteria_data` (Entry: %u Type: %u) has data for non-supported data type (%u), ignored.", criteria->ID, criteria->type, dataType);
+            //TC_LOG_ERROR("sql.sql", "Table `achievement_criteria_data` (Entry: %u Type: %u) has data for non-supported data type (%u), ignored.", criteria->ID, criteria->type, dataType);
             return false;
     }
 }
@@ -3300,7 +3300,7 @@ void AchievementGlobalMgr::LoadAchievementCriteriaData()
 
         if (!criteria)
         {
-            TC_LOG_ERROR("sql.sql", "Table `achievement_criteria_data` has data for non-existing criteria (Entry: %u), ignore.", criteria_id);
+            //TC_LOG_ERROR("sql.sql", "Table `achievement_criteria_data` has data for non-existing criteria (Entry: %u), ignore.", criteria_id);
             continue;
         }
 

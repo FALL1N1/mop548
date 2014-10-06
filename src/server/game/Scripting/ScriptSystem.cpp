@@ -72,8 +72,8 @@ void SystemMgr::LoadScriptWaypoints()
             continue;
         }
 
-        if (!pCInfo->ScriptID)
-            TC_LOG_ERROR("sql.sql", "TSCR: DB table script_waypoint has waypoint for creature entry %u, but creature does not have ScriptName defined and then useless.", temp.uiCreatureEntry);
+        //if (!pCInfo->ScriptID)
+            //TC_LOG_ERROR("sql.sql", "TSCR: DB table script_waypoint has waypoint for creature entry %u, but creature does not have ScriptName defined and then useless.", temp.uiCreatureEntry);
 
         m_mPointMoveMap[uiEntry].push_back(temp);
         ++count;

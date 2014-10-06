@@ -149,8 +149,8 @@ void LoadSkillDiscoveryTable()
         if (!spellEntry->IsExplicitDiscovery())
             continue;
 
-        if (SkillDiscoveryStore.find(int32(spell_id)) == SkillDiscoveryStore.end())
-            TC_LOG_ERROR("sql.sql", "Spell (ID: %u) is 100%% chance random discovery ability but not have data in `skill_discovery_template` table", spell_id);
+        //if (SkillDiscoveryStore.find(int32(spell_id)) == SkillDiscoveryStore.end())
+            //TC_LOG_ERROR("sql.sql", "Spell (ID: %u) is 100%% chance random discovery ability but not have data in `skill_discovery_template` table", spell_id);
     }
 
     TC_LOG_INFO("server.loading", ">> Loaded %u skill discovery definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));

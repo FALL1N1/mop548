@@ -24,7 +24,6 @@ file(GLOB_RECURSE sources_Northrend Northrend/*.cpp Northrend/*.h)
 file(GLOB_RECURSE sources_Maelstrom Maelstrom/*.cpp Maelstrom/*.h)
 file(GLOB_RECURSE sources_Custom Custom/*.cpp Custom/*.h)
 file(GLOB_RECURSE sources_Commands Commands/*.cpp Commands/*.h)
-file(GLOB_RECURSE sources_Examples Examples/*.cpp Examples/*.h)
 file(GLOB_RECURSE sources_Events Events/*.cpp Events/*.h)
 file(GLOB_RECURSE sources_Pandaria Pandaria/*.cpp Pandaria/*.h)
 file(GLOB_RECURSE sources_Pet Pet/*.cpp Pet/*.h)
@@ -41,7 +40,6 @@ source_group(Northrend FILES ${sources_Northrend})
 source_group(Maelstrom FILES ${sources_Maelstrom})
 source_group(OutdoorPvP FILES ${sources_OutdoorPvP})
 source_group(Commands FILES ${sources_Commands})
-source_group(Examples FILES ${sources_Examples})
 source_group(Events FILES ${sources_Events})
 source_group(Pandaria FILES ${sources_Pandaria})
 source_group(Pet FILES ${sources_Pet})
@@ -52,8 +50,6 @@ message(STATUS "SCRIPT PREPARATIONS")
 include(Spells/CMakeLists.txt)
 
 include(Commands/CMakeLists.txt)
-
-include(Examples/CMakeLists.txt)
 
 set(scripts_STAT_SRCS
   ${scripts_STAT_SRCS}

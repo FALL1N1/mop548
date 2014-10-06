@@ -595,12 +595,12 @@ void ObjectMgr::LoadCreatureTemplateAddons()
             SpellInfo const* AdditionalSpellInfo = sSpellMgr->GetSpellInfo(uint32(atol(*itr)));
             if (!AdditionalSpellInfo)
             {
-                TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) has wrong spell %u defined in `auras` field in `creature_template_addon`.", entry, uint32(atol(*itr)));
+                //TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) has wrong spell %u defined in `auras` field in `creature_template_addon`.", entry, uint32(atol(*itr)));
                 continue;
             }
 
-            if (AdditionalSpellInfo->HasAura(SPELL_AURA_CONTROL_VEHICLE))
-                TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) has SPELL_AURA_CONTROL_VEHICLE aura %u defined in `auras` field in `creature_template_addon`.", entry, uint32(atol(*itr)));
+            //if (AdditionalSpellInfo->HasAura(SPELL_AURA_CONTROL_VEHICLE))
+                //TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) has SPELL_AURA_CONTROL_VEHICLE aura %u defined in `auras` field in `creature_template_addon`.", entry, uint32(atol(*itr)));
 
             creatureAddon.auras[i++] = uint32(atol(*itr));
         }
@@ -677,14 +677,14 @@ void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
 
         if (cInfo->unit_class != difficultyInfo->unit_class)
         {
-            TC_LOG_ERROR("sql.sql", "Creature (Entry: %u, class %u) has different `unit_class` in difficulty %u mode (Entry: %u, class %u).",
-                cInfo->Entry, cInfo->unit_class, diff + 1, cInfo->DifficultyEntry[diff], difficultyInfo->unit_class);
+            //TC_LOG_ERROR("sql.sql", "Creature (Entry: %u, class %u) has different `unit_class` in difficulty %u mode (Entry: %u, class %u).",
+            //    cInfo->Entry, cInfo->unit_class, diff + 1, cInfo->DifficultyEntry[diff], difficultyInfo->unit_class);
             continue;
         }
 
         if (cInfo->npcflag != difficultyInfo->npcflag)
         {
-            TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) has different `npcflag` in difficulty %u mode (Entry: %u).", cInfo->Entry, diff + 1, cInfo->DifficultyEntry[diff]);
+            //TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) has different `npcflag` in difficulty %u mode (Entry: %u).", cInfo->Entry, diff + 1, cInfo->DifficultyEntry[diff]);
             continue;
         }
 
@@ -725,13 +725,13 @@ void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
         ok = true;
     }
 
-    FactionTemplateEntry const* factionTemplate = sFactionTemplateStore.LookupEntry(cInfo->faction_A);
-    if (!factionTemplate)
-        TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) has non-existing faction_A template (%u).", cInfo->Entry, cInfo->faction_A);
+    //FactionTemplateEntry const* factionTemplate = sFactionTemplateStore.LookupEntry(cInfo->faction_A);
+    //if (!factionTemplate)
+        //TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) has non-existing faction_A template (%u).", cInfo->Entry, cInfo->faction_A);
 
-    factionTemplate = sFactionTemplateStore.LookupEntry(cInfo->faction_H);
-    if (!factionTemplate)
-        TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) has non-existing faction_H template (%u).", cInfo->Entry, cInfo->faction_H);
+    //factionTemplate = sFactionTemplateStore.LookupEntry(cInfo->faction_H);
+    //if (!factionTemplate)
+        //TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) has non-existing faction_H template (%u).", cInfo->Entry, cInfo->faction_H);
 
     // used later for scale
     CreatureDisplayInfoEntry const* displayScaleEntry = NULL;
@@ -747,9 +747,9 @@ void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
         else if (!displayScaleEntry)
             displayScaleEntry = displayEntry;
 
-        CreatureModelInfo const* modelInfo = GetCreatureModelInfo(cInfo->Modelid1);
-        if (!modelInfo)
-            TC_LOG_ERROR("sql.sql", "No model data exist for `Modelid1` = %u listed by creature (Entry: %u).", cInfo->Modelid1, cInfo->Entry);
+        //CreatureModelInfo const* modelInfo = GetCreatureModelInfo(cInfo->Modelid1);
+        //if (!modelInfo)
+            //TC_LOG_ERROR("sql.sql", "No model data exist for `Modelid1` = %u listed by creature (Entry: %u).", cInfo->Modelid1, cInfo->Entry);
     }
 
     if (cInfo->Modelid2)
@@ -763,9 +763,9 @@ void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
         else if (!displayScaleEntry)
             displayScaleEntry = displayEntry;
 
-        CreatureModelInfo const* modelInfo = GetCreatureModelInfo(cInfo->Modelid2);
-        if (!modelInfo)
-            TC_LOG_ERROR("sql.sql", "No model data exist for `Modelid2` = %u listed by creature (Entry: %u).", cInfo->Modelid2, cInfo->Entry);
+        //CreatureModelInfo const* modelInfo = GetCreatureModelInfo(cInfo->Modelid2);
+        //if (!modelInfo)
+        //    TC_LOG_ERROR("sql.sql", "No model data exist for `Modelid2` = %u listed by creature (Entry: %u).", cInfo->Modelid2, cInfo->Entry);
     }
 
     if (cInfo->Modelid3)
@@ -779,9 +779,9 @@ void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
         else if (!displayScaleEntry)
             displayScaleEntry = displayEntry;
 
-        CreatureModelInfo const* modelInfo = GetCreatureModelInfo(cInfo->Modelid3);
-        if (!modelInfo)
-            TC_LOG_ERROR("sql.sql", "No model data exist for `Modelid3` = %u listed by creature (Entry: %u).", cInfo->Modelid3, cInfo->Entry);
+        //CreatureModelInfo const* modelInfo = GetCreatureModelInfo(cInfo->Modelid3);
+        //if (!modelInfo)
+        //    TC_LOG_ERROR("sql.sql", "No model data exist for `Modelid3` = %u listed by creature (Entry: %u).", cInfo->Modelid3, cInfo->Entry);
     }
 
     if (cInfo->Modelid4)
@@ -795,9 +795,9 @@ void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
         else if (!displayScaleEntry)
             displayScaleEntry = displayEntry;
 
-        CreatureModelInfo const* modelInfo = GetCreatureModelInfo(cInfo->Modelid4);
-        if (!modelInfo)
-            TC_LOG_ERROR("sql.sql", "No model data exist for `Modelid4` = %u listed by creature (Entry: %u).", cInfo->Modelid4, cInfo->Entry);
+        //CreatureModelInfo const* modelInfo = GetCreatureModelInfo(cInfo->Modelid4);
+        //if (!modelInfo)
+        //    TC_LOG_ERROR("sql.sql", "No model data exist for `Modelid4` = %u listed by creature (Entry: %u).", cInfo->Modelid4, cInfo->Entry);
     }
 
     if (!displayScaleEntry)
@@ -817,7 +817,7 @@ void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
 
     if (!cInfo->unit_class || ((1 << (cInfo->unit_class-1)) & CLASSMASK_ALL_CREATURES) == 0)
     {
-        TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) has invalid unit_class (%u) in creature_template. Set to 1 (UNIT_CLASS_WARRIOR).", cInfo->Entry, cInfo->unit_class);
+        //TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) has invalid unit_class (%u) in creature_template. Set to 1 (UNIT_CLASS_WARRIOR).", cInfo->Entry, cInfo->unit_class);
         const_cast<CreatureTemplate*>(cInfo)->unit_class = UNIT_CLASS_WARRIOR;
     }
 
@@ -958,7 +958,7 @@ void ObjectMgr::LoadCreatureAddons()
         CreatureData const* creData = GetCreatureData(guid);
         if (!creData)
         {
-            TC_LOG_ERROR("sql.sql", "Creature (GUID: %u) does not exist but has a record in `creature_addon`", guid);
+            //TC_LOG_ERROR("sql.sql", "Creature (GUID: %u) does not exist but has a record in `creature_addon`", guid);
             continue;
         }
 
@@ -1222,8 +1222,8 @@ void ObjectMgr::LoadCreatureModelInfo()
 
         // Checks
 
-        if (!sCreatureDisplayInfoStore.LookupEntry(modelId))
-            TC_LOG_ERROR("sql.sql", "Table `creature_model_info` has model for not existed display id (%u).", modelId);
+        //if (!sCreatureDisplayInfoStore.LookupEntry(modelId))
+            //TC_LOG_ERROR("sql.sql", "Table `creature_model_info` has model for not existed display id (%u).", modelId);
 
         if (modelInfo.gender > GENDER_NONE)
         {
@@ -1301,7 +1301,7 @@ void ObjectMgr::LoadLinkedRespawn()
 
                 if (!(master->spawnMask & slave->spawnMask))  // they must have a possibility to meet (normal/heroic difficulty)
                 {
-                    TC_LOG_ERROR("sql.sql", "LinkedRespawn: Creature '%u' linking to '%u' with not corresponding spawnMask", guidLow, linkedGuidLow);
+                    //TC_LOG_ERROR("sql.sql", "LinkedRespawn: Creature '%u' linking to '%u' with not corresponding spawnMask", guidLow, linkedGuidLow);
                     error = true;
                     break;
                 }
@@ -1338,7 +1338,7 @@ void ObjectMgr::LoadLinkedRespawn()
 
                 if (!(master->spawnMask & slave->spawnMask))  // they must have a possibility to meet (normal/heroic difficulty)
                 {
-                    TC_LOG_ERROR("sql.sql", "LinkedRespawn: Creature '%u' linking to '%u' with not corresponding spawnMask", guidLow, linkedGuidLow);
+                    //TC_LOG_ERROR("sql.sql", "LinkedRespawn: Creature '%u' linking to '%u' with not corresponding spawnMask", guidLow, linkedGuidLow);
                     error = true;
                     break;
                 }
@@ -1375,7 +1375,7 @@ void ObjectMgr::LoadLinkedRespawn()
 
                 if (!(master->spawnMask & slave->spawnMask))  // they must have a possibility to meet (normal/heroic difficulty)
                 {
-                    TC_LOG_ERROR("sql.sql", "LinkedRespawn: Creature '%u' linking to '%u' with not corresponding spawnMask", guidLow, linkedGuidLow);
+                    //TC_LOG_ERROR("sql.sql", "LinkedRespawn: Creature '%u' linking to '%u' with not corresponding spawnMask", guidLow, linkedGuidLow);
                     error = true;
                     break;
                 }
@@ -1412,7 +1412,7 @@ void ObjectMgr::LoadLinkedRespawn()
 
                 if (!(master->spawnMask & slave->spawnMask))  // they must have a possibility to meet (normal/heroic difficulty)
                 {
-                    TC_LOG_ERROR("sql.sql", "LinkedRespawn: Creature '%u' linking to '%u' with not corresponding spawnMask", guidLow, linkedGuidLow);
+                    //TC_LOG_ERROR("sql.sql", "LinkedRespawn: Creature '%u' linking to '%u' with not corresponding spawnMask", guidLow, linkedGuidLow);
                     error = true;
                     break;
                 }
@@ -1459,7 +1459,7 @@ bool ObjectMgr::SetCreatureLinkedRespawn(uint32 guidLow, uint32 linkedGuidLow)
 
     if (!(master->spawnMask & slave->spawnMask))  // they must have a possibility to meet (normal/heroic difficulty)
     {
-        TC_LOG_ERROR("sql.sql", "LinkedRespawn: Creature '%u' linking to '%u' with not corresponding spawnMask", guidLow, linkedGuidLow);
+        //TC_LOG_ERROR("sql.sql", "LinkedRespawn: Creature '%u' linking to '%u' with not corresponding spawnMask", guidLow, linkedGuidLow);
         return false;
     }
 
@@ -1599,7 +1599,7 @@ void ObjectMgr::LoadCreatures()
         CreatureTemplate const* cInfo = GetCreatureTemplate(entry);
         if (!cInfo)
         {
-            TC_LOG_ERROR("sql.sql", "Table `creature` has creature (GUID: %u) with non existing creature entry %u, skipped.", guid, entry);
+            //TC_LOG_ERROR("sql.sql", "Table `creature` has creature (GUID: %u) with non existing creature entry %u, skipped.", guid, entry);
             continue;
         }
 
@@ -1633,8 +1633,8 @@ void ObjectMgr::LoadCreatures()
             continue;
         }
 
-        if (data.spawnMask & ~spawnMasks[data.mapid])
-            TC_LOG_ERROR("sql.sql", "Table `creature` have creature (GUID: %u) that have wrong spawn mask %u including not supported difficulty modes for map (Id: %u) spawnMasks[data.mapid]: %u.", guid, data.spawnMask, data.mapid, spawnMasks[data.mapid]);
+        //if (data.spawnMask & ~spawnMasks[data.mapid])
+            //TC_LOG_ERROR("sql.sql", "Table `creature` have creature (GUID: %u) that have wrong spawn mask %u including not supported difficulty modes for map (Id: %u) spawnMasks[data.mapid]: %u.", guid, data.spawnMask, data.mapid, spawnMasks[data.mapid]);
 
         bool ok = true;
         for (uint32 diff = 0; diff < MAX_DIFFICULTY - 1 && ok; ++diff)
@@ -1971,8 +1971,8 @@ void ObjectMgr::LoadGameobjects()
 
         data.spawnMask      = fields[14].GetUInt32();
 
-        if (data.spawnMask & ~spawnMasks[data.mapid])
-            TC_LOG_ERROR("sql.sql", "Table `gameobject` has gameobject (GUID: %u Entry: %u) that has wrong spawn mask %u including not supported difficulty modes for map (Id: %u), skip", guid, data.id, data.spawnMask, data.mapid);
+        //if (data.spawnMask & ~spawnMasks[data.mapid])
+            //TC_LOG_ERROR("sql.sql", "Table `gameobject` has gameobject (GUID: %u Entry: %u) that has wrong spawn mask %u including not supported difficulty modes for map (Id: %u), skip", guid, data.id, data.spawnMask, data.mapid);
 
         data.phaseMask      = fields[15].GetUInt32();
         int16 gameEvent     = fields[16].GetInt8();
@@ -2960,7 +2960,7 @@ void ObjectMgr::LoadPetLevelInfo()
         {
             if (pInfo[level].health == 0)
             {
-                TC_LOG_ERROR("sql.sql", "Creature %u has no data for Level %i pet stats data, using data of Level %i.", itr->first, level+1, level);
+                //TC_LOG_ERROR("sql.sql", "Creature %u has no data for Level %i pet stats data, using data of Level %i.", itr->first, level+1, level);
                 pInfo[level] = pInfo[level-1];
             }
         }
@@ -3382,7 +3382,7 @@ void ObjectMgr::LoadPlayerInfo()
                 {
                     if (info->levelInfo[level].stats[0] == 0)
                     {
-                        TC_LOG_ERROR("sql.sql", "Race %i Class %i Level %i does not have stats data. Using stats data of level %i.", race, class_, level+1, level);
+                        //TC_LOG_ERROR("sql.sql", "Race %i Class %i Level %i does not have stats data. Using stats data of level %i.", race, class_, level+1, level);
                         info->levelInfo[level] = info->levelInfo[level-1];
                     }
                 }
@@ -3691,7 +3691,7 @@ void ObjectMgr::LoadQuests()
 
         if (qinfo->MinLevel == uint32(-1) || qinfo->MinLevel > DEFAULT_MAX_LEVEL)
         {
-            TC_LOG_ERROR("sql.sql", "Quest %u should be disabled because `MinLevel` = %i", qinfo->GetQuestId(), int32(qinfo->MinLevel));
+            //TC_LOG_ERROR("sql.sql", "Quest %u should be disabled because `MinLevel` = %i", qinfo->GetQuestId(), int32(qinfo->MinLevel));
             // no changes needed, sending -1 in SMSG_QUEST_QUERY_RESPONSE is valid
         }
 
@@ -3759,8 +3759,8 @@ void ObjectMgr::LoadQuests()
         {
             if (qinfo->RequiredSkillPoints > sWorld->GetConfigMaxSkillValue())
             {
-                TC_LOG_ERROR("sql.sql", "Quest %u has `RequiredSkillPoints` = %u but max possible skill is %u, quest can't be done.",
-                    qinfo->GetQuestId(), qinfo->RequiredSkillPoints, sWorld->GetConfigMaxSkillValue());
+                //TC_LOG_ERROR("sql.sql", "Quest %u has `RequiredSkillPoints` = %u but max possible skill is %u, quest can't be done.",
+                    //qinfo->GetQuestId(), qinfo->RequiredSkillPoints, sWorld->GetConfigMaxSkillValue());
                 // no changes, quest can't be done for this requirement
             }
         }
@@ -3768,29 +3768,29 @@ void ObjectMgr::LoadQuests()
 
         if (qinfo->RequiredMinRepFaction && !sFactionStore.LookupEntry(qinfo->RequiredMinRepFaction))
         {
-            TC_LOG_ERROR("sql.sql", "Quest %u has `RequiredMinRepFaction` = %u but faction template %u does not exist, quest can't be done.",
-                qinfo->GetQuestId(), qinfo->RequiredMinRepFaction, qinfo->RequiredMinRepFaction);
+            //TC_LOG_ERROR("sql.sql", "Quest %u has `RequiredMinRepFaction` = %u but faction template %u does not exist, quest can't be done.",
+                //qinfo->GetQuestId(), qinfo->RequiredMinRepFaction, qinfo->RequiredMinRepFaction);
             // no changes, quest can't be done for this requirement
         }
 
         if (qinfo->RequiredMaxRepFaction && !sFactionStore.LookupEntry(qinfo->RequiredMaxRepFaction))
         {
-            TC_LOG_ERROR("sql.sql", "Quest %u has `RequiredMaxRepFaction` = %u but faction template %u does not exist, quest can't be done.",
-                qinfo->GetQuestId(), qinfo->RequiredMaxRepFaction, qinfo->RequiredMaxRepFaction);
+            //TC_LOG_ERROR("sql.sql", "Quest %u has `RequiredMaxRepFaction` = %u but faction template %u does not exist, quest can't be done.",
+                //qinfo->GetQuestId(), qinfo->RequiredMaxRepFaction, qinfo->RequiredMaxRepFaction);
             // no changes, quest can't be done for this requirement
         }
 
         if (qinfo->RequiredMinRepValue && qinfo->RequiredMinRepValue > ReputationMgr::Reputation_Cap)
         {
-            TC_LOG_ERROR("sql.sql", "Quest %u has `RequiredMinRepValue` = %d but max reputation is %u, quest can't be done.",
-                qinfo->GetQuestId(), qinfo->RequiredMinRepValue, ReputationMgr::Reputation_Cap);
+            //TC_LOG_ERROR("sql.sql", "Quest %u has `RequiredMinRepValue` = %d but max reputation is %u, quest can't be done.",
+                //qinfo->GetQuestId(), qinfo->RequiredMinRepValue, ReputationMgr::Reputation_Cap);
             // no changes, quest can't be done for this requirement
         }
 
         if (qinfo->RequiredMinRepValue && qinfo->RequiredMaxRepValue && qinfo->RequiredMaxRepValue <= qinfo->RequiredMinRepValue)
         {
-            TC_LOG_ERROR("sql.sql", "Quest %u has `RequiredMaxRepValue` = %d and `RequiredMinRepValue` = %d, quest can't be done.",
-                qinfo->GetQuestId(), qinfo->RequiredMaxRepValue, qinfo->RequiredMinRepValue);
+            //TC_LOG_ERROR("sql.sql", "Quest %u has `RequiredMaxRepValue` = %d and `RequiredMinRepValue` = %d, quest can't be done.",
+                //qinfo->GetQuestId(), qinfo->RequiredMaxRepValue, qinfo->RequiredMinRepValue);
             // no changes, quest can't be done for this requirement
         }
 
@@ -3820,8 +3820,8 @@ void ObjectMgr::LoadQuests()
         {
             if (!sObjectMgr->GetItemTemplate(qinfo->SourceItemId))
             {
-                TC_LOG_ERROR("sql.sql", "Quest %u has `SourceItemId` = %u but item with entry %u does not exist, quest can't be done.",
-                    qinfo->GetQuestId(), qinfo->SourceItemId, qinfo->SourceItemId);
+                //TC_LOG_ERROR("sql.sql", "Quest %u has `SourceItemId` = %u but item with entry %u does not exist, quest can't be done.",
+                    //qinfo->GetQuestId(), qinfo->SourceItemId, qinfo->SourceItemId);
                 qinfo->SourceItemId = 0;                       // quest can't be done for this requirement
             }
         }
@@ -3831,14 +3831,14 @@ void ObjectMgr::LoadQuests()
             SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(qinfo->SourceSpellid);
             if (!spellInfo)
             {
-                TC_LOG_ERROR("sql.sql", "Quest %u has `SourceSpellid` = %u but spell %u doesn't exist, quest can't be done.",
-                    qinfo->GetQuestId(), qinfo->SourceSpellid, qinfo->SourceSpellid);
+                //TC_LOG_ERROR("sql.sql", "Quest %u has `SourceSpellid` = %u but spell %u doesn't exist, quest can't be done.",
+                    //qinfo->GetQuestId(), qinfo->SourceSpellid, qinfo->SourceSpellid);
                 qinfo->SourceSpellid = 0;                        // quest can't be done for this requirement
             }
             else if (!SpellMgr::IsSpellValid(spellInfo))
             {
-                TC_LOG_ERROR("sql.sql", "Quest %u has `SourceSpellid` = %u but spell %u is broken, quest can't be done.",
-                    qinfo->GetQuestId(), qinfo->SourceSpellid, qinfo->SourceSpellid);
+                //TC_LOG_ERROR("sql.sql", "Quest %u has `SourceSpellid` = %u but spell %u is broken, quest can't be done.",
+                    //qinfo->GetQuestId(), qinfo->SourceSpellid, qinfo->SourceSpellid);
                 qinfo->SourceSpellid = 0;                        // quest can't be done for this requirement
             }
         }
@@ -3850,8 +3850,8 @@ void ObjectMgr::LoadQuests()
             {
                 if (!sObjectMgr->GetItemTemplate(id))
                 {
-                    TC_LOG_ERROR("sql.sql", "Quest %u has `RequiredSourceItemId%d` = %u but item with entry %u does not exist, quest can't be done.",
-                        qinfo->GetQuestId(), j+1, id, id);
+                    //TC_LOG_ERROR("sql.sql", "Quest %u has `RequiredSourceItemId%d` = %u but item with entry %u does not exist, quest can't be done.",
+                        //qinfo->GetQuestId(), j+1, id, id);
                     // no changes, quest can't be done for this requirement
                 }
             }
@@ -3859,8 +3859,8 @@ void ObjectMgr::LoadQuests()
             {
                 if (qinfo->RequiredSourceItemCount[j]>0)
                 {
-                    TC_LOG_ERROR("sql.sql", "Quest %u has `RequiredSourceItemId%d` = 0 but `RequiredSourceItemCount%d` = %u.",
-                        qinfo->GetQuestId(), j+1, j+1, qinfo->RequiredSourceItemCount[j]);
+                    //TC_LOG_ERROR("sql.sql", "Quest %u has `RequiredSourceItemId%d` = 0 but `RequiredSourceItemCount%d` = %u.",
+                     //   qinfo->GetQuestId(), j+1, j+1, qinfo->RequiredSourceItemCount[j]);
                     // no changes, quest ignore this data
                 }
             }
@@ -3873,15 +3873,15 @@ void ObjectMgr::LoadQuests()
             {
                 if (!sObjectMgr->GetItemTemplate(id))
                 {
-                    TC_LOG_ERROR("sql.sql", "Quest %u has `RewardChoiceItemId%d` = %u but item with entry %u does not exist, quest will not reward this item.",
-                        qinfo->GetQuestId(), j+1, id, id);
+                    //TC_LOG_ERROR("sql.sql", "Quest %u has `RewardChoiceItemId%d` = %u but item with entry %u does not exist, quest will not reward this item.",
+                        //qinfo->GetQuestId(), j+1, id, id);
                     qinfo->RewardChoiceItemId[j] = 0;          // no changes, quest will not reward this
                 }
 
                 if (!qinfo->RewardChoiceItemCount[j])
                 {
-                    TC_LOG_ERROR("sql.sql", "Quest %u has `RewardChoiceItemId%d` = %u but `RewardChoiceItemCount%d` = 0, quest can't be done.",
-                        qinfo->GetQuestId(), j+1, id, j+1);
+                    //TC_LOG_ERROR("sql.sql", "Quest %u has `RewardChoiceItemId%d` = %u but `RewardChoiceItemCount%d` = 0, quest can't be done.",
+                        //qinfo->GetQuestId(), j+1, id, j+1);
                     // no changes, quest can't be done
                 }
             }
@@ -3900,8 +3900,8 @@ void ObjectMgr::LoadQuests()
             {
                 if (!sObjectMgr->GetItemTemplate(id))
                 {
-                    TC_LOG_ERROR("sql.sql", "Quest %u has `RewardItemId%d` = %u but item with entry %u does not exist, quest will not reward this item.",
-                        qinfo->GetQuestId(), j+1, id, id);
+                    //TC_LOG_ERROR("sql.sql", "Quest %u has `RewardItemId%d` = %u but item with entry %u does not exist, quest will not reward this item.",
+                        //qinfo->GetQuestId(), j+1, id, id);
                     qinfo->RewardItemId[j] = 0;                // no changes, quest will not reward this item
                 }
 
@@ -3949,8 +3949,8 @@ void ObjectMgr::LoadQuests()
 
             if (!spellInfo)
             {
-                TC_LOG_ERROR("sql.sql", "Quest %u has `RewardSpell` = %u but spell %u does not exist, spell removed as display reward.",
-                    qinfo->GetQuestId(), qinfo->RewardSpell, qinfo->RewardSpell);
+                //TC_LOG_ERROR("sql.sql", "Quest %u has `RewardSpell` = %u but spell %u does not exist, spell removed as display reward.",
+                    //qinfo->GetQuestId(), qinfo->RewardSpell, qinfo->RewardSpell);
                 qinfo->RewardSpell = 0;                        // no spell reward will display for this quest
             }
 
@@ -3975,8 +3975,8 @@ void ObjectMgr::LoadQuests()
 
             if (!spellInfo)
             {
-                TC_LOG_ERROR("sql.sql", "Quest %u has `RewardSpellCast` = %u but spell %u does not exist, quest will not have a spell reward.",
-                    qinfo->GetQuestId(), qinfo->RewardSpellCast, qinfo->RewardSpellCast);
+                //TC_LOG_ERROR("sql.sql", "Quest %u has `RewardSpellCast` = %u but spell %u does not exist, quest will not have a spell reward.",
+                    //qinfo->GetQuestId(), qinfo->RewardSpellCast, qinfo->RewardSpellCast);
                 qinfo->RewardSpellCast = 0;                    // no spell will be casted on player
             }
 
@@ -4035,22 +4035,22 @@ void ObjectMgr::LoadQuests()
             {
                 if (qinfo->RewardCurrencyCount[j] == 0)
                 {
-                    TC_LOG_ERROR("sql.sql", "Quest %u has `RewardCurrencyId%d` = %u but `RewardCurrencyCount%d` = 0, quest can't be done.",
-                        qinfo->GetQuestId(), j+1, qinfo->RewardCurrencyId[j], j+1);
+                    //TC_LOG_ERROR("sql.sql", "Quest %u has `RewardCurrencyId%d` = %u but `RewardCurrencyCount%d` = 0, quest can't be done.",
+                        //qinfo->GetQuestId(), j+1, qinfo->RewardCurrencyId[j], j+1);
                     // no changes, quest can't be done for this requirement
                 }
 
                 if (!sCurrencyTypesStore.LookupEntry(qinfo->RewardCurrencyId[j]))
                 {
-                    TC_LOG_ERROR("sql.sql", "Quest %u has `RewardCurrencyId%d` = %u but currency with entry %u does not exist, quest can't be done.",
-                        qinfo->GetQuestId(), j+1, qinfo->RewardCurrencyId[j], qinfo->RewardCurrencyId[j]);
+                    //TC_LOG_ERROR("sql.sql", "Quest %u has `RewardCurrencyId%d` = %u but currency with entry %u does not exist, quest can't be done.",
+                        //qinfo->GetQuestId(), j+1, qinfo->RewardCurrencyId[j], qinfo->RewardCurrencyId[j]);
                     qinfo->RewardCurrencyCount[j] = 0;             // prevent incorrect work of quest
                 }
             }
             else if (qinfo->RewardCurrencyCount[j] > 0)
             {
-                TC_LOG_ERROR("sql.sql", "Quest %u has `RewardCurrencyId%d` = 0 but `RewardCurrencyCount%d` = %u, quest can't be done.",
-                    qinfo->GetQuestId(), j+1, j+1, qinfo->RewardCurrencyCount[j]);
+                //TC_LOG_ERROR("sql.sql", "Quest %u has `RewardCurrencyId%d` = 0 but `RewardCurrencyCount%d` = %u, quest can't be done.",
+                    //qinfo->GetQuestId(), j+1, j+1, qinfo->RewardCurrencyCount[j]);
                 qinfo->RewardCurrencyCount[j] = 0;                 // prevent incorrect work of quest
             }
         }
@@ -4093,8 +4093,8 @@ void ObjectMgr::LoadQuests()
         {
             if (qinfo->RewardSkillPoints > sWorld->GetConfigMaxSkillValue())
             {
-                TC_LOG_ERROR("sql.sql", "Quest %u has `RewardSkillPoints` = %u but max possible skill is %u, quest can't be done.",
-                    qinfo->GetQuestId(), qinfo->RewardSkillPoints, sWorld->GetConfigMaxSkillValue());
+                //TC_LOG_ERROR("sql.sql", "Quest %u has `RewardSkillPoints` = %u but max possible skill is %u, quest can't be done.",
+                    //qinfo->GetQuestId(), qinfo->RewardSkillPoints, sWorld->GetConfigMaxSkillValue());
                 // no changes, quest can't be done for this requirement
             }
             if (!qinfo->RewardSkillId)
@@ -6975,7 +6975,7 @@ void ObjectMgr::LoadNPCSpellClickSpells()
     {
         if ((itr->second.npcflag & UNIT_NPC_FLAG_SPELLCLICK) && _spellClickInfoStore.find(itr->second.Entry) == _spellClickInfoStore.end())
         {
-            TC_LOG_ERROR("sql.sql", "npc_spellclick_spells: Creature template %u has UNIT_NPC_FLAG_SPELLCLICK but no data in spellclick table! Removing flag", itr->second.Entry);
+            //TC_LOG_ERROR("sql.sql", "npc_spellclick_spells: Creature template %u has UNIT_NPC_FLAG_SPELLCLICK but no data in spellclick table! Removing flag", itr->second.Entry);
             const_cast<CreatureTemplate*>(&itr->second)->npcflag &= ~UNIT_NPC_FLAG_SPELLCLICK;
         }
     }
@@ -7067,10 +7067,10 @@ void ObjectMgr::LoadGameobjectQuestStarters()
     for (QuestRelations::iterator itr = _goQuestRelations.begin(); itr != _goQuestRelations.end(); ++itr)
     {
         GameObjectTemplate const* goInfo = GetGameObjectTemplate(itr->first);
-        if (!goInfo)
-            TC_LOG_ERROR("sql.sql", "Table `gameobject_queststarter` have data for not existed gameobject entry (%u) and existed quest %u", itr->first, itr->second);
-        else if (goInfo->type != GAMEOBJECT_TYPE_QUESTGIVER)
-            TC_LOG_ERROR("sql.sql", "Table `gameobject_queststarter` have data gameobject entry (%u) for quest %u, but GO is not GAMEOBJECT_TYPE_QUESTGIVER", itr->first, itr->second);
+        //if (!goInfo)
+        //    TC_LOG_ERROR("sql.sql", "Table `gameobject_queststarter` have data for not existed gameobject entry (%u) and existed quest %u", itr->first, itr->second);
+        //else if (goInfo->type != GAMEOBJECT_TYPE_QUESTGIVER)
+            //TC_LOG_ERROR("sql.sql", "Table `gameobject_queststarter` have data gameobject entry (%u) for quest %u, but GO is not GAMEOBJECT_TYPE_QUESTGIVER", itr->first, itr->second);
     }
 }
 
@@ -7081,10 +7081,10 @@ void ObjectMgr::LoadGameobjectQuestEnders()
     for (QuestRelations::iterator itr = _goQuestInvolvedRelations.begin(); itr != _goQuestInvolvedRelations.end(); ++itr)
     {
         GameObjectTemplate const* goInfo = GetGameObjectTemplate(itr->first);
-        if (!goInfo)
-            TC_LOG_ERROR("sql.sql", "Table `gameobject_questender` have data for not existed gameobject entry (%u) and existed quest %u", itr->first, itr->second);
-        else if (goInfo->type != GAMEOBJECT_TYPE_QUESTGIVER)
-            TC_LOG_ERROR("sql.sql", "Table `gameobject_questender` have data gameobject entry (%u) for quest %u, but GO is not GAMEOBJECT_TYPE_QUESTGIVER", itr->first, itr->second);
+        //if (!goInfo)
+            //TC_LOG_ERROR("sql.sql", "Table `gameobject_questender` have data for not existed gameobject entry (%u) and existed quest %u", itr->first, itr->second);
+        //else if (goInfo->type != GAMEOBJECT_TYPE_QUESTGIVER)
+            //TC_LOG_ERROR("sql.sql", "Table `gameobject_questender` have data gameobject entry (%u) for quest %u, but GO is not GAMEOBJECT_TYPE_QUESTGIVER", itr->first, itr->second);
     }
 }
 
@@ -7095,10 +7095,10 @@ void ObjectMgr::LoadCreatureQuestStarters()
     for (QuestRelations::iterator itr = _creatureQuestRelations.begin(); itr != _creatureQuestRelations.end(); ++itr)
     {
         CreatureTemplate const* cInfo = GetCreatureTemplate(itr->first);
-        if (!cInfo)
-            TC_LOG_ERROR("sql.sql", "Table `creature_queststarter` have data for not existed creature entry (%u) and existed quest %u", itr->first, itr->second);
-        else if (!(cInfo->npcflag & UNIT_NPC_FLAG_QUESTGIVER))
-            TC_LOG_ERROR("sql.sql", "Table `creature_queststarter` has creature entry (%u) for quest %u, but npcflag does not include UNIT_NPC_FLAG_QUESTGIVER", itr->first, itr->second);
+        //if (!cInfo)
+        //    TC_LOG_ERROR("sql.sql", "Table `creature_queststarter` have data for not existed creature entry (%u) and existed quest %u", itr->first, itr->second);
+        //else if (!(cInfo->npcflag & UNIT_NPC_FLAG_QUESTGIVER))
+        //    TC_LOG_ERROR("sql.sql", "Table `creature_queststarter` has creature entry (%u) for quest %u, but npcflag does not include UNIT_NPC_FLAG_QUESTGIVER", itr->first, itr->second);
     }
 }
 
@@ -7109,10 +7109,10 @@ void ObjectMgr::LoadCreatureQuestEnders()
     for (QuestRelations::iterator itr = _creatureQuestInvolvedRelations.begin(); itr != _creatureQuestInvolvedRelations.end(); ++itr)
     {
         CreatureTemplate const* cInfo = GetCreatureTemplate(itr->first);
-        if (!cInfo)
-            TC_LOG_ERROR("sql.sql", "Table `creature_questender` have data for not existed creature entry (%u) and existed quest %u", itr->first, itr->second);
-        else if (!(cInfo->npcflag & UNIT_NPC_FLAG_QUESTGIVER))
-            TC_LOG_ERROR("sql.sql", "Table `creature_questender` has creature entry (%u) for quest %u, but npcflag does not include UNIT_NPC_FLAG_QUESTGIVER", itr->first, itr->second);
+        //if (!cInfo)
+        //    TC_LOG_ERROR("sql.sql", "Table `creature_questender` have data for not existed creature entry (%u) and existed quest %u", itr->first, itr->second);
+        //else if (!(cInfo->npcflag & UNIT_NPC_FLAG_QUESTGIVER))
+        //    TC_LOG_ERROR("sql.sql", "Table `creature_questender` has creature entry (%u) for quest %u, but npcflag does not include UNIT_NPC_FLAG_QUESTGIVER", itr->first, itr->second);
     }
 }
 
@@ -8174,7 +8174,7 @@ bool ObjectMgr::IsVendorItemValid(uint32 vendor_entry, uint32 id, int32 maxcount
         if (player)
             ChatHandler(player->GetSession()).SendSysMessage(LANG_COMMAND_VENDORSELECTION);
         else
-            TC_LOG_ERROR("sql.sql", "Table `(game_event_)npc_vendor` have data for not existed creature template (Entry: %u), ignore", vendor_entry);
+            //TC_LOG_ERROR("sql.sql", "Table `(game_event_)npc_vendor` have data for not existed creature template (Entry: %u), ignore", vendor_entry);
         return false;
     }
 
@@ -9151,7 +9151,7 @@ void ObjectMgr::LoadQuestObjectives()
 
         if (_questTemplates.find(questId) == _questTemplates.end())
         {
-            TC_LOG_ERROR("sql.sql", "Quest Objective %u has non existant Quest Id %u! Skipping.", id, questId);
+            //TC_LOG_ERROR("sql.sql", "Quest Objective %u has non existant Quest Id %u! Skipping.", id, questId);
             continue;
         }
 
@@ -9160,7 +9160,7 @@ void ObjectMgr::LoadQuestObjectives()
 
         if (type >= QUEST_OBJECTIVE_TYPE_END)
         {
-            TC_LOG_ERROR("sql.sql", "Quest Objective %u has invalid type %u! Skipping.", id, type);
+            //TC_LOG_ERROR("sql.sql", "Quest Objective %u has invalid type %u! Skipping.", id, type);
             continue;
         }
 
@@ -9173,13 +9173,13 @@ void ObjectMgr::LoadQuestObjectives()
             {
                 if (!GetCreatureTemplate(objectId))
                 {
-                    TC_LOG_ERROR("sql.sql", "Quest Objective %u has non existant Creature Id %u! Skipping.", id, objectId);
+                    //TC_LOG_ERROR("sql.sql", "Quest Objective %u has non existant Creature Id %u! Skipping.", id, objectId);
                     continue;
                 }
 
                 if (amount <= 0)
                 {
-                    TC_LOG_ERROR("sql.sql", "Quest Objective %u has valid Creature Id %u but amount %u is invalid! Skipping.", id, objectId, amount);
+                    //TC_LOG_ERROR("sql.sql", "Quest Objective %u has valid Creature Id %u but amount %u is invalid! Skipping.", id, objectId, amount);
                     continue;
                 }
 
@@ -9189,13 +9189,13 @@ void ObjectMgr::LoadQuestObjectives()
             {
                 if (!GetItemTemplate(objectId))
                 {
-                    TC_LOG_ERROR("sql.sql", "Quest Objective %u has non existant Item Id %u! Skipping.", id, objectId);
+                    //TC_LOG_ERROR("sql.sql", "Quest Objective %u has non existant Item Id %u! Skipping.", id, objectId);
                     continue;
                 }
 
                 if (amount <= 0)
                 {
-                    TC_LOG_ERROR("sql.sql", "Quest Objective %u has valid Item Id %u but amount %u is invalid! Skipping.", id, objectId, amount);
+                    //TC_LOG_ERROR("sql.sql", "Quest Objective %u has valid Item Id %u but amount %u is invalid! Skipping.", id, objectId, amount);
                     continue;
                 }
 
@@ -9205,13 +9205,13 @@ void ObjectMgr::LoadQuestObjectives()
             {
                 if (!GetGameObjectTemplate(objectId))
                 {
-                    TC_LOG_ERROR("sql.sql", "Quest Objective %u has non existant GameObject Id %u! Skipping.", id, objectId);
+                    //TC_LOG_ERROR("sql.sql", "Quest Objective %u has non existant GameObject Id %u! Skipping.", id, objectId);
                     continue;
                 }
 
                 if (amount <= 0)
                 {
-                    TC_LOG_ERROR("sql.sql", "Quest Objective %u has valid GameObject Id %u but amount %u is invalid! Skipping.", id, objectId, amount);
+                    //TC_LOG_ERROR("sql.sql", "Quest Objective %u has valid GameObject Id %u but amount %u is invalid! Skipping.", id, objectId, amount);
                     continue;
                 }
 
@@ -9221,7 +9221,7 @@ void ObjectMgr::LoadQuestObjectives()
             {
                 if (!sCurrencyTypesStore.LookupEntry(objectId))
                 {
-                    TC_LOG_ERROR("sql.sql", "Quest Objective %u has non existant Currency Id %u! Skipping.", id, objectId);
+                    //TC_LOG_ERROR("sql.sql", "Quest Objective %u has non existant Currency Id %u! Skipping.", id, objectId);
                     continue;
                 }
 
@@ -9232,19 +9232,19 @@ void ObjectMgr::LoadQuestObjectives()
                 SpellInfo const* spell = sSpellMgr->GetSpellInfo(objectId);
                 if (!spell)
                 {
-                    TC_LOG_ERROR("sql.sql", "Quest Objective %u has non existant Spell Id %u! Skipping.", id, objectId);
+                    //TC_LOG_ERROR("sql.sql", "Quest Objective %u has non existant Spell Id %u! Skipping.", id, objectId);
                     continue;
                 }
 
                 else if (!SpellMgr::IsSpellValid(spell))
                 {
-                    TC_LOG_ERROR("sql.sql", "Quest Objective %u has invalid Spell Id %u! Skipping.", id, objectId);
+                    //TC_LOG_ERROR("sql.sql", "Quest Objective %u has invalid Spell Id %u! Skipping.", id, objectId);
                     continue;
                 }
 
                 if (amount <= 0)
                 {
-                    TC_LOG_ERROR("sql.sql", "Quest Objective %u has valid Spell Id %u but amount %u is invalid! Skipping.", id, objectId, amount);
+                    //TC_LOG_ERROR("sql.sql", "Quest Objective %u has valid Spell Id %u but amount %u is invalid! Skipping.", id, objectId, amount);
                     continue;
                 }
 
@@ -9255,7 +9255,7 @@ void ObjectMgr::LoadQuestObjectives()
             {
                 if (!sFactionStore.LookupEntry(objectId))
                 {
-                    TC_LOG_ERROR("sql.sql", "Quest Objective %u has non existant Faction Id %u! Skipping.", id, objectId);
+                    //TC_LOG_ERROR("sql.sql", "Quest Objective %u has non existant Faction Id %u! Skipping.", id, objectId);
                     continue;
                 }
 
@@ -9265,7 +9265,7 @@ void ObjectMgr::LoadQuestObjectives()
             {
                 if (quest->GetQuestObjectiveCountType(type) >= 1)
                 {
-                    TC_LOG_ERROR("sql.sql", "Quest Objective %u is invalid, Quest %u already has the max amount of Quest Objective type %u! Skipping.", id, questId, type);
+                    //TC_LOG_ERROR("sql.sql", "Quest Objective %u is invalid, Quest %u already has the max amount of Quest Objective type %u! Skipping.", id, questId, type);
                     continue;
                 }
 
@@ -9275,19 +9275,19 @@ void ObjectMgr::LoadQuestObjectives()
             {
                 if (!sBattlePetSpeciesStore.HasRecord(objectId))
                 {
-                    TC_LOG_ERROR("sql.sql", "Quest Objective %u has non existant Battle Pet Species %u! Skipping.", id, objectId);
+                    //TC_LOG_ERROR("sql.sql", "Quest Objective %u has non existant Battle Pet Species %u! Skipping.", id, objectId);
                     continue;
                 }
 
                 if (!BattlePetSpeciesHasFlag(objectId, BATTLE_PET_FLAG_ELITE))
                 {
-                    TC_LOG_ERROR("sql.sql", "Quest Objective %u has invalid Battle Pet Species %u, it doesn't have BATTLE_PET_FLAG_ELITE flag! Skipping.", id, objectId);
+                    //TC_LOG_ERROR("sql.sql", "Quest Objective %u has invalid Battle Pet Species %u, it doesn't have BATTLE_PET_FLAG_ELITE flag! Skipping.", id, objectId);
                     continue;
                 }
 
                 if (amount <= 0)
                 {
-                    TC_LOG_ERROR("sql.sql", "Quest Objective %u has valid Item Id %u but amount %u is invalid! Skipping.", id, objectId, amount);
+                    //TC_LOG_ERROR("sql.sql", "Quest Objective %u has valid Item Id %u but amount %u is invalid! Skipping.", id, objectId, amount);
                     continue;
                 }
 
@@ -9297,13 +9297,13 @@ void ObjectMgr::LoadQuestObjectives()
             {
                 if (quest->GetQuestObjectiveCountType(type) >= 1)
                 {
-                    TC_LOG_ERROR("sql.sql", "Quest Objective %u is invalid, Quest %u already has the max amount of Quest Objective type %u! Skipping.", id, questId, type);
+                    //TC_LOG_ERROR("sql.sql", "Quest Objective %u is invalid, Quest %u already has the max amount of Quest Objective type %u! Skipping.", id, questId, type);
                     continue;
                 }
 
                 if (amount <= 0)
                 {
-                    TC_LOG_ERROR("sql.sql", "Quest Objective %u has invalid Pet Battle PvP win amount %u! Skipping.", id, objectId, amount);
+                    //TC_LOG_ERROR("sql.sql", "Quest Objective %u has invalid Pet Battle PvP win amount %u! Skipping.", id, objectId, amount);
                     continue;
                 }
 
@@ -9347,7 +9347,7 @@ void ObjectMgr::LoadQuestObjectiveVisualEffects()
 
         if (!QuestObjectiveExists(objectiveId))
         {
-            TC_LOG_ERROR("sql.sql", "Visual effect %u has non existant Quest Objective Id %u! Skipping.", visualEffect, objectiveId);
+            //TC_LOG_ERROR("sql.sql", "Visual effect %u has non existant Quest Objective Id %u! Skipping.", visualEffect, objectiveId);
             continue;
         }
 
