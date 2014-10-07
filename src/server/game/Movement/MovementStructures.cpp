@@ -5541,23 +5541,23 @@ MovementStatusElements const* GetMovementStatusElementsSequence(Opcodes opcode)
         //    return MovementUpdateSwimSpeed;
         //case SMSG_MOVE_UPDATE_WALK_SPEED:
         //    return MovementUpdateWalkSpeed;
-        //case SMSG_SPLINE_MOVE_SET_WALK_SPEED:
+        //case SMSG_MOVE_SPLINE_SET_WALK_SPEED:
         //    return SplineMoveSetWalkSpeed;
-        case SMSG_SPLINE_MOVE_SET_RUN_SPEED:
+        case SMSG_MOVE_SPLINE_SET_RUN_SPEED:
             return SplineMoveSetRunSpeed;
-        case SMSG_SPLINE_MOVE_SET_RUN_BACK_SPEED:
+        case SMSG_MOVE_SPLINE_SET_RUN_BACK_SPEED:
             return SplineMoveSetRunBackSpeed;
-        case SMSG_SPLINE_MOVE_SET_SWIM_SPEED:
+        case SMSG_MOVE_SPLINE_SET_SWIM_SPEED:
             return SplineMoveSetSwimSpeed;
-        //case SMSG_SPLINE_MOVE_SET_SWIM_BACK_SPEED:
+        //case SMSG_MOVE_SPLINE_SET_SWIM_BACK_SPEED:
         //    return SplineMoveSetSwimBackSpeed;
-        case SMSG_SPLINE_MOVE_SET_TURN_RATE:
+        case SMSG_MOVE_SPLINE_SET_TURN_RATE:
             return SplineMoveSetTurnRate;
-        case SMSG_SPLINE_MOVE_SET_FLIGHT_SPEED:
+        case SMSG_MOVE_SPLINE_SET_FLIGHT_SPEED:
             return SplineMoveSetFlightSpeed;
-        case SMSG_SPLINE_MOVE_SET_FLIGHT_BACK_SPEED:
+        case SMSG_MOVE_SPLINE_SET_FLIGHT_BACK_SPEED:
             return SplineMoveSetFlightBackSpeed;
-        case SMSG_SPLINE_MOVE_SET_PITCH_RATE:
+        case SMSG_MOVE_SPLINE_SET_PITCH_RATE:
             return SplineMoveSetPitchRate;
         case SMSG_MOVE_SET_WALK_SPEED:
             return MoveSetWalkSpeed;
@@ -5577,37 +5577,37 @@ MovementStatusElements const* GetMovementStatusElementsSequence(Opcodes opcode)
         //    return MoveSetFlightBackSpeed;
         //case SMSG_MOVE_SET_PITCH_RATE:
         //    return MoveSetPitchRate;
-        //case SMSG_SPLINE_MOVE_SET_WALK_MODE:
+        //case SMSG_MOVE_SPLINE_SET_WALK_MODE:
         //    return SplineMoveSetWalkMode;
-        case SMSG_SPLINE_MOVE_SET_RUN_MODE:
+        case SMSG_MOVE_SPLINE_SET_RUN_MODE:
             return SplineMoveSetRunMode;
-        //case SMSG_SPLINE_MOVE_GRAVITY_DISABLE:
+        //case SMSG_MOVE_SPLINE_GRAVITY_DISABLE:
         //    return SplineMoveGravityDisable;
-        //case SMSG_SPLINE_MOVE_GRAVITY_ENABLE:
+        //case SMSG_MOVE_SPLINE_GRAVITY_ENABLE:
         //    return SplineMoveGravityEnable;
-        case SMSG_SPLINE_MOVE_SET_HOVER:
+        case SMSG_MOVE_SPLINE_SET_HOVER:
             return SplineMoveSetHover;
-        case SMSG_SPLINE_MOVE_UNSET_HOVER:
+        case SMSG_MOVE_SPLINE_UNSET_HOVER:
             return SplineMoveUnsetHover;
-        case SMSG_SPLINE_MOVE_START_SWIM:
+        case SMSG_MOVE_SPLINE_START_SWIM:
             return SplineMoveStartSwim;
-        case SMSG_SPLINE_MOVE_STOP_SWIM:
+        case SMSG_MOVE_SPLINE_STOP_SWIM:
             return SplineMoveStopSwim;
-        case SMSG_SPLINE_MOVE_SET_FLYING:
+        case SMSG_MOVE_SPLINE_SET_FLYING:
             return SplineMoveSetFlying;
-        case SMSG_SPLINE_MOVE_UNSET_FLYING:
+        case SMSG_MOVE_SPLINE_UNSET_FLYING:
             return SplineMoveUnsetFlying;
-        case SMSG_SPLINE_MOVE_SET_WATER_WALK:
+        case SMSG_MOVE_SPLINE_SET_WATER_WALK:
             return SplineMoveSetWaterWalk;
-        case SMSG_SPLINE_MOVE_SET_LAND_WALK:
+        case SMSG_MOVE_SPLINE_SET_LAND_WALK:
             return SplineMoveSetLandWalk;
-        case SMSG_SPLINE_MOVE_SET_FEATHER_FALL:
+        case SMSG_MOVE_SPLINE_SET_FEATHER_FALL:
             return SplineMoveSetFeatherFall;
-        case SMSG_SPLINE_MOVE_SET_NORMAL_FALL:
+        case SMSG_MOVE_SPLINE_SET_NORMAL_FALL:
             return SplineMoveSetNormalFall;
-        //case SMSG_SPLINE_MOVE_ROOT:
+        //case SMSG_MOVE_SPLINE_ROOT:
         //    return SplineMoveRoot;
-        case SMSG_SPLINE_MOVE_UNROOT:
+        case SMSG_MOVE_SPLINE_UNROOT:
             return SplineMoveUnroot;
         case SMSG_MOVE_GRAVITY_DISABLE:
             return MoveGravityDisable;
