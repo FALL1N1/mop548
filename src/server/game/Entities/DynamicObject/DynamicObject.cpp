@@ -98,10 +98,16 @@ bool DynamicObject::CreateDynamicObject(uint32 guidlow, Unit* caster, SpellInfo 
     SetEntry(spell->Id);
     SetObjectScale(1);
     SetUInt64Value(DYNAMICOBJECT_FIELD_CASTER, caster->GetGUID());
-    SetUInt32Value(DYNAMICOBJECT_FIELD_TYPE_AND_VISUAL_ID, spell->SpellVisual[0] | (type << 28));
     SetUInt32Value(DYNAMICOBJECT_FIELD_SPELL_ID, spell->Id);
     SetFloatValue(DYNAMICOBJECT_FIELD_RADIUS, radius);
     SetUInt32Value(DYNAMICOBJECT_FIELD_CAST_TIME, getMSTime());
+
+    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spell->Id);
+    if (spellInfo)
+    {
+        uint32 visual = spellInfo->SpellVisual[0] ? spellInfo->SpellVisual[0] : spellInfo->SpellVisual[1];
+        SetUInt32Value(DYNAMICOBJECT_FIELD_TYPE_AND_VISUAL_ID, 0x10000000 | visual);
+    }
 
     if (IsWorldObject())
         setActive(true);    //must before add to map to be put in world container
