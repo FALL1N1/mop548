@@ -330,12 +330,9 @@ void WorldSession::HandlePetActionHelper(Unit* pet, uint64 guid1, uint32 spellid
                 case REACT_DEFENSIVE:                       //recovery
                 case REACT_AGGRESSIVE:                      //activete
                 case REACT_ASSIST:                          //assist
-                    printf("Now we are checking for it to bee something in REACT\n");
                     if (pet->GetTypeId() == TYPEID_UNIT)
                     {
-                        printf("Its a TYPID_UNIT !! \n");
                         pet->ToCreature()->SetReactState(ReactStates(spellid));
-                    
                     }
                     break;
             }
