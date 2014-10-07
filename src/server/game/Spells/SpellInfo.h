@@ -534,6 +534,7 @@ public:
     bool _IsPositiveSpell() const;
     static bool _IsPositiveTarget(uint32 targetA, uint32 targetB);
     bool CanTriggerHotStreak() const;
+    bool IsCustomCheckedForHolyPower() const;
 
     // unloading helpers
     void _UnloadImplicitTargetConditionLists();

@@ -2984,3 +2984,22 @@ bool SpellInfo::CanTriggerHotStreak() const
     }
     return false;
 }
+
+bool SpellInfo::IsCustomCheckedForHolyPower() const
+{
+    switch (Id)
+    {
+        case 879:   // Exorcism
+        case 24275: // Hammer of Wrath
+        case 25912: // Holy Shock damage
+        case 25914: // Holy Shock heal
+        case 35395: // Crusader Strike
+        case 42292: // Pvp Trinket
+        case 59752: // Every Man for Himself (racical)
+        case 82327: // Holy Radiance
+            return false;
+        default:
+            break;
+    }
+    return true;
+}

@@ -10005,7 +10005,7 @@ bool Unit::IsImmunedToDamage(SpellInfo const* spellInfo) const
         return false;
 
     uint32 shoolMask = spellInfo->GetSchoolMask();
-    if (spellInfo->Id != 42292 && spellInfo->Id != 59752)
+    if (spellInfo->IsCustomCheckedForHolyPower())
     {
         // If m_immuneToSchool type contain this school type, IMMUNE damage.
         SpellImmuneList const& schoolList = m_spellImmune[IMMUNITY_SCHOOL];
@@ -10071,7 +10071,7 @@ bool Unit::IsImmunedToSpell(SpellInfo const* spellInfo) const
     if (immuneToAllEffects) //Return immune only if the target is immune to all spell effects.
         return true;
 
-    if (spellInfo->Id != 42292 && spellInfo->Id != 59752)
+    if (spellInfo->IsCustomCheckedForHolyPower())
     {
         SpellImmuneList const& schoolList = m_spellImmune[IMMUNITY_SCHOOL];
         for (SpellImmuneList::const_iterator itr = schoolList.begin(); itr != schoolList.end(); ++itr)
@@ -10185,41 +10185,6 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
 
     // Done total percent damage auras
     float DoneTotalMod = 1.0f;
-       
-    // 77514 - Mastery : Frozen Heart
-    if (GetTypeId() == TYPEID_PLAYER && victim && pdamage != 0 && spellProto && spellProto->SchoolMask == SPELL_SCHOOL_MASK_FROST)
-    {
-        if (HasAura(77514))
-        {
-            float Mastery = ToPlayer()->GetMasterySpellCoefficient();
-            AddPct(DoneTotalMod, Mastery);
-        }
-    }
-
-    // 77515 - Mastery : Dreadblade
-    if (GetTypeId() == TYPEID_PLAYER && victim && pdamage != 0 && spellProto && spellProto->SchoolMask == SPELL_SCHOOL_MASK_SHADOW)
-    {
-        if (HasAura(77515))
-        {
-            float Mastery = ToPlayer()->GetMasterySpellCoefficient();
-            AddPct(DoneTotalMod, Mastery);
-        }
-    }
-
-    // Sword of Light - 53503
-    if (pdamage > 0 && GetTypeId() == TYPEID_PLAYER && HasAura(53503) && ToPlayer()->IsTwoHandUsed() && attType == BASE_ATTACK)
-        AddPct(DoneTotalMod, 10);
-
-    // 76838 - Mastery : Strikes of Opportunity
-    if (GetTypeId() == TYPEID_PLAYER && victim && pdamage != 0 && (attType == BASE_ATTACK || attType == OFF_ATTACK) && !spellProto)
-    {
-        if (HasAura(76838))
-        {
-            float Mastery = ToPlayer()->GetMasterySpellCoefficient();
-            if (roll_chance_f(Mastery))
-                this->CastSpell(victim, 76858, true);
-        }
-    }
 
     // 77219 - Mastery : Master Demonologist
     // Bonus damage while using Metamorphosis
@@ -10245,11 +10210,48 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
         }
     }
 
-    // Apply Power PvP damage bonus - works in all scenarios and only on players and their minions/pets
-    if (pdamage > 0 && GetTypeId() == TYPEID_PLAYER && (victim->GetTypeId() == TYPEID_PLAYER || (victim->IsPet() && victim->GetOwner() && victim->GetOwner()->GetTypeId() == TYPEID_PLAYER)))
+    switch (GetTypeId())
     {
-        float PvPPower = ToPlayer()->GetRatingBonusValue(CR_PVP_POWER);
-        AddPct(DoneTotalMod, PvPPower);
+        case TYPEID_PLAYER:
+        {
+            // Seasoned Soldier
+            if (HasAura(12712))
+                if (ToPlayer() && ToPlayer()->IsTwoHandUsed())
+                    AddPct(DoneTotalMod, 25);
+            
+            // Sword of Light
+            if (pdamage > 0 && HasAura(53503) && ToPlayer()->IsTwoHandUsed() && attType == BASE_ATTACK)
+                AddPct(DoneTotalMod, 30);
+        
+            // Apply Power PvP damage bonus - works in all scenarios and only on players and their minions/pets
+            if (pdamage > 0 && (victim->GetTypeId() == TYPEID_PLAYER || (victim->IsPet() && victim->GetOwner() && victim->GetOwner()->GetTypeId() == TYPEID_PLAYER)))
+            {
+                float PvPPower = ToPlayer()->GetRatingBonusValue(CR_PVP_POWER);
+                AddPct(DoneTotalMod, PvPPower);
+            }
+
+            // Mastery : Frozen Heart // Mastery : Dreadblade
+            if (victim && pdamage != 0 && spellProto &&
+                (spellProto->SchoolMask == SPELL_SCHOOL_MASK_FROST && HasAura(77514)) || (spellProto->SchoolMask == SPELL_SCHOOL_MASK_SHADOW && HasAura(77515)))
+            {
+                float Mastery = ToPlayer()->GetMasterySpellCoefficient();
+                AddPct(DoneTotalMod, Mastery);
+            }
+
+            // Mastery : Strikes of Opportunity
+            if (victim && pdamage != 0 && (attType == BASE_ATTACK || attType == OFF_ATTACK) && !spellProto)
+            {
+                if (HasAura(76838))
+                {
+                    float Mastery = ToPlayer()->GetMasterySpellCoefficient();
+                    if (roll_chance_f(Mastery))
+                        this->CastSpell(victim, 76858, true);
+                }
+            }
+
+        }
+        default:
+            break;
     }
 
     // Some spells don't benefit from pct done mods
