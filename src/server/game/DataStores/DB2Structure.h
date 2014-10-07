@@ -164,8 +164,8 @@ struct RulesetItemUpgradeEntry
 {
     uint32 ID;                                              // 0
     //uint32 Unk1;                                          // 1
-    //uint32 UpgradeID;                                     // 2
-    //uint32 ItemEntry;                                     // 3
+    uint32 UpgradeID;                                       // 2
+    uint32 ItemEntry;                                       // 3
 };
 
 struct RulesetRaidLootUpgradeEntry

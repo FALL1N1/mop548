@@ -1956,3 +1956,88 @@ void WorldSession::HandleReforgeItemOpcode(WorldPacket& recvData)
     if (item->IsEquipped())
         player->ApplyReforgeEnchantment(item, true);
 }
+
+void WorldSession::HandleUpgradeItem(WorldPacket& recvData)
+{
+    TC_LOG_DEBUG("network", "WORLD: CMSG_UPGRADE_ITEM");
+
+    uint32 ItemPos, Bag, ItemUpgradeId;
+
+    ObjectGuid guid, guid2;
+    Player* player = GetPlayer();
+
+    recvData >> ItemPos >> Bag >> ItemUpgradeId;
+
+    guid2[5] = recvData.ReadBit();
+    guid[6] = recvData.ReadBit();
+    guid2[6] = recvData.ReadBit();
+    guid2[0] = recvData.ReadBit();
+    guid2[1] = recvData.ReadBit();
+    guid[4] = recvData.ReadBit();
+    guid[1] = recvData.ReadBit();
+    guid[7] = recvData.ReadBit();
+    guid2[7] = recvData.ReadBit();
+    guid2[2] = recvData.ReadBit();
+    guid2[3] = recvData.ReadBit();
+    guid[0] = recvData.ReadBit();
+    guid[2] = recvData.ReadBit();
+    guid[5] = recvData.ReadBit();
+    guid2[4] = recvData.ReadBit();
+    guid[3] = recvData.ReadBit();
+
+    recvData.ReadByteSeq(guid2[7]);
+    recvData.ReadByteSeq(guid[6]);
+    recvData.ReadByteSeq(guid2[6]);
+    recvData.ReadByteSeq(guid[3]);
+    recvData.ReadByteSeq(guid[2]);
+    recvData.ReadByteSeq(guid2[5]);
+    recvData.ReadByteSeq(guid[1]);
+    recvData.ReadByteSeq(guid2[1]);
+    recvData.ReadByteSeq(guid[0]);
+    recvData.ReadByteSeq(guid2[2]);
+    recvData.ReadByteSeq(guid2[0]);
+    recvData.ReadByteSeq(guid[4]);
+    recvData.ReadByteSeq(guid[5]);
+    recvData.ReadByteSeq(guid2[3]);
+    recvData.ReadByteSeq(guid[7]);
+    recvData.ReadByteSeq(guid2[4]);
+
+    TC_LOG_DEBUG("network", "WORLD: HandleUpgradeItem ItemPos: %u, Bag: %u, ItemUpgradeId: %u", ItemPos, Bag, ItemUpgradeId);
+
+    Item* item = player->GetItemByPos(Bag, ItemPos);
+    if (!item)
+    {
+        TC_LOG_INFO("network", "WORLD: HandleUpgradeItem - Player (Guid: %u Name: %s) tried to upgrade an invalid/non-existant item.", player->GetGUIDLow(), player->GetName().c_str());
+        SendItemUpgradeResult(false);
+        return;
+    }
+
+    if (!ItemUpgradeId)
+    {
+        item->SetDynamicUInt32Value(ITEM_DYNAMIC_FIELD_MODIFIERS, 0, 0);
+
+        if (!item->GetDynamicUInt32Value(ITEM_DYNAMIC_FIELD_MODIFIERS, 3))
+            item->SetFlag(ITEM_FIELD_MODIFIERS_MASK, 0);
+
+        item->SetState(ITEM_CHANGED, player);
+        return;
+    }
+
+    item->SetDynamicUInt32Value(ITEM_DYNAMIC_FIELD_MODIFIERS, 0, ItemUpgradeId);
+    item->SetFlag(ITEM_FIELD_MODIFIERS_MASK, 3);
+    item->SetState(ITEM_CHANGED, player);
+
+    SendItemUpgradeResult(true);
+
+    //if (item->IsEquipped())
+    //    player->ApplyUpgradeEnchantment(item, ItemUpgradeId);
+}
+
+void WorldSession::SendItemUpgradeResult(uint32 result)
+{
+    TC_LOG_DEBUG("network", "WORLD: SMSG_ITEM_UPGRADE_RESULT");
+
+    WorldPacket data(SMSG_ITEM_UPGRADE_RESULT, 4);
+    data << uint32(result);
+    SendPacket(&data);
+}
