@@ -41,44 +41,68 @@ struct TempSummonData
 enum EPetEntries
 {
     // Warlock
-    PET_ENTRY_INFERNAL = 89,
-    PET_ENTRY_IMP = 416,
-    PET_ENTRY_VOIDWALKER = 1860,
-    PET_ENTRY_SUCCUBUS = 1863,
-    PET_ENTRY_FELHUNTER = 417,
-    PET_ENTRY_FELGUARD = 17252,
-    PET_ENTRY_FEL_IMP = 58959,
-    PET_ENTRY_VOIDLORD = 58960,
-    PET_ENTRY_SHIVARRA = 58963,
-    PET_ENTRY_OBSERVER = 58964,
-    PET_ENTRY_WRATHGUARD = 58965,
+    PET_ENTRY_INFERNAL                              = 89,
+    PET_ENTRY_IMP                                   = 416,
+    PET_ENTRY_VOIDWALKER                            = 1860,
+    PET_ENTRY_SUCCUBUS                              = 1863,
+    PET_ENTRY_FELHUNTER                             = 417,
+    PET_ENTRY_FELGUARD                              = 17252,
+    PET_ENTRY_FEL_IMP                               = 58959,
+    PET_ENTRY_VOIDLORD                              = 58960,
+    PET_ENTRY_SHIVARRA                              = 58963,
+    PET_ENTRY_OBSERVER                              = 58964,
+    PET_ENTRY_WRATHGUARD                            = 58965,
+    PET_ENTRY_WILD_IMP                              = 55659,
 
     // Mage
-    PET_ENTRY_WATER_ELEMENTAL = 510,
-    PET_ENTRY_MIRROR_IMAGE = 31216,
+    PET_ENTRY_WATER_ELEMENTAL                       = 510,
+    PET_ENTRY_MIRROR_IMAGE                          = 31216,
 
     // Druid
-    PET_ENTRY_TREANT_GUARDIAN = 54985,
-    PET_ENTRY_TREANT_FERAL = 54984,
-    PET_ENTRY_TREANT_RESTO = 54983,
-    PET_ENTRY_TREANT_BALANCE = 1964,
+    PET_ENTRY_TREANT_GUARDIAN                       = 54985,
+    PET_ENTRY_TREANT_FERAL                          = 54984,
+    PET_ENTRY_TREANT_RESTO                          = 54983,
+    PET_ENTRY_TREANT_BALANCE                        = 1964,
 
     // Shaman
-    PET_ENTRY_FIRE_ELEMENTAL = 15438,
-    PET_ENTRY_FERAL_SPIRIT = 29264,
-    PET_ENTRY_EARTH_ELEMENTAL = 15352,
+    PET_ENTRY_FIRE_ELEMENTAL                        = 15438,
+    PET_ENTRY_FERAL_SPIRIT                          = 29264,
+    PET_ENTRY_EARTH_ELEMENTAL                       = 15352,
+    PET_ENTRY_HEALING_TIDE_TOTEM                    = 59764,
 
     // Death Knight
-    PET_ENTRY_GHOUL = 26125,
-    PET_ENTRY_BLOODWORM = 28017,
-    PET_ENTRY_GARGOYLE = 27829,
+    PET_ENTRY_GHOUL                                 = 26125,
+    PET_ENTRY_BLOODWORM                             = 28017,
+    PET_ENTRY_GARGOYLE                              = 27829,
 
     // Priest 
-    PET_ENTRY_SHADOWFIEND = 19668,
+    PET_ENTRY_SHADOWFIEND                           = 19668,
+    PET_ENTRY_MINDBENDER                            = 62982,
+    PET_ENTRY_MINDBENDER_SHA                        = 67236,
+    PET_ENTRY_SHADOWY_APPARITION                    = 61966,
 
     // Hunter
-    PET_ENTRY_VENOMOUS_SNAKE = 19833,
-    PET_ENTRY_VIPER = 19921,
+    PET_ENTRY_VENOMOUS_SNAKE                        = 19833,
+    PET_ENTRY_VIPER                                 = 19921,
+    PET_ENTRY_MURDER_OF_CROWS                       = 61994,
+    PET_ENTRY_DIRE_BEAST_DUNGEONS                   = 62005,
+    PET_ENTRY_DIRE_BEAST_VALLEY_OF_THE_FW           = 62210,
+    PET_ENTRY_DIRE_BEAST_KALIMDOR                   = 62855,
+    PET_ENTRY_DIRE_BEAST_ESTERN_KINGDOMS            = 62856,
+    PET_ENTRY_DIRE_BEAST_OUTLAND                    = 62857,
+    PET_ENTRY_DIRE_BEAST_NORTHREND                  = 62858,
+    PET_ENTRY_DIRE_BEAST_KRASARANG_WILDS            = 62860,
+    PET_ENTRY_DIRE_BEAST_JADE_FOREST                = 62865,
+    PET_ENTRY_DIRE_BEAST_VALE_OF_ETERNAL_BLOSSOMS   = 64617,
+    PET_ENTRY_DIRE_BEAST_KUNLAI_SUMMIT              = 64618,
+    PET_ENTRY_DIRE_BEAST_TOWNLONG_STEPPES           = 64619,
+    PET_ENTRY_DIRE_BEAST_DREAD_WASTES               = 64620,
+
+    // Paladin
+    PET_ENTRY_GUARDIAN_OF_ANCIENT_KINGS             = 46506,
+
+    // Monk
+    PET_ENTRY_XUEN_THE_WHITE_TIGER                  = 63508,
 };
 
 class TempSummon : public Creature
