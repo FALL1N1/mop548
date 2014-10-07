@@ -23,15 +23,15 @@
 
 void WorldSession::HandleOnlineShopQueryOpcode(WorldPacket& recvData)
 {
-    TC_LOG_DEBUG("network", "WORLD: Received CMSG_ONLINE_SHOP_QUERY");
+    TC_LOG_DEBUG("network", "WORLD: Received CMSG_BATTLE_PAY_GET_PRODUCT_LIST");
 
     SendOnlineShopQueryResult();
 }
 
 void WorldSession::SendOnlineShopQueryResult()
 {
-    TC_LOG_DEBUG("network", "WORLD: Received SMSG_ONLINE_SHOP_QUERY_RESULT");
+    TC_LOG_DEBUG("network", "WORLD: Received SMSG_BATTLE_PAY_GET_PRODUCT_LIST_RESPONSE");
 
-    WorldPacket data(SMSG_ONLINE_SHOP_QUERY_RESULT);
+    WorldPacket data(SMSG_BATTLE_PAY_GET_PRODUCT_LIST_RESPONSE);
 
 }
