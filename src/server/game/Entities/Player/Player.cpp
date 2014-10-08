@@ -24287,7 +24287,10 @@ inline void UpdateVisibilityOf_helper(std::set<uint64>& s64, GameObject* target,
     // But exclude stoppable elevators from this hack - they would be teleporting from one end to another
     // if affected transports move so far horizontally that it causes them to run out of visibility range then you are out of luck
     // fix visibility instead of adding hacks here
-    if (!target->IsDynTransport())
+    // if (!target->IsDynTransport())
+
+    // Temporary hack by Timeless Team - caused transports as ships in SOTA to dissapear during paths
+    if (!target->IsTransport())
         s64.insert(target->GetGUID());
 }
 
