@@ -19685,7 +19685,7 @@ void Player::_LoadQuestObjectiveStatus(PreparedQueryResult result)
 
             if (!sObjectMgr->QuestObjectiveExists(objectiveId))
             {
-                //TC_LOG_ERROR("entities.player", "Player %s (%u) has invalid Quest Objective Id %u in Quest Objective status data! Skipping.", GetName().c_str(), GetGUIDLow(), objectiveId);
+                TC_LOG_ERROR("entities.player", "Player %s (%u) has invalid Quest Objective Id %u in Quest Objective status data! Skipping.", GetName().c_str(), GetGUIDLow(), objectiveId);
                 continue;
             }
 
