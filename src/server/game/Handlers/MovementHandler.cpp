@@ -737,8 +737,8 @@ void WorldSession::HandleSetCollisionHeightAck(WorldPacket& recvPacket)
 {
     TC_LOG_DEBUG("network", "CMSG_MOVE_SET_COLLISION_HEIGHT_ACK");
 
-    static MovementStatusElements const heightElement = MSEExtraFloat;
-    Movement::ExtraMovementStatusElement extra(&heightElement);
+    static MovementStatusElements const heightElements[] = { MSEExtraInt32, MSEExtraFloat, MSEExtra2Bits };
+    Movement::ExtraMovementStatusElement extra(heightElements);
     MovementInfo movementInfo;
     GetPlayer()->ReadMovementInfo(recvPacket, &movementInfo, &extra);
 }

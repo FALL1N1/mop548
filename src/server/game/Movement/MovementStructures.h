@@ -112,7 +112,9 @@ enum MovementStatusElements
                         // Allowed internal elements are: GUID markers (not transport), MSEExtraFloat, MSEExtraInt8
     MSEExtraFloat,
     MSEExtraFloat2,
-    MSEExtraInt8
+    MSEExtraInt8,
+    MSEExtraInt32,
+    MSEExtra2Bits,
 };
 
 namespace Movement
@@ -135,6 +137,8 @@ namespace Movement
             float floatData;
             float floatData2;
             int8  byteData;
+            int32 extraInt32Data;
+            uint32 extra2BitsData;
         } Data;
 
     protected:

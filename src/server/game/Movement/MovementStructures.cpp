@@ -2820,77 +2820,82 @@ MovementStatusElements const MovementForceRunSpeedChangeAck[] =
 MovementStatusElements const MovementSetCollisionHeightAck[] =
 {
     MSEExtraElement,
-    MSEPositionX,
     MSEPositionZ,
-    MSECounter,
+    MSEExtraElement,
     MSEPositionY,
-    MSEHasGuidByte6,
-    MSEHasGuidByte4,
+    MSECounter,
+    MSEPositionX,
     MSEZeroBit,
-    MSEZeroBit,
-    MSEHasPitch,
+    MSEForcesCount,
+    MSEHasCounter,
+    MSEExtraElement,
     MSEHasGuidByte5,
-    MSEZeroBit,
-    MSEHasGuidByte2,
-    MSEHasGuidByte1,
-    MSEHasFallData,
-    MSEHasGuidByte3,
-    MSEHasSpline,
-    MSEHasGuidByte7,
-    MSEHasMovementFlags,
-    MSEHasTransportData,
     MSEHasTimestamp,
     MSEHasSplineElevation,
-    MSEHasMovementFlags2,
+    MSEHasGuidByte4,
+    MSEHasGuidByte6,
+    MSEHasGuidByte3,
+    MSEHasTransportData,
+    MSEHasFallData,
+    MSEHasPitch,
     MSEHasOrientation,
+    MSEHasMovementFlags,
+    MSEHasMovementFlags2,
     MSEHasGuidByte0,
-    MSEHasTransportGuidByte4,
-    MSEHasTransportGuidByte3,
-    MSEHasTransportTime2,
-    MSEHasTransportTime3,
-    MSEHasTransportGuidByte5,
-    MSEHasTransportGuidByte1,
-    MSEHasTransportGuidByte7,
-    MSEHasTransportGuidByte2,
-    MSEHasTransportGuidByte6,
+    MSEZeroBit,
+    MSEHasGuidByte1,
+    MSEZeroBit,
+    MSEHasGuidByte7,
+    MSEHasGuidByte2,
     MSEHasTransportGuidByte0,
-    MSEMovementFlags2,
+    MSEHasTransportGuidByte6,
+    MSEHasTransportGuidByte1,
+    MSEHasTransportGuidByte4,
+    MSEHasTransportGuidByte5,
+    MSEHasTransportGuidByte2,
+    MSEHasTransportGuidByte3,
+    MSEHasTransportTime3,
+    MSEHasTransportTime2,
+    MSEHasTransportGuidByte7,
     MSEMovementFlags,
     MSEHasFallDirection,
-    MSEGuidByte0,
-    MSEGuidByte3,
+    MSEMovementFlags2,
     MSEGuidByte1,
+    MSEGuidByte0,
+    MSECounter,
     MSEGuidByte5,
-    MSEGuidByte7,
-    MSEGuidByte6,
-    MSEGuidByte2,
     MSEGuidByte4,
-    MSETransportPositionX,
-    MSETransportGuidByte4,
-    MSETransportTime2,
-    MSETransportGuidByte0,
-    MSETransportOrientation,
+    MSEGuidByte3,
+    MSEGuidByte6,
+    MSEGuidByte7,
+    MSEGuidByte2,
+    MSETransportTime,
     MSETransportPositionY,
-    MSETransportGuidByte7,
+    MSETransportPositionX,
+    MSETransportGuidByte3,
     MSETransportSeat,
     MSETransportGuidByte5,
-    MSETransportGuidByte2,
-    MSETransportTime,
-    MSETransportGuidByte6,
-    MSETransportGuidByte3,
+    MSETransportOrientation,
     MSETransportGuidByte1,
+    MSETransportGuidByte4,
+    MSETransportGuidByte0,
+    MSETransportTime2,
     MSETransportTime3,
+    MSETransportGuidByte6,
+    MSETransportGuidByte7,
+    MSETransportGuidByte2,
     MSETransportPositionZ,
     MSEFallVerticalSpeed,
-    MSEFallTime,
-    MSEFallCosAngle,
     MSEFallSinAngle,
+    MSEFallCosAngle,
     MSEFallHorizontalSpeed,
-    MSETimestamp,
-    MSESplineElevation,
+    MSEFallTime,
     MSEOrientation,
     MSEPitch,
-    MSEEnd,
+    MSESplineElevation,
+    MSETimestamp,
+    MSECounter,
+    MSEEnd
 };
 
 MovementStatusElements const MovementForceFlightSpeedChangeAck[] =
@@ -5353,6 +5358,12 @@ void Movement::ExtraMovementStatusElement::ReadNextElement(ByteBuffer& packet)
         case MSEExtraInt8:
             packet >> Data.byteData;
             break;
+        case MSEExtraInt32:
+            packet >> Data.extraInt32Data;
+            break;
+        case MSEExtra2Bits:
+            Data.extra2BitsData = packet.ReadBits(2);
+            break;
         default:
             ASSERT(PrintInvalidSequenceElement(element, __FUNCTION__));
             break;
@@ -5541,8 +5552,8 @@ MovementStatusElements const* GetMovementStatusElementsSequence(Opcodes opcode)
         //    return MovementSetCanTransitionBetweenSwimAndFlyAck;
         case SMSG_MOVE_SET_COLLISION_HEIGHT:
             return MoveSetCollisionHeight;
-        //case CMSG_MOVE_SET_COLLISION_HEIGHT_ACK:
-        //    return MovementSetCollisionHeightAck;
+        case CMSG_MOVE_SET_COLLISION_HEIGHT_ACK:
+            return MovementSetCollisionHeightAck;
         //case SMSG_MOVE_UPDATE_COLLISION_HEIGHT:
         //    return MovementUpdateCollisionHeight;
         //case CMSG_MOVE_WATER_WALK_ACK:
