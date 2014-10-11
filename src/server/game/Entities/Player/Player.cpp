@@ -22216,6 +22216,24 @@ void Player::PossessSpellInitialize()
     GetSession()->SendPacket(&data);
 }
 
+void Player::SendPetMode(uint32 mode)
+{
+    Creature* vehicle = GetVehicleCreatureBase();
+    if (!vehicle)
+        return;
+    
+    WorldPacket data(SMSG_PET_MODE, 12);
+
+    ObjectGuid guid = vehicle->GetGUID();
+    uint8 bitOrder[8] = { 5, 0, 6, 3, 7, 2, 4, 1 };
+    data.WriteBitInOrder(guid, bitOrder);
+    data << uint32(mode);
+    uint8 byteOrder[8] = { 2, 5, 4, 0, 1, 7, 3, 6 };
+    data.WriteBytesSeq(guid, byteOrder);
+
+    GetSession()->SendPacket(&data);
+}
+
 void Player::VehicleSpellInitialize()
 {
     Creature* vehicle = GetVehicleCreatureBase();
@@ -22263,7 +22281,7 @@ void Player::VehicleSpellInitialize()
     }
 
     for (uint32 i = CREATURE_MAX_SPELLS; i < MAX_SPELL_CONTROL_BAR; ++i)
-        data << uint32(0);
+        data << uint32(MAKE_UNIT_ACTION_BUTTON(0, i + 8));
 
     time_t now = sWorld->GetGameTime();
     for (CreatureSpellCooldowns::const_iterator itr = vehicle->m_CreatureSpellCooldowns.begin(); itr != vehicle->m_CreatureSpellCooldowns.end(); ++itr)
@@ -22302,8 +22320,8 @@ void Player::VehicleSpellInitialize()
     data.WriteByteSeq(guid[7]);
     data.WriteByteSeq(guid[0]);
     data.WriteByteSeq(guid[3]);
-    data << uint8(vehicle->GetReactState()); // React State
-    data << uint8(0); // Command State
+    data << uint8(0);  // Specialization/React State? - found always 0 for vehicles
+    data << uint8(0);  // Command State
     data << uint16(0); // Pet Family, always 0 for vehicles
     data.WriteByteSeq(guid[1]);
     data.WriteByteSeq(guid[4]);
@@ -25983,11 +26001,11 @@ void Player::ResurectUsingRequestData()
     SpawnCorpseBones();
 }
 
-void Player::SetClientControl(Unit* target, uint8 allowMove)
+void Player::SetClientControl(Unit* target, bool allowMove)
 {
     ObjectGuid guid = target->GetGUID();
 
-    WorldPacket data(SMSG_CLIENT_CONTROL_UPDATE, 9 + 1);
+    WorldPacket data(SMSG_CLIENT_CONTROL_UPDATE, 9);
     data.WriteBit(guid[2]);
     data.WriteBit(guid[7]);
     data.WriteBit(allowMove);
@@ -26006,6 +26024,7 @@ void Player::SetClientControl(Unit* target, uint8 allowMove)
     data.WriteByteSeq(guid[6]);
     data.WriteByteSeq(guid[3]);
     data.WriteByteSeq(guid[0]);
+
     GetSession()->SendPacket(&data);
 
     if (target == this && allowMove == 1)
@@ -28856,6 +28875,9 @@ void Player::ReadMovementInfo(WorldPacket& data, MovementInfo* mi, Movement::Ext
                 break;
             case MSEHasCounter:
                 hasCounter = !data.ReadBit();
+                break;
+            case MSECount:
+                data.read_skip<uint32>();
                 break;
             case MSECounter:
                 if (hasCounter)

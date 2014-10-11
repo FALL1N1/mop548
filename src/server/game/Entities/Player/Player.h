@@ -1797,6 +1797,7 @@ class Player : public Unit, public GridObject<Player>
         void CharmSpellInitialize();
         void PossessSpellInitialize();
         void VehicleSpellInitialize();
+        void SendPetMode(uint32 mode);
         void SendRemoveControlBar();
         bool HasSpell(uint32 spell) const;
         bool HasActiveSpell(uint32 spell) const;            // show in spellbook
@@ -2378,7 +2379,7 @@ class Player : public Unit, public GridObject<Player>
 
         bool IsKnowHowFlyIn(uint32 mapid, uint32 zone) const;
 
-        void SetClientControl(Unit* target, uint8 allowMove);
+        void SetClientControl(Unit* target, bool allowMove);
 
         void SetMover(Unit* target);
 

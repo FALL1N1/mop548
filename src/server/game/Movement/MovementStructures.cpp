@@ -1869,81 +1869,81 @@ MovementStatusElements const MoveChngTransport[]=
 
 MovementStatusElements const MoveSplineDone[] =
 {
+    MSEExtraElement,
+    MSEPositionZ,
     MSEPositionY,
     MSEPositionX,
-    MSEPositionZ,
-    MSEHasGuidByte6,
-    MSEHasOrientation,
-    MSEHasFallData,
-    MSEHasTimestamp,
-    MSEHasGuidByte2,
+    MSEHasGuidByte7,
+    MSEHasMovementFlags2,
     MSEHasSplineElevation,
-    MSEHasGuidByte4,
-    MSEHasTransportData,
-    MSEHasGuidByte3,
     MSEHasMovementFlags,
+    MSEHasGuidByte3,
+    MSEZeroBit,
     MSEHasGuidByte0,
+    MSEHasPitch,
     MSEZeroBit,
     MSEHasGuidByte1,
+    MSEZeroBit,
+    MSEHasGuidByte2,
+    MSEHasCounter,
+    MSEHasGuidByte4,
+    MSEHasTransportData,
+    MSEHasGuidByte6,
     MSEHasGuidByte5,
-    MSEHasPitch,
-    MSEHasSpline,
-    MSEHasMovementFlags2,
-    MSEHasGuidByte7,
-
-    MSEHasTransportGuidByte1,
-    MSEHasTransportGuidByte7,
-    MSEHasTransportGuidByte5,
-    MSEHasTransportGuidByte3,
-    MSEHasTransportGuidByte4,
-    MSEHasTransportGuidByte6,
-    MSEHasTransportTime2,
+    MSEForcesCount,
+    MSEHasOrientation,
+    MSEHasTimestamp,
+    MSEHasFallData,
     MSEHasTransportGuidByte2,
     MSEHasTransportTime3,
+    MSEHasTransportTime2,
+    MSEHasTransportGuidByte1,
+    MSEHasTransportGuidByte4,
+    MSEHasTransportGuidByte3,
+    MSEHasTransportGuidByte7,
+    MSEHasTransportGuidByte5,
     MSEHasTransportGuidByte0,
-
-    MSEHasFallDirection,
+    MSEHasTransportGuidByte6,
     MSEMovementFlags2,
     MSEMovementFlags,
+    MSEHasFallDirection,
 
+    MSEGuidByte6,
+    MSEForces,
+    MSEGuidByte1,
+    MSEGuidByte5,
+    MSEGuidByte0,
     MSEGuidByte7,
     MSEGuidByte4,
-    MSEGuidByte5,
-    MSEGuidByte6,
-    MSEGuidByte0,
-    MSEGuidByte1,
     MSEGuidByte2,
     MSEGuidByte3,
-
-    MSEFallVerticalSpeed,
-    MSEFallCosAngle,
-    MSEFallSinAngle,
-    MSEFallHorizontalSpeed,
-    MSEFallTime,
-
-    MSEPitch,
-    MSEOrientation,
-
-    MSETransportGuidByte1,
-    MSETransportTime3,
-    MSETransportGuidByte7,
-    MSETransportTime,
-    MSETransportPositionY,
-    MSETransportPositionX,
-    MSETransportPositionZ,
-    MSETransportSeat,
-    MSETransportOrientation,
-    MSETransportGuidByte0,
-    MSETransportTime2,
-    MSETransportGuidByte2,
-    MSETransportGuidByte3,
-    MSETransportGuidByte5,
-    MSETransportGuidByte6,
-    MSETransportGuidByte4,
-
-    MSETimestamp,
     MSESplineElevation,
-    MSEEnd,
+    MSETransportGuidByte3,
+    MSETransportOrientation,
+    MSETransportGuidByte2,
+    MSETransportGuidByte5,
+    MSETransportGuidByte1,
+    MSETransportPositionX,
+    MSETransportGuidByte6,
+    MSETransportSeat,
+    MSETransportTime3,
+    MSETransportGuidByte4,
+    MSETransportGuidByte7,
+    MSETransportGuidByte0,
+    MSETransportPositionY,
+    MSETransportTime2,
+    MSETransportPositionZ,
+    MSETransportTime,
+    MSEFallSinAngle,
+    MSEFallCosAngle,
+    MSEFallHorizontalSpeed,
+    MSEFallVerticalSpeed,
+    MSEFallTime,
+    MSECounter,
+    MSEOrientation,
+    MSETimestamp,
+    MSEPitch,
+    MSEEnd
 };
 
 MovementStatusElements const MoveNotActiveMover[] =
@@ -2823,7 +2823,7 @@ MovementStatusElements const MovementSetCollisionHeightAck[] =
     MSEPositionZ,
     MSEExtraElement,
     MSEPositionY,
-    MSECounter,
+    MSECount,
     MSEPositionX,
     MSEZeroBit,
     MSEForcesCount,
@@ -2860,9 +2860,10 @@ MovementStatusElements const MovementSetCollisionHeightAck[] =
     MSEMovementFlags,
     MSEHasFallDirection,
     MSEMovementFlags2,
+
     MSEGuidByte1,
     MSEGuidByte0,
-    MSECounter,
+    MSEForces,
     MSEGuidByte5,
     MSEGuidByte4,
     MSEGuidByte3,
@@ -5084,7 +5085,7 @@ MovementStatusElements const MoveFeatherFall[] = // 5.4.8 18414
     MSEHasGuidByte5,
     MSEHasGuidByte2,
     MSEHasGuidByte6,
-    MSECounter,
+    MSECount,
     MSEGuidByte1,
     MSEGuidByte0,
     MSEGuidByte5,
@@ -5405,6 +5406,12 @@ void Movement::ExtraMovementStatusElement::WriteNextElement(ByteBuffer& packet)
         case MSEExtraInt8:
             packet << Data.byteData;
             break;
+        case MSEExtraInt32:
+            packet << Data.extraInt32Data;
+            break;
+        case MSEExtra2Bits:
+            packet.WriteBits(Data.extra2BitsData, 2);
+            break;
         default:
             ASSERT(PrintInvalidSequenceElement(element, __FUNCTION__));
             break;
@@ -5510,8 +5517,8 @@ MovementStatusElements const* GetMovementStatusElementsSequence(Opcodes opcode)
             return PlayerMove;
         //case CMSG_MOVE_CHNG_TRANSPORT:
         //    return MoveChngTransport;
-        //case CMSG_MOVE_SPLINE_DONE:
-        //    return MoveSplineDone;
+        case CMSG_MOVE_SPLINE_DONE:
+            return MoveSplineDone;
         //case CMSG_MOVE_NOT_ACTIVE_MOVER:
         //    return MoveNotActiveMover;
         //case CMSG_DISMISS_CONTROLLED_VEHICLE:
