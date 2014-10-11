@@ -4214,23 +4214,23 @@ MovementStatusElements const SplineMoveSetSwimSpeed[] =
 
 MovementStatusElements const SplineMoveSetSwimBackSpeed[] =
 {
-    MSEHasGuidByte0,
-    MSEHasGuidByte1,
-    MSEHasGuidByte3,
-    MSEHasGuidByte6,
-    MSEHasGuidByte4,
-    MSEHasGuidByte5,
-    MSEHasGuidByte7,
     MSEHasGuidByte2,
-    MSEGuidByte5,
-    MSEGuidByte3,
-    MSEGuidByte1,
-    MSEGuidByte0,
+    MSEHasGuidByte6,
+    MSEHasGuidByte5,
+    MSEHasGuidByte0,
+    MSEHasGuidByte4,
+    MSEHasGuidByte3,
+    MSEHasGuidByte1,
+    MSEHasGuidByte7,
     MSEGuidByte7,
     MSEGuidByte6,
-    MSEExtraElement,
-    MSEGuidByte4,
+    MSEGuidByte5,
+    MSEGuidByte3,
     MSEGuidByte2,
+    MSEGuidByte4,
+    MSEGuidByte1,
+    MSEGuidByte0,
+    MSEExtraElement,
     MSEEnd,
 };
 
@@ -5573,8 +5573,8 @@ MovementStatusElements const* GetMovementStatusElementsSequence(Opcodes opcode)
             return SplineMoveSetRunBackSpeed;
         case SMSG_MOVE_SPLINE_SET_SWIM_SPEED:
             return SplineMoveSetSwimSpeed;
-        //case SMSG_MOVE_SPLINE_SET_SWIM_BACK_SPEED:
-        //    return SplineMoveSetSwimBackSpeed;
+        case SMSG_MOVE_SPLINE_SET_SWIM_BACK_SPEED:
+            return SplineMoveSetSwimBackSpeed;
         case SMSG_MOVE_SPLINE_SET_TURN_RATE:
             return SplineMoveSetTurnRate;
         case SMSG_MOVE_SPLINE_SET_FLIGHT_SPEED:
