@@ -4124,6 +4124,28 @@ MovementStatusElements const SplineMoveSetWalkSpeed[] =
     MSEEnd,
 };
 
+MovementStatusElements const SplineMoveSetWalkBackSpeed[] = //5.4.8 18414
+{
+    MSEHasGuidByte4,
+    MSEHasGuidByte1,
+    MSEHasGuidByte7,
+    MSEHasGuidByte6,
+    MSEHasGuidByte3,
+    MSEHasGuidByte2,
+    MSEHasGuidByte5,
+    MSEHasGuidByte0,
+    MSEGuidByte2,
+    MSEGuidByte3,
+    MSEGuidByte1,
+    MSEGuidByte0,
+    MSEGuidByte6,
+    MSEGuidByte5,
+    MSEGuidByte4,
+    MSEGuidByte7,
+    MSEExtraElement,
+    MSEEnd
+};
+
 MovementStatusElements const SplineMoveSetRunSpeed[] = //5.4.8 18414
 {
     MSEHasGuidByte3,
@@ -4579,43 +4601,43 @@ MovementStatusElements const SplineMoveSetRunMode[] = // 5.4.8 18414
 
 MovementStatusElements const SplineMoveGravityDisable[] =
 {
-    MSEHasGuidByte7,
-    MSEHasGuidByte3,
-    MSEHasGuidByte4,
-    MSEHasGuidByte2,
-    MSEHasGuidByte5,
     MSEHasGuidByte1,
-    MSEHasGuidByte0,
+    MSEHasGuidByte7,
+    MSEHasGuidByte4,
+    MSEHasGuidByte5,
     MSEHasGuidByte6,
-    MSEGuidByte7,
-    MSEGuidByte1,
+    MSEHasGuidByte0,
+    MSEHasGuidByte2,
+    MSEHasGuidByte3,
     MSEGuidByte3,
     MSEGuidByte4,
-    MSEGuidByte6,
-    MSEGuidByte2,
     MSEGuidByte5,
+    MSEGuidByte6,
     MSEGuidByte0,
+    MSEGuidByte1,
+    MSEGuidByte2,
+    MSEGuidByte7,
     MSEEnd,
 };
 
 MovementStatusElements const SplineMoveGravityEnable[] =
 {
     MSEHasGuidByte5,
-    MSEHasGuidByte4,
     MSEHasGuidByte7,
-    MSEHasGuidByte1,
+    MSEHasGuidByte4,
+    MSEHasGuidByte2,
     MSEHasGuidByte3,
     MSEHasGuidByte6,
-    MSEHasGuidByte2,
+    MSEHasGuidByte1,
     MSEHasGuidByte0,
-    MSEGuidByte7,
-    MSEGuidByte3,
-    MSEGuidByte4,
-    MSEGuidByte2,
-    MSEGuidByte1,
     MSEGuidByte6,
-    MSEGuidByte0,
+    MSEGuidByte3,
+    MSEGuidByte2,
+    MSEGuidByte4,
+    MSEGuidByte1,
     MSEGuidByte5,
+    MSEGuidByte7,
+    MSEGuidByte0,
     MSEEnd,
 };
 
@@ -4831,22 +4853,22 @@ MovementStatusElements const SplineMoveSetNormalFall[] =
 
 MovementStatusElements const SplineMoveRoot[] =
 {
-    MSEHasGuidByte5,
-    MSEHasGuidByte4,
-    MSEHasGuidByte6,
-    MSEHasGuidByte1,
     MSEHasGuidByte3,
     MSEHasGuidByte7,
     MSEHasGuidByte2,
+    MSEHasGuidByte4,
+    MSEHasGuidByte5,
+    MSEHasGuidByte6,
     MSEHasGuidByte0,
+    MSEHasGuidByte1,
     MSEGuidByte2,
-    MSEGuidByte1,
-    MSEGuidByte7,
-    MSEGuidByte3,
-    MSEGuidByte5,
-    MSEGuidByte0,
-    MSEGuidByte6,
     MSEGuidByte4,
+    MSEGuidByte5,
+    MSEGuidByte7,
+    MSEGuidByte1,
+    MSEGuidByte0,
+    MSEGuidByte3,
+    MSEGuidByte6,
     MSEEnd,
 };
 
@@ -5543,6 +5565,8 @@ MovementStatusElements const* GetMovementStatusElementsSequence(Opcodes opcode)
         //    return MovementUpdateWalkSpeed;
         //case SMSG_MOVE_SPLINE_SET_WALK_SPEED:
         //    return SplineMoveSetWalkSpeed;
+        case SMSG_MOVE_SPLINE_SET_WALK_BACK_SPEED:
+            return SplineMoveSetWalkBackSpeed;
         case SMSG_MOVE_SPLINE_SET_RUN_SPEED:
             return SplineMoveSetRunSpeed;
         case SMSG_MOVE_SPLINE_SET_RUN_BACK_SPEED:
@@ -5581,10 +5605,10 @@ MovementStatusElements const* GetMovementStatusElementsSequence(Opcodes opcode)
         //    return SplineMoveSetWalkMode;
         case SMSG_MOVE_SPLINE_SET_RUN_MODE:
             return SplineMoveSetRunMode;
-        //case SMSG_MOVE_SPLINE_GRAVITY_DISABLE:
-        //    return SplineMoveGravityDisable;
-        //case SMSG_MOVE_SPLINE_GRAVITY_ENABLE:
-        //    return SplineMoveGravityEnable;
+        case SMSG_MOVE_SPLINE_GRAVITY_DISABLE:
+            return SplineMoveGravityDisable;
+        case SMSG_MOVE_SPLINE_GRAVITY_ENABLE:
+            return SplineMoveGravityEnable;
         case SMSG_MOVE_SPLINE_SET_HOVER:
             return SplineMoveSetHover;
         case SMSG_MOVE_SPLINE_UNSET_HOVER:
@@ -5605,8 +5629,8 @@ MovementStatusElements const* GetMovementStatusElementsSequence(Opcodes opcode)
             return SplineMoveSetFeatherFall;
         case SMSG_MOVE_SPLINE_SET_NORMAL_FALL:
             return SplineMoveSetNormalFall;
-        //case SMSG_MOVE_SPLINE_ROOT:
-        //    return SplineMoveRoot;
+        case SMSG_MOVE_SPLINE_ROOT:
+            return SplineMoveRoot;
         case SMSG_MOVE_SPLINE_UNROOT:
             return SplineMoveUnroot;
         case SMSG_MOVE_GRAVITY_DISABLE:
