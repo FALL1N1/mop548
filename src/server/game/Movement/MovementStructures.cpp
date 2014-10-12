@@ -4877,7 +4877,7 @@ MovementStatusElements const SplineMoveSetFeatherFall[] =
     MSEGuidByte3,
     MSEGuidByte2,
     MSEGuidByte0,
-    MSEEnd,
+    MSEEnd
 };
 
 MovementStatusElements const SplineMoveSetNormalFall[] =

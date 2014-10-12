@@ -16699,14 +16699,21 @@ void Unit::WriteMovementInfo(WorldPacket& data, Movement::ExtraMovementStatusEle
                 data << mi.splineElevation;
             break;
         case MSEForcesCount:
+            // data.WriteBits(forcesCount, 22);
             data.WriteBits(0, 22);
             break;
         case MSEForces:
+            /* 
+            for (uint8 i = 0; i < forcesCount; ++i)
+                data << uint32(0); 
+            */            
             break;
         case MSECounter:
             if (m_movementCounter)
-                data << m_movementCounter;
-            m_movementCounter++;
+                data << m_movementCounter++;
+            break;
+        case MSECount:
+            data << m_movementCounter++;
             break;
         case MSEZeroBit:
             data.WriteBit(0);
