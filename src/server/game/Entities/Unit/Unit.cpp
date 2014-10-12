@@ -11421,7 +11421,7 @@ void Unit::SetSpeed(UnitMoveType mtype, float rate, bool forced)
 
     static MovementStatusElements const speedVal = MSEExtraFloat;
     Movement::ExtraMovementStatusElement extra(&speedVal);
-    extra.Data.floatData = GetSpeed(mtype);
+    extra.Data.floatData = { GetSpeed(mtype) };
 
     Movement::PacketSender(this, moveTypeToOpcode[mtype][0], moveTypeToOpcode[mtype][1], moveTypeToOpcode[mtype][2], &extra).Send();
 }
@@ -15065,7 +15065,7 @@ bool Unit::SetCharmedBy(Unit* charmer, CharmType type, AuraApplication const* au
         {
             case CHARM_TYPE_VEHICLE:
                 SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED);
-                charmer->ToPlayer()->SetClientControl(this, 1);
+                charmer->ToPlayer()->SetClientControl(this, true);
                 charmer->ToPlayer()->SetMover(this);
                 charmer->ToPlayer()->SetViewpoint(this, true);
                 charmer->ToPlayer()->VehicleSpellInitialize();
@@ -15074,7 +15074,7 @@ bool Unit::SetCharmedBy(Unit* charmer, CharmType type, AuraApplication const* au
                 AddUnitState(UNIT_STATE_POSSESSED);
                 SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED);
                 charmer->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
-                charmer->ToPlayer()->SetClientControl(this, 1);
+                charmer->ToPlayer()->SetClientControl(this, true);
                 charmer->ToPlayer()->SetMover(this);
                 charmer->ToPlayer()->SetViewpoint(this, true);
                 charmer->ToPlayer()->PossessSpellInitialize();
@@ -16609,9 +16609,11 @@ void Unit::WriteMovementInfo(WorldPacket& data, Movement::ExtraMovementStatusEle
         case MSEHasSpline:
             data.WriteBit(hasSpline);
             break;
-        case MSEMountDisplayId:
-            if (hasMountDisplayId)
-                data << GetUInt32Value(UNIT_FIELD_MOUNT_DISPLAY_ID);
+        case MSEMountDisplayIdWithCheck: // Fallback here
+            if (!hasMountDisplayId) 
+                break;
+        case MSEMountDisplayIdWithoutCheck:
+            data << GetUInt32Value(UNIT_FIELD_MOUNT_DISPLAY_ID);
             break;
         case MSEMovementFlags:
             if (hasMovementFlags)
