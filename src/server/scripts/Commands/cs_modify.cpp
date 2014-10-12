@@ -456,11 +456,11 @@ public:
         if (handler->needReportToTarget(target))
             ChatHandler(target->GetSession()).PSendSysMessage(LANG_YOURS_ASPEED_CHANGED, handler->GetNameLink().c_str(), ASpeed);
 
-        target->SetSpeed(MOVE_WALK,    ASpeed, true);
-        target->SetSpeed(MOVE_RUN,     ASpeed, true);
-        target->SetSpeed(MOVE_SWIM,    ASpeed, true);
+        target->SetSpeed(MOVE_WALK,     ASpeed, true);
+        target->SetSpeed(MOVE_RUN,      ASpeed, true);
+        target->SetSpeed(MOVE_SWIM,     ASpeed, true);
         //target->SetSpeed(MOVE_TURN,    ASpeed, true);
-        target->SetSpeed(MOVE_FLIGHT,     ASpeed, true);
+        target->SetSpeed(MOVE_FLIGHT,   ASpeed, true);
         return true;
     }
 
