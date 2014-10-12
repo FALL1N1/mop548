@@ -25279,7 +25279,6 @@ void Player::ResetWeeklyQuestStatus()
     m_weeklyquests.clear();
     // DB data deleted in caller
     m_WeeklyQuestChanged = false;
-
 }
 
 void Player::ResetSeasonalQuestStatus(uint16 event_id)

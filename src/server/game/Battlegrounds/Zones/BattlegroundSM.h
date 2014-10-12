@@ -22,40 +22,12 @@
 
 #include "Battleground.h"
 
-enum BG_SM_WorldStates
-{
-  
-};
-
 class BattlegroundSM : public Battleground
 {
-    public:
-        BattlegroundSM();
-        ~BattlegroundSM();
+public:
+    BattlegroundSM() { };
+    ~BattlegroundSM() { };
 
-        void AddPlayer(Player* player);
-        void StartingEventCloseDoors();
-        void StartingEventOpenDoors();
-        void RemovePlayer(Player* player, uint64 guid, uint32 team);
-        void HandleAreaTrigger(Player* Source, uint32 Trigger);
-        bool SetupBattleground();
-        void Reset();
-        void EndBattleground(uint32 winner);
-        WorldSafeLocsEntry const* GetClosestGraveYard(Player* player);
-
-        /* Scorekeeping */
-        void UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor = true);
-
-        void FillInitialWorldStates(WorldStateBuilder& builder);
-
-        /* Nodes occupying */
-        void EventPlayerClickedOnFlag(Player* source, GameObject* target_obj);
-
-        /* achievement req. */
-        bool IsAllNodesControlledByTeam(uint32 team) const;
-        bool CheckAchievementCriteriaMeet(uint32 /*criteriaId*/, Player const* /*player*/, Unit const* /*target*/ = NULL, uint32 /*miscvalue1*/ = 0);
-
-        uint32 GetPrematureWinner();
-  
 };
+
 #endif

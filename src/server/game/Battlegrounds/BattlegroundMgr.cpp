@@ -954,6 +954,15 @@ bool BattlegroundMgr::CreateBattleground(CreateBattlegroundData& data)
         case BATTLEGROUND_BFG:
             bg = new BattlegroundBFG;
             break;
+        case BATTLEGROUND_TOK:
+            bg = new BattlegroundTOK;
+            break;
+        case BATTLEGROUND_DG:
+            bg = new BattlegroundDG;
+            break;
+        case BATTLEGROUND_SM:
+            bg = new BattlegroundSM;
+            break;
         default:
             return false;
     }
@@ -1448,6 +1457,9 @@ HolidayIds BattlegroundMgr::BGTypeToWeekendHolidayId(BattlegroundTypeId bgTypeId
         case BATTLEGROUND_IC: return HOLIDAY_CALL_TO_ARMS_IC;
         case BATTLEGROUND_TP: return HOLIDAY_CALL_TO_ARMS_TP;
         case BATTLEGROUND_BFG: return HOLIDAY_CALL_TO_ARMS_BFG;
+        case BATTLEGROUND_TOK: return HOLIDAY_CALL_TO_ARMS_TOK;
+        case BATTLEGROUND_DG: return HOLIDAY_CALL_TO_ARMS_DG;
+        case BATTLEGROUND_SM: return HOLIDAY_CALL_TO_ARMS_SM;
         default: return HOLIDAY_NONE;
     }
 }
@@ -1464,6 +1476,9 @@ BattlegroundTypeId BattlegroundMgr::WeekendHolidayIdToBGType(HolidayIds holiday)
         case HOLIDAY_CALL_TO_ARMS_IC: return BATTLEGROUND_IC;
         case HOLIDAY_CALL_TO_ARMS_TP: return BATTLEGROUND_TP;
         case HOLIDAY_CALL_TO_ARMS_BFG: return BATTLEGROUND_BFG;
+        case HOLIDAY_CALL_TO_ARMS_TOK: return BATTLEGROUND_TOK;
+        case HOLIDAY_CALL_TO_ARMS_DG: return BATTLEGROUND_DG;
+        case HOLIDAY_CALL_TO_ARMS_SM: return BATTLEGROUND_SM;
         default: return BATTLEGROUND_TYPE_NONE;
     }
 }
