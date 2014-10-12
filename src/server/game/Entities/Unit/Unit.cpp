@@ -16711,9 +16711,8 @@ void Unit::WriteMovementInfo(WorldPacket& data, Movement::ExtraMovementStatusEle
             */            
             break;
         case MSECounter:
-            if (m_movementCounter)
-                data << m_movementCounter++;
-            break;
+            if (!m_movementCounter)
+                break;
         case MSECount:
             data << m_movementCounter++;
             break;

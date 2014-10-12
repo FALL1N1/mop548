@@ -28888,12 +28888,11 @@ void Player::ReadMovementInfo(WorldPacket& data, MovementInfo* mi, Movement::Ext
             case MSEHasCounter:
                 hasCounter = !data.ReadBit();
                 break;
+            case MSECounter:
+                if (!hasCounter) // Fallback here
+                    break;
             case MSECount:
                 data.read_skip<uint32>();
-                break;
-            case MSECounter:
-                if (hasCounter)
-                    data.read_skip<uint32>();
                 break;
             case MSEZeroBit:
             case MSEOneBit:
