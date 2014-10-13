@@ -121,11 +121,11 @@ void BattlegroundMgr::Update(uint32 diff)
 
         for (uint8 i = 0; i < scheduled.size(); i++)
         {
-            uint32 arenaMMRating = scheduled[i] >> 32;
-            RatedType ratedType = RatedType(scheduled[i] >> 24 & 255);
-            BattlegroundQueueTypeId bgQueueTypeId = BattlegroundQueueTypeId(scheduled[i] >> 16 & 255);
-            BattlegroundTypeId bgTypeId = BattlegroundTypeId((scheduled[i] >> 8) & 255);
-            BattlegroundBracketId bracket_id = BattlegroundBracketId(scheduled[i] & 255);
+            uint32 arenaMMRating = scheduled[i] >> 48;
+            RatedType ratedType = RatedType(scheduled[i] >> 40 & 0xFF);
+            BattlegroundQueueTypeId bgQueueTypeId = BattlegroundQueueTypeId(scheduled[i] >> 24 & 0xFFFF);
+            BattlegroundTypeId bgTypeId = BattlegroundTypeId((scheduled[i] >> 8) & 0xFFFF);
+            BattlegroundBracketId bracket_id = BattlegroundBracketId(scheduled[i] & 0xFF);
             m_BattlegroundQueues[bgQueueTypeId].BattlegroundQueueUpdate(diff, bgTypeId, bracket_id, ratedType, arenaMMRating > 0, arenaMMRating);
         }
     }
@@ -1384,7 +1384,7 @@ void BattlegroundMgr::ScheduleQueueUpdate(uint32 arenaMatchmakerRating, RatedTyp
 {
     //This method must be atomic, @todo add mutex
     //we will use only 1 number created of bgTypeId and bracket_id
-    uint64 const scheduleId = ((uint64)arenaMatchmakerRating << 32) | (uint32(ratedType) << 24) | (bgQueueTypeId << 16) | (bgTypeId << 8) | bracket_id;
+    uint64 const scheduleId = (uint64(arenaMatchmakerRating) << 48) | (uint64(ratedType) << 40) | (uint32(bgQueueTypeId) << 24) | (uint32(bgTypeId) << 8) | bracket_id;
     if (std::find(m_QueueUpdateScheduler.begin(), m_QueueUpdateScheduler.end(), scheduleId) == m_QueueUpdateScheduler.end())
         m_QueueUpdateScheduler.push_back(scheduleId);
 }

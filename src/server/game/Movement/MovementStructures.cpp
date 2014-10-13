@@ -5444,7 +5444,7 @@ void Movement::ExtraMovementStatusElement::WriteNextElement(ByteBuffer& packet)
             break;
         case MSEExtraFloat:
         {
-            packet << Data.floatData.front();
+            packet << float(Data.floatData.front());
             Data.floatData.pop_front();
             break;
         }
