@@ -4513,7 +4513,7 @@ MovementStatusElements const MoveSetTurnRate[] =
 MovementStatusElements const MoveSetFlightSpeed[] = //5.4.8 18414
 {
     MSEExtraElement,
-    MSEUintCount,
+    MSECount,
     MSEHasGuidByte6,
     MSEHasGuidByte5,
     MSEHasGuidByte0,
@@ -4544,7 +4544,7 @@ MovementStatusElements const MoveSetFlightBackSpeed[] =
     MSEHasGuidByte0,
     MSEHasGuidByte5,
     MSEGuidByte3,
-    MSECounter,
+    MSECount,
     MSEGuidByte6,
     MSEExtraElement,
     MSEGuidByte1,
@@ -4570,7 +4570,7 @@ MovementStatusElements const MoveSetPitchRate[] =
     MSEGuidByte6,
     MSEGuidByte4,
     MSEGuidByte0,
-    MSECounter,
+    MSECount,
     MSEGuidByte1,
     MSEGuidByte2,
     MSEGuidByte7,
