@@ -17,24 +17,17 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef SC_SCRIPTLOADER_H
-#define SC_SCRIPTLOADER_H
+#ifndef __BATTLEGROUNDDG_H
+#define __BATTLEGROUNDDG_H
 
-void AddScripts();
-void AddExampleScripts();
-void AddSpellScripts();
-void AddCommandScripts();
-void AddWorldScripts();
-void AddEasternKingdomsScripts();
-void AddKalimdorScripts();
-void AddOutlandScripts();
-void AddNorthrendScripts();
-void AddMaelstromScripts();
-void AddEventScripts();
-void AddPandariaScripts();
-void AddPetScripts();
-void AddBattlegroundScripts();
-void AddOutdoorPvPScripts();
-void AddCustomScripts();
+#include "Battleground.h"
+
+class BattlegroundDG : public Battleground
+{
+public:
+    BattlegroundDG() { };
+    ~BattlegroundDG() { };
+
+};
 
 #endif

@@ -17,24 +17,14 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef SC_SCRIPTLOADER_H
-#define SC_SCRIPTLOADER_H
-
-void AddScripts();
-void AddExampleScripts();
-void AddSpellScripts();
-void AddCommandScripts();
-void AddWorldScripts();
-void AddEasternKingdomsScripts();
-void AddKalimdorScripts();
-void AddOutlandScripts();
-void AddNorthrendScripts();
-void AddMaelstromScripts();
-void AddEventScripts();
-void AddPandariaScripts();
-void AddPetScripts();
-void AddBattlegroundScripts();
-void AddOutdoorPvPScripts();
-void AddCustomScripts();
-
-#endif
+#include "BattlegroundSM.h"
+#include "World.h"
+#include "WorldPacket.h"
+#include "ObjectMgr.h"
+#include "BattlegroundMgr.h"
+#include "Creature.h"
+#include "Language.h"
+#include "Object.h"
+#include "Player.h"
+#include "Util.h"
+#include "WorldSession.h"

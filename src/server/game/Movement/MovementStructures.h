@@ -61,6 +61,7 @@ enum MovementStatusElements
     MSEHasSpline,
 
     MSEForces,
+    MSECount,
     MSECounter,
     MSEGuidByte0,
     MSEGuidByte1,
@@ -70,7 +71,8 @@ enum MovementStatusElements
     MSEGuidByte5,
     MSEGuidByte6,
     MSEGuidByte7,
-    MSEMountDisplayId,
+    MSEMountDisplayIdWithCheck,
+    MSEMountDisplayIdWithoutCheck,
     MSEMovementFlags,
     MSEMovementFlags2,
     MSETimestamp,
@@ -111,8 +113,9 @@ enum MovementStatusElements
     MSEExtraElement,    // Used to signalize reading into ExtraMovementStatusElement, element sequence inside it is declared as separate array
                         // Allowed internal elements are: GUID markers (not transport), MSEExtraFloat, MSEExtraInt8
     MSEExtraFloat,
-    MSEExtraFloat2,
-    MSEExtraInt8
+    MSEExtraInt8,
+    MSEExtraInt32,
+    MSEExtra2Bits,
 };
 
 namespace Movement
@@ -132,9 +135,10 @@ namespace Movement
         struct
         {
             ObjectGuid guid;
-            float floatData;
-            float floatData2;
             int8  byteData;
+            int32 extraInt32Data;
+            uint32 extra2BitsData;
+            std::list<float> floatData;
         } Data;
 
     protected:

@@ -106,10 +106,11 @@ bool BattlegroundSA::ResetObjs()
             default:
                 break;
         }
-        if (!AddObject(i, boatid, BG_SA_ObjSpawnlocs[i][0],
-          BG_SA_ObjSpawnlocs[i][1],
-          BG_SA_ObjSpawnlocs[i][2]+(Attackers ? -3.750f: 0),
-          BG_SA_ObjSpawnlocs[i][3], 0, 0, 0, 0, RESPAWN_ONE_DAY))
+
+        if (!AddTransport(i, boatid, BG_SA_ObjSpawnlocs[i][0],
+            BG_SA_ObjSpawnlocs[i][1],
+            BG_SA_ObjSpawnlocs[i][2]+(Attackers ? -3.750f: 0),
+            BG_SA_ObjSpawnlocs[i][3], 0, 0, 0, 0, RESPAWN_ONE_DAY))
             return false;
     }
 
@@ -119,7 +120,7 @@ bool BattlegroundSA::ResetObjs()
             BG_SA_ObjSpawnlocs[i][0], BG_SA_ObjSpawnlocs[i][1],
             BG_SA_ObjSpawnlocs[i][2], BG_SA_ObjSpawnlocs[i][3],
             0, 0, 0, 0, RESPAWN_ONE_DAY))
-        return false;
+            return false;
     }
 
     // MAD props for Kiper for discovering those values - 4 hours of his work.
@@ -133,9 +134,9 @@ bool BattlegroundSA::ResetObjs()
     for (uint8 i = 0; i < BG_SA_DEMOLISHER_5; i++)
     {
         if (!AddCreature(BG_SA_NpcEntries[i], i, (Attackers == TEAM_ALLIANCE ? TEAM_HORDE : TEAM_ALLIANCE),
-              BG_SA_NpcSpawnlocs[i][0], BG_SA_NpcSpawnlocs[i][1],
-              BG_SA_NpcSpawnlocs[i][2], BG_SA_NpcSpawnlocs[i][3], 600))
-        return false;
+            BG_SA_NpcSpawnlocs[i][0], BG_SA_NpcSpawnlocs[i][1],
+            BG_SA_NpcSpawnlocs[i][2], BG_SA_NpcSpawnlocs[i][3], 600))
+            return false;
     }
 
     OverrideGunFaction();
@@ -188,6 +189,7 @@ bool BattlegroundSA::ResetObjs()
             BG_SA_ObjSpawnlocs[i][0], BG_SA_ObjSpawnlocs[i][1],
             BG_SA_ObjSpawnlocs[i][2], BG_SA_ObjSpawnlocs[i][3],
             0, 0, 0, 0, RESPAWN_ONE_DAY);
+
         GetBGObject(i)->SetUInt32Value(GAMEOBJECT_FIELD_FACTION_TEMPLATE, atF);
     }
 
@@ -197,6 +199,7 @@ bool BattlegroundSA::ResetObjs()
             BG_SA_ObjSpawnlocs[i][0], BG_SA_ObjSpawnlocs[i][1],
             BG_SA_ObjSpawnlocs[i][2], BG_SA_ObjSpawnlocs[i][3],
             0, 0, 0, 0, RESPAWN_ONE_DAY);
+
         GetBGObject(i)->SetUInt32Value(GAMEOBJECT_FIELD_FACTION_TEMPLATE, atF);
     }
 
@@ -260,9 +263,12 @@ void BattlegroundSA::StartShips()
     if (ShipsStarted)
         return;
 
-    DoorOpen(BG_SA_BOAT_ONE);
-    DoorOpen(BG_SA_BOAT_TWO);
+    if (GameObject* obj = GetBGObject(BG_SA_BOAT_ONE))
+        obj->SetTransportState(GO_STATE_TRANSPORT_STOPPED);
+    if (GameObject* obj = GetBGObject(BG_SA_BOAT_TWO))
+        obj->SetTransportState(GO_STATE_TRANSPORT_STOPPED);
 
+    // Not blizzlike way, just to prevent fall to the water
     for (int i = BG_SA_BOAT_ONE; i <= BG_SA_BOAT_TWO; i++)
     {
         for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
@@ -277,6 +283,7 @@ void BattlegroundSA::StartShips()
             }
         }
     }
+
     ShipsStarted = true;
 }
 
@@ -314,6 +321,7 @@ void BattlegroundSA::PostUpdateImpl(uint32 diff)
         }
         if (TotalTime >= BG_SA_BOAT_START)
             StartShips();
+
         return;
     }
     else if (Status == BG_SA_SECOND_WARMUP)
@@ -934,11 +942,12 @@ void BattlegroundSA::SendTransportInit(Player* player)
     if (BgObjects[BG_SA_BOAT_ONE] ||  BgObjects[BG_SA_BOAT_TWO])
     {
         UpdateData transData(player->GetMapId());
-        if (BgObjects[BG_SA_BOAT_ONE])
 
+        if (BgObjects[BG_SA_BOAT_ONE])
             GetBGObject(BG_SA_BOAT_ONE)->BuildCreateUpdateBlockForPlayer(&transData, player);
         if (BgObjects[BG_SA_BOAT_TWO])
             GetBGObject(BG_SA_BOAT_TWO)->BuildCreateUpdateBlockForPlayer(&transData, player);
+
         WorldPacket packet;
         transData.BuildPacket(&packet);
         player->SendDirectMessage(&packet);
@@ -950,10 +959,12 @@ void BattlegroundSA::SendTransportsRemove(Player* player)
     if (BgObjects[BG_SA_BOAT_ONE] ||  BgObjects[BG_SA_BOAT_TWO])
     {
         UpdateData transData(player->GetMapId());
+
         if (BgObjects[BG_SA_BOAT_ONE])
             GetBGObject(BG_SA_BOAT_ONE)->BuildOutOfRangeUpdateBlock(&transData);
         if (BgObjects[BG_SA_BOAT_TWO])
             GetBGObject(BG_SA_BOAT_TWO)->BuildOutOfRangeUpdateBlock(&transData);
+
         WorldPacket packet;
         transData.BuildPacket(&packet);
         player->SendDirectMessage(&packet);

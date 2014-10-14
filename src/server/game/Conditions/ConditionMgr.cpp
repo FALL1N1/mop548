@@ -1408,7 +1408,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond)
             SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(cond->SourceEntry);
             if (!spellInfo)
             {
-                //TC_LOG_ERROR("sql.sql", "SourceEntry %u in `condition` table, does not exist in `spell.dbc`, ignoring.", cond->SourceEntry);
+                TC_LOG_ERROR("sql.sql", "SourceEntry %u in `condition` table, does not exist in `spell.dbc`, ignoring.", cond->SourceEntry);
                 return false;
             }
 
@@ -1468,7 +1468,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond)
             SpellInfo const* spellProto = sSpellMgr->GetSpellInfo(cond->SourceEntry);
             if (!spellProto)
             {
-                //TC_LOG_ERROR("sql.sql", "SourceEntry %u in `condition` table, does not exist in `spell.dbc`, ignoring.", cond->SourceEntry);
+                TC_LOG_ERROR("sql.sql", "SourceEntry %u in `condition` table, does not exist in `spell.dbc`, ignoring.", cond->SourceEntry);
                 return false;
             }
             break;
@@ -1496,7 +1496,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond)
 
             if (!sSpellMgr->GetSpellInfo(cond->SourceEntry))
             {
-                //TC_LOG_ERROR("sql.sql", "SourceEntry %u in `condition` table, does not exist in `spell.dbc`, ignoring.", cond->SourceEntry);
+                TC_LOG_ERROR("sql.sql", "SourceEntry %u in `condition` table, does not exist in `spell.dbc`, ignoring.", cond->SourceEntry);
                 return false;
             }
             break;
@@ -1509,7 +1509,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond)
 
             if (!sSpellMgr->GetSpellInfo(cond->SourceEntry))
             {
-                //TC_LOG_ERROR("sql.sql", "SourceEntry %u in `condition` table, does not exist in `spell.dbc`, ignoring.", cond->SourceEntry);
+                TC_LOG_ERROR("sql.sql", "SourceEntry %u in `condition` table, does not exist in `spell.dbc`, ignoring.", cond->SourceEntry);
                 return false;
             }
             break;

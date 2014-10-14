@@ -19686,7 +19686,7 @@ void Player::_LoadQuestObjectiveStatus(PreparedQueryResult result)
 
             if (!sObjectMgr->QuestObjectiveExists(objectiveId))
             {
-                //TC_LOG_ERROR("entities.player", "Player %s (%u) has invalid Quest Objective Id %u in Quest Objective status data! Skipping.", GetName().c_str(), GetGUIDLow(), objectiveId);
+                TC_LOG_ERROR("entities.player", "Player %s (%u) has invalid Quest Objective Id %u in Quest Objective status data! Skipping.", GetName().c_str(), GetGUIDLow(), objectiveId);
                 continue;
             }
 
@@ -22217,6 +22217,24 @@ void Player::PossessSpellInitialize()
     GetSession()->SendPacket(&data);
 }
 
+void Player::SendPetMode(uint32 mode)
+{
+    Creature* vehicle = GetVehicleCreatureBase();
+    if (!vehicle)
+        return;
+    
+    WorldPacket data(SMSG_PET_MODE, 12);
+
+    ObjectGuid guid = vehicle->GetGUID();
+    uint8 bitOrder[8] = { 5, 0, 6, 3, 7, 2, 4, 1 };
+    data.WriteBitInOrder(guid, bitOrder);
+    data << uint32(mode);
+    uint8 byteOrder[8] = { 2, 5, 4, 0, 1, 7, 3, 6 };
+    data.WriteBytesSeq(guid, byteOrder);
+
+    GetSession()->SendPacket(&data);
+}
+
 void Player::VehicleSpellInitialize()
 {
     Creature* vehicle = GetVehicleCreatureBase();
@@ -22264,7 +22282,7 @@ void Player::VehicleSpellInitialize()
     }
 
     for (uint32 i = CREATURE_MAX_SPELLS; i < MAX_SPELL_CONTROL_BAR; ++i)
-        data << uint32(0);
+        data << uint32(MAKE_UNIT_ACTION_BUTTON(0, i + 8));
 
     time_t now = sWorld->GetGameTime();
     for (CreatureSpellCooldowns::const_iterator itr = vehicle->m_CreatureSpellCooldowns.begin(); itr != vehicle->m_CreatureSpellCooldowns.end(); ++itr)
@@ -22303,8 +22321,8 @@ void Player::VehicleSpellInitialize()
     data.WriteByteSeq(guid[7]);
     data.WriteByteSeq(guid[0]);
     data.WriteByteSeq(guid[3]);
-    data << uint8(vehicle->GetReactState()); // React State
-    data << uint8(0); // Command State
+    data << uint8(0);  // Specialization/React State? - found always 0 for vehicles
+    data << uint8(0);  // Command State
     data << uint16(0); // Pet Family, always 0 for vehicles
     data.WriteByteSeq(guid[1]);
     data.WriteByteSeq(guid[4]);
@@ -24288,7 +24306,10 @@ inline void UpdateVisibilityOf_helper(std::set<uint64>& s64, GameObject* target,
     // But exclude stoppable elevators from this hack - they would be teleporting from one end to another
     // if affected transports move so far horizontally that it causes them to run out of visibility range then you are out of luck
     // fix visibility instead of adding hacks here
-    if (!target->IsDynTransport())
+    // if (!target->IsDynTransport())
+
+    // Temporary hack by Timeless Team - caused transports as ships in SOTA to dissapear during paths
+    if (!target->IsTransport())
         s64.insert(target->GetGUID());
 }
 
@@ -24440,6 +24461,7 @@ template void Player::UpdateVisibilityOf(Creature*      target, UpdateData& data
 template void Player::UpdateVisibilityOf(Corpse*        target, UpdateData& data, std::set<Unit*>& visibleNow);
 template void Player::UpdateVisibilityOf(GameObject*    target, UpdateData& data, std::set<Unit*>& visibleNow);
 template void Player::UpdateVisibilityOf(DynamicObject* target, UpdateData& data, std::set<Unit*>& visibleNow);
+template void Player::UpdateVisibilityOf(AreaTrigger*   target, UpdateData& data, std::set<Unit*>& visibleNow);
 
 void Player::UpdateObjectVisibility(bool forced)
 {
@@ -25259,7 +25281,6 @@ void Player::ResetWeeklyQuestStatus()
     m_weeklyquests.clear();
     // DB data deleted in caller
     m_WeeklyQuestChanged = false;
-
 }
 
 void Player::ResetSeasonalQuestStatus(uint16 event_id)
@@ -25981,11 +26002,11 @@ void Player::ResurectUsingRequestData()
     SpawnCorpseBones();
 }
 
-void Player::SetClientControl(Unit* target, uint8 allowMove)
+void Player::SetClientControl(Unit* target, bool allowMove)
 {
     ObjectGuid guid = target->GetGUID();
 
-    WorldPacket data(SMSG_CLIENT_CONTROL_UPDATE, 9 + 1);
+    WorldPacket data(SMSG_CLIENT_CONTROL_UPDATE, 9);
     data.WriteBit(guid[2]);
     data.WriteBit(guid[7]);
     data.WriteBit(allowMove);
@@ -26004,6 +26025,7 @@ void Player::SetClientControl(Unit* target, uint8 allowMove)
     data.WriteByteSeq(guid[6]);
     data.WriteByteSeq(guid[3]);
     data.WriteByteSeq(guid[0]);
+
     GetSession()->SendPacket(&data);
 
     if (target == this && allowMove == 1)
@@ -28436,10 +28458,9 @@ void Player::SendMovementSetCanTransitionBetweenSwimAndFly(bool apply)
 
 void Player::SendMovementSetCollisionHeight(float height)
 {
-    static MovementStatusElements const extraElements[] = { MSEExtraFloat, MSEExtraFloat2 };
+    static MovementStatusElements const extraElements[] = { MSEExtraFloat, MSEExtraFloat };
     Movement::ExtraMovementStatusElement extra(extraElements);
-    extra.Data.floatData = height;
-    extra.Data.floatData2 = 1;
+    extra.Data.floatData = { 1, height };
     Movement::PacketSender(this, NULL_OPCODE, SMSG_MOVE_SET_COLLISION_HEIGHT, SMSG_MOVE_UPDATE_COLLISION_HEIGHT, &extra).Send();
 }
 
@@ -28668,6 +28689,7 @@ void Player::ReadMovementInfo(WorldPacket& data, MovementInfo* mi, Movement::Ext
     bool hasFallDirection = false;
     bool hasSplineElevation = false;
     bool hasCounter = false;
+    bool hasMountDisplayId = false;
     uint32 forcesCount = 0u;
 
     ObjectGuid guid;
@@ -28760,6 +28782,19 @@ void Player::ReadMovementInfo(WorldPacket& data, MovementInfo* mi, Movement::Ext
             case MSEHasSpline:
                 data.ReadBit();
                 break;
+            case MSEHasMountDisplayId:
+                hasMountDisplayId = !data.ReadBit();
+                break;
+            case MSEMountDisplayIdWithCheck: // Fallback here
+                if (!hasMountDisplayId)
+                    break;
+            case MSEMountDisplayIdWithoutCheck:
+            {
+                uint32 mountDisplayId;
+                data >> mountDisplayId;
+                SetUInt32Value(UNIT_FIELD_MOUNT_DISPLAY_ID, mountDisplayId);
+                break;
+            }            
             case MSEMovementFlags:
                 if (hasMovementFlags)
                     mi->flags = data.ReadBits(30);
@@ -28856,8 +28891,10 @@ void Player::ReadMovementInfo(WorldPacket& data, MovementInfo* mi, Movement::Ext
                 hasCounter = !data.ReadBit();
                 break;
             case MSECounter:
-                if (hasCounter)
-                    data.read_skip<uint32>();
+                if (!hasCounter) // Fallback here
+                    break;
+            case MSECount:
+                data.read_skip<uint32>();
                 break;
             case MSEZeroBit:
             case MSEOneBit:

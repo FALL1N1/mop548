@@ -225,8 +225,8 @@ bool GameObject::Create(uint32 guidlow, uint32 name_id, Map* map, uint32 phaseMa
         return false;
     }
 
-    SetFloatValue(GAMEOBJECT_FIELD_PARENT_ROTATION+0, rotation0);
-    SetFloatValue(GAMEOBJECT_FIELD_PARENT_ROTATION+1, rotation1);
+    SetFloatValue(GAMEOBJECT_FIELD_PARENT_ROTATION + 0, rotation0);
+    SetFloatValue(GAMEOBJECT_FIELD_PARENT_ROTATION + 1, rotation1);
 
     UpdateRotationFields(rotation2, rotation3);              // GAMEOBJECT_FACING, GAMEOBJECT_ROTATION, GAMEOBJECT_FIELD_PARENT_ROTATION+2/3
 
@@ -284,6 +284,7 @@ bool GameObject::Create(uint32 guidlow, uint32 name_id, Map* map, uint32 phaseMa
             else
                 SetTransportState(GO_STATE_TRANSPORT_ACTIVE);
 
+            SetUInt32Value(GAMEOBJECT_FIELD_LEVEL, m_goValue.Transport.PathProgress);
             SetGoAnimProgress(animprogress);
             break;
         }
@@ -353,6 +354,7 @@ void GameObject::Update(uint32 diff)
                     if (GetGoState() == GO_STATE_TRANSPORT_ACTIVE)
                     {
                         m_goValue.Transport.PathProgress += diff;
+
                         /* TODO: Fix movement in unloaded grid - currently GO will just disappear
                         uint32 timer = m_goValue.Transport.PathProgress % GetTransportPeriod();
                         TransportAnimationEntry const* node = m_goValue.Transport.AnimationInfo->GetAnimNode(timer);
@@ -374,19 +376,6 @@ void GameObject::Update(uint32 diff)
                             GetMap()->GameObjectRelocation(this, pos.x, pos.y, pos.z, GetOrientation());
                         }
                         */
-
-                        if (!m_goValue.Transport.StopFrames->empty())
-                        {
-                            uint32 visualStateBefore = (m_goValue.Transport.StateUpdateTimer / 20000) & 1;
-                            m_goValue.Transport.StateUpdateTimer += diff;
-                            uint32 visualStateAfter = (m_goValue.Transport.StateUpdateTimer / 20000) & 1;
-                            if (visualStateBefore != visualStateAfter)
-                            {
-                                ForceValuesUpdateAtIndex(GAMEOBJECT_FIELD_LEVEL);
-                                ForceValuesUpdateAtIndex(GAMEOBJECT_FIELD_BYTES);
-                            }
-                        }
-
                     }
                     break;
                 }
@@ -2106,9 +2095,10 @@ void GameObject::SetTransportState(GOState state, uint32 stopFrame /*= 0*/)
 {
     if (GetGoState() == state)
         return;
-    
+
     ASSERT(GetGOInfo()->type == GAMEOBJECT_TYPE_TRANSPORT);
     ASSERT(state >= GO_STATE_TRANSPORT_ACTIVE);
+
     if (state == GO_STATE_TRANSPORT_ACTIVE)
     {
         m_goValue.Transport.StateUpdateTimer = 0;
@@ -2124,6 +2114,8 @@ void GameObject::SetTransportState(GOState state, uint32 stopFrame /*= 0*/)
         m_goValue.Transport.PathProgress = getMSTime() + m_goValue.Transport.StopFrames->at(stopFrame);
         SetGoState(GOState(GO_STATE_TRANSPORT_STOPPED + stopFrame));
     }
+
+    SetUInt32Value(GAMEOBJECT_FIELD_LEVEL, m_goValue.Transport.PathProgress);
 }
 
 void GameObject::SetDisplayId(uint32 displayid)
@@ -2246,39 +2238,36 @@ void GameObject::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* t
 
             if (index == OBJECT_FIELD_DYNAMIC_FLAGS)
             {
-                uint16 dynFlags = 0;
-                int16 pathProgress = -1;
+                uint16 firstPart = 0; // flags
+                int16 secondPart = -1;
                 switch (GetGoType())
                 {
                     case GAMEOBJECT_TYPE_CHEST:
                     case GAMEOBJECT_TYPE_GOOBER:
                         if (ActivateToQuest(target))
-                            dynFlags |= GO_DYNFLAG_LO_ACTIVATE | GO_DYNFLAG_LO_SPARKLE;
+                            firstPart |= GO_DYNFLAG_LO_ACTIVATE | GO_DYNFLAG_LO_SPARKLE;
                         else if (targetIsGM)
-                            dynFlags |= GO_DYNFLAG_LO_ACTIVATE;
+                            firstPart |= GO_DYNFLAG_LO_ACTIVATE;
                         break;
                     case GAMEOBJECT_TYPE_GENERIC:
                         if (ActivateToQuest(target))
-                            dynFlags |= GO_DYNFLAG_LO_SPARKLE;
+                            firstPart |= GO_DYNFLAG_LO_SPARKLE;
                         break;
-                    case GAMEOBJECT_TYPE_TRANSPORT:
-                    {
-                        float timer = float(m_goValue.Transport.PathProgress % GetTransportPeriod());
-                        pathProgress = int16(timer / float(GetTransportPeriod()) * 65535.0f);
+                    case GAMEOBJECT_TYPE_TRANSPORT: // Always found both parts null for transport
+                        secondPart = 0;
                         break;
-                    }
                     case GAMEOBJECT_TYPE_MO_TRANSPORT:
                     {
                         float timer = float(m_goValue.Transport.PathProgress % GetUInt32Value(GAMEOBJECT_FIELD_LEVEL));
-                        pathProgress = int16(timer / float(GetUInt32Value(GAMEOBJECT_FIELD_LEVEL)) * 65535.0f);
+                        secondPart = int16(timer / float(GetUInt32Value(GAMEOBJECT_FIELD_LEVEL)) * 65535.0f);
                         break;
                     }
                     default:
                         break;
                 }
 
-                fieldBuffer << uint16(dynFlags);
-                fieldBuffer << int16(pathProgress);
+                fieldBuffer << uint16(firstPart);
+                fieldBuffer << int16(secondPart);
             }
             else if (index == GAMEOBJECT_FIELD_FLAGS)
             {
@@ -2288,27 +2277,6 @@ void GameObject::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* t
                         flags |= GO_FLAG_LOCKED | GO_FLAG_NOT_SELECTABLE;
 
                 fieldBuffer << flags;
-            }
-            else if (index == GAMEOBJECT_FIELD_LEVEL)
-            {
-                if (isStoppableTransport)
-                    fieldBuffer << uint32(m_goValue.Transport.PathProgress);
-                else
-                    fieldBuffer << m_uint32Values[index];
-            }
-            else if (index == GAMEOBJECT_FIELD_BYTES)
-            {
-                uint32 bytes1 = m_uint32Values[index];
-                if (isStoppableTransport && GetGoState() == GO_STATE_TRANSPORT_ACTIVE)
-                {
-                    if ((m_goValue.Transport.StateUpdateTimer / 20000) & 1)
-                    {
-                        bytes1 &= 0xFFFFFF00;
-                        bytes1 |= GO_STATE_TRANSPORT_STOPPED;
-                    }
-                }
-                
-                fieldBuffer << bytes1;
             }
             else
                 fieldBuffer << m_uint32Values[index];                // other cases

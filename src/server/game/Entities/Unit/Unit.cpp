@@ -11433,7 +11433,7 @@ void Unit::SetSpeed(UnitMoveType mtype, float rate, bool forced)
 
     static MovementStatusElements const speedVal = MSEExtraFloat;
     Movement::ExtraMovementStatusElement extra(&speedVal);
-    extra.Data.floatData = GetSpeed(mtype);
+    extra.Data.floatData.push_back(GetSpeed(mtype));
 
     Movement::PacketSender(this, moveTypeToOpcode[mtype][0], moveTypeToOpcode[mtype][1], moveTypeToOpcode[mtype][2], &extra).Send();
 }
@@ -15077,7 +15077,7 @@ bool Unit::SetCharmedBy(Unit* charmer, CharmType type, AuraApplication const* au
         {
             case CHARM_TYPE_VEHICLE:
                 SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED);
-                charmer->ToPlayer()->SetClientControl(this, 1);
+                charmer->ToPlayer()->SetClientControl(this, true);
                 charmer->ToPlayer()->SetMover(this);
                 charmer->ToPlayer()->SetViewpoint(this, true);
                 charmer->ToPlayer()->VehicleSpellInitialize();
@@ -15086,7 +15086,7 @@ bool Unit::SetCharmedBy(Unit* charmer, CharmType type, AuraApplication const* au
                 AddUnitState(UNIT_STATE_POSSESSED);
                 SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED);
                 charmer->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
-                charmer->ToPlayer()->SetClientControl(this, 1);
+                charmer->ToPlayer()->SetClientControl(this, true);
                 charmer->ToPlayer()->SetMover(this);
                 charmer->ToPlayer()->SetViewpoint(this, true);
                 charmer->ToPlayer()->PossessSpellInitialize();
@@ -16521,8 +16521,7 @@ void Unit::WriteMovementInfo(WorldPacket& data, Movement::ExtraMovementStatusEle
     MovementStatusElements const* sequence = GetMovementStatusElementsSequence(data.GetOpcode());
     if (!sequence)
     {
-        // Temporary removed for stopping spam in the console by XEQT
-        // TC_LOG_ERROR("network", "Unit::WriteMovementInfo: No movement sequence found for opcode %s", GetOpcodeNameForLogging(data.GetOpcode(), true).c_str());
+        TC_LOG_ERROR("network", "Unit::WriteMovementInfo: No movement sequence found for opcode %s", GetOpcodeNameForLogging(data.GetOpcode(), true).c_str());
         return;
     }
 
@@ -16622,9 +16621,11 @@ void Unit::WriteMovementInfo(WorldPacket& data, Movement::ExtraMovementStatusEle
         case MSEHasSpline:
             data.WriteBit(hasSpline);
             break;
-        case MSEMountDisplayId:
-            if (hasMountDisplayId)
-                data << GetUInt32Value(UNIT_FIELD_MOUNT_DISPLAY_ID);
+        case MSEMountDisplayIdWithCheck: // Fallback here
+            if (!hasMountDisplayId) 
+                break;
+        case MSEMountDisplayIdWithoutCheck:
+            data << GetUInt32Value(UNIT_FIELD_MOUNT_DISPLAY_ID);
             break;
         case MSEMovementFlags:
             if (hasMovementFlags)
@@ -16712,12 +16713,20 @@ void Unit::WriteMovementInfo(WorldPacket& data, Movement::ExtraMovementStatusEle
                 data << mi.splineElevation;
             break;
         case MSEForcesCount:
+            // data.WriteBits(forcesCount, 22);
             data.WriteBits(0, 22);
             break;
+        case MSEForces:
+            /* 
+            for (uint8 i = 0; i < forcesCount; ++i)
+                data << uint32(0); 
+            */            
+            break;
         case MSECounter:
-            if (m_movementCounter)
-                data << m_movementCounter;
-            m_movementCounter++;
+            if (!m_movementCounter)
+                break;
+        case MSECount:
+            data << m_movementCounter++;
             break;
         case MSEZeroBit:
             data.WriteBit(0);
