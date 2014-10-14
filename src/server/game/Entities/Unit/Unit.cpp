@@ -10230,12 +10230,24 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
                 AddPct(DoneTotalMod, PvPPower);
             }
 
-            // Mastery : Frozen Heart // Mastery : Dreadblade
-            if (victim && pdamage != 0 && spellProto &&
-                (spellProto->SchoolMask == SPELL_SCHOOL_MASK_FROST && HasAura(77514)) || (spellProto->SchoolMask == SPELL_SCHOOL_MASK_SHADOW && HasAura(77515)))
+            // Mastery : Frozen Heart
+            if (GetTypeId() == TYPEID_PLAYER && victim && pdamage != 0 && spellProto && spellProto->SchoolMask == SPELL_SCHOOL_MASK_FROST)
             {
-                float Mastery = ToPlayer()->GetMasterySpellCoefficient();
-                AddPct(DoneTotalMod, Mastery);
+                if (HasAura(77514))
+                {
+                    float Mastery = ToPlayer()->GetMasterySpellCoefficient();
+                    AddPct(DoneTotalMod, Mastery);
+                }
+            }
+
+            // Mastery : Dreadblade
+            if (victim && pdamage != 0 && spellProto && spellProto->SchoolMask == SPELL_SCHOOL_MASK_SHADOW)
+            {
+                if (HasAura(77515))
+                {
+                    float Mastery = ToPlayer()->GetMasterySpellCoefficient();
+                    AddPct(DoneTotalMod, Mastery);
+                }
             }
 
             // Mastery : Strikes of Opportunity
@@ -10248,8 +10260,8 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
                         this->CastSpell(victim, 76858, true);
                 }
             }
-
         }
+            break;
         default:
             break;
     }
