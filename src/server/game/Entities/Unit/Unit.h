@@ -1157,6 +1157,22 @@ enum CommandStates
     COMMAND_MOVE_TO = 4
 };
 
+enum PetModeFlags
+{
+    PET_MODE_FLAG_UNK_1             = 0x0001,
+    PET_MODE_FLAG_UNK_2             = 0x0002,
+    PET_MODE_FLAG_UNK_3             = 0x0004,
+    PET_MODE_FLAG_UNK_4             = 0x0008,
+    PET_MODE_FLAG_UNK_5             = 0x0010,
+    PET_MODE_FLAG_UNK_6             = 0x0020,
+    PET_MODE_FLAG_UNK_7             = 0x0040,
+    PET_MODE_FLAG_UNK_8             = 0x0080,
+    PET_MODE_FLAG_UNK_9             = 0x0100,
+    PET_MODE_FLAG_UNK_10            = 0x0200,
+    PET_MODE_FLAG_UNK_11            = 0x0400,
+    PET_MODE_FLAG_DISABLE_ACTIONS   = 0x0800
+};
+
 #define UNIT_ACTION_BUTTON_ACTION(X) (uint32(X) & 0x00FFFFFF)
 #define UNIT_ACTION_BUTTON_TYPE(X)   ((uint32(X) & 0xFF000000) >> 24)
 #define MAKE_UNIT_ACTION_BUTTON(A, T) (uint32(A) | (uint32(T) << 24))

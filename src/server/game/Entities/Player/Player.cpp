@@ -22321,15 +22321,17 @@ void Player::VehicleSpellInitialize()
     data.WriteByteSeq(guid[7]);
     data.WriteByteSeq(guid[0]);
     data.WriteByteSeq(guid[3]);
-    data << uint8(0);  // Specialization/React State? - found always 0 for vehicles
-    data << uint8(0);  // Command State
-    data << uint16(0); // Pet Family, always 0 for vehicles
+    data << uint16(0); // Specialization (0 for vehicles)
+    data << uint16(0); // Pet Family (0 for vehicles)
     data.WriteByteSeq(guid[1]);
     data.WriteByteSeq(guid[4]);
     data.WriteByteSeq(guid[6]);
-    data << uint32(vehicle->IsSummon() ? vehicle->ToTempSummon()->GetTimer() : 0);
+    data << uint32(vehicle->IsSummon() ? vehicle->ToTempSummon()->GetTimer() : 0); // Time Limit
     data.WriteByteSeq(guid[5]);
-    data << uint32(0x101); // Seems to be always 257 (0x101) for vehicles
+
+    uint16 PetModeFlags = 0; // PetModeFlags are not implemented yet
+    uint32 petModeAndOrders = uint32(PetModeFlags << 16) | (vehicle->GetCharmInfo()->GetCommandState() << 8) | vehicle->GetReactState();
+    data << uint32(petModeAndOrders);
 
     GetSession()->SendPacket(&data);
 }
