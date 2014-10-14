@@ -5444,8 +5444,9 @@ void Movement::ExtraMovementStatusElement::WriteNextElement(ByteBuffer& packet)
             break;
         case MSEExtraFloat:
         {
+            // Get the front one and rotate list to the left
             packet << float(Data.floatData.front());
-            Data.floatData.pop_front();
+            Data.floatData.splice(Data.floatData.begin(), Data.floatData, ++Data.floatData.begin());
             break;
         }
         case MSEExtraInt8:
