@@ -452,24 +452,12 @@ bool Transport::TeleportTransport(uint32 newMapid, float x, float y, float z)
 
             switch (obj->GetTypeId())
             {
-                case TYPEID_UNIT:
-                    if (!IS_PLAYER_GUID(obj->ToUnit()->GetOwnerGUID()))  // pets should be teleported with player
-                        obj->ToCreature()->FarTeleportTo(newMap, destX, destY, destZ, destO);
-                    break;
-                case TYPEID_GAMEOBJECT:
-                {
-                    GameObject* go = obj->ToGameObject();
-                    go->GetMap()->RemoveFromMap(go, false);
-                    go->Relocate(destX, destY, destZ, destO);
-                    go->SetMap(newMap);
-                    newMap->AddToMap(go);
-                    break;
-                }
                 case TYPEID_PLAYER:
                     if (!obj->ToPlayer()->TeleportTo(newMapid, destX, destY, destZ, destO, TELE_TO_NOT_LEAVE_TRANSPORT))
                         _passengers.erase(obj);
                     break;
                 default:
+                    RemovePassenger(obj);
                     break;
             }
         }
