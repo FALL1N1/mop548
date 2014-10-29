@@ -1151,10 +1151,15 @@ public:
 
             else
             {
+                Unit* victim = eventInfo.GetDamageInfo()->GetVictim();
+
+                if (!victim)
+                    return;
+
                 if (lastlaunched == 5)
                 {
-                    caster->CastSpell(eventInfo.GetDamageInfo()->GetVictim(), SPELL_MAGE_ICICLE_1, true, NULL, aurEff);
-                    caster->CastCustomSpell(SPELL_MAGE_ICICLE_DMG, SPELLVALUE_BASE_POINT0, caster->GetAura(SPELL_MAGE_ICICLE_STORE_1)->GetEffect(EFFECT_0)->GetAmount(), eventInfo.GetDamageInfo()->GetVictim(), true);
+                    caster->CastSpell(victim, SPELL_MAGE_ICICLE_1, true, NULL, aurEff);
+                    caster->CastCustomSpell(SPELL_MAGE_ICICLE_DMG, SPELLVALUE_BASE_POINT0, caster->GetAura(SPELL_MAGE_ICICLE_STORE_1)->GetEffect(EFFECT_0)->GetAmount(), victim, true);
                     caster->RemoveAura(SPELL_MAGE_ICICLE_STORE_1);
                     caster->CastSpell(caster, SPELL_MAGE_ICICLE_STORE_1, true, NULL, aurEff);
                     caster->GetAura(SPELL_MAGE_ICICLE_STORE_1)->GetEffect(EFFECT_0)->SetAmount(damage);
@@ -1163,8 +1168,8 @@ public:
 
                 else if (lastlaunched == 1)
                 {
-                    caster->CastSpell(eventInfo.GetDamageInfo()->GetVictim(), SPELL_MAGE_ICICLE_2, true, NULL, aurEff);
-                    caster->CastCustomSpell(SPELL_MAGE_ICICLE_DMG, SPELLVALUE_BASE_POINT0, caster->GetAura(SPELL_MAGE_ICICLE_STORE_2)->GetEffect(EFFECT_0)->GetAmount(), eventInfo.GetDamageInfo()->GetVictim(), true);
+                    caster->CastSpell(victim, SPELL_MAGE_ICICLE_2, true, NULL, aurEff);
+                    caster->CastCustomSpell(SPELL_MAGE_ICICLE_DMG, SPELLVALUE_BASE_POINT0, caster->GetAura(SPELL_MAGE_ICICLE_STORE_2)->GetEffect(EFFECT_0)->GetAmount(), victim, true);
                     caster->RemoveAura(SPELL_MAGE_ICICLE_STORE_2);
                     caster->CastSpell(caster, SPELL_MAGE_ICICLE_STORE_2, true, NULL, aurEff);
                     caster->GetAura(SPELL_MAGE_ICICLE_STORE_2)->GetEffect(EFFECT_0)->SetAmount(damage);
@@ -1173,8 +1178,8 @@ public:
 
                 else if (lastlaunched == 2)
                 {
-                    caster->CastSpell(eventInfo.GetDamageInfo()->GetVictim(), SPELL_MAGE_ICICLE_3, true, NULL, aurEff);
-                    caster->CastCustomSpell(SPELL_MAGE_ICICLE_DMG, SPELLVALUE_BASE_POINT0, caster->GetAura(SPELL_MAGE_ICICLE_STORE_3)->GetEffect(EFFECT_0)->GetAmount(), eventInfo.GetDamageInfo()->GetVictim(), true);
+                    caster->CastSpell(victim, SPELL_MAGE_ICICLE_3, true, NULL, aurEff);
+                    caster->CastCustomSpell(SPELL_MAGE_ICICLE_DMG, SPELLVALUE_BASE_POINT0, caster->GetAura(SPELL_MAGE_ICICLE_STORE_3)->GetEffect(EFFECT_0)->GetAmount(), victim, true);
                     caster->RemoveAura(SPELL_MAGE_ICICLE_STORE_3);
                     caster->CastSpell(caster, SPELL_MAGE_ICICLE_STORE_3, true, NULL, aurEff);
                     caster->GetAura(SPELL_MAGE_ICICLE_STORE_3)->GetEffect(EFFECT_0)->SetAmount(damage);
@@ -1183,8 +1188,8 @@ public:
 
                 else if (lastlaunched == 3)
                 {
-                    caster->CastSpell(eventInfo.GetDamageInfo()->GetVictim(), SPELL_MAGE_ICICLE_4, true, NULL, aurEff);
-                    caster->CastCustomSpell(SPELL_MAGE_ICICLE_DMG, SPELLVALUE_BASE_POINT0, caster->GetAura(SPELL_MAGE_ICICLE_STORE_4)->GetEffect(EFFECT_0)->GetAmount(), eventInfo.GetDamageInfo()->GetVictim(), true);
+                    caster->CastSpell(victim, SPELL_MAGE_ICICLE_4, true, NULL, aurEff);
+                    caster->CastCustomSpell(SPELL_MAGE_ICICLE_DMG, SPELLVALUE_BASE_POINT0, caster->GetAura(SPELL_MAGE_ICICLE_STORE_4)->GetEffect(EFFECT_0)->GetAmount(), victim, true);
                     caster->RemoveAura(SPELL_MAGE_ICICLE_STORE_4);
                     caster->CastSpell(caster, SPELL_MAGE_ICICLE_STORE_4, true, NULL, aurEff);
                     caster->GetAura(SPELL_MAGE_ICICLE_STORE_4)->GetEffect(EFFECT_0)->SetAmount(damage);
@@ -1193,8 +1198,8 @@ public:
 
                 else if (lastlaunched == 4)
                 {
-                    caster->CastSpell(eventInfo.GetDamageInfo()->GetVictim(), SPELL_MAGE_ICICLE_5, true, NULL, aurEff);
-                    caster->CastCustomSpell(SPELL_MAGE_ICICLE_DMG, SPELLVALUE_BASE_POINT0, caster->GetAura(SPELL_MAGE_ICICLE_STORE_5)->GetEffect(EFFECT_0)->GetAmount(), eventInfo.GetDamageInfo()->GetVictim(), true);
+                    caster->CastSpell(victim, SPELL_MAGE_ICICLE_5, true, NULL, aurEff);
+                    caster->CastCustomSpell(SPELL_MAGE_ICICLE_DMG, SPELLVALUE_BASE_POINT0, caster->GetAura(SPELL_MAGE_ICICLE_STORE_5)->GetEffect(EFFECT_0)->GetAmount(), victim, true);
                     caster->RemoveAura(SPELL_MAGE_ICICLE_STORE_5);
                     caster->CastSpell(caster, SPELL_MAGE_ICICLE_STORE_5, true, NULL, aurEff);
                     caster->GetAura(SPELL_MAGE_ICICLE_STORE_5)->GetEffect(EFFECT_0)->SetAmount(damage);
