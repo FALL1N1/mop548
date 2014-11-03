@@ -28685,7 +28685,7 @@ void Player::ReadMovementInfo(WorldPacket& data, MovementInfo* mi, Movement::Ext
     bool hasOrientation = false;
     bool hasTransportData = false;
     bool hasTransportTime2 = false;
-    bool hasTransportTime3 = false;
+    bool hasTransportVehicleId = false;
     bool hasPitch = false;
     bool hasFallData = false;
     bool hasFallDirection = false;
@@ -28764,9 +28764,9 @@ void Player::ReadMovementInfo(WorldPacket& data, MovementInfo* mi, Movement::Ext
                 if (hasTransportData)
                     hasTransportTime2 = data.ReadBit();
                 break;
-            case MSEHasTransportTime3:
+            case MSEHasTransportVehicleId:
                 if (hasTransportData)
-                    hasTransportTime3 = data.ReadBit();
+                    hasTransportVehicleId = data.ReadBit();
                 break;
             case MSEHasPitch:
                 hasPitch = !data.ReadBit();
@@ -28850,9 +28850,9 @@ void Player::ReadMovementInfo(WorldPacket& data, MovementInfo* mi, Movement::Ext
                 if (hasTransportData && hasTransportTime2)
                     data >> mi->transport.time2;
                 break;
-            case MSETransportTime3:
-                if (hasTransportData && hasTransportTime3)
-                    data >> mi->transport.time3;
+            case MSETransportVehicleId:
+                if (hasTransportData && hasTransportVehicleId)
+                    data >> mi->transport.vehicleId;
                 break;
             case MSEPitch:
                 if (hasPitch)
