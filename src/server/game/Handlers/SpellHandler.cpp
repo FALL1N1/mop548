@@ -91,7 +91,7 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& recvPacket)
     ObjectGuid movementGuid = 0;
     bool hasTransport = false;
     bool hasTransportTime2 = false;
-    bool hasTransportTime3 = false;
+    bool hasTransportVehicleId = false;
     bool hasFallData = false;
     bool hasFallDirection = false;
     bool hasTimestamp = false;
@@ -145,7 +145,7 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& recvPacket)
             movementTransportGuid[6] = recvPacket.ReadBit();
             movementTransportGuid[0] = recvPacket.ReadBit();
             movementTransportGuid[1] = recvPacket.ReadBit();
-            hasTransportTime3 = recvPacket.ReadBit();
+            hasTransportVehicleId = recvPacket.ReadBit();
             movementTransportGuid[4] = recvPacket.ReadBit();
             hasTransportTime2 = recvPacket.ReadBit();
         }
@@ -258,8 +258,8 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& recvPacket)
             recvPacket >> movementInfo.transport.pos.m_positionZ;
             recvPacket.ReadByteSeq(movementTransportGuid[1]);
 
-            if (hasTransportTime3)
-                recvPacket >> movementInfo.transport.time3;
+            if (hasTransportVehicleId)
+                recvPacket >> movementInfo.transport.vehicleId;
 
             recvPacket.ReadByteSeq(movementTransportGuid[7]);
             recvPacket.ReadByteSeq(movementTransportGuid[5]);
@@ -708,7 +708,7 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
     ObjectGuid movementGuid = 0;
     bool hasTransport = false;
     bool hasTransportTime2 = false;
-    bool hasTransportTime3 = false;
+    bool hasTransportVehicleId = false;
     bool hasFallData = false;
     bool hasFallDirection = false;
     bool hasTimestamp = false;
@@ -777,7 +777,7 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
             movementTransportGuid[6] = recvPacket.ReadBit();
             movementTransportGuid[3] = recvPacket.ReadBit();
             movementTransportGuid[5] = recvPacket.ReadBit();
-            hasTransportTime3 = recvPacket.ReadBit();
+            hasTransportVehicleId = recvPacket.ReadBit();
             movementTransportGuid[2] = recvPacket.ReadBit();
         }
 
@@ -861,8 +861,8 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
             recvPacket >> movementInfo.transport.pos.m_positionX;
             recvPacket.ReadByteSeq(movementTransportGuid[5]);
 
-            if (hasTransportTime3)
-                recvPacket >> movementInfo.transport.time3;
+            if (hasTransportVehicleId)
+                recvPacket >> movementInfo.transport.vehicleId;
 
             recvPacket >> movementInfo.transport.pos.m_positionZ;
             recvPacket >> movementInfo.transport.pos.m_positionY;

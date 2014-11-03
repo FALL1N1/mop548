@@ -42,7 +42,7 @@ MovementStatusElements const PlayerMove[] = // 5.4.8 18414
     MSEHasTransportTime2,      // 92
     MSEHasTransportGuidByte3,  // 59
     MSEHasTransportGuidByte1,  // 57
-    MSETransportVehicleId,      // 100
+    MSEHasTransportVehicleId,  // 100
     MSEHasTransportGuidByte0,  // 56
     MSEHasSplineElevation,     // 144
     MSEHasMovementFlags,       // 6
@@ -72,7 +72,7 @@ MovementStatusElements const PlayerMove[] = // 5.4.8 18414
     MSETransportPositionY,     // 68
     MSETransportOrientation,   // 76
     MSETransportGuidByte6,     // 62
-    MSETransportTime3,         // 24
+    MSETransportVehicleId,     // 24
     MSEGuidByte5,              // 21
     MSEGuidByte1,              // 17
     MSEPositionZ,              // 44
@@ -131,7 +131,7 @@ MovementStatusElements const MovementFallLand[] = // 5.4.8 18414
     MSEHasTransportGuidByte4,  // 60
     MSEHasTransportGuidByte2,  // 58
     MSEHasTransportGuidByte6,  // 62
-    MSETransportVehicleId,      // 100
+    MSEHasTransportVehicleId,  // 100
     MSEMovementFlags2,         // 28
     MSEHasFallDirection,       // 136
     MSEMovementFlags,          // 24
@@ -160,7 +160,7 @@ MovementStatusElements const MovementFallLand[] = // 5.4.8 18414
     MSETransportGuidByte2,     // 58
     MSETransportGuidByte1,     // 57
     MSETransportGuidByte5,     // 61
-    MSETransportTime3,         // 96
+    MSETransportVehicleId,     // 96
     MSETransportTime,          // 84
     MSETransportPositionX,     // 64
     MSETransportGuidByte7,     // 63
@@ -204,7 +204,7 @@ MovementStatusElements const MovementHeartBeat[] = // 5.4.8 18414
     MSEHasTransportGuidByte6,  // 62
     MSEHasTransportGuidByte0,  // 56
     MSEHasTransportGuidByte7,  // 63
-    MSETransportVehicleId,      // 100
+    MSEHasTransportVehicleId,  // 100
     MSEHasTransportGuidByte1,  // 57
     MSEHasTransportGuidByte2,  // 58
     MSEHasTransportGuidByte4,  // 60
@@ -230,7 +230,7 @@ MovementStatusElements const MovementHeartBeat[] = // 5.4.8 18414
     MSETransportGuidByte3,     // 59
     MSETransportGuidByte2,     // 58
     MSETransportGuidByte0,     // 56
-    MSETransportTime3,         // 96
+    MSETransportVehicleId,     // 96
     MSETransportSeat,          // 80
     MSETransportGuidByte7,     // 63
     MSETransportPositionX,     // 64
@@ -285,7 +285,7 @@ MovementStatusElements const MovementJump[] = // 5.4.8 18414
     MSEHasTransportGuidByte6,  // 62
     MSEHasTransportGuidByte0,  // 56
     MSEHasTransportGuidByte7,  // 63
-    MSETransportVehicleId,      // 100
+    MSEHasTransportVehicleId,  // 100
     MSEMovementFlags,          // 24
     MSEMovementFlags2,         // 28
     MSEHasFallDirection,       // 136
@@ -317,7 +317,7 @@ MovementStatusElements const MovementJump[] = // 5.4.8 18414
     MSETransportTime2,         // 88
     MSETransportGuidByte1,     // 57
     MSETransportGuidByte3,     // 59
-    MSETransportTime3,         // 96
+    MSETransportVehicleId,     // 96
     MSETransportOrientation,   // 76
     MSESplineElevation,        // 144
     MSEOrientation,            // 48
@@ -358,7 +358,7 @@ MovementStatusElements const MovementSetFacing[] = // 5.4.8 18414
     MSEHasTransportTime2,      // 92
     MSEHasTransportGuidByte3,  // 59
     MSEHasTransportGuidByte6,  // 62
-    MSETransportVehicleId,      // 100
+    MSEHasTransportVehicleId,  // 100
     MSEHasTransportGuidByte2,  // 58
     MSEHasTransportGuidByte5,  // 61
     MSEHasTransportGuidByte1,  // 57
@@ -379,7 +379,7 @@ MovementStatusElements const MovementSetFacing[] = // 5.4.8 18414
     MSETransportGuidByte2,     // 58
     MSETransportOrientation,   // 76
     MSETransportGuidByte7,     // 63
-    MSETransportTime3,         // 96
+    MSETransportVehicleId,     // 96
     MSETransportGuidByte5,     // 61
     MSETransportTime,          // 84
     MSETransportPositionX,     // 64
@@ -437,7 +437,7 @@ MovementStatusElements const MovementSetPitch[] = // 5.4.8 18414
     MSEHasTransportGuidByte6,  // 62
     MSEHasTransportTime2,      // 92
     MSEHasTransportGuidByte2,  // 58
-    MSETransportVehicleId,      // 100
+    MSEHasTransportVehicleId,  // 100
     MSEHasTransportGuidByte4,  // 60
     MSEHasTransportGuidByte0,  // 56
     MSEHasFallDirection,       // 136
@@ -456,7 +456,7 @@ MovementStatusElements const MovementSetPitch[] = // 5.4.8 18414
     MSETransportPositionZ,     // 72
     MSETransportGuidByte3,     // 59
     MSETransportGuidByte2,     // 58
-    MSETransportTime3,         // 96
+    MSETransportVehicleId,     // 96
     MSETransportGuidByte5,     // 61
     MSETransportTime2,         // 88
     MSETransportGuidByte6,     // 62
@@ -511,7 +511,7 @@ MovementStatusElements const MovementStartBackward[] = // 5.4.8 18414
     MSEHasTransportTime2,      // 92
     MSEHasTransportGuidByte0,  // 56
     MSEHasTransportGuidByte7,  // 63
-    MSETransportVehicleId,      // 100
+    MSEHasTransportVehicleId,  // 100
     MSEHasTransportGuidByte3,  // 59
     MSEHasTransportGuidByte5,  // 61
     MSEHasTransportGuidByte6,  // 62
@@ -541,7 +541,7 @@ MovementStatusElements const MovementStartBackward[] = // 5.4.8 18414
     MSETransportPositionX,     // 64
     MSETransportGuidByte0,     // 56
     MSETransportPositionY,     // 68
-    MSETransportTime3,         // 96
+    MSETransportVehicleId,     // 96
     MSETransportGuidByte7,     // 63
     MSETransportTime2,         // 88
     MSETransportPositionZ,     // 72
@@ -585,7 +585,7 @@ MovementStatusElements const MovementStartForward[] = // 5.4.8 18414
     MSEHasGuidByte6,           // 22
     MSEZeroBit,                // 172
     MSEHasTransportGuidByte1,  // 57
-    MSETransportVehicleId,      // 100
+    MSEHasTransportVehicleId,  // 100
     MSEHasTransportGuidByte3,  // 59
     MSEHasTransportGuidByte4,  // 60
     MSEHasTransportGuidByte2,  // 58
@@ -611,7 +611,7 @@ MovementStatusElements const MovementStartForward[] = // 5.4.8 18414
     MSETransportGuidByte6,     // 62
     MSETransportPositionZ,     // 72
     MSETransportGuidByte4,     // 60
-    MSETransportTime3,         // 96
+    MSETransportVehicleId,     // 96
     MSETransportSeat,          // 80
     MSETransportGuidByte7,     // 63
     MSETransportOrientation,   // 76
@@ -668,7 +668,7 @@ MovementStatusElements const MovementStartStrafeLeft[] = // 5.4.8 18414
     MSEHasTransportGuidByte7,  // 63
     MSEHasTransportGuidByte3,  // 59
     MSEHasTransportGuidByte5,  // 61
-    MSETransportVehicleId,      // 100
+    MSEHasTransportVehicleId,  // 100
     MSEHasTransportTime2,      // 92
     MSEHasTransportGuidByte4,  // 60
     MSEMovementFlags,          // 24
@@ -685,7 +685,7 @@ MovementStatusElements const MovementStartStrafeLeft[] = // 5.4.8 18414
     MSEGuidByte6,              // 22
     MSETransportGuidByte2,     // 58
     MSETransportPositionZ,     // 72
-    MSETransportTime3,         // 96
+    MSETransportVehicleId,     // 96
     MSETransportGuidByte6,     // 62
     MSETransportGuidByte3,     // 59
     MSETransportOrientation,   // 76
@@ -746,7 +746,7 @@ MovementStatusElements const MovementStartStrafeRight[] = // 5.4.8 18414
     MSEHasTransportGuidByte2,  // 58
     MSEHasTransportGuidByte0,  // 56
     MSEHasTransportGuidByte4,  // 60
-    MSETransportVehicleId,      // 100
+    MSEHasTransportVehicleId,  // 100
     MSEHasTransportGuidByte7,  // 63
     MSEHasTransportTime2,      // 92
     MSEMovementFlags,          // 24
@@ -766,7 +766,7 @@ MovementStatusElements const MovementStartStrafeRight[] = // 5.4.8 18414
     MSETransportGuidByte3,     // 59
     MSETransportTime2,         // 88
     MSETransportGuidByte7,     // 63
-    MSETransportTime3,         // 96
+    MSETransportVehicleId,     // 96
     MSETransportGuidByte5,     // 61
     MSETransportGuidByte6,     // 62
     MSETransportGuidByte2,     // 58
@@ -815,7 +815,7 @@ MovementStatusElements const MovementStartTurnLeft[] = // 5.4.8 18414
     MSEHasSplineElevation,     // 144
     MSEHasFallData,            // 140
     MSEHasGuidByte6,           // 22
-    MSETransportVehicleId,      // 100
+    MSEHasTransportVehicleId,  // 100
     MSEHasTransportGuidByte5,  // 61
     MSEHasTransportGuidByte6,  // 62
     MSEHasTransportGuidByte2,  // 58
@@ -855,7 +855,7 @@ MovementStatusElements const MovementStartTurnLeft[] = // 5.4.8 18414
     MSETransportGuidByte7,     // 63
     MSETransportGuidByte4,     // 60
     MSETransportGuidByte0,     // 56
-    MSETransportTime3,         // 96
+    MSETransportVehicleId,     // 96
     MSETransportSeat,          // 80
     MSETransportGuidByte6,     // 62
     MSETransportTime,          // 84
@@ -899,7 +899,7 @@ MovementStatusElements const MovementStartTurnRight[] = // 5.4.8 18414
     MSEHasTransportGuidByte3,  // 59
     MSEHasTransportGuidByte7,  // 63
     MSEHasTransportGuidByte4,  // 60
-    MSETransportVehicleId,      // 100
+    MSEHasTransportVehicleId,  // 100
     MSEHasTransportGuidByte0,  // 56
     MSEHasTransportGuidByte1,  // 57
     MSEMovementFlags,          // 24
@@ -920,7 +920,7 @@ MovementStatusElements const MovementStartTurnRight[] = // 5.4.8 18414
     MSEFallVerticalSpeed,      // 120
     MSEFallTime,               // 116
     MSEPitch,                  // 112
-    MSETransportTime3,         // 96
+    MSETransportVehicleId,     // 96
     MSETransportGuidByte3,     // 59
     MSETransportTime2,         // 88
     MSETransportGuidByte7,     // 63
@@ -977,7 +977,7 @@ MovementStatusElements const MovementStop[] = // 5.4.8 18414
     MSEHasTransportGuidByte5,  // 61
     MSEHasTransportGuidByte2,  // 58
     MSEHasTransportGuidByte3,  // 59
-    MSETransportVehicleId,      // 100
+    MSEHasTransportVehicleId,  // 100
     MSEHasTransportGuidByte6,  // 62
     MSEHasFallDirection,       // 136
     MSEMovementFlags2,         // 28
@@ -1008,7 +1008,7 @@ MovementStatusElements const MovementStop[] = // 5.4.8 18414
     MSETransportGuidByte7,     // 63
     MSETransportGuidByte1,     // 57
     MSETransportGuidByte4,     // 60
-    MSETransportTime3,         // 96
+    MSETransportVehicleId,     // 96
     MSETransportGuidByte0,     // 56
     MSETransportSeat,          // 80
     MSETransportPositionZ,     // 72
@@ -1047,7 +1047,7 @@ MovementStatusElements const MovementStopStrafe[] = // 5.4.8 18414
     MSEZeroBit,                // 148
     MSEHasGuidByte1,           // 17
     MSEHasTransportGuidByte7,  // 63
-    MSETransportVehicleId,      // 100
+    MSEHasTransportVehicleId,  // 100
     MSEHasTransportGuidByte3,  // 59
     MSEHasTransportGuidByte1,  // 57
     MSEHasTransportGuidByte6,  // 62
@@ -1069,7 +1069,7 @@ MovementStatusElements const MovementStopStrafe[] = // 5.4.8 18414
     MSEGuidByte4,              // 20
     MSEGuidByte7,              // 23
     MSETransportGuidByte0,     // 56
-    MSETransportTime3,         // 96
+    MSETransportVehicleId,     // 96
     MSETransportGuidByte1,     // 57
     MSETransportGuidByte6,     // 62
     MSETransportTime,          // 84
@@ -1125,7 +1125,7 @@ MovementStatusElements const MovementStopTurn[] = // 5.4.8 18414
     MSEHasTimestamp,           // 32
     MSEMovementFlags2,         // 28
     MSEHasTransportGuidByte1,  // 57
-    MSETransportVehicleId,      // 100
+    MSEHasTransportVehicleId,  // 100
     MSEHasTransportTime2,      // 92
     MSEHasTransportGuidByte3,  // 59
     MSEHasTransportGuidByte6,  // 62
@@ -1146,7 +1146,7 @@ MovementStatusElements const MovementStopTurn[] = // 5.4.8 18414
     MSEGuidByte7,              // 23
     MSEGuidByte1,              // 17
     MSETransportTime,          // 84
-    MSETransportTime3,         // 96
+    MSETransportVehicleId,     // 96
     MSETransportSeat,          // 80
     MSETransportPositionY,     // 68
     MSETransportPositionX,     // 64
@@ -1206,7 +1206,7 @@ MovementStatusElements const MovementStartAscend[] = // 5.4.8 18414
     MSEHasTransportGuidByte5,  // 61
     MSEHasTransportTime2,      // 92
     MSEHasTransportGuidByte1,  // 57
-    MSETransportVehicleId,      // 100
+    MSEHasTransportVehicleId,  // 100
     MSEHasTransportGuidByte6,  // 62
     MSEHasTransportGuidByte2,  // 58
     MSEHasTransportGuidByte7,  // 63
@@ -1229,7 +1229,7 @@ MovementStatusElements const MovementStartAscend[] = // 5.4.8 18414
     MSETransportPositionY,     // 68
     MSETransportOrientation,   // 76
     MSETransportGuidByte6,     // 62
-    MSETransportTime3,         // 96
+    MSETransportVehicleId,     // 96
     MSETransportPositionX,     // 64
     MSETransportGuidByte2,     // 58
     MSETransportTime2,         // 88
@@ -1278,7 +1278,7 @@ MovementStatusElements const MovementStartDescend[] = // 5.4.8 18414
     MSEHasSplineElevation,     // 144
     MSEHasTimestamp,           // 32
     MSEHasTransportGuidByte0,  // 56
-    MSETransportVehicleId,      // 100
+    MSEHasTransportVehicleId,  // 100
     MSEHasTransportGuidByte7,  // 63
     MSEHasTransportTime2,      // 92
     MSEHasTransportGuidByte1,  // 57
@@ -1307,7 +1307,7 @@ MovementStatusElements const MovementStartDescend[] = // 5.4.8 18414
     MSETransportGuidByte5,     // 61
     MSETransportGuidByte1,     // 57
     MSETransportPositionY,     // 68
-    MSETransportTime3,         // 96
+    MSETransportVehicleId,     // 96
     MSETransportTime,          // 84
     MSETransportGuidByte4,     // 60
     MSETransportTime2,         // 88
@@ -1361,7 +1361,7 @@ MovementStatusElements const MovementStartSwim[] = // 5.4.8 18414
     MSEHasTransportGuidByte5,  // 61
     MSEHasTransportGuidByte1,  // 57
     MSEHasTransportGuidByte4,  // 60
-    MSETransportVehicleId,      // 100
+    MSEHasTransportVehicleId,  // 100
     MSEHasTransportGuidByte0,  // 56
     MSEHasTransportGuidByte3,  // 59
     MSEMovementFlags,          // 24
@@ -1390,7 +1390,7 @@ MovementStatusElements const MovementStartSwim[] = // 5.4.8 18414
     MSETransportPositionZ,     // 72
     MSETransportTime,          // 84
     MSETransportOrientation,   // 76
-    MSETransportTime3,         // 96
+    MSETransportVehicleId,     // 96
     MSETransportGuidByte5,     // 61
     MSEFallCosAngle,           // 124
     MSEFallSinAngle,           // 128
@@ -1439,7 +1439,7 @@ MovementStatusElements const MovementStopSwim[] = // 5.4.8 18414
     MSEHasTransportGuidByte6,  // 62
     MSEHasTransportGuidByte7,  // 63
     MSEHasTransportGuidByte3,  // 59
-    MSETransportVehicleId,      // 100
+    MSEHasTransportVehicleId,  // 100
     MSEHasTransportGuidByte0,  // 56
     MSEHasFallDirection,       // 136
     MSEMovementFlags,          // 24
@@ -1468,7 +1468,7 @@ MovementStatusElements const MovementStopSwim[] = // 5.4.8 18414
     MSETransportGuidByte4,     // 60
     MSETransportGuidByte5,     // 61
     MSETransportTime2,         // 88
-    MSETransportTime3,         // 96
+    MSETransportVehicleId,     // 96
     MSEFallCosAngle,           // 124
     MSEFallHorizontalSpeed,    // 132
     MSEFallSinAngle,           // 128
@@ -1515,7 +1515,7 @@ MovementStatusElements const MovementStopAscend[] = // 5.4.8 18414
     MSEHasTransportGuidByte6,  // 62
     MSEHasTransportGuidByte2,  // 58
     MSEHasTransportGuidByte1,  // 57
-    MSETransportVehicleId,      // 100
+    MSEHasTransportVehicleId,  // 100
     MSEHasTransportGuidByte3,  // 59
     MSEHasTransportGuidByte7,  // 63
     MSEMovementFlags2,         // 28
@@ -1542,7 +1542,7 @@ MovementStatusElements const MovementStopAscend[] = // 5.4.8 18414
     MSETransportGuidByte0,     // 56
     MSETransportGuidByte2,     // 58
     MSETransportPositionZ,     // 72
-    MSETransportTime3,         // 96
+    MSETransportVehicleId,     // 96
     MSETransportTime,          // 84
     MSETransportSeat,          // 80
     MSETransportGuidByte6,     // 62
@@ -1587,7 +1587,7 @@ MovementStatusElements const MovementStopPitch[] = // 5.4.8 18414
     MSEHasGuidByte1,           // 17
     MSEHasTransportGuidByte4,  // 60
     MSEHasTransportGuidByte5,  // 61
-    MSETransportVehicleId,      // 100
+    MSEHasTransportVehicleId,  // 100
     MSEHasTransportGuidByte6,  // 62
     MSEHasTransportGuidByte3,  // 59
     MSEHasTransportGuidByte0,  // 56
@@ -1623,7 +1623,7 @@ MovementStatusElements const MovementStopPitch[] = // 5.4.8 18414
     MSETransportGuidByte2,     // 58
     MSETransportGuidByte3,     // 59
     MSETransportSeat,          // 80
-    MSETransportTime3,         // 96
+    MSETransportVehicleId,     // 96
     MSETransportTime,          // 84
     MSETransportGuidByte4,     // 60
     MSETransportGuidByte7,     // 63
@@ -1669,7 +1669,7 @@ MovementStatusElements const MovementStartPitchDown[] = // 5.4.8 18414
     MSEHasTransportGuidByte7,  // 63
     MSEHasTransportGuidByte5,  // 61
     MSEHasTransportGuidByte4,  // 60
-    MSETransportVehicleId,      // 100
+    MSEHasTransportVehicleId,  // 100
     MSEHasTransportGuidByte1,  // 57
     MSEHasTransportGuidByte0,  // 56
     MSEMovementFlags,          // 24
@@ -1701,7 +1701,7 @@ MovementStatusElements const MovementStartPitchDown[] = // 5.4.8 18414
     MSETransportGuidByte2,     // 58
     MSETransportGuidByte5,     // 61
     MSETransportPositionX,     // 64
-    MSETransportTime3,         // 96
+    MSETransportVehicleId,     // 96
     MSETransportPositionY,     // 68
     MSETransportGuidByte3,     // 59
     MSETransportTime2,         // 88
@@ -1746,7 +1746,7 @@ MovementStatusElements const MovementStartPitchUp[] = // 5.4.8 18414
     MSEHasTransportGuidByte2,  // 58
     MSEHasTransportGuidByte6,  // 62
     MSEHasTransportGuidByte0,  // 56
-    MSETransportVehicleId,      // 100
+    MSEHasTransportVehicleId,  // 100
     MSEHasTransportGuidByte7,  // 63
     MSEHasTransportGuidByte3,  // 59
     MSEMovementFlags2,         // 28
@@ -1763,7 +1763,7 @@ MovementStatusElements const MovementStartPitchUp[] = // 5.4.8 18414
     MSEGuidByte2,              // 18
     MSETransportSeat,          // 80
     MSETransportGuidByte3,     // 59
-    MSETransportTime3,         // 96
+    MSETransportVehicleId,     // 96
     MSETransportGuidByte2,     // 58
     MSETransportGuidByte7,     // 63
     MSETransportGuidByte0,     // 56
@@ -1820,7 +1820,7 @@ MovementStatusElements const MoveChngTransport[]=
     MSEHasTransportGuidByte7,  // 63
     MSEHasTransportGuidByte1,  // 57
     MSEHasTransportGuidByte2,  // 58
-    MSETransportVehicleId,      // 100
+    MSEHasTransportVehicleId,  // 100
     MSEHasTransportGuidByte6,  // 62
     MSEHasTransportGuidByte5,  // 61
     MSEHasTransportTime2,      // 92
@@ -1846,7 +1846,7 @@ MovementStatusElements const MoveChngTransport[]=
     MSEFallTime,               // 116
     MSETransportPositionZ,     // 72
     MSETransportGuidByte4,     // 60
-    MSETransportTime3,         // 96
+    MSETransportVehicleId,     // 96
     MSETransportGuidByte0,     // 56
     MSETransportGuidByte3,     // 59
     MSETransportGuidByte5,     // 61
@@ -1895,7 +1895,7 @@ MovementStatusElements const MoveSplineDone[] =
     MSEHasTimestamp,
     MSEHasFallData,
     MSEHasTransportGuidByte2,
-    MSETransportVehicleId,
+    MSEHasTransportVehicleId,
     MSEHasTransportTime2,
     MSEHasTransportGuidByte1,
     MSEHasTransportGuidByte4,
@@ -1926,7 +1926,7 @@ MovementStatusElements const MoveSplineDone[] =
     MSETransportPositionX,
     MSETransportGuidByte6,
     MSETransportSeat,
-    MSETransportTime3,
+    MSETransportVehicleId,
     MSETransportGuidByte4,
     MSETransportGuidByte7,
     MSETransportGuidByte0,
@@ -1975,7 +1975,7 @@ MovementStatusElements const MoveNotActiveMover[] =
     MSEHasTransportGuidByte1,
     MSEHasTransportGuidByte6,
     MSEHasTransportGuidByte2,
-    MSETransportVehicleId,
+    MSEHasTransportVehicleId,
     MSEHasTransportGuidByte5,
     MSEHasTransportGuidByte7,
     MSEHasTransportTime2,
@@ -2000,7 +2000,7 @@ MovementStatusElements const MoveNotActiveMover[] =
     MSEFallHorizontalSpeed,
     MSEFallTime,
 
-    MSETransportTime3,
+    MSETransportVehicleId,
     MSETransportGuidByte1,
     MSETransportTime2,
     MSETransportOrientation,
@@ -2050,7 +2050,7 @@ MovementStatusElements const DismissControlledVehicle[] =
     MSEHasGuidByte5,
 
     MSEHasTransportGuidByte5,
-    MSETransportVehicleId,
+    MSEHasTransportVehicleId,
     MSEHasTransportGuidByte2,
     MSEHasTransportGuidByte0,
     MSEHasTransportGuidByte7,
@@ -2075,7 +2075,7 @@ MovementStatusElements const DismissControlledVehicle[] =
 
     MSETimestamp,
 
-    MSETransportTime3,
+    MSETransportVehicleId,
     MSETransportGuidByte4,
     MSETransportGuidByte7,
     MSETransportTime2,
@@ -2129,7 +2129,7 @@ MovementStatusElements const MoveUpdateTeleport[] =
     MSEHasTransportTime2,
     MSEHasTransportGuidByte7,
     MSEHasTransportGuidByte6,
-    MSETransportVehicleId,
+    MSEHasTransportVehicleId,
     MSEHasTransportGuidByte2,
 
     MSEZeroBit,
@@ -2150,7 +2150,7 @@ MovementStatusElements const MoveUpdateTeleport[] =
     MSETransportGuidByte3,
     MSETransportGuidByte4,
     MSETransportOrientation,
-    MSETransportTime3,
+    MSETransportVehicleId,
     MSETransportGuidByte1,
     MSETransportTime2,
     MSETransportPositionZ,
@@ -2217,7 +2217,7 @@ MovementStatusElements const MovementSetRunMode[] =
     MSEHasTransportGuidByte4,  // 60
     MSEHasTransportGuidByte5,  // 61
     MSEHasTransportGuidByte6,  // 62
-    MSETransportVehicleId,      // 100
+    MSEHasTransportVehicleId,  // 100
     MSEHasTransportGuidByte2,  // 58
     MSEHasTransportGuidByte3,  // 59
     MSEHasTransportGuidByte0,  // 56
@@ -2245,7 +2245,7 @@ MovementStatusElements const MovementSetRunMode[] =
     MSETransportPositionX,     // 64
     MSETransportGuidByte1,     // 57
     MSETransportTime,          // 84
-    MSETransportTime3,         // 96
+    MSETransportVehicleId,     // 96
     MSETransportPositionZ,     // 72
     MSETransportTime2,         // 88
     MSETransportSeat,          // 80
@@ -2298,7 +2298,7 @@ MovementStatusElements const MovementSetWalkMode[] =
     MSEHasTransportGuidByte6,  // 62
     MSEHasTransportTime2,      // 92
     MSEHasTransportGuidByte2,  // 58
-    MSETransportVehicleId,      // 100
+    MSEHasTransportVehicleId,  // 100
     MSEHasFallDirection,       // 136
     MSEMovementFlags,          // 24
     MSEMovementFlags2,         // 28
@@ -2325,7 +2325,7 @@ MovementStatusElements const MovementSetWalkMode[] =
     MSETransportGuidByte4,     // 60
     MSETransportPositionX,     // 64
     MSETransportGuidByte1,     // 57
-    MSETransportTime3,         // 96
+    MSETransportVehicleId,     // 96
     MSETransportSeat,          // 80
     MSETransportPositionY,     // 68
     MSETransportGuidByte6,     // 62
@@ -2367,7 +2367,7 @@ MovementStatusElements const MovementSetCanFly[] =
     MSEHasGuidByte7,           // 23
     MSEHasGuidByte3,           // 19
     MSEHasTransportGuidByte2,  // 58
-    MSETransportVehicleId,      // 100
+    MSEHasTransportVehicleId,  // 100
     MSEHasTransportGuidByte7,  // 63
     MSEHasTransportGuidByte5,  // 61
     MSEHasTransportGuidByte3,  // 59
@@ -2404,7 +2404,7 @@ MovementStatusElements const MovementSetCanFly[] =
     MSETransportGuidByte1,     // 57
     MSETransportGuidByte5,     // 61
     MSETransportGuidByte2,     // 58
-    MSETransportTime3,         // 96
+    MSETransportVehicleId,     // 96
     MSEFallCosAngle,           // 124
     MSEFallHorizontalSpeed,    // 132
     MSEFallSinAngle,           // 128
@@ -2448,7 +2448,7 @@ MovementStatusElements const MovementSetCanTransitionBetweenSwimAndFlyAck[] =
     MSEHasTransportGuidByte3,
     MSEHasTransportGuidByte6,
     MSEHasTransportGuidByte5,
-    MSETransportVehicleId,
+    MSEHasTransportVehicleId,
     MSEHasTransportGuidByte7,
     MSEHasTransportGuidByte1,
     MSEMovementFlags2,
@@ -2482,7 +2482,7 @@ MovementStatusElements const MovementSetCanTransitionBetweenSwimAndFlyAck[] =
     MSETransportTime2,
     MSETransportGuidByte6,
     MSETransportOrientation,
-    MSETransportTime3,
+    MSETransportVehicleId,
     MSEPitch,
     MSEOrientation,
     MSETimestamp,
@@ -2576,7 +2576,7 @@ MovementStatusElements const MovementUpdateRunSpeed[] =
     MSEHasTransportGuidByte1,
     MSEHasTransportGuidByte3,
     MSEHasTransportGuidByte2,
-    MSETransportVehicleId,
+    MSEHasTransportVehicleId,
     MSEHasTransportGuidByte0,
     MSEHasTransportGuidByte7,
     MSEHasTransportGuidByte4,
@@ -2604,7 +2604,7 @@ MovementStatusElements const MovementUpdateRunSpeed[] =
     MSETransportGuidByte6,
     MSETransportTime,
     MSETransportOrientation,
-    MSETransportTime3,
+    MSETransportVehicleId,
     MSETransportPositionX,
     MSETransportGuidByte0,
     MSETransportGuidByte1,
@@ -2640,7 +2640,7 @@ MovementStatusElements const MovementUpdateFlightSpeed[] =
     MSEHasGuidByte7,
     MSEZeroBit,
     MSEHasTransportGuidByte4,
-    MSETransportVehicleId,
+    MSEHasTransportVehicleId,
     MSEHasTransportTime2,
     MSEHasTransportGuidByte5,
     MSEHasTransportGuidByte7,
@@ -2678,7 +2678,7 @@ MovementStatusElements const MovementUpdateFlightSpeed[] =
     MSETransportTime2,
     MSETransportGuidByte1,
     MSETransportPositionZ,
-    MSETransportTime3,
+    MSETransportVehicleId,
     MSETransportGuidByte7,
     MSETransportTime,
     MSETransportGuidByte3,
@@ -2739,7 +2739,7 @@ MovementStatusElements const MovementUpdateCollisionHeight[] =
     MSEHasTransportTime2,
     MSEHasTransportGuidByte6,
     MSEHasTransportGuidByte4,
-    MSETransportVehicleId,
+    MSEHasTransportVehicleId,
     MSEHasTransportGuidByte1,
     MSEHasTransportGuidByte0,
     MSEHasGuidByte0,
@@ -2750,7 +2750,7 @@ MovementStatusElements const MovementUpdateCollisionHeight[] =
     MSETransportSeat,
     MSETransportGuidByte3,
     MSETransportTime,
-    MSETransportTime3,
+    MSETransportVehicleId,
     MSETransportGuidByte6,
     MSETransportGuidByte1,
     MSETransportGuidByte2,
@@ -2812,7 +2812,7 @@ MovementStatusElements const MovementForceRunSpeedChangeAck[] =
     MSEHasGuidByte5,
     MSEHasMovementFlags,
     MSEHasGuidByte3,
-    MSETransportVehicleId,
+    MSEHasTransportVehicleId,
     MSEHasTransportGuidByte5,
     MSEHasTransportTime2,
     MSEHasTransportGuidByte3,
@@ -2845,7 +2845,7 @@ MovementStatusElements const MovementForceRunSpeedChangeAck[] =
     MSETransportGuidByte7,
     MSETransportOrientation,
     MSETransportGuidByte3,
-    MSETransportTime3,
+    MSETransportVehicleId,
     MSETransportGuidByte2,
     MSETransportSeat,
     MSETransportGuidByte4,
@@ -2898,7 +2898,7 @@ MovementStatusElements const MovementSetCollisionHeightAck[] =
     MSEHasTransportGuidByte5,
     MSEHasTransportGuidByte2,
     MSEHasTransportGuidByte3,
-    MSETransportVehicleId,
+    MSEHasTransportVehicleId,
     MSEHasTransportTime2,
     MSEHasTransportGuidByte7,
     MSEMovementFlags,
@@ -2925,7 +2925,7 @@ MovementStatusElements const MovementSetCollisionHeightAck[] =
     MSETransportGuidByte4,
     MSETransportGuidByte0,
     MSETransportTime2,
-    MSETransportTime3,
+    MSETransportVehicleId,
     MSETransportGuidByte6,
     MSETransportGuidByte7,
     MSETransportGuidByte2,
@@ -2973,7 +2973,7 @@ MovementStatusElements const MovementForceFlightSpeedChangeAck[] =
     MSEHasTransportGuidByte7,
     MSEHasTransportTime2,
     MSEHasTransportGuidByte0,
-    MSETransportVehicleId,
+    MSEHasTransportVehicleId,
     MSEHasTransportGuidByte3,
     MSEHasTransportGuidByte2,
     MSEHasTransportGuidByte5,
@@ -2996,7 +2996,7 @@ MovementStatusElements const MovementForceFlightSpeedChangeAck[] =
     MSETransportOrientation,
     MSETransportGuidByte1,
     MSETransportGuidByte5,
-    MSETransportTime3,
+    MSETransportVehicleId,
     MSETransportGuidByte2,
     MSETransportPositionZ,
     MSETransportGuidByte7,
@@ -3044,7 +3044,7 @@ MovementStatusElements const MovementSetCanFlyAck[] =
     MSEHasTransportGuidByte3,
     MSEHasTransportGuidByte1,
     MSEHasTransportGuidByte2,
-    MSETransportVehicleId,
+    MSEHasTransportVehicleId,
     MSEHasTransportTime2,
     MSEHasTransportGuidByte0,
     MSEHasTransportGuidByte5,
@@ -3065,7 +3065,7 @@ MovementStatusElements const MovementSetCanFlyAck[] =
     MSETransportTime2,
     MSETransportGuidByte6,
     MSETransportTime,
-    MSETransportTime3,
+    MSETransportVehicleId,
     MSETransportGuidByte7,
     MSETransportPositionZ,
     MSETransportGuidByte3,
@@ -3122,7 +3122,7 @@ MovementStatusElements const MovementForceSwimSpeedChangeAck[] =
     MSEHasTransportGuidByte7,
     MSEHasTransportGuidByte3,
     MSEHasTransportTime2,
-    MSETransportVehicleId,
+    MSEHasTransportVehicleId,
     MSEHasTransportGuidByte6,
     MSEHasTransportGuidByte2,
     MSEMovementFlags2,
@@ -3137,7 +3137,7 @@ MovementStatusElements const MovementForceSwimSpeedChangeAck[] =
     MSEGuidByte4,
     MSEGuidByte7,
     MSETransportGuidByte0,
-    MSETransportTime3,
+    MSETransportVehicleId,
     MSETransportTime2,
     MSETransportPositionX,
     MSETransportGuidByte7,
@@ -3193,7 +3193,7 @@ MovementStatusElements const MovementForceWalkSpeedChangeAck[] =
     MSEHasTransportGuidByte5,
     MSEHasTransportGuidByte1,
     MSEHasTransportGuidByte6,
-    MSETransportVehicleId,
+    MSEHasTransportVehicleId,
     MSEHasTransportGuidByte2,
     MSEHasTransportGuidByte0,
     MSEHasTransportGuidByte4,
@@ -3221,7 +3221,7 @@ MovementStatusElements const MovementForceWalkSpeedChangeAck[] =
     MSETransportPositionX,
     MSETransportGuidByte0,
     MSETransportTime,
-    MSETransportTime3,
+    MSETransportVehicleId,
     MSETransportPositionY,
     MSETransportGuidByte2,
     MSETransportGuidByte4,
@@ -3269,7 +3269,7 @@ MovementStatusElements const MovementForceRunBackSpeedChangeAck[] =
     MSEHasTransportGuidByte0,
     MSEHasTransportGuidByte2,
     MSEHasTransportGuidByte1,
-    MSETransportVehicleId,
+    MSEHasTransportVehicleId,
     MSEHasTransportGuidByte4,
     MSEHasTransportGuidByte6,
     MSEHasTransportGuidByte5,
@@ -3296,7 +3296,7 @@ MovementStatusElements const MovementForceRunBackSpeedChangeAck[] =
     MSETransportGuidByte0,
     MSETransportGuidByte2,
     MSETransportPositionY,
-    MSETransportTime3,
+    MSETransportVehicleId,
     MSETransportPositionX,
     MSETransportOrientation,
     MSETransportGuidByte3,
@@ -3464,7 +3464,7 @@ MovementStatusElements const ForceMoveRootAck[] =
     MSEHasTransportGuidByte2,
     MSEHasTransportTime2,
     MSEHasTransportGuidByte4,
-    MSETransportVehicleId,
+    MSEHasTransportVehicleId,
     MSEHasTransportGuidByte5,
     MSEMovementFlags2,
     MSEMovementFlags,
@@ -3481,7 +3481,7 @@ MovementStatusElements const ForceMoveRootAck[] =
     MSETransportGuidByte4,
     MSETransportOrientation,
     MSETransportPositionZ,
-    MSETransportTime3,
+    MSETransportVehicleId,
     MSETransportTime2,
     MSETransportGuidByte7,
     MSETransportGuidByte2,
@@ -3531,7 +3531,7 @@ MovementStatusElements const ForceMoveUnrootAck[] =
     MSEHasGuidByte6,
     MSEHasFallDirection,
     MSEHasTransportGuidByte0,
-    MSETransportVehicleId,
+    MSEHasTransportVehicleId,
     MSEHasTransportGuidByte6,
     MSEHasTransportTime2,
     MSEHasTransportGuidByte3,
@@ -3555,7 +3555,7 @@ MovementStatusElements const ForceMoveUnrootAck[] =
     MSETransportGuidByte2,
     MSETransportGuidByte3,
     MSETransportPositionY,
-    MSETransportTime3,
+    MSETransportVehicleId,
     MSETransportGuidByte5,
     MSETransportSeat,
     MSETransportGuidByte0,
@@ -3604,7 +3604,7 @@ MovementStatusElements const MovementFallReset[] =
     MSEHasGuidByte5,           // 21
     MSEHasTransportData,       // 104
     MSEHasGuidByte3,           // 19
-    MSETransportVehicleId,      // 100
+    MSEHasTransportVehicleId,  // 100
     MSEHasTransportGuidByte6,  // 62
     MSEHasTransportGuidByte2,  // 58
     MSEHasTransportGuidByte1,  // 57
@@ -3631,7 +3631,7 @@ MovementStatusElements const MovementFallReset[] =
     MSEFallCosAngle,           // 124
     MSEFallHorizontalSpeed,    // 132
     MSEFallVerticalSpeed,      // 120
-    MSETransportTime3,         // 96
+    MSETransportVehicleId,     // 96
     MSETransportGuidByte0,     // 56
     MSETransportOrientation,   // 76
     MSETransportGuidByte7,     // 63
@@ -3680,7 +3680,7 @@ MovementStatusElements const MovementFeatherFallAck[] =
     MSEHasGuidByte0,
     MSEHasGuidByte4,
     MSEHasTransportGuidByte6,
-    MSETransportVehicleId,
+    MSEHasTransportVehicleId,
     MSEHasTransportGuidByte2,
     MSEHasTransportGuidByte4,
     MSEHasTransportGuidByte7,
@@ -3700,7 +3700,7 @@ MovementStatusElements const MovementFeatherFallAck[] =
     MSEGuidByte4,
     MSEGuidByte3,
     MSEGuidByte2,
-    MSETransportTime3,
+    MSETransportVehicleId,
     MSETransportOrientation,
     MSETransportPositionZ,
     MSETransportGuidByte7,
@@ -3753,7 +3753,7 @@ MovementStatusElements const MovementGravityDisableAck[] =
     MSEHasFallData,
     MSEHasGuidByte1,
     MSEHasTransportGuidByte2,
-    MSETransportVehicleId,
+    MSEHasTransportVehicleId,
     MSEHasTransportGuidByte0,
     MSEHasTransportGuidByte1,
     MSEHasTransportGuidByte5,
@@ -3788,7 +3788,7 @@ MovementStatusElements const MovementGravityDisableAck[] =
     MSETransportTime2,
     MSETransportPositionX,
     MSETransportGuidByte7,
-    MSETransportTime3,
+    MSETransportVehicleId,
     MSEFallSinAngle,
     MSEFallCosAngle,
     MSEFallHorizontalSpeed,
@@ -3825,7 +3825,7 @@ MovementStatusElements const MovementGravityEnableAck[] =
     MSEHasMovementFlags,
     MSEHasFallData,
     MSEHasGuidByte0,
-    MSETransportVehicleId,
+    MSEHasTransportVehicleId,
     MSEHasTransportGuidByte0,
     MSEHasTransportGuidByte1,
     MSEHasTransportGuidByte3,
@@ -3853,7 +3853,7 @@ MovementStatusElements const MovementGravityEnableAck[] =
     MSEFallVerticalSpeed,
     MSETransportGuidByte1,
     MSETransportPositionX,
-    MSETransportTime3,
+    MSETransportVehicleId,
     MSETransportOrientation,
     MSETransportGuidByte2,
     MSETransportGuidByte0,
@@ -3900,7 +3900,7 @@ MovementStatusElements const MovementHoverAck[] =
     MSEHasGuidByte3,
     MSEHasTransportGuidByte4,
     MSEHasTransportGuidByte6,
-    MSETransportVehicleId,
+    MSEHasTransportVehicleId,
     MSEHasTransportGuidByte1,
     MSEHasTransportGuidByte0,
     MSEHasTransportGuidByte3,
@@ -3927,7 +3927,7 @@ MovementStatusElements const MovementHoverAck[] =
     MSEFallVerticalSpeed,
     MSEOrientation,
     MSETransportGuidByte1,
-    MSETransportTime3,
+    MSETransportVehicleId,
     MSETransportGuidByte2,
     MSETransportGuidByte7,
     MSETransportGuidByte3,
@@ -3976,7 +3976,7 @@ MovementStatusElements const MovementKnockBackAck[] =
     MSEHasTransportGuidByte1,
     MSEHasTransportTime2,
     MSEHasTransportGuidByte0,
-    MSETransportVehicleId,
+    MSEHasTransportVehicleId,
     MSEHasTransportGuidByte6,
     MSEHasTransportGuidByte2,
     MSEHasTransportGuidByte3,
@@ -4007,7 +4007,7 @@ MovementStatusElements const MovementKnockBackAck[] =
     MSETransportTime,
     MSETransportGuidByte3,
     MSETransportGuidByte1,
-    MSETransportTime3,
+    MSETransportVehicleId,
     MSETransportGuidByte2,
     MSETransportPositionZ,
     MSETransportGuidByte0,
@@ -4052,7 +4052,7 @@ MovementStatusElements const MovementWaterWalkAck[] =
     MSEHasTransportGuidByte5,
     MSEHasTransportTime2,
     MSEHasTransportGuidByte3,
-    MSETransportVehicleId,
+    MSEHasTransportVehicleId,
     MSEHasTransportGuidByte4,
     MSEMovementFlags,
     MSEHasFallDirection,
@@ -4067,7 +4067,7 @@ MovementStatusElements const MovementWaterWalkAck[] =
     MSEGuidByte1,
     MSETransportPositionX,
     MSETransportGuidByte1,
-    MSETransportTime3,
+    MSETransportVehicleId,
     MSETransportGuidByte0,
     MSETransportOrientation,
     MSETransportGuidByte7,
@@ -5244,7 +5244,7 @@ MovementStatusElements const ChangeSeatsOnControlledVehicle[] =
     MSEHasTransportGuidByte0,
     MSEHasTransportGuidByte7,
     MSEHasTransportGuidByte5,
-    MSETransportVehicleId,
+    MSEHasTransportVehicleId,
     MSEHasTransportGuidByte1,
     MSEHasTransportGuidByte2,
     MSEHasTransportTime2,
@@ -5276,7 +5276,7 @@ MovementStatusElements const ChangeSeatsOnControlledVehicle[] =
     MSEFallVerticalSpeed,
     MSETransportGuidByte2,
     MSETransportTime2,
-    MSETransportTime3,
+    MSETransportVehicleId,
     MSETransportGuidByte0,
     MSETransportTime,
     MSETransportSeat,
@@ -5325,7 +5325,7 @@ MovementStatusElements const CastSpellEmbeddedMovement[] =
     MSEHasTransportTime2,
     MSEHasTransportGuidByte7,
     MSEHasTransportGuidByte4,
-    MSETransportVehicleId,
+    MSEHasTransportVehicleId,
     MSEHasTransportGuidByte0,
     MSEHasTransportGuidByte1,
     MSEHasTransportGuidByte3,
@@ -5345,7 +5345,7 @@ MovementStatusElements const CastSpellEmbeddedMovement[] =
     MSETransportTime,
     MSETransportGuidByte6,
     MSETransportGuidByte5,
-    MSETransportTime3,
+    MSETransportVehicleId,
     MSETransportPositionX,
     MSETransportGuidByte4,
     MSETransportPositionZ,
