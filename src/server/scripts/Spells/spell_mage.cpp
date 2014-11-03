@@ -83,6 +83,11 @@ enum MageIcons
     ICON_MAGE_IMPROVED_MANA_GEM                  = 1036
 };
 
+enum MageMinions
+{
+    PET_MAGE_WATER_ELEMENTAL                    = 510
+};
+
 enum MiscSpells
 {
     SPELL_PRIEST_SHADOW_WORD_DEATH                  = 32409
@@ -637,7 +642,7 @@ public:
 
             if (target->IsFriendlyTo(GetCaster()))
             {
-                if (target->GetEntry() != 510)
+                if (target->GetEntry() != PET_MAGE_WATER_ELEMENTAL)
                     return SPELL_FAILED_TARGET_FRIENDLY;
             }
 
@@ -648,7 +653,7 @@ public:
         {
             Unit* target = GetHitUnit();
 
-            if (target->GetEntry() == 510)
+            if (target->GetEntry() == PET_MAGE_WATER_ELEMENTAL)
             {
                 SetHitDamage(0);
                 GetCaster()->CastSpell(target, SPELL_MAGE_FROSTBOLT_HEAL, true);
@@ -657,7 +662,7 @@ public:
 
         void HandleAfterHit()
         {
-            if (GetHitUnit()->GetEntry() == 510)
+            if (GetHitUnit()->GetEntry() == PET_MAGE_WATER_ELEMENTAL)
                 return;
 
             if (Unit* caster = GetCaster())
@@ -1412,7 +1417,7 @@ public:
 
         bool Load() override
         {
-            if (GetCaster()->GetEntry() == 510)
+            if (GetCaster()->GetEntry() == PET_MAGE_WATER_ELEMENTAL)
                 return true;
 
             return false;
