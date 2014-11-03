@@ -70,7 +70,8 @@ enum MageSpells
     SPELL_MAGE_ICICLE_4                     = 148020,
     SPELL_MAGE_ICICLE_5                     = 148021,
     SPELL_MAGE_ICICLE_DMG                   = 148022,
-    SPELL_MAGE_ICICLE_TRIGGER               = 148023
+    SPELL_MAGE_ICICLE_TRIGGER               = 148023,
+    SPELL_MAGE_FROSTBOLT_HEAL               = 134660
 };
 
 enum MageIcons
@@ -625,11 +626,40 @@ public:
                 return false;
             if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_FINGERS_OF_FROST_PROC))
                 return false;
+            if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_FROSTBOLT_HEAL))
+                return false;
             return true;
+        }
+
+        SpellCastResult CheckCast()
+        {
+            Unit* target = GetExplTargetUnit();
+
+            if (target->IsFriendlyTo(GetCaster()))
+            {
+                if (target->GetEntry() != 510)
+                    return SPELL_FAILED_TARGET_FRIENDLY;
+            }
+
+            return SPELL_CAST_OK;
+        }
+
+        void HandleOnHit()
+        {
+            Unit* target = GetHitUnit();
+
+            if (target->GetEntry() == 510)
+            {
+                SetHitDamage(0);
+                GetCaster()->CastSpell(target, SPELL_MAGE_FROSTBOLT_HEAL, true);
+            }
         }
 
         void HandleAfterHit()
         {
+            if (GetHitUnit()->GetEntry() == 510)
+                return;
+
             if (Unit* caster = GetCaster())
                 if (caster->HasAura(SPELL_MAGE_MASTERY_ICICLES))
                     if (roll_chance_i(sSpellMgr->GetSpellInfo(SPELL_MAGE_FINGERS_OF_FROST)->Effects[EFFECT_0].BasePoints))
@@ -639,6 +669,8 @@ public:
         void Register() override
         {
             AfterHit += SpellHitFn(spell_mage_frostbolt_SpellScript::HandleAfterHit);
+            OnCheckCast += SpellCheckCastFn(spell_mage_frostbolt_SpellScript::CheckCast);
+            OnHit += SpellHitFn(spell_mage_frostbolt_SpellScript::HandleOnHit);
         }
     };
 
@@ -845,8 +877,12 @@ public:
 
         void HandleAfterCast()
         {
-            if (GetCaster()->HasAura(SPELL_MAGE_ICICLE_STORE_1))
-                GetCaster()->CastSpell(GetCaster(), SPELL_MAGE_ICICLE_TRIGGER, true);
+            Unit* caster = GetCaster();
+            if (!caster)
+                return;
+
+            if (caster->HasAura(SPELL_MAGE_ICICLE_STORE_1) || caster->HasAura(SPELL_MAGE_ICICLE_STORE_2) || caster->HasAura(SPELL_MAGE_ICICLE_STORE_3) || caster->HasAura(SPELL_MAGE_ICICLE_STORE_4) || caster->HasAura(SPELL_MAGE_ICICLE_STORE_5))
+                caster->CastSpell(caster, SPELL_MAGE_ICICLE_TRIGGER, true);
         }
 
         void RecalculateDamage()
@@ -1119,6 +1155,9 @@ public:
 
             int32 damage = CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), caster->ToPlayer()->GetMasterySpellCoefficient());
 
+            if (!damage)
+                return;
+
             if (!caster->HasAura(SPELL_MAGE_ICICLE_STORE_1))
             {
                 caster->CastSpell(caster, SPELL_MAGE_ICICLE_STORE_1, true, NULL, aurEff);
@@ -1284,6 +1323,12 @@ public:
             Aura* store_4 = caster->GetAura(SPELL_MAGE_ICICLE_STORE_4);
             Aura* store_5 = caster->GetAura(SPELL_MAGE_ICICLE_STORE_5);
 
+            if (!store_1 && !store_2 && !store_3 && !store_4 && !store_5)
+            {
+                caster->RemoveAura(SPELL_MAGE_ICICLE_TRIGGER);
+                return;
+            }
+                
             if (store_1)
                 if ((lastlaunched == 5) || (lastlaunched == 1 && (!store_2 && !store_3 && !store_4 && !store_5)) || (lastlaunched == 2 && (!store_3 && !store_4 && !store_5)) || (lastlaunched == 3 && (!store_4 && !store_5)) || (lastlaunched == 4 && !store_5))
                 {
