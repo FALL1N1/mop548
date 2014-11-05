@@ -224,9 +224,9 @@ static const bool config_ivsalloc =
 /******************************************************************************/
 #define	JEMALLOC_H_TYPES
 
-// #ifndef JEMALLOC_HAS_RESTRICT
+#ifndef JEMALLOC_HAS_RESTRICT
 #  define restrict
-// #endif
+#endif
 
 #define	MALLOCX_LG_ALIGN_MASK	((int)0x3f)
 #define	ALLOCM_LG_ALIGN_MASK	((int)0x3f)
