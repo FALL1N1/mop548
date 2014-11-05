@@ -12452,7 +12452,7 @@ InventoryResult Player::CanStoreItems(Item** pItems, int count) const
 InventoryResult Player::CanEquipNewItem(uint8 slot, uint16 &dest, uint32 item, bool swap) const
 {
     dest = 0;
-    Item* pItem = Item::CreateItem(item, 1, this);
+    Item* pItem = NULL; //  Item::CreateItem(item, 1, this);
     if (pItem)
     {
         InventoryResult result = CanEquipItem(slot, dest, pItem, swap);
@@ -13046,7 +13046,7 @@ Item* Player::StoreNewItem(ItemPosCountVec const& dest, uint32 item, bool update
     for (ItemPosCountVec::const_iterator itr = dest.begin(); itr != dest.end(); ++itr)
         count += itr->count;
 
-    Item* pItem = Item::CreateItem(item, count, this);
+    Item* pItem = NULL; //  Item::CreateItem(item, count, this);
     if (pItem)
     {
         ItemAddedQuestCheck(item, count);
@@ -13213,12 +13213,12 @@ Item* Player::_StoreItem(uint16 pos, Item* pItem, uint32 count, bool clone, bool
 
 Item* Player::EquipNewItem(uint16 pos, uint32 item, bool update)
 {
-    if (Item* pItem = Item::CreateItem(item, 1, this))
+   -/* if (Item* pItem Item::CreateItem(item, 1, this))
     {
         ItemAddedQuestCheck(item, 1);
         UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_RECEIVE_EPIC_ITEM, item, 1);
         return EquipItem(pos, pItem, update);
-    }
+    }*/
 
     return NULL;
 }
