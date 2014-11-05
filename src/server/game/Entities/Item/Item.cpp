@@ -1097,7 +1097,7 @@ void Item::SendTimeUpdate(Player* owner)
     owner->GetSession()->SendPacket(&data);
 }
 
-inline Item* Item::CreateItem(uint32 itemEntry, uint32 count, Player const* player)
+Item* Item::CreateItem(uint32 itemEntry, uint32 count, Player const* player)
 { 
     return CreateItem(itemEntry, count, player ? player->GetGUID() : 0); 
 }

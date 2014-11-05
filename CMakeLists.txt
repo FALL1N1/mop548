@@ -12,6 +12,9 @@
 # Set projectname (must be done AFTER setting configurationtypes)
 project(Project_Skyfire)
 
+# Fix compile
+SET(CMAKE_C_FLAGS "-std=gnu99" CACHE STRING "" FORCE)
+
 # CMake policies (can not be handled elsewhere)
 cmake_minimum_required(VERSION 2.8.9)
 cmake_policy(SET CMP0005 OLD)
