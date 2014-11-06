@@ -1,0 +1,10 @@
+C:\Users\KarelSimanek\Desktop\dbcviewer\PluginInterface\bin\Debug\PluginInterface.dll
+C:\Users\KarelSimanek\Desktop\dbcviewer\PluginInterface\bin\Debug\PluginInterface.pdb
+C:\Users\KarelSimanek\Desktop\dbcviewer\PluginInterface\obj\Debug\PluginInterface.csprojResolveAssemblyReference.cache
+C:\Users\KarelSimanek\Desktop\dbcviewer\PluginInterface\obj\Debug\PluginInterface.dll
+C:\Users\KarelSimanek\Desktop\dbcviewer\PluginInterface\obj\Debug\PluginInterface.pdb
+D:\Source\SkyFireEmu_Clean\timeless-other\dbcviewer\PluginInterface\bin\Debug\PluginInterface.dll
+D:\Source\SkyFireEmu_Clean\timeless-other\dbcviewer\PluginInterface\bin\Debug\PluginInterface.pdb
+D:\Source\SkyFireEmu_Clean\timeless-other\dbcviewer\PluginInterface\obj\Debug\PluginInterface.csprojResolveAssemblyReference.cache
+D:\Source\SkyFireEmu_Clean\timeless-other\dbcviewer\PluginInterface\obj\Debug\PluginInterface.dll
+D:\Source\SkyFireEmu_Clean\timeless-other\dbcviewer\PluginInterface\obj\Debug\PluginInterface.pdb
