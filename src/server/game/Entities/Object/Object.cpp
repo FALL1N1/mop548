@@ -480,7 +480,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
             ObjectGuid transGuid = self->m_movementInfo.transport.guid;
             data->WriteBit(transGuid[4]);
             data->WriteBit(transGuid[2]);
-            data->WriteBit(self->m_movementInfo.transport.time3 && self->m_movementInfo.transport.guid);
+            data->WriteBit(self->m_movementInfo.transport.vehicleId != 0);
             data->WriteBit(transGuid[0]);
             data->WriteBit(transGuid[1]);
             data->WriteBit(transGuid[3]);
@@ -539,7 +539,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
         data->WriteBit(transGuid[3]);
         data->WriteBit(transGuid[2]);
         data->WriteBit(transGuid[7]);
-        data->WriteBit(self->m_movementInfo.transport.time3 && self->m_movementInfo.transport.guid);
+        data->WriteBit(self->m_movementInfo.transport.vehicleId != 0);
     }
 
     if (hasAnimKits)
@@ -583,8 +583,8 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
             data->WriteByteSeq(transGuid[7]);
             *data << float(self->GetTransOffsetX());
 
-            if (self->m_movementInfo.transport.time3 && self->m_movementInfo.transport.guid)
-                *data << uint32(self->m_movementInfo.transport.time3);
+            if (self->m_movementInfo.transport.vehicleId)
+                *data << uint32(self->m_movementInfo.transport.vehicleId);
 
             *data << float(self->GetTransOffsetO());
             *data << float(self->GetTransOffsetY());
@@ -678,8 +678,8 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
         data->WriteBit(transGuid[4]);
         data->WriteBit(transGuid[1]);
 
-        if (self->m_movementInfo.transport.time3 && self->m_movementInfo.transport.guid)
-            *data << uint32(self->m_movementInfo.transport.time3);
+        if (self->m_movementInfo.transport.vehicleId)
+            *data << uint32(self->m_movementInfo.transport.vehicleId);
 
         *data << uint32(self->GetTransTime());
 
@@ -1419,8 +1419,8 @@ void MovementInfo::OutDebug()
         TC_LOG_INFO("misc", "time: %u", transport.time);
         if (flags2 & MOVEMENTFLAG2_INTERPOLATED_MOVEMENT)
             TC_LOG_INFO("misc", "time2: %u", transport.time2);
-        if (transport.time3)
-            TC_LOG_INFO("misc", "time3: %u", transport.time3);
+        if (transport.vehicleId)
+            TC_LOG_INFO("misc", "VehicleId: %u", transport.vehicleId);
     }
 
     if ((flags & (MOVEMENTFLAG_SWIMMING | MOVEMENTFLAG_FLYING)) || (flags2 & MOVEMENTFLAG2_ALWAYS_ALLOW_PITCHING))

@@ -432,7 +432,7 @@ struct MovementInfo
             seat = -1;
             time = 0;
             time2 = 0;
-            time3 = 0;
+            vehicleId = 0;
         }
 
         uint64 guid;
@@ -440,7 +440,7 @@ struct MovementInfo
         int8 seat;
         uint32 time;
         uint32 time2;
-        uint32 time3;
+        uint32 vehicleId;
     } transport;
 
     // swimming/flying

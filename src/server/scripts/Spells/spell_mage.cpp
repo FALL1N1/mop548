@@ -57,6 +57,21 @@ enum MageSpells
     SPELL_MAGE_BRAIN_FREEZE_TRIGGERED       = 57761,
     SPELL_MAGE_IGNITE                       = 12654,
     SPELL_MAGE_MASTERY_IGNITE               = 12846,
+    SPELL_MAGE_FROSTBOLT                    = 116,
+    SPELL_MAGE_FROSTFIRE_BOLT               = 44614,
+    SPELL_MAGE_ICICLE_STORE_1               = 148012,
+    SPELL_MAGE_ICICLE_STORE_2               = 148013,
+    SPELL_MAGE_ICICLE_STORE_3               = 148014,
+    SPELL_MAGE_ICICLE_STORE_4               = 148015,
+    SPELL_MAGE_ICICLE_STORE_5               = 148016,
+    SPELL_MAGE_ICICLE_1                     = 148017,
+    SPELL_MAGE_ICICLE_2                     = 148018,
+    SPELL_MAGE_ICICLE_3                     = 148019,
+    SPELL_MAGE_ICICLE_4                     = 148020,
+    SPELL_MAGE_ICICLE_5                     = 148021,
+    SPELL_MAGE_ICICLE_DMG                   = 148022,
+    SPELL_MAGE_ICICLE_TRIGGER               = 148023,
+    SPELL_MAGE_FROSTBOLT_HEAL               = 134660
 };
 
 enum MageIcons
@@ -66,6 +81,11 @@ enum MageIcons
     ICON_MAGE_IMPROVED_FREEZE                    = 94,
     ICON_MAGE_INCANTER_S_ABSORPTION              = 2941,
     ICON_MAGE_IMPROVED_MANA_GEM                  = 1036
+};
+
+enum MageMinions
+{
+    PET_MAGE_WATER_ELEMENTAL                    = 510
 };
 
 enum MiscSpells
@@ -611,11 +631,40 @@ public:
                 return false;
             if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_FINGERS_OF_FROST_PROC))
                 return false;
+            if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_FROSTBOLT_HEAL))
+                return false;
             return true;
+        }
+
+        SpellCastResult CheckCast()
+        {
+            Unit* target = GetExplTargetUnit();
+
+            if (target->IsFriendlyTo(GetCaster()))
+            {
+                if (target->GetEntry() != PET_MAGE_WATER_ELEMENTAL)
+                    return SPELL_FAILED_TARGET_FRIENDLY;
+            }
+
+            return SPELL_CAST_OK;
+        }
+
+        void HandleOnHit()
+        {
+            Unit* target = GetHitUnit();
+
+            if (target->GetEntry() == PET_MAGE_WATER_ELEMENTAL)
+            {
+                SetHitDamage(0);
+                GetCaster()->CastSpell(target, SPELL_MAGE_FROSTBOLT_HEAL, true);
+            }
         }
 
         void HandleAfterHit()
         {
+            if (GetHitUnit()->GetEntry() == PET_MAGE_WATER_ELEMENTAL)
+                return;
+
             if (Unit* caster = GetCaster())
                 if (caster->HasAura(SPELL_MAGE_MASTERY_ICICLES))
                     if (roll_chance_i(sSpellMgr->GetSpellInfo(SPELL_MAGE_FINGERS_OF_FROST)->Effects[EFFECT_0].BasePoints))
@@ -625,6 +674,8 @@ public:
         void Register() override
         {
             AfterHit += SpellHitFn(spell_mage_frostbolt_SpellScript::HandleAfterHit);
+            OnCheckCast += SpellCheckCastFn(spell_mage_frostbolt_SpellScript::CheckCast);
+            OnHit += SpellHitFn(spell_mage_frostbolt_SpellScript::HandleOnHit);
         }
     };
 
@@ -815,6 +866,10 @@ public:
                 return false;
             if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_FINGERS_OF_FROST_PROC))
                 return false;
+            if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_ICICLE_STORE_1))
+                return false;
+            if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_ICICLE_TRIGGER))
+                return false;
             return true;
         }
 
@@ -823,6 +878,16 @@ public:
         void HandleOnCast()
         {
             fofAura = GetCaster()->GetAura(SPELL_MAGE_FINGERS_OF_FROST_PROC);
+        }
+
+        void HandleAfterCast()
+        {
+            Unit* caster = GetCaster();
+            if (!caster)
+                return;
+
+            if (caster->HasAura(SPELL_MAGE_ICICLE_STORE_1) || caster->HasAura(SPELL_MAGE_ICICLE_STORE_2) || caster->HasAura(SPELL_MAGE_ICICLE_STORE_3) || caster->HasAura(SPELL_MAGE_ICICLE_STORE_4) || caster->HasAura(SPELL_MAGE_ICICLE_STORE_5))
+                caster->CastSpell(caster, SPELL_MAGE_ICICLE_TRIGGER, true);
         }
 
         void RecalculateDamage()
@@ -842,6 +907,7 @@ public:
         {
             OnHit += SpellHitFn(spell_mage_ice_lance_SpellScript::RecalculateDamage);
             OnCast += SpellCastFn(spell_mage_ice_lance_SpellScript::HandleOnCast);
+            AfterCast += SpellCastFn(spell_mage_ice_lance_SpellScript::HandleAfterCast);
         }
     };
 
@@ -1026,6 +1092,361 @@ public:
     }
 };
 
+// 76613 - Mastery: Icicles
+class spell_mage_mastery_icicles : public SpellScriptLoader
+{
+public:
+    spell_mage_mastery_icicles() : SpellScriptLoader("spell_mage_mastery_icicles") { }
+
+    class spell_mage_mastery_icicles_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_mage_mastery_icicles_AuraScript);
+
+        bool Validate(SpellInfo const* spellInfo) override
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_ICICLE_STORE_1))
+                return false;
+            if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_ICICLE_STORE_2))
+                return false;
+            if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_ICICLE_STORE_3))
+                return false;
+            if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_ICICLE_STORE_4))
+                return false;
+            if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_ICICLE_STORE_5))
+                return false;
+            if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_ICICLE_1))
+                return false;
+            if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_ICICLE_2))
+                return false;
+            if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_ICICLE_3))
+                return false;
+            if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_ICICLE_4))
+                return false;
+            if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_ICICLE_5))
+                return false;
+            return true;
+        }
+
+        int lastlaunched;
+
+        bool Load() override
+        {
+            lastlaunched = 5;
+
+            if (GetCaster()->GetTypeId() != TYPEID_PLAYER)
+                return false;
+
+            return true;
+        }
+
+        bool CheckProc(ProcEventInfo& eventInfo)
+        {
+            if (eventInfo.GetDamageInfo()->GetSpellInfo()->Id == SPELL_MAGE_ICE_LANCE)
+                lastlaunched = 5;
+
+            if (eventInfo.GetDamageInfo()->GetSpellInfo()->Id == SPELL_MAGE_FROSTBOLT || eventInfo.GetDamageInfo()->GetSpellInfo()->Id == SPELL_MAGE_FROSTFIRE_BOLT)
+                return true;
+
+            else
+                return false;
+        }
+
+        void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+        {
+            Unit* caster = GetCaster();
+
+            if (!caster)
+                return;
+
+            int32 damage = CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), caster->ToPlayer()->GetMasterySpellCoefficient());
+
+            if (!damage)
+                return;
+
+            if (!caster->HasAura(SPELL_MAGE_ICICLE_STORE_1))
+            {
+                caster->CastSpell(caster, SPELL_MAGE_ICICLE_STORE_1, true, NULL, aurEff);
+                caster->GetAura(SPELL_MAGE_ICICLE_STORE_1)->GetEffect(EFFECT_0)->SetAmount(damage);
+            }
+                
+            else if (!caster->HasAura(SPELL_MAGE_ICICLE_STORE_2))
+            {
+                caster->CastSpell(caster, SPELL_MAGE_ICICLE_STORE_2, true, NULL, aurEff);
+                caster->GetAura(SPELL_MAGE_ICICLE_STORE_2)->GetEffect(EFFECT_0)->SetAmount(damage);
+            }
+
+            else if (!caster->HasAura(SPELL_MAGE_ICICLE_STORE_3))
+            {
+                caster->CastSpell(caster, SPELL_MAGE_ICICLE_STORE_3, true, NULL, aurEff);
+                caster->GetAura(SPELL_MAGE_ICICLE_STORE_3)->GetEffect(EFFECT_0)->SetAmount(damage);
+            }
+
+            else if (!caster->HasAura(SPELL_MAGE_ICICLE_STORE_4))
+            {
+                caster->CastSpell(caster, SPELL_MAGE_ICICLE_STORE_4, true, NULL, aurEff);
+                caster->GetAura(SPELL_MAGE_ICICLE_STORE_4)->GetEffect(EFFECT_0)->SetAmount(damage);
+            }
+
+            else if (!caster->HasAura(SPELL_MAGE_ICICLE_STORE_5))
+            {
+                caster->CastSpell(caster, SPELL_MAGE_ICICLE_STORE_5, true, NULL, aurEff);
+                caster->GetAura(SPELL_MAGE_ICICLE_STORE_5)->GetEffect(EFFECT_0)->SetAmount(damage);
+            }
+
+            else
+            {
+                Unit* victim = eventInfo.GetDamageInfo()->GetVictim();
+
+                if (!victim)
+                    return;
+
+                if (lastlaunched == 5)
+                {
+                    caster->CastSpell(victim, SPELL_MAGE_ICICLE_1, true, NULL, aurEff);
+                    caster->CastCustomSpell(SPELL_MAGE_ICICLE_DMG, SPELLVALUE_BASE_POINT0, caster->GetAura(SPELL_MAGE_ICICLE_STORE_1)->GetEffect(EFFECT_0)->GetAmount(), victim, true);
+                    caster->RemoveAura(SPELL_MAGE_ICICLE_STORE_1);
+                    caster->CastSpell(caster, SPELL_MAGE_ICICLE_STORE_1, true, NULL, aurEff);
+                    caster->GetAura(SPELL_MAGE_ICICLE_STORE_1)->GetEffect(EFFECT_0)->SetAmount(damage);
+                    lastlaunched = 1;
+                }
+
+                else if (lastlaunched == 1)
+                {
+                    caster->CastSpell(victim, SPELL_MAGE_ICICLE_2, true, NULL, aurEff);
+                    caster->CastCustomSpell(SPELL_MAGE_ICICLE_DMG, SPELLVALUE_BASE_POINT0, caster->GetAura(SPELL_MAGE_ICICLE_STORE_2)->GetEffect(EFFECT_0)->GetAmount(), victim, true);
+                    caster->RemoveAura(SPELL_MAGE_ICICLE_STORE_2);
+                    caster->CastSpell(caster, SPELL_MAGE_ICICLE_STORE_2, true, NULL, aurEff);
+                    caster->GetAura(SPELL_MAGE_ICICLE_STORE_2)->GetEffect(EFFECT_0)->SetAmount(damage);
+                    lastlaunched = 2;
+                }
+
+                else if (lastlaunched == 2)
+                {
+                    caster->CastSpell(victim, SPELL_MAGE_ICICLE_3, true, NULL, aurEff);
+                    caster->CastCustomSpell(SPELL_MAGE_ICICLE_DMG, SPELLVALUE_BASE_POINT0, caster->GetAura(SPELL_MAGE_ICICLE_STORE_3)->GetEffect(EFFECT_0)->GetAmount(), victim, true);
+                    caster->RemoveAura(SPELL_MAGE_ICICLE_STORE_3);
+                    caster->CastSpell(caster, SPELL_MAGE_ICICLE_STORE_3, true, NULL, aurEff);
+                    caster->GetAura(SPELL_MAGE_ICICLE_STORE_3)->GetEffect(EFFECT_0)->SetAmount(damage);
+                    lastlaunched = 3;
+                }
+
+                else if (lastlaunched == 3)
+                {
+                    caster->CastSpell(victim, SPELL_MAGE_ICICLE_4, true, NULL, aurEff);
+                    caster->CastCustomSpell(SPELL_MAGE_ICICLE_DMG, SPELLVALUE_BASE_POINT0, caster->GetAura(SPELL_MAGE_ICICLE_STORE_4)->GetEffect(EFFECT_0)->GetAmount(), victim, true);
+                    caster->RemoveAura(SPELL_MAGE_ICICLE_STORE_4);
+                    caster->CastSpell(caster, SPELL_MAGE_ICICLE_STORE_4, true, NULL, aurEff);
+                    caster->GetAura(SPELL_MAGE_ICICLE_STORE_4)->GetEffect(EFFECT_0)->SetAmount(damage);
+                    lastlaunched = 4;
+                }
+
+                else if (lastlaunched == 4)
+                {
+                    caster->CastSpell(victim, SPELL_MAGE_ICICLE_5, true, NULL, aurEff);
+                    caster->CastCustomSpell(SPELL_MAGE_ICICLE_DMG, SPELLVALUE_BASE_POINT0, caster->GetAura(SPELL_MAGE_ICICLE_STORE_5)->GetEffect(EFFECT_0)->GetAmount(), victim, true);
+                    caster->RemoveAura(SPELL_MAGE_ICICLE_STORE_5);
+                    caster->CastSpell(caster, SPELL_MAGE_ICICLE_STORE_5, true, NULL, aurEff);
+                    caster->GetAura(SPELL_MAGE_ICICLE_STORE_5)->GetEffect(EFFECT_0)->SetAmount(damage);
+                    lastlaunched = 5;
+                }
+            }
+        }
+
+        void Register() override
+        {
+            DoCheckProc += AuraCheckProcFn(spell_mage_mastery_icicles_AuraScript::CheckProc);
+            OnEffectProc += AuraEffectProcFn(spell_mage_mastery_icicles_AuraScript::HandleProc, EFFECT_1, SPELL_AURA_DUMMY);
+        }
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_mage_mastery_icicles_AuraScript();
+    }
+};
+
+// 148023 - Icicle trigger
+class spell_mage_icicle_trigger : public SpellScriptLoader
+{
+public:
+    spell_mage_icicle_trigger() : SpellScriptLoader("spell_mage_icicle_trigger") { }
+
+    class spell_mage_icicle_trigger_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_mage_icicle_trigger_AuraScript);
+
+        bool Validate(SpellInfo const* spellInfo) override
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_ICICLE_STORE_1))
+                return false;
+            if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_ICICLE_STORE_2))
+                return false;
+            if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_ICICLE_STORE_3))
+                return false;
+            if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_ICICLE_STORE_4))
+                return false;
+            if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_ICICLE_STORE_5))
+                return false;
+            if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_ICICLE_1))
+                return false;
+            if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_ICICLE_2))
+                return false;
+            if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_ICICLE_3))
+                return false;
+            if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_ICICLE_4))
+                return false;
+            if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_ICICLE_5))
+                return false;
+            return true;
+        }
+
+        Unit* target;
+        int lastlaunched;
+
+        bool Load() override
+        {
+            lastlaunched = 5;
+            if (target = GetCaster()->ToPlayer()->GetSelectedUnit())
+                return true;
+
+            return false;
+        }
+
+        void HandleEffectPeriodic(AuraEffect const* aurEff)
+        {
+            Unit* caster = GetCaster();
+
+            if (!target->CanFreeMove() || target->isDead())
+            {
+                caster->RemoveAura(SPELL_MAGE_ICICLE_TRIGGER);
+                return;
+            }
+
+            Aura* store_1 = caster->GetAura(SPELL_MAGE_ICICLE_STORE_1);
+            Aura* store_2 = caster->GetAura(SPELL_MAGE_ICICLE_STORE_2);
+            Aura* store_3 = caster->GetAura(SPELL_MAGE_ICICLE_STORE_3);
+            Aura* store_4 = caster->GetAura(SPELL_MAGE_ICICLE_STORE_4);
+            Aura* store_5 = caster->GetAura(SPELL_MAGE_ICICLE_STORE_5);
+
+            if (!store_1 && !store_2 && !store_3 && !store_4 && !store_5)
+            {
+                caster->RemoveAura(SPELL_MAGE_ICICLE_TRIGGER);
+                return;
+            }
+                
+            if (store_1)
+                if ((lastlaunched == 5) || (lastlaunched == 1 && (!store_2 && !store_3 && !store_4 && !store_5)) || (lastlaunched == 2 && (!store_3 && !store_4 && !store_5)) || (lastlaunched == 3 && (!store_4 && !store_5)) || (lastlaunched == 4 && !store_5))
+                {
+                    caster->CastSpell(target, SPELL_MAGE_ICICLE_1, true, NULL, aurEff);
+                    caster->CastCustomSpell(SPELL_MAGE_ICICLE_DMG, SPELLVALUE_BASE_POINT0, caster->GetAura(SPELL_MAGE_ICICLE_STORE_1)->GetEffect(EFFECT_0)->GetAmount(), target, true);
+                    caster->RemoveAura(SPELL_MAGE_ICICLE_STORE_1);
+                    lastlaunched = 1;
+                    return;
+                }
+
+            if (store_2)
+                if ((lastlaunched == 1) || (lastlaunched == 2 && (!store_3 && !store_4 && !store_5 && !store_1)) || (lastlaunched == 3 && (!store_4 && !store_5 && !store_1)) || (lastlaunched == 4 && (!store_5 && !store_1)) || (lastlaunched == 5 && !store_1))
+                {
+                    caster->CastSpell(target, SPELL_MAGE_ICICLE_2, true, NULL, aurEff);
+                    caster->CastCustomSpell(SPELL_MAGE_ICICLE_DMG, SPELLVALUE_BASE_POINT0, caster->GetAura(SPELL_MAGE_ICICLE_STORE_2)->GetEffect(EFFECT_0)->GetAmount(), target, true);
+                    caster->RemoveAura(SPELL_MAGE_ICICLE_STORE_2);
+                    lastlaunched = 2;
+                    return;
+                }
+
+            if (store_3)
+                if ((lastlaunched == 2) || (lastlaunched == 3 && (!store_4 && !store_5 && !store_1 && !store_2)) || (lastlaunched == 4 && (!store_5 && !store_1 && !store_2)) || (lastlaunched == 5 && (!store_1 && !store_2)) || (lastlaunched == 1 && !store_2))
+                {
+                    caster->CastSpell(target, SPELL_MAGE_ICICLE_3, true, NULL, aurEff);
+                    caster->CastCustomSpell(SPELL_MAGE_ICICLE_DMG, SPELLVALUE_BASE_POINT0, caster->GetAura(SPELL_MAGE_ICICLE_STORE_3)->GetEffect(EFFECT_0)->GetAmount(), target, true);
+                    caster->RemoveAura(SPELL_MAGE_ICICLE_STORE_3);
+                    lastlaunched = 3;
+                    return;
+                }
+
+            if (store_4)
+                if ((lastlaunched == 3) || (lastlaunched == 4 && (!store_5 && !store_1 && !store_2 && !store_3)) || (lastlaunched == 5 && (!store_1 && !store_2 && !store_3)) || (lastlaunched == 1 && (!store_2 && !store_3)) || (lastlaunched == 2 && !store_3))
+                {
+                    caster->CastSpell(target, SPELL_MAGE_ICICLE_4, true, NULL, aurEff);
+                    caster->CastCustomSpell(SPELL_MAGE_ICICLE_DMG, SPELLVALUE_BASE_POINT0, caster->GetAura(SPELL_MAGE_ICICLE_STORE_4)->GetEffect(EFFECT_0)->GetAmount(), target, true);
+                    caster->RemoveAura(SPELL_MAGE_ICICLE_STORE_4);
+                    lastlaunched = 4;
+                    return;
+                }
+
+            if (store_5)
+                if ((lastlaunched == 4) || (lastlaunched == 5 && (!store_1 && !store_2 && !store_3 && !store_4)) || (lastlaunched == 1 && (!store_2 && !store_3 && !store_4)) || (lastlaunched == 2 && (!store_3 && !store_4)) || (lastlaunched == 3 && !store_4))
+                {
+                    caster->CastSpell(target, SPELL_MAGE_ICICLE_5, true, NULL, aurEff);
+                    caster->CastCustomSpell(SPELL_MAGE_ICICLE_DMG, SPELLVALUE_BASE_POINT0, caster->GetAura(SPELL_MAGE_ICICLE_STORE_5)->GetEffect(EFFECT_0)->GetAmount(), target, true);
+                    caster->RemoveAura(SPELL_MAGE_ICICLE_STORE_5);
+                    lastlaunched = 5;
+                    return;
+                }
+        }
+        
+        void Register() override
+        {
+            OnEffectPeriodic += AuraEffectPeriodicFn(spell_mage_icicle_trigger_AuraScript::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+        }
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_mage_icicle_trigger_AuraScript();
+    }
+};
+
+// 31707 Waterbolt
+class spell_mage_waterbolt : public SpellScriptLoader
+{
+public:
+    spell_mage_waterbolt() : SpellScriptLoader("spell_mage_waterbolt") { }
+
+    class spell_mage_waterbolt_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_mage_waterbolt_SpellScript);
+
+        bool Validate(SpellInfo const* spellInfo) override
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_MASTERY_ICICLES))
+                return false;
+
+            return true;
+        }
+
+        bool Load() override
+        {
+            if (GetCaster()->GetEntry() == PET_MAGE_WATER_ELEMENTAL)
+                return true;
+
+            return false;
+        }
+
+        void RecalculateDamage()
+        {
+            if (!GetCaster()->GetOwner()->HasAura(SPELL_MAGE_MASTERY_ICICLES))
+                return;
+
+            int32 damage = GetHitDamage();
+
+            AddPct(damage, GetCaster()->GetOwner()->ToPlayer()->GetMasterySpellCoefficient());
+
+            SetHitDamage(damage);
+        }
+
+        void Register() override
+        {
+            OnHit += SpellHitFn(spell_mage_waterbolt_SpellScript::RecalculateDamage);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_mage_waterbolt_SpellScript();
+    }
+};
+
 void AddSC_mage_spell_scripts()
 {
     new spell_mage_conjure_refreshment();
@@ -1047,4 +1468,7 @@ void AddSC_mage_spell_scripts()
     new spell_mage_combustion();
     new spell_mage_living_bomb();
     new spell_mage_mastery_ignite();
+    new spell_mage_mastery_icicles();
+    new spell_mage_icicle_trigger();
+    new spell_mage_waterbolt();
 }
