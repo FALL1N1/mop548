@@ -57,6 +57,7 @@ public:
             { "default", rbac::RBAC_PERM_COMMAND_LEARN_ALL_DEFAULT, false, &HandleLearnAllDefaultCommand, "", NULL },
             { "lang",    rbac::RBAC_PERM_COMMAND_LEARN_ALL_LANG,    false, &HandleLearnAllLangCommand,    "", NULL },
             { "recipes", rbac::RBAC_PERM_COMMAND_LEARN_ALL_RECIPES, false, &HandleLearnAllRecipesCommand, "", NULL },
+            { "mount", rbac::RBAC_PERM_COMMAND_LEARN_ALL_DEFAULT,   false, &HandleLearnAllMountsCommand,  "", NULL },
             { NULL,      0,                                   false, NULL,                          "", NULL }
         };
 
@@ -337,6 +338,30 @@ public:
             {
                 HandleLearnSkillRecipesHelper(target, skillInfo->id);
             }
+        }
+
+        handler->SendSysMessage(LANG_COMMAND_LEARN_ALL_CRAFT);
+        return true;
+    }
+
+    static bool HandleLearnAllMountsCommand(ChatHandler* handler, char const* args)
+    {
+        Player* target;
+        if (!handler->extractPlayerTarget((char*)args, &target))
+            return false;
+
+        for (uint32 i = 0; i < sSpellStore.GetNumRows(); ++i)
+        {
+            SpellEntry const* spell = sSpellStore.LookupEntry(i);
+            if (!spell)
+                continue;
+
+            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spell->Id);
+            if (!spellInfo || !SpellMgr::IsSpellValid(spellInfo, handler->GetSession()->GetPlayer(), false))
+                continue;
+
+            if (spellInfo->Effects[0].ApplyAuraName == SPELL_AURA_MOUNTED || spellInfo->Effects[1].ApplyAuraName == SPELL_AURA_MOUNTED || spellInfo->Effects[2].ApplyAuraName == SPELL_AURA_MOUNTED)
+                target->learnSpell(spell->Id, false);
         }
 
         handler->SendSysMessage(LANG_COMMAND_LEARN_ALL_CRAFT);
