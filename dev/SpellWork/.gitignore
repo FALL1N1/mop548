@@ -1,0 +1,9 @@
+
+*.suo
+*.user
+TimelessWork/obj/*
+*.orig
+*.rej
+*.patch
+*.log
+_ReSharper*

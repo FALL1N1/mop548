@@ -1,0 +1,7 @@
+C:\timeless-other\dbcviewer\TestPlugin\bin\Release\TestPlugin.dll
+C:\timeless-other\dbcviewer\TestPlugin\bin\Release\TestPlugin.pdb
+C:\timeless-other\dbcviewer\TestPlugin\bin\Release\PluginInterface.dll
+C:\timeless-other\dbcviewer\TestPlugin\bin\Release\PluginInterface.pdb
+C:\timeless-other\dbcviewer\TestPlugin\obj\Release\TestPlugin.csprojResolveAssemblyReference.cache
+C:\timeless-other\dbcviewer\TestPlugin\obj\Release\TestPlugin.dll
+C:\timeless-other\dbcviewer\TestPlugin\obj\Release\TestPlugin.pdb
