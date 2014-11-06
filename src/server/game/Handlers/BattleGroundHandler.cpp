@@ -172,7 +172,7 @@ void WorldSession::HandleBattlemasterJoinOpcode(WorldPacket& recvData)
     }
     BattlegroundTypeId bgTypeId = BattlegroundTypeId(bgTypeId_);
 
-    TC_LOG_DEBUG("network", "WORLD: Recvd CMSG_BATTLEMASTER_JOIN Message from (GUID:" UI64FMTD " TypeId:%u)", guid, bgTypeId_);
+    TC_LOG_DEBUG("network", "WORLD: Recvd CMSG_BATTLEMASTER_JOIN Message from (GUID:" UI64FMTD " TypeId:%u)", (uint64)guid, bgTypeId_);
 
     // can do this, since it's battleground, not arena
     BattlegroundQueueTypeId bgQueueTypeId = BattlegroundMgr::BGQueueTypeId(bgTypeId, RATED_TYPE_NOT_RATED);
