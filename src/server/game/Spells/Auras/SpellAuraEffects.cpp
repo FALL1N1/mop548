@@ -480,7 +480,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //416 SPELL_AURA_416
     &AuraEffect::HandleNULL,                                      //417 SPELL_AURA_417 (used in spell 25956) (5.4.2)
     &AuraEffect::HandleNULL,                                      //418 SPELL_AURA_418
-    &AuraEffect::HandleNULL,                                      //419 SPELL_AURA_419
+    &AuraEffect::HandleAuraIncreaseBaseMana,                      //419 SPELL_AURA_INCREASE_BASE_MANA
     &AuraEffect::HandleNULL,                                      //420 SPELL_AURA_MOD_PET_XP_PCT / NYI
     &AuraEffect::HandleNULL,                                      //421 SPELL_AURA_421
     &AuraEffect::HandleNULL,                                      //422 SPELL_AURA_422 (used in spell 136577) (5.4.2)
@@ -4042,8 +4042,22 @@ void AuraEffect::HandleModManaRegenByHaste(AuraApplication const* aurApp, uint8 
 
     if (target->GetTypeId() != TYPEID_PLAYER)
         return;
+    if (target->ToPlayer())
+        target->ToPlayer()->UpdateManaRegen();
+}
 
-    target->ToPlayer()->UpdateManaRegen();
+void AuraEffect::HandleAuraIncreaseBaseMana(AuraApplication const* aurApp, uint8 mode, bool apply) const
+{
+    Unit* target = aurApp->GetTarget();
+
+    if (target->GetTypeId() != TYPEID_PLAYER)
+        return;
+
+    if (target->ToPlayer())
+    {
+        target->ToPlayer()->InitStatsForLevel();
+        target->ToPlayer()->UpdateManaRegen();
+    }     
 }
 
 void AuraEffect::HandleAuraModIncreaseHealth(AuraApplication const* aurApp, uint8 mode, bool apply) const

@@ -478,7 +478,7 @@ enum AuraType
     SPELL_AURA_SANCTITY_OF_BATTLE                           = 416,
     SPELL_AURA_417                                          = 417,
     SPELL_AURA_418                                          = 418,
-    SPELL_AURA_419                                          = 419,
+    SPELL_AURA_INCREASE_BASE_MANA                           = 419,
     SPELL_AURA_MOD_PET_XP_PCT                               = 420, // NYI
     SPELL_AURA_421                                          = 421,
     SPELL_AURA_422                                          = 422,
