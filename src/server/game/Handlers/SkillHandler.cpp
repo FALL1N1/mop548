@@ -86,71 +86,84 @@ void WorldSession::HandleLearnTalentOpcode(WorldPacket& recvData)
 
 void WorldSession::HandleTalentWipeConfirmOpcode(WorldPacket& recvData)
 {
-    TC_LOG_DEBUG("network", "MSG_TALENT_WIPE_CONFIRM");
-    ObjectGuid guid;
-    uint8 specializationReset;
-    uint32 cost;
-
-    uint8 bitOrder[8] = { 5, 7, 3, 2, 1, 0, 4, 6 };
-    recvData.ReadBitInOrder(guid, bitOrder);
-
-    recvData.ReadByteSeq(guid[1]);
-    recvData.ReadByteSeq(guid[0]);
-
-    recvData >> specializationReset;
-
-    recvData.ReadByteSeq(guid[7]);
-    recvData.ReadByteSeq(guid[3]);
-    recvData.ReadByteSeq(guid[2]);
-    recvData.ReadByteSeq(guid[5]);
-    recvData.ReadByteSeq(guid[6]);
-    recvData.ReadByteSeq(guid[4]);
-
-    recvData >> cost;
-
-    Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_TRAINER);
-    if (!unit)
+    TC_LOG_DEBUG("network", "CMSG_RESET_TALENTS_RESPONSE");
+   
+    if (Player* player = GetPlayer())
     {
-        TC_LOG_DEBUG("network", "WORLD: HandleTalentWipeConfirmOpcode - Unit (GUID: %u) not found or you can't interact with him.", uint32(GUID_LOPART(guid)));
-        return;
+        player->ResetTalents();
+        player->ResetSpec();
+        player->SendTalentsInfoData();
+        player->CastSpell(_player, 14867, true);
     }
 
-    // remove fake death
-    if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
-        GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
+    // We have to find a good structure, with this opcode is possible reset talents or spec or glyphs
+    // This structure is wrong
+    /*
+        ObjectGuid guid;
+        uint8 specializationReset;
+        uint32 cost;
 
-    if (!specializationReset)
-    {
-        if (!_player->ResetTalents())
+        uint8 bitOrder[8] = { 5, 7, 3, 2, 1, 0, 4, 6 };
+        recvData.ReadBitInOrder(guid, bitOrder);
+
+        recvData.ReadByteSeq(guid[1]);
+        recvData.ReadByteSeq(guid[0]);
+
+        recvData >> specializationReset;
+
+        recvData.ReadByteSeq(guid[7]);
+        recvData.ReadByteSeq(guid[3]);
+        recvData.ReadByteSeq(guid[2]);
+        recvData.ReadByteSeq(guid[5]);
+        recvData.ReadByteSeq(guid[6]);
+        recvData.ReadByteSeq(guid[4]);
+
+        recvData >> cost;
+
+        Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_TRAINER);
+        if (!unit)
         {
-            ObjectGuid Guid = guid;
-
-            WorldPacket data(MSG_TALENT_WIPE_CONFIRM, 8 + 4);    //you have not any talent
-
-            uint8 bitOrder[8] = { 5, 7, 3, 2, 1, 0, 4, 6 };
-            data.WriteBitInOrder(Guid, bitOrder);
-
-            data.WriteByteSeq(Guid[1]);
-            data.WriteByteSeq(Guid[0]);
-            data << uint8(0);
-            data.WriteByteSeq(Guid[7]);
-            data.WriteByteSeq(Guid[3]);
-            data.WriteByteSeq(Guid[2]);
-            data.WriteByteSeq(Guid[5]);
-            data.WriteByteSeq(Guid[6]);
-            data.WriteByteSeq(Guid[4]);
-            data << uint32(0);
-            SendPacket(&data);
+            TC_LOG_DEBUG("network", "WORLD: HandleTalentWipeConfirmOpcode - Unit (GUID: %u) not found or you can't interact with him.", uint32(GUID_LOPART(guid)));
             return;
         }
-    }
-    else
-    {
-        _player->ResetSpec();
-    }
 
-    _player->SendTalentsInfoData();
-    unit->CastSpell(_player, 14867, true);                  //spell: "Untalent Visual Effect"
+        // remove fake death
+        if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
+            GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
+
+        if (!specializationReset)
+        {
+            if (!_player->ResetTalents())
+            {
+                ObjectGuid Guid = guid;
+
+                WorldPacket data(MSG_TALENT_WIPE_CONFIRM, 8 + 4);    //you have not any talent
+
+                uint8 bitOrder[8] = { 5, 7, 3, 2, 1, 0, 4, 6 };
+                data.WriteBitInOrder(Guid, bitOrder);
+
+                data.WriteByteSeq(Guid[1]);
+                data.WriteByteSeq(Guid[0]);
+                data << uint8(0);
+                data.WriteByteSeq(Guid[7]);
+                data.WriteByteSeq(Guid[3]);
+                data.WriteByteSeq(Guid[2]);
+                data.WriteByteSeq(Guid[5]);
+                data.WriteByteSeq(Guid[6]);
+                data.WriteByteSeq(Guid[4]);
+                data << uint32(0);
+                SendPacket(&data);
+                return;
+            }
+        }
+        else
+        {
+            _player->ResetSpec();
+        }
+
+        _player->SendTalentsInfoData();
+        unit->CastSpell(_player, 14867, true);                  //spell: "Untalent Visual Effect"
+    */
 }
 
 void WorldSession::HandleUnlearnSkillOpcode(WorldPacket& recvData)
