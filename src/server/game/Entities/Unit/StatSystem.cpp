@@ -771,70 +771,37 @@ void Player::UpdateManaRegen()
     if (getPowerType() != POWER_MANA)
         return;
 
+    // MoP Mana regen system
+    float base_regen = GetMaxPower(POWER_MANA) * 0.02f;
+
     // Mana regen from spirit
     float spirit_regen = OCTRegenMPPerSpirit();
     spirit_regen *= GetTotalAuraMultiplierByMiscValue(SPELL_AURA_MOD_POWER_REGEN_PERCENT, POWER_MANA);
-    float HastePct = 1.0f + GetUInt32Value(PLAYER_FIELD_COMBAT_RATINGS + CR_HASTE_SPELL) * GetRatingMultiplier(CR_HASTE_SPELL) / 100.0f;
+
+    // Bonus Mp5 from auras (like repleinshment)
     float mod = (GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, POWER_MANA) / 5.0f);
 
-    float combat_regen = 0.004f * GetMaxPower(POWER_MANA) + spirit_regen + mod;
-    float base_regen = 0.004f * GetMaxPower(POWER_MANA) + mod;
-    
+    // Calc regens
+    float ooc_regen = floor(base_regen / 5.0f + 0.5f) + spirit_regen + mod;
+    float ic_regen = floor(base_regen / 5.0f + 0.5f) + mod;
+
     // Mana Meditation && Meditation
     int32 modManaRegenInterrupt = GetTotalAuraModifier(SPELL_AURA_MOD_MANA_REGEN_INTERRUPT);
     if (modManaRegenInterrupt)
-        combat_regen += modManaRegenInterrupt * spirit_regen;  // Allows 50% of your mana regeneration from Spirit to continue while in combat.
+        ic_regen += spirit_regen / 100.0 * modManaRegenInterrupt;  // Allows 50% of your mana regeneration from Spirit to continue while in combat.
 
-    if (getClass() == CLASS_WARLOCK)
+    // New aura in MoP - Mp5 increase by haste
+    if (HasAuraType(SPELL_AURA_MOD_MANA_REGEN_BY_HASTE))
     {
-        combat_regen = 0.01f * GetMaxPower(POWER_MANA) + spirit_regen + GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, POWER_MANA);
-        base_regen = 0.01f * GetMaxPower(POWER_MANA) + GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, POWER_MANA);
+        float haste = GetRatingBonusValue(CR_HASTE_SPELL);
+        ooc_regen += ooc_regen / 100 * haste;
+        ic_regen += ic_regen / 100 * haste;
     }
 
-    // Rune of Power : Increase Mana regeneration by 100%
-    if (HasAura(116014))
-    {
-        combat_regen *= 2;
-        base_regen *= 2;
-    }
-    // Incanter's Ward : Increase Mana regen by 65%
-    if (HasAura(118858))
-    {
-        combat_regen *= 1.65f;
-        base_regen *= 1.65f;
-    }
-    // Chaotic Energy : Increase Mana regen by 625%
-    if (HasAura(111546))
-    {
-        // haste also increase your mana regeneration
-        HastePct = 1.0f + GetUInt32Value(PLAYER_FIELD_COMBAT_RATINGS + CR_HASTE_MELEE) * GetRatingMultiplier(CR_HASTE_MELEE) / 100.0f;
-
-        combat_regen = combat_regen + (combat_regen * 6.25f);
-        combat_regen *= HastePct;
-        base_regen = base_regen + (base_regen * 6.25f);
-        base_regen *= HastePct;
-    }
-    // Nether Attunement - 117957 : Haste also increase your mana regeneration
-    if (HasAura(117957))
-    {
-        HastePct = 1.0f + GetUInt32Value(PLAYER_FIELD_COMBAT_RATINGS + CR_HASTE_MELEE) * GetRatingMultiplier(CR_HASTE_MELEE) / 100.0f;
-
-        combat_regen *= HastePct;
-        base_regen *= HastePct;
-    }
-    // Mana Attunement : Increase Mana regen by 50%
-    if (HasAura(121039))
-    {
-        combat_regen = combat_regen + (combat_regen * 0.5f);
-        combat_regen *= HastePct;
-        base_regen = base_regen + (base_regen * 0.5f);
-        base_regen *= HastePct;
-    }
-    
     // Not In Combat : 2% of base mana + spirit_regen
-    SetStatFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER, base_regen);
+    SetStatFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER, ic_regen);
     // In Combat : 2% of base mana
-    SetStatFloatValue(UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER, combat_regen);
+    SetStatFloatValue(UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER, ooc_regen);
 }
 
 void Player::UpdateEnergyRegen()
@@ -844,10 +811,14 @@ void Player::UpdateEnergyRegen()
     if (index == MAX_POWERS)
         return;
 
+    if (index == 0)
+        return;
+
     float value = 10.0f + (0.1f * GetRatingBonusValue(CR_HASTE_MELEE));
 
     AddPct(value, GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN_PERCENT, index));
     value += GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, index) / 5.0f;
+
 
     //No changes between in and out of combat regen
     SetStatFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER + index, value - 10.0f);
@@ -859,6 +830,9 @@ void Player::UpdateFocusRegen()
     int index = (GetPowerIndexByClass(POWER_FOCUS, getClass()) != MAX_POWERS);
     
     if (index == MAX_POWERS)
+        return;
+
+    if (index == 0)
         return;
 
     float value = 5.0f + (0.02f * GetRatingBonusValue(CR_HASTE_RANGED));
