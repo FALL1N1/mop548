@@ -435,6 +435,10 @@ void WorldSession::HandleBattlefieldListOpcode(WorldPacket& recvData)
     uint32 bgTypeId;
     recvData >> bgTypeId;                                  // id from DBC
 
+    // Don't send list of rbg
+    if (bgTypeId == BATTLEGROUND_RB)
+        return;
+
     BattlemasterListEntry const* bl = sBattlemasterListStore.LookupEntry(bgTypeId);
     if (!bl)
     {
