@@ -1150,7 +1150,7 @@ void BattlegroundMgr::BuildBattlegroundListPacket(WorldPacket* data, uint64 guid
     data->WriteBit(guidBytes[4]);
     data->WriteBit(0);                                      // unk
     data->WriteBit(guidBytes[2]);
-    data->WriteBit(0);                                      // unk
+    data->WriteBit(1);                                      // unk
     data->WriteBit(guidBytes[7]);
     data->WriteBit(guidBytes[6]);
     data->WriteBit(guidBytes[5]);
