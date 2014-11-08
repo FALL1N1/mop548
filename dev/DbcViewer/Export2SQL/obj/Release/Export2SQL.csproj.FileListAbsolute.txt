@@ -1,7 +1,0 @@
-C:\timeless-other\dbcviewer\Export2SQL\bin\Release\Export2SQL.dll
-C:\timeless-other\dbcviewer\Export2SQL\bin\Release\Export2SQL.pdb
-C:\timeless-other\dbcviewer\Export2SQL\bin\Release\PluginInterface.dll
-C:\timeless-other\dbcviewer\Export2SQL\bin\Release\PluginInterface.pdb
-C:\timeless-other\dbcviewer\Export2SQL\obj\Release\Export2SQL.csprojResolveAssemblyReference.cache
-C:\timeless-other\dbcviewer\Export2SQL\obj\Release\Export2SQL.dll
-C:\timeless-other\dbcviewer\Export2SQL\obj\Release\Export2SQL.pdb
