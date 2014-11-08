@@ -3587,6 +3587,17 @@ void Player::GiveLevel(uint8 level)
 
     phaseMgr.NotifyConditionChanged(phaseUpdateData);
 
+    // Learn running wild and riding to worgens that reach level 20
+    if (level == 20 && getRace() == RACE_WORGEN)
+    {
+        learnSpell(87840, false); // Running wild
+        learnSpell(33388, false); // Riding
+    }
+
+    // PvP Damage Reduction at level 90
+    if (level == 90)
+        learnSpell(142689, false);
+
     // Refer-A-Friend
     if (GetSession()->GetRecruiterId())
     {

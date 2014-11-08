@@ -1194,6 +1194,46 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
     if (pCurrChar->IsGameMaster())
         SendNotification(LANG_GM_ON);
 
+    // Learn worgen spells
+    if (pCurrChar->getRace() == RACE_WORGEN)
+    {
+        if (pCurrChar->getLevel() >= 10)
+        {
+            // Two forms
+            if (!pCurrChar->HasSpell(68996))
+                pCurrChar->learnSpell(68996, false);
+
+            // Darkflight
+            if (!pCurrChar->HasSpell(68992))
+                pCurrChar->learnSpell(68992, false);
+
+            // Aberration
+            if (!pCurrChar->HasSpell(68976))
+                pCurrChar->learnSpell(68976, false);
+
+            // Viciousness
+            if (!pCurrChar->HasSpell(68975))
+                pCurrChar->learnSpell(68975, false);
+        }
+        if (pCurrChar->getLevel() >= 20)
+        {
+            // Running wild
+            if (!pCurrChar->HasSpell(87840))
+                pCurrChar->learnSpell(87840, false);
+
+            // App Riding
+            if (!pCurrChar->HasSpell(33388))
+                pCurrChar->learnSpell(33388, false);
+        }
+    }
+
+    // Player Damage Reduction Level 90
+    if (pCurrChar->getLevel() >= 90)
+    {
+        if (!pCurrChar->HasSpell(142689))
+            pCurrChar->learnSpell(142689, false);
+    }
+
     std::string IP_str = GetRemoteAddress();
     TC_LOG_INFO("entities.player.character", "Account: %d (IP: %s) Login Character:[%s] (GUID: %u) Level: %d",
         GetAccountId(), IP_str.c_str(), pCurrChar->GetName().c_str(), pCurrChar->GetGUIDLow(), pCurrChar->getLevel());
