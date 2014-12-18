@@ -138,7 +138,7 @@ namespace Movement
             int8  byteData;
             int32 extraInt32Data;
             uint32 extra2BitsData;
-            std::list<float> floatData;
+            float floatData;
         } Data;
 
     protected:

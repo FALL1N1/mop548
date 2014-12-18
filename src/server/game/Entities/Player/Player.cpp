@@ -18361,8 +18361,8 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
     SetUInt32Value(UNIT_FIELD_LEVEL, fields[6].GetUInt8());
     SetUInt32Value(PLAYER_FIELD_XP, fields[7].GetUInt32());
 
-    _LoadIntoDataField(fields[55].GetCString(), PLAYER_FIELD_EXPLORED_ZONES, PLAYER_EXPLORED_ZONES_SIZE);
-    _LoadIntoDataField(fields[57].GetCString(), PLAYER_FIELD_KNOWN_TITLES, KNOWN_TITLES_SIZE*2);
+    _LoadIntoDataField(fields[57].GetCString(), PLAYER_FIELD_EXPLORED_ZONES, PLAYER_EXPLORED_ZONES_SIZE);
+    _LoadIntoDataField(fields[59].GetCString(), PLAYER_FIELD_KNOWN_TITLES, KNOWN_TITLES_SIZE*2);
 
     SetObjectScale(1.0f);
     SetFloatValue(UNIT_FIELD_HOVER_HEIGHT, 1.0f);
@@ -28485,7 +28485,7 @@ void Player::SendMovementSetCollisionHeight(float height)
 {
     static MovementStatusElements const extraElements[] = { MSEExtraFloat, MSEExtraFloat };
     Movement::ExtraMovementStatusElement extra(extraElements);
-    extra.Data.floatData = { height, 1 };
+    extra.Data.floatData = height;
     Movement::PacketSender(this, NULL_OPCODE, SMSG_MOVE_SET_COLLISION_HEIGHT, SMSG_MOVE_UPDATE_COLLISION_HEIGHT, &extra).Send();
 }
 

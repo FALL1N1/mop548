@@ -1,4 +1,4 @@
-/*
+    /*
  * Copyright (C) 2011-2014 Project SkyFire <http://www.projectskyfire.org/>
  * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
@@ -5396,9 +5396,7 @@ void Movement::ExtraMovementStatusElement::ReadNextElement(ByteBuffer& packet)
             break;
         case MSEExtraFloat:
         {
-            float data;
-            packet >> data;
-            Data.floatData.push_back(data);
+            packet >> Data.floatData;
             break;
         }
         case MSEExtraInt8:
@@ -5445,8 +5443,7 @@ void Movement::ExtraMovementStatusElement::WriteNextElement(ByteBuffer& packet)
         case MSEExtraFloat:
         {
             // Get the front one and rotate list to the left
-            packet << float(Data.floatData.front());
-            Data.floatData.splice(Data.floatData.begin(), Data.floatData, ++Data.floatData.begin());
+            packet << Data.floatData;
             break;
         }
         case MSEExtraInt8:
