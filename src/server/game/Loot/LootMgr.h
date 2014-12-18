@@ -244,7 +244,7 @@ class LootTemplate
 
         // Checks integrity of the template
         void Verify(LootStore const& store, uint32 Id) const;
-        void CheckLootRefs(LootTemplateMap const& store, LootIdSet* ref_set) const;
+        void CheckLootRefs(const LootStore* store, LootTemplateMap const& loot, LootIdSet* ref_set) const;
         bool addConditionItem(Condition* cond);
         bool isReference(uint32 id);
 
