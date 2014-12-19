@@ -23898,7 +23898,7 @@ void Player::SendCooldownEvent(SpellInfo const* spellInfo, uint32 itemId /*= 0*/
     data.WriteBit(guid[6]);
     data.WriteBit(guid[2]);
 
-    data.WriteBit(0); // unk - mostly 0
+    data.WriteBit(1); // Update Client
 
     data.WriteBit(guid[7]);
     data.WriteBit(guid[0]);
