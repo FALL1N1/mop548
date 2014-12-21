@@ -580,23 +580,9 @@ void WorldSession::HandlePetSetAction(WorldPacket& recvData)
         recvData >> data[i];
     }
 
-    petguid[1] = recvData.ReadBit();
-    petguid[0] = recvData.ReadBit();
-    petguid[5] = recvData.ReadBit();
-    petguid[3] = recvData.ReadBit();
-    petguid[2] = recvData.ReadBit();
-    petguid[7] = recvData.ReadBit();
-    petguid[6] = recvData.ReadBit();
-    petguid[4] = recvData.ReadBit();
+    recvData.ReadBitInOrder(petguid, new uint8 []{1, 0, 5, 3, 2, 7, 6, 4});
 
-    recvData.ReadByteSeq(petguid[5]);
-    recvData.ReadByteSeq(petguid[6]);
-    recvData.ReadByteSeq(petguid[7]);
-    recvData.ReadByteSeq(petguid[3]);
-    recvData.ReadByteSeq(petguid[2]);
-    recvData.ReadByteSeq(petguid[1]);
-    recvData.ReadByteSeq(petguid[4]);
-    recvData.ReadByteSeq(petguid[0]);
+    recvData.ReadBytesSeq(petguid, new uint8 []{5, 6, 7, 3, 2, 1, 4, 0});
 
     Unit* pet = ObjectAccessor::GetUnit(*_player, petguid);
 
@@ -858,23 +844,9 @@ void WorldSession::HandlePetCastSpellOpcode(WorldPacket& recvPacket)
 
     recvPacket >> unk_1 >> spellId;
 
-    guid[1] = recvPacket.ReadBit();
-    guid[0] = recvPacket.ReadBit();
-    guid[5] = recvPacket.ReadBit();
-    guid[3] = recvPacket.ReadBit();
-    guid[2] = recvPacket.ReadBit();
-    guid[7] = recvPacket.ReadBit();
-    guid[6] = recvPacket.ReadBit();
-    guid[4] = recvPacket.ReadBit();
+    recvPacket.ReadBitInOrder(guid, new uint8 []{1, 0, 5, 3, 2, 7, 6, 4});
 
-    recvPacket.ReadByteSeq(guid[5]);
-    recvPacket.ReadByteSeq(guid[6]);
-    recvPacket.ReadByteSeq(guid[7]);
-    recvPacket.ReadByteSeq(guid[3]);
-    recvPacket.ReadByteSeq(guid[2]);
-    recvPacket.ReadByteSeq(guid[1]);
-    recvPacket.ReadByteSeq(guid[4]);
-    recvPacket.ReadByteSeq(guid[0]);
+    recvPacket.ReadBytesSeq(guid, new uint8 []{5, 6, 7, 3, 2, 1, 4, 0});
 
     TC_LOG_DEBUG("network", "WORLD: CMSG_PET_CAST_SPELL, guid: " UI64FMTD ", castCount: %u, spellId %u, castFlags %u", uint64(guid), castCount, spellId, castFlags);
 

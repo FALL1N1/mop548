@@ -366,14 +366,7 @@ void WorldSession::HandleMailMarkAsRead(WorldPacket& recvData)
     mailbox[5] = recvData.ReadBit();
     recvData.FlushBits();
 
-    recvData.ReadByteSeq(mailbox[1]);
-    recvData.ReadByteSeq(mailbox[7]);
-    recvData.ReadByteSeq(mailbox[2]);
-    recvData.ReadByteSeq(mailbox[5]);
-    recvData.ReadByteSeq(mailbox[6]);
-    recvData.ReadByteSeq(mailbox[3]);
-    recvData.ReadByteSeq(mailbox[4]);
-    recvData.ReadByteSeq(mailbox[0]);
+    recvData.ReadBytesSeq(mailbox, new uint8 []{1, 7, 2, 5, 6, 3, 4, 0});
 
     if (!GetPlayer()->GetGameObjectIfCanInteractWith(mailbox, GAMEOBJECT_TYPE_MAILBOX))
         return;
@@ -421,23 +414,9 @@ void WorldSession::HandleMailReturnToSender(WorldPacket& recvData)
 
     recvData >> mailId;
 
-    mailbox[2] = recvData.ReadBit();
-    mailbox[0] = recvData.ReadBit();
-    mailbox[4] = recvData.ReadBit();
-    mailbox[6] = recvData.ReadBit();
-    mailbox[3] = recvData.ReadBit();
-    mailbox[1] = recvData.ReadBit();
-    mailbox[7] = recvData.ReadBit();
-    mailbox[5] = recvData.ReadBit();
+    recvData.ReadBitInOrder(mailbox, new uint8 []{2, 0, 4, 6, 3, 1, 7, 5});
 
-    recvData.ReadByteSeq(mailbox[5]);
-    recvData.ReadByteSeq(mailbox[6]);
-    recvData.ReadByteSeq(mailbox[2]);
-    recvData.ReadByteSeq(mailbox[0]);
-    recvData.ReadByteSeq(mailbox[3]);
-    recvData.ReadByteSeq(mailbox[1]);
-    recvData.ReadByteSeq(mailbox[4]);
-    recvData.ReadByteSeq(mailbox[7]);
+    recvData.ReadBytesSeq(mailbox, new uint8 []{5, 6, 2, 0, 3, 1, 4, 7});
 
     if (!GetPlayer()->GetGameObjectIfCanInteractWith(mailbox, GAMEOBJECT_TYPE_MAILBOX))
         return;
@@ -497,23 +476,9 @@ void WorldSession::HandleMailTakeItem(WorldPacket& recvData)
     recvData >> mailId;
     recvData >> itemId;
 
-    mailbox[6] = recvData.ReadBit();
-    mailbox[5] = recvData.ReadBit();
-    mailbox[2] = recvData.ReadBit();
-    mailbox[3] = recvData.ReadBit();
-    mailbox[0] = recvData.ReadBit();
-    mailbox[1] = recvData.ReadBit();
-    mailbox[4] = recvData.ReadBit();
-    mailbox[7] = recvData.ReadBit();
+    recvData.ReadBitInOrder(mailbox, new uint8 []{6, 5, 2, 3, 0, 1, 4, 7});
 
-    recvData.ReadByteSeq(mailbox[0]);
-    recvData.ReadByteSeq(mailbox[1]);
-    recvData.ReadByteSeq(mailbox[4]);
-    recvData.ReadByteSeq(mailbox[2]);
-    recvData.ReadByteSeq(mailbox[5]);
-    recvData.ReadByteSeq(mailbox[6]);
-    recvData.ReadByteSeq(mailbox[3]);
-    recvData.ReadByteSeq(mailbox[7]);
+    recvData.ReadBytesSeq(mailbox, new uint8 []{0, 1, 4, 2, 5, 6, 3, 7});
 
     if (!GetPlayer()->GetGameObjectIfCanInteractWith(mailbox, GAMEOBJECT_TYPE_MAILBOX))
         return;
@@ -611,23 +576,9 @@ void WorldSession::HandleMailTakeMoney(WorldPacket& recvData)
     recvData >> mailId;
     recvData >> money;
 
-    mailbox[7] = recvData.ReadBit();
-    mailbox[6] = recvData.ReadBit();
-    mailbox[3] = recvData.ReadBit();
-    mailbox[2] = recvData.ReadBit();
-    mailbox[4] = recvData.ReadBit();
-    mailbox[5] = recvData.ReadBit();
-    mailbox[0] = recvData.ReadBit();
-    mailbox[1] = recvData.ReadBit();
+    recvData.ReadBitInOrder(mailbox, new uint8 []{7, 6, 3, 2, 4, 5, 0, 1});
 
-    recvData.ReadByteSeq(mailbox[7]);
-    recvData.ReadByteSeq(mailbox[1]);
-    recvData.ReadByteSeq(mailbox[4]);
-    recvData.ReadByteSeq(mailbox[0]);
-    recvData.ReadByteSeq(mailbox[3]);
-    recvData.ReadByteSeq(mailbox[2]);
-    recvData.ReadByteSeq(mailbox[6]);
-    recvData.ReadByteSeq(mailbox[5]);
+    recvData.ReadBytesSeq(mailbox, new uint8 []{7, 1, 4, 0, 3, 2, 6, 5});
 
     if (!GetPlayer()->GetGameObjectIfCanInteractWith(mailbox, GAMEOBJECT_TYPE_MAILBOX))
         return;
@@ -666,23 +617,9 @@ void WorldSession::HandleGetMailList(WorldPacket& recvData)
 {
     ObjectGuid mailbox;
 
-    mailbox[6] = recvData.ReadBit();
-    mailbox[3] = recvData.ReadBit();
-    mailbox[7] = recvData.ReadBit();
-    mailbox[5] = recvData.ReadBit();
-    mailbox[4] = recvData.ReadBit();
-    mailbox[1] = recvData.ReadBit();
-    mailbox[2] = recvData.ReadBit();
-    mailbox[0] = recvData.ReadBit();
+    recvData.ReadBitInOrder(mailbox, new uint8 []{6, 3, 7, 5, 4, 1, 2, 0});
 
-    recvData.ReadByteSeq(mailbox[7]);
-    recvData.ReadByteSeq(mailbox[1]);
-    recvData.ReadByteSeq(mailbox[6]);
-    recvData.ReadByteSeq(mailbox[5]);
-    recvData.ReadByteSeq(mailbox[4]);
-    recvData.ReadByteSeq(mailbox[2]);
-    recvData.ReadByteSeq(mailbox[3]);
-    recvData.ReadByteSeq(mailbox[0]);
+    recvData.ReadBytesSeq(mailbox, new uint8 []{7, 1, 6, 5, 4, 2, 3, 0});
 
     if (!GetPlayer()->GetGameObjectIfCanInteractWith(mailbox, GAMEOBJECT_TYPE_MAILBOX))
         return;
@@ -843,23 +780,9 @@ void WorldSession::HandleMailCreateTextItem(WorldPacket& recvData)
 
     recvData >> mailId;
 
-    mailbox[4] = recvData.ReadBit();
-    mailbox[1] = recvData.ReadBit();
-    mailbox[6] = recvData.ReadBit();
-    mailbox[2] = recvData.ReadBit();
-    mailbox[5] = recvData.ReadBit();
-    mailbox[3] = recvData.ReadBit();
-    mailbox[0] = recvData.ReadBit();
-    mailbox[7] = recvData.ReadBit();
+    recvData.ReadBitInOrder(mailbox, new uint8 []{4, 1, 6, 2, 5, 3, 0, 7});
 
-    recvData.ReadByteSeq(mailbox[6]);
-    recvData.ReadByteSeq(mailbox[5]);
-    recvData.ReadByteSeq(mailbox[4]);
-    recvData.ReadByteSeq(mailbox[3]);
-    recvData.ReadByteSeq(mailbox[0]);
-    recvData.ReadByteSeq(mailbox[7]);
-    recvData.ReadByteSeq(mailbox[2]);
-    recvData.ReadByteSeq(mailbox[1]);
+    recvData.ReadBytesSeq(mailbox, new uint8 []{6, 5, 4, 3, 0, 7, 2, 1});
 
     if (!GetPlayer()->GetGameObjectIfCanInteractWith(mailbox, GAMEOBJECT_TYPE_MAILBOX))
         return;

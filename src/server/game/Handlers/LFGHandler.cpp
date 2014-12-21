@@ -137,23 +137,9 @@ void WorldSession::HandleLfgLeaveOpcode(WorldPacket& recvData)
     recvData.read_skip<uint32>();                          // Always 3
     recvData.read_skip<uint32>();                          // Queue Id
 
-    leaveGuid[0] = recvData.ReadBit();
-    leaveGuid[1] = recvData.ReadBit();
-    leaveGuid[6] = recvData.ReadBit();
-    leaveGuid[7] = recvData.ReadBit();
-    leaveGuid[3] = recvData.ReadBit();
-    leaveGuid[5] = recvData.ReadBit();
-    leaveGuid[2] = recvData.ReadBit();
-    leaveGuid[4] = recvData.ReadBit();
+    recvData.ReadBitInOrder(leaveGuid, new uint8 []{0, 1, 6, 7, 3, 5, 2, 4});
 
-    recvData.ReadByteSeq(leaveGuid[1]);
-    recvData.ReadByteSeq(leaveGuid[5]);
-    recvData.ReadByteSeq(leaveGuid[6]);
-    recvData.ReadByteSeq(leaveGuid[7]);
-    recvData.ReadByteSeq(leaveGuid[4]);
-    recvData.ReadByteSeq(leaveGuid[2]);
-    recvData.ReadByteSeq(leaveGuid[3]);
-    recvData.ReadByteSeq(leaveGuid[0]);
+    recvData.ReadBytesSeq(leaveGuid, new uint8 []{1, 5, 6, 7, 4, 2, 3, 0});
 
     TC_LOG_DEBUG("lfg", "CMSG_LFG_LEAVE %s in group: %u sent guid " UI64FMTD ".",
         GetPlayerInfo().c_str(), group ? 1 : 0, uint64(leaveGuid));
@@ -176,23 +162,9 @@ void WorldSession::HandleLfgProposalResultOpcode(WorldPacket& recvData)
     recvData.read_skip<uint32>();
     recvData.read_skip<uint32>();
 
-    guid2[4] = recvData.ReadBit();
-    guid2[5] = recvData.ReadBit();
-    guid2[0] = recvData.ReadBit();
-    guid2[6] = recvData.ReadBit();
-    guid2[2] = recvData.ReadBit();
-    guid2[7] = recvData.ReadBit();
-    guid2[1] = recvData.ReadBit();
-    guid2[3] = recvData.ReadBit();
+    recvData.ReadBitInOrder(guid2, new uint8 []{4, 5, 0, 6, 2, 7, 1, 3});
 
-    recvData.ReadByteSeq(guid2[7]);
-    recvData.ReadByteSeq(guid2[4]);
-    recvData.ReadByteSeq(guid2[3]);
-    recvData.ReadByteSeq(guid2[2]);
-    recvData.ReadByteSeq(guid2[6]);
-    recvData.ReadByteSeq(guid2[0]);
-    recvData.ReadByteSeq(guid2[1]);
-    recvData.ReadByteSeq(guid2[5]);
+    recvData.ReadBytesSeq(guid2, new uint8 []{7, 4, 3, 2, 6, 0, 1, 5});
 
     guid1[7] = recvData.ReadBit();
     accept =  recvData.ReadBit();
@@ -204,14 +176,7 @@ void WorldSession::HandleLfgProposalResultOpcode(WorldPacket& recvData)
     guid1[6] = recvData.ReadBit();
     guid1[2] = recvData.ReadBit();
 
-    recvData.ReadByteSeq(guid1[7]);
-    recvData.ReadByteSeq(guid1[1]);
-    recvData.ReadByteSeq(guid1[5]);
-    recvData.ReadByteSeq(guid1[6]);
-    recvData.ReadByteSeq(guid1[3]);
-    recvData.ReadByteSeq(guid1[4]);
-    recvData.ReadByteSeq(guid1[0]);
-    recvData.ReadByteSeq(guid1[2]);
+    recvData.ReadBytesSeq(guid1, new uint8 []{7, 1, 5, 6, 3, 4, 0, 2});
 
     TC_LOG_DEBUG("lfg", "CMSG_LFG_PROPOSAL_RESULT %s proposal: %u accept: %u",
         GetPlayerInfo().c_str(), proposalID, accept ? 1 : 0);

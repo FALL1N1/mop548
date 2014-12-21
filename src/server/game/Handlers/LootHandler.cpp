@@ -264,23 +264,9 @@ void WorldSession::HandleLootOpcode(WorldPacket& recvData)
 
     ObjectGuid guid;
 
-    guid[4] = recvData.ReadBit();
-    guid[5] = recvData.ReadBit();
-    guid[2] = recvData.ReadBit();
-    guid[7] = recvData.ReadBit();
-    guid[0] = recvData.ReadBit();
-    guid[1] = recvData.ReadBit();
-    guid[3] = recvData.ReadBit();
-    guid[6] = recvData.ReadBit();
+    recvData.ReadBitInOrder(guid, new uint8 []{4, 5, 2, 7, 0, 1, 3, 6});
 
-    recvData.ReadByteSeq(guid[3]);
-    recvData.ReadByteSeq(guid[5]);
-    recvData.ReadByteSeq(guid[0]);
-    recvData.ReadByteSeq(guid[6]);
-    recvData.ReadByteSeq(guid[4]);
-    recvData.ReadByteSeq(guid[1]);
-    recvData.ReadByteSeq(guid[7]);
-    recvData.ReadByteSeq(guid[2]);
+    recvData.ReadBytesSeq(guid, new uint8 []{3, 5, 0, 6, 4, 1, 7, 2});
 
     // Check possible cheat
     if (!_player->IsAlive())
@@ -301,23 +287,9 @@ void WorldSession::HandleLootReleaseOpcode(WorldPacket& recvData)
     // use internal stored guid
 
     ObjectGuid guid;
-    guid[7] = recvData.ReadBit();
-    guid[4] = recvData.ReadBit();
-    guid[2] = recvData.ReadBit();
-    guid[3] = recvData.ReadBit();
-    guid[0] = recvData.ReadBit();
-    guid[5] = recvData.ReadBit();
-    guid[6] = recvData.ReadBit();
-    guid[1] = recvData.ReadBit();
+    recvData.ReadBitInOrder(guid, new uint8 []{7, 4, 2, 3, 0, 5, 6, 1});
 
-    recvData.ReadByteSeq(guid[0]);
-    recvData.ReadByteSeq(guid[6]);
-    recvData.ReadByteSeq(guid[4]);
-    recvData.ReadByteSeq(guid[2]);
-    recvData.ReadByteSeq(guid[5]);
-    recvData.ReadByteSeq(guid[3]);
-    recvData.ReadByteSeq(guid[7]);
-    recvData.ReadByteSeq(guid[1]);
+    recvData.ReadBytesSeq(guid, new uint8 []{0, 6, 4, 2, 5, 3, 7, 1});
 
     if (uint64 lootGuid = GetPlayer()->GetLootGUID())
         if (lootGuid == guid)

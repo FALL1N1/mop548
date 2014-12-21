@@ -63,14 +63,7 @@ void WorldSession::HandlePetitionBuyOpcode(WorldPacket& recvData)
 
     std::string name = recvData.ReadString(nameLength);
 
-    recvData.ReadByteSeq(guid[1]);
-    recvData.ReadByteSeq(guid[7]);
-    recvData.ReadByteSeq(guid[4]);
-    recvData.ReadByteSeq(guid[6]);
-    recvData.ReadByteSeq(guid[0]);
-    recvData.ReadByteSeq(guid[5]);
-    recvData.ReadByteSeq(guid[2]);
-    recvData.ReadByteSeq(guid[3]);
+    recvData.ReadBytesSeq(guid, new uint8 []{1, 7, 4, 6, 0, 5, 2, 3});
     TC_LOG_DEBUG("network", "Petitioner with GUID %u tried sell petition: name %s", GUID_LOPART(guid), name.c_str());
 
     // prevent cheating
@@ -189,23 +182,9 @@ void WorldSession::HandlePetitionShowSignOpcode(WorldPacket& recvData)
     uint8 playerCount = 0;
     ObjectGuid petitionGuid;
 
-    petitionGuid[3] = recvData.ReadBit();
-    petitionGuid[7] = recvData.ReadBit();
-    petitionGuid[2] = recvData.ReadBit();
-    petitionGuid[4] = recvData.ReadBit();
-    petitionGuid[5] = recvData.ReadBit();
-    petitionGuid[6] = recvData.ReadBit();
-    petitionGuid[0] = recvData.ReadBit();
-    petitionGuid[1] = recvData.ReadBit();
+    recvData.ReadBitInOrder(petitionGuid, new uint8 []{3, 7, 2, 4, 5, 6, 0, 1});
 
-    recvData.ReadByteSeq(petitionGuid[2]);
-    recvData.ReadByteSeq(petitionGuid[4]);
-    recvData.ReadByteSeq(petitionGuid[5]);
-    recvData.ReadByteSeq(petitionGuid[7]);
-    recvData.ReadByteSeq(petitionGuid[1]);
-    recvData.ReadByteSeq(petitionGuid[0]);
-    recvData.ReadByteSeq(petitionGuid[3]);
-    recvData.ReadByteSeq(petitionGuid[6]);
+    recvData.ReadBytesSeq(petitionGuid, new uint8 []{2, 4, 5, 7, 1, 0, 3, 6});
 
     // solve (possible) some strange compile problems with explicit use GUID_LOPART(petitionguid) at some GCC versions (wrong code optimization in compiler?)
     uint32 petitionGuidLow = GUID_LOPART(petitionGuid);
@@ -329,23 +308,9 @@ void WorldSession::HandlePetitionQueryOpcode(WorldPacket& recvData)
 
     recvData >> guildguid;                                 // in Trinity always same as GUID_LOPART(petitionguid)
 
-    petitionGuid[2] = recvData.ReadBit();
-    petitionGuid[3] = recvData.ReadBit();
-    petitionGuid[1] = recvData.ReadBit();
-    petitionGuid[0] = recvData.ReadBit();
-    petitionGuid[4] = recvData.ReadBit();
-    petitionGuid[7] = recvData.ReadBit();
-    petitionGuid[6] = recvData.ReadBit();
-    petitionGuid[5] = recvData.ReadBit();
+    recvData.ReadBitInOrder(petitionGuid, new uint8 []{2, 3, 1, 0, 4, 7, 6, 5});
 
-    recvData.ReadByteSeq(petitionGuid[0]);
-    recvData.ReadByteSeq(petitionGuid[4]);
-    recvData.ReadByteSeq(petitionGuid[7]);
-    recvData.ReadByteSeq(petitionGuid[5]);
-    recvData.ReadByteSeq(petitionGuid[1]);
-    recvData.ReadByteSeq(petitionGuid[6]);
-    recvData.ReadByteSeq(petitionGuid[3]);
-    recvData.ReadByteSeq(petitionGuid[2]);
+    recvData.ReadBytesSeq(petitionGuid, new uint8 []{0, 4, 7, 5, 1, 6, 3, 2});
 
     TC_LOG_DEBUG("network", "CMSG_PETITION_QUERY Petition GUID %u Guild GUID %u", GUID_LOPART(petitionGuid), guildguid);
 
@@ -433,14 +398,7 @@ void WorldSession::HandlePetitionRenameOpcode(WorldPacket& recvData)
     std::string newName;
 
     nameLen = recvData.ReadBits(7);
-    petitionGuid[7] = recvData.ReadBit();
-    petitionGuid[4] = recvData.ReadBit();
-    petitionGuid[6] = recvData.ReadBit();
-    petitionGuid[2] = recvData.ReadBit();
-    petitionGuid[0] = recvData.ReadBit();
-    petitionGuid[5] = recvData.ReadBit();
-    petitionGuid[3] = recvData.ReadBit();
-    petitionGuid[1] = recvData.ReadBit();
+    recvData.ReadBitInOrder(petitionGuid, new uint8 []{7, 4, 6, 2, 0, 5, 3, 1});
 
     recvData.ReadByteSeq(petitionGuid[4]);
     recvData.ReadByteSeq(petitionGuid[1]);
@@ -524,23 +482,9 @@ void WorldSession::HandlePetitionSignOpcode(WorldPacket& recvData)
     ObjectGuid petitionGuid;
 
     recvData.read_skip<uint8>();
-    petitionGuid[4] = recvData.ReadBit();
-    petitionGuid[2] = recvData.ReadBit();
-    petitionGuid[0] = recvData.ReadBit();
-    petitionGuid[1] = recvData.ReadBit();
-    petitionGuid[5] = recvData.ReadBit();
-    petitionGuid[3] = recvData.ReadBit();
-    petitionGuid[6] = recvData.ReadBit();
-    petitionGuid[7] = recvData.ReadBit();
+    recvData.ReadBitInOrder(petitionGuid, new uint8 []{4, 2, 0, 1, 5, 3, 6, 7});
 
-    recvData.ReadByteSeq(petitionGuid[6]);
-    recvData.ReadByteSeq(petitionGuid[1]);
-    recvData.ReadByteSeq(petitionGuid[7]);
-    recvData.ReadByteSeq(petitionGuid[2]);
-    recvData.ReadByteSeq(petitionGuid[5]);
-    recvData.ReadByteSeq(petitionGuid[3]);
-    recvData.ReadByteSeq(petitionGuid[0]);
-    recvData.ReadByteSeq(petitionGuid[4]);
+    recvData.ReadBytesSeq(petitionGuid, new uint8 []{6, 1, 7, 2, 5, 3, 0, 4});
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PETITION_SIGNATURES);
 
@@ -632,23 +576,9 @@ void WorldSession::HandlePetitionDeclineOpcode(WorldPacket& recvData)
     ObjectGuid petitionGuid;
     uint64 ownerGuid;
 
-    petitionGuid[5] = recvData.ReadBit();
-    petitionGuid[6] = recvData.ReadBit();
-    petitionGuid[4] = recvData.ReadBit();
-    petitionGuid[3] = recvData.ReadBit();
-    petitionGuid[1] = recvData.ReadBit();
-    petitionGuid[7] = recvData.ReadBit();
-    petitionGuid[0] = recvData.ReadBit();
-    petitionGuid[2] = recvData.ReadBit();
+    recvData.ReadBitInOrder(petitionGuid, new uint8 []{5, 6, 4, 3, 1, 7, 0, 2});
 
-    recvData.ReadByteSeq(petitionGuid[6]);
-    recvData.ReadByteSeq(petitionGuid[2]);
-    recvData.ReadByteSeq(petitionGuid[1]);
-    recvData.ReadByteSeq(petitionGuid[5]);
-    recvData.ReadByteSeq(petitionGuid[0]);
-    recvData.ReadByteSeq(petitionGuid[7]);
-    recvData.ReadByteSeq(petitionGuid[4]);
-    recvData.ReadByteSeq(petitionGuid[3]);
+    recvData.ReadBytesSeq(petitionGuid, new uint8 []{6, 2, 1, 5, 0, 7, 4, 3});
 
     TC_LOG_DEBUG("network", "Petition %u declined by %u", GUID_LOPART(petitionGuid), _player->GetGUIDLow());
 
@@ -846,23 +776,9 @@ void WorldSession::HandleTurnInPetitionOpcode(WorldPacket& recvData)
     WorldPacket data;
     ObjectGuid petitionGuid;
 
-    petitionGuid[1] = recvData.ReadBit();
-    petitionGuid[2] = recvData.ReadBit();
-    petitionGuid[3] = recvData.ReadBit();
-    petitionGuid[0] = recvData.ReadBit();
-    petitionGuid[5] = recvData.ReadBit();
-    petitionGuid[7] = recvData.ReadBit();
-    petitionGuid[4] = recvData.ReadBit();
-    petitionGuid[6] = recvData.ReadBit();
+    recvData.ReadBitInOrder(petitionGuid, new uint8 []{1, 2, 3, 0, 5, 7, 4, 6});
 
-    recvData.ReadByteSeq(petitionGuid[2]);
-    recvData.ReadByteSeq(petitionGuid[1]);
-    recvData.ReadByteSeq(petitionGuid[4]);
-    recvData.ReadByteSeq(petitionGuid[6]);
-    recvData.ReadByteSeq(petitionGuid[0]);
-    recvData.ReadByteSeq(petitionGuid[7]);
-    recvData.ReadByteSeq(petitionGuid[5]);
-    recvData.ReadByteSeq(petitionGuid[3]);
+    recvData.ReadBytesSeq(petitionGuid, new uint8 []{2, 1, 4, 6, 0, 7, 5, 3});
 
     // Check if player really has the required petition charter
     Item* item = _player->GetItemByGuid(petitionGuid);
@@ -997,23 +913,9 @@ void WorldSession::HandlePetitionShowListOpcode(WorldPacket& recvData)
 
     ObjectGuid guid;
 
-    guid[1] = recvData.ReadBit();
-    guid[7] = recvData.ReadBit();
-    guid[2] = recvData.ReadBit();
-    guid[5] = recvData.ReadBit();
-    guid[4] = recvData.ReadBit();
-    guid[0] = recvData.ReadBit();
-    guid[3] = recvData.ReadBit();
-    guid[6] = recvData.ReadBit();
+    recvData.ReadBitInOrder(guid, new uint8 []{1, 7, 2, 5, 4, 0, 3, 6});
 
-    recvData.ReadByteSeq(guid[6]);
-    recvData.ReadByteSeq(guid[3]);
-    recvData.ReadByteSeq(guid[2]);
-    recvData.ReadByteSeq(guid[4]);
-    recvData.ReadByteSeq(guid[1]);
-    recvData.ReadByteSeq(guid[7]);
-    recvData.ReadByteSeq(guid[5]);
-    recvData.ReadByteSeq(guid[0]);
+    recvData.ReadBytesSeq(guid, new uint8 []{6, 3, 2, 4, 1, 7, 5, 0});
 
     Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_PETITIONER);
     if (!unit)

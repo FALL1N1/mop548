@@ -35,23 +35,9 @@ void WorldSession::HandleBattlePetDelete(WorldPacket& recvData)
 
     ObjectGuid petEntry;
 
-    petEntry[3] = recvData.ReadBit();
-    petEntry[5] = recvData.ReadBit();
-    petEntry[6] = recvData.ReadBit();
-    petEntry[2] = recvData.ReadBit();
-    petEntry[4] = recvData.ReadBit();
-    petEntry[0] = recvData.ReadBit();
-    petEntry[7] = recvData.ReadBit();
-    petEntry[1] = recvData.ReadBit();
+    recvData.ReadBitInOrder(petEntry, new uint8 []{3, 5, 6, 2, 4, 0, 7, 1});
 
-    recvData.ReadByteSeq(petEntry[4]);
-    recvData.ReadByteSeq(petEntry[1]);
-    recvData.ReadByteSeq(petEntry[5]);
-    recvData.ReadByteSeq(petEntry[0]);
-    recvData.ReadByteSeq(petEntry[7]);
-    recvData.ReadByteSeq(petEntry[2]);
-    recvData.ReadByteSeq(petEntry[3]);
-    recvData.ReadByteSeq(petEntry[6]);
+    recvData.ReadBytesSeq(petEntry, new uint8 []{4, 1, 5, 0, 7, 2, 3, 6});
 
     BattlePetMgr* battlePetMgr = GetPlayer()->GetBattlePetMgr();
 
@@ -103,14 +89,7 @@ void WorldSession::HandleBattlePetModifyName(WorldPacket& recvData)
         for (uint8 i = 0; i < BATTLE_PET_MAX_DECLINED_NAMES; i++)
             declinedNameLen[i] = recvData.ReadBits(7);
 
-    recvData.ReadByteSeq(petEntry[3]);
-    recvData.ReadByteSeq(petEntry[0]);
-    recvData.ReadByteSeq(petEntry[6]);
-    recvData.ReadByteSeq(petEntry[1]);
-    recvData.ReadByteSeq(petEntry[5]);
-    recvData.ReadByteSeq(petEntry[2]);
-    recvData.ReadByteSeq(petEntry[4]);
-    recvData.ReadByteSeq(petEntry[7]);
+    recvData.ReadBytesSeq(petEntry, new uint8 []{3, 0, 6, 1, 5, 2, 4, 7});
     nickname = recvData.ReadString(nicknameLen);
 
     if (hasDeclinedNames)
@@ -231,23 +210,9 @@ void WorldSession::HandleBattlePetSetBattleSlot(WorldPacket& recvData)
 
     recvData >> slot;
 
-    petEntry[4] = recvData.ReadBit();
-    petEntry[6] = recvData.ReadBit();
-    petEntry[5] = recvData.ReadBit();
-    petEntry[7] = recvData.ReadBit();
-    petEntry[3] = recvData.ReadBit();
-    petEntry[1] = recvData.ReadBit();
-    petEntry[0] = recvData.ReadBit();
-    petEntry[2] = recvData.ReadBit();
+    recvData.ReadBitInOrder(petEntry, new uint8 []{4, 6, 5, 7, 3, 1, 0, 2});
 
-    recvData.ReadByteSeq(petEntry[1]);
-    recvData.ReadByteSeq(petEntry[3]);
-    recvData.ReadByteSeq(petEntry[5]);
-    recvData.ReadByteSeq(petEntry[0]);
-    recvData.ReadByteSeq(petEntry[7]);
-    recvData.ReadByteSeq(petEntry[6]);
-    recvData.ReadByteSeq(petEntry[4]);
-    recvData.ReadByteSeq(petEntry[2]);
+    recvData.ReadBytesSeq(petEntry, new uint8 []{1, 3, 5, 0, 7, 6, 4, 2});
 
     BattlePetMgr* battlePetMgr = GetPlayer()->GetBattlePetMgr();
 
@@ -307,14 +272,7 @@ void WorldSession::HandleBattlePetSetFlags(WorldPacket& recvData)
     petEntry[7] = recvData.ReadBit();
     petEntry[0] = recvData.ReadBit();
 
-    recvData.ReadByteSeq(petEntry[4]);
-    recvData.ReadByteSeq(petEntry[0]);
-    recvData.ReadByteSeq(petEntry[7]);
-    recvData.ReadByteSeq(petEntry[3]);
-    recvData.ReadByteSeq(petEntry[1]);
-    recvData.ReadByteSeq(petEntry[6]);
-    recvData.ReadByteSeq(petEntry[2]);
-    recvData.ReadByteSeq(petEntry[5]);
+    recvData.ReadBytesSeq(petEntry, new uint8 []{4, 0, 7, 3, 1, 6, 2, 5});
 
     BattlePet* battlePet = GetPlayer()->GetBattlePetMgr()->GetBattlePet(petEntry);
     if (!battlePet)
@@ -354,23 +312,9 @@ void WorldSession::HandleBattlePetSummonCompanion(WorldPacket& recvData)
 
     ObjectGuid petEntry;
 
-    petEntry[3] = recvData.ReadBit();
-    petEntry[2] = recvData.ReadBit();
-    petEntry[5] = recvData.ReadBit();
-    petEntry[0] = recvData.ReadBit();
-    petEntry[7] = recvData.ReadBit();
-    petEntry[1] = recvData.ReadBit();
-    petEntry[6] = recvData.ReadBit();
-    petEntry[4] = recvData.ReadBit();
+    recvData.ReadBitInOrder(petEntry, new uint8 []{3, 2, 5, 0, 7, 1, 6, 4});
 
-    recvData.ReadByteSeq(petEntry[6]);
-    recvData.ReadByteSeq(petEntry[7]);
-    recvData.ReadByteSeq(petEntry[3]);
-    recvData.ReadByteSeq(petEntry[5]);
-    recvData.ReadByteSeq(petEntry[0]);
-    recvData.ReadByteSeq(petEntry[4]);
-    recvData.ReadByteSeq(petEntry[1]);
-    recvData.ReadByteSeq(petEntry[2]);
+    recvData.ReadBytesSeq(petEntry, new uint8 []{6, 7, 3, 5, 0, 4, 1, 2});
 
     Player* player = GetPlayer();
     BattlePetMgr* battlePetMgr = player->GetBattlePetMgr();
