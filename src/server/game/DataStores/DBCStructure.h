@@ -2582,21 +2582,20 @@ struct SummonPropertiesEntry
     uint32  Flags;                                          // 5
 };
 
-#define MAX_TALENT_RANK 1 // REMOVE ME !!!
 #define MAX_TALENT_TABS 4
 
 struct TalentEntry
 {
-    uint32    TalentID;                                     // 0
+    uint32  TalentID;                                       // 0
     //uint32    specID;                                     // 1
-    uint32    Row;                                          // 2
-    uint32    Col;                                          // 3
-    uint32    SpellId;                                      // 4
+    uint32  Row;                                            // 2
+    uint32  Col;                                            // 3
+    uint32  SpellId;                                        // 4
     //uint32    flags;                                      // 5
     //uint32    categoryMask;                               // 6
     //uint32    categoryMask;                               // 7
-    uint32    playerClass;                                  // 8
-    //uint32 replacesSpell                                  // 9
+    uint32  playerClass;                                    // 8
+    uint32  replacesSpell;                                  // 9
     //char* description                                     // 10
 };
 

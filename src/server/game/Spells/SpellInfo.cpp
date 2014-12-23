@@ -1013,6 +1013,16 @@ SpellInfo::SpellInfo(SpellEntry const* spellEntry, SpellEffectEntry const** effe
             OverrideSpellList.push_back(specializationInfo->SpellId);
     }
 
+    // TalentEntry -> OverrideSpellList
+    TalentEntry const* talentInfo = NULL;
+    for (uint32 i = 0; i < sTalentStore.GetNumRows(); ++i)
+    {
+        talentInfo = sTalentStore.LookupEntry(i);
+
+        if (talentInfo && talentInfo->replacesSpell == Id)
+            OverrideSpellList.push_back(talentInfo->SpellId);
+    }
+
     ChainEntry = NULL;
 }
 

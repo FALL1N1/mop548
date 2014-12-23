@@ -181,14 +181,10 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& recvPacket)
     }
 
     if (hasSrcLocation)
-    {
         recvPacket.ReadBitInOrder(srcTransportGuid, new uint8 []{3, 1, 7, 4, 2, 0, 6, 5});
-    }
 
     if (hasDestLocation)
-    {
         recvPacket.ReadBitInOrder(destTransportGuid, new uint8 []{2, 4, 1, 7, 6, 0, 3, 5});
-    }
 
     if (hasTargetString)
         targetStringLength = recvPacket.ReadBits(7);
@@ -912,24 +908,6 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
         return;
     }
 
-    // Override spell Id, client send base spell and not the overrided id
-    if (!spellInfo->OverrideSpellList.empty())
-    {
-        for (auto itr : spellInfo->OverrideSpellList)
-        {
-            if (_player->HasSpell(itr))
-            {
-                SpellInfo const* overrideSpellInfo = sSpellMgr->GetSpellInfo(itr);
-                if (overrideSpellInfo)
-                {
-                    spellInfo = overrideSpellInfo;
-                    spellId = itr;
-                }
-                break;
-            }
-        }
-    }
-
     if (spellInfo->IsPassive())
     {
         recvPacket.rfinish(); // prevent spam at ignore packet
@@ -1023,34 +1001,21 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
             spellInfo = actualSpellInfo;
     }
 
-    // Mage Bomb - 125430 and  Living Bomb - 44457
-    if (spellInfo->Id == 125430 && _player->HasSpell(44457))
+    // Override spell Id, client send base spell and not the overrided id
+    if (!spellInfo->OverrideSpellList.empty())
     {
-        SpellInfo const* newSpellInfo = sSpellMgr->GetSpellInfo(44457);
-        if (newSpellInfo)
+        for (auto itr : spellInfo->OverrideSpellList)
         {
-            spellInfo = newSpellInfo;
-            spellId = newSpellInfo->Id;
-        }
-    }
-    // Mage Bomb - 125430 and Frost Bomb - 112948
-    else if (spellInfo->Id == 125430 && _player->HasSpell(112948))
-    {
-        SpellInfo const* newSpellInfo = sSpellMgr->GetSpellInfo(112948);
-        if (newSpellInfo)
-        {
-            spellInfo = newSpellInfo;
-            spellId = newSpellInfo->Id;
-        }
-    }
-    // Mage Bomb - 125430 and  Nether Tempest - 114923
-    else if (spellInfo->Id == 125430 && _player->HasSpell(114923))
-    {
-        SpellInfo const* newSpellInfo = sSpellMgr->GetSpellInfo(114923);
-        if (newSpellInfo)
-        {
-            spellInfo = newSpellInfo;
-            spellId = newSpellInfo->Id;
+            if (_player->HasSpell(itr))
+            {
+                SpellInfo const* overrideSpellInfo = sSpellMgr->GetSpellInfo(itr);
+                if (overrideSpellInfo)
+                {
+                    spellInfo = overrideSpellInfo;
+                    spellId = itr;
+                }
+                break;
+            }
         }
     }
 

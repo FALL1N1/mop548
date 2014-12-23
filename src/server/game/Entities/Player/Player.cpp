@@ -4092,17 +4092,14 @@ bool Player::AddTalent(uint32 spellId, uint8 spec, bool learning)
     PlayerTalentMap::iterator itr = GetTalentMap(spec)->find(spellId);
     if (itr == GetTalentMap(spec)->end())
     {
-        if (TalentSpellPos const* talentPos = GetTalentSpellPos(spellId))
-        {
-            PlayerSpellState state = learning ? PLAYERSPELL_NEW : PLAYERSPELL_UNCHANGED;
-            PlayerTalent* newtalent = new PlayerTalent();
+        PlayerSpellState state = learning ? PLAYERSPELL_NEW : PLAYERSPELL_UNCHANGED;
+        PlayerTalent* newtalent = new PlayerTalent();
 
-            newtalent->state = state;
-            newtalent->spec = spec;
+        newtalent->state = state;
+        newtalent->spec = spec;
 
-            (*GetTalentMap(spec))[spellId] = newtalent;
-            return true;
-        }
+        (*GetTalentMap(spec))[spellId] = newtalent;
+        return true;
     }
     else
         itr->second->state = PLAYERSPELL_UNCHANGED;
@@ -4582,7 +4579,7 @@ void Player::removeSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
     // unlearn non talent higher ranks (recursive)
     if (uint32 nextSpell = sSpellMgr->GetNextSpellInChain(spell_id))
     {
-        if (HasSpell(nextSpell) && !GetTalentSpellPos(nextSpell))
+        if (HasSpell(nextSpell))
             removeSpell(nextSpell, disabled, false);
     }
     //unlearn spells dependent from recently removed spells
@@ -22443,11 +22440,11 @@ void Player::AddSpellMod(SpellModifier* mod, bool apply)
     Opcodes opcode = Opcodes((mod->type == SPELLMOD_FLAT) ? SMSG_SET_FLAT_SPELL_MODIFIER : SMSG_SET_PCT_SPELL_MODIFIER);
     int i = 0;
     flag128 _mask = 0;
-    uint32 modTypeCount = 0; // count of mods per one mod->op
+    uint32 modTypeCount = 0;    // count of mods per one mod->op
     WorldPacket data(opcode);
-    data << uint32(1);  // count of different mod->op's in packet
+    data.WriteBits(1, 22);      // count of different mod->op's in packet
     size_t writePos = data.wpos();
-    data << uint32(modTypeCount);
+    data.WriteBits(modTypeCount, 21);
     data << uint8(mod->op);
     for (int eff = 0; eff < 128; ++eff)
     {
@@ -22484,7 +22481,7 @@ void Player::AddSpellMod(SpellModifier* mod, bool apply)
             ++modTypeCount;
         }
     }
-    data.put<uint32>(writePos, modTypeCount);
+    data.PutBits(writePos, modTypeCount, 21);
     SendDirectMessage(&data);
 
     if (apply)
