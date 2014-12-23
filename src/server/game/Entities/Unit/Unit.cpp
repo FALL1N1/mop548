@@ -7278,6 +7278,11 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
     // Custom triggered spells
     switch (auraSpellInfo->Id)
     {
+        // Arcane Missiles
+        case 79684:
+            if (procSpell->Id == 7268)
+                return false;
+            break;
         case 109306:// Trill of the Hunt
         {
             if (GetTypeId() != TYPEID_PLAYER)

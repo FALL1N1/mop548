@@ -1447,6 +1447,38 @@ public:
     }
 };
 
+class spell_mage_arcane_explosion : public SpellScriptLoader
+{
+public:
+    spell_mage_arcane_explosion() : SpellScriptLoader("spell_mage_arcane_explosion") { }
+
+    class spell_mage_arcane_explosion_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_mage_arcane_explosion_SpellScript);
+
+        void HandleOnLaunch(SpellEffIndex /*effIndex*/)
+        {
+            if (Unit* caster = GetCaster())
+            {
+                if (roll_chance_i(GetSpellInfo()->Effects[EFFECT_1].BasePoints))
+                {
+                    caster->CastSpell(caster, 36032, true);
+                }
+            }
+        }
+
+        void Register() override
+        {
+            OnEffectLaunch += SpellEffectFn(spell_mage_arcane_explosion_SpellScript::HandleOnLaunch, EFFECT_1, SPELL_EFFECT_DUMMY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_mage_arcane_explosion_SpellScript();
+    }
+};
+
 void AddSC_mage_spell_scripts()
 {
     new spell_mage_conjure_refreshment();
@@ -1471,4 +1503,5 @@ void AddSC_mage_spell_scripts()
     new spell_mage_mastery_icicles();
     new spell_mage_icicle_trigger();
     new spell_mage_waterbolt();
+    new spell_mage_arcane_explosion();
 }
