@@ -682,16 +682,15 @@ void WorldSession::SendListInventory(uint64 vendorGuid)
         return;
     }
 
-    // remove fake death
     if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
         GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
 
-    // Stop the npc if moving
     if (vendor->HasUnitState(UNIT_STATE_MOVING))
         vendor->StopMoving();
 
     VendorItemData const* vendorItems = vendor->GetVendorItems();
     uint32 rawItemCount = vendorItems ? vendorItems->GetItemCount() : 0;
+    bool hasCondition = false;
 
     //if (rawItemCount > 300),
     // rawItemCount = 300; // client cap but uint8 max value is 255
@@ -715,18 +714,15 @@ void WorldSession::SendListInventory(uint64 vendorGuid)
                 continue;
 
             uint32 leftInStock = !vendorItem->maxcount ? 0xFFFFFFFF : vendor->GetVendorItemCurrentCount(vendorItem);
-            if (!_player->IsGameMaster()) // ignore conditions if GM on
+            if (!_player->IsGameMaster())
             {
-                // Respect allowed class
                 if (!(itemTemplate->AllowableClass & _player->getClassMask()) && itemTemplate->Bonding == BIND_WHEN_PICKED_UP)
                     continue;
 
-                // Only display items in vendor lists for the team the player is on
                 if ((itemTemplate->Flags2 & ITEM_FLAGS_EXTRA_HORDE_ONLY && _player->GetTeam() == ALLIANCE) ||
                     (itemTemplate->Flags2 & ITEM_FLAGS_EXTRA_ALLIANCE_ONLY && _player->GetTeam() == HORDE))
                     continue;
 
-                // Items sold out are not displayed in list
                 if (leftInStock == 0)
                     continue;
             }
@@ -743,10 +739,10 @@ void WorldSession::SendListInventory(uint64 vendorGuid)
             if (int32 priceMod = _player->GetTotalAuraModifier(SPELL_AURA_MOD_VENDOR_ITEMS_PRICES))
                 price -= CalculatePct(price, priceMod);
 
-            itemsData << int32(leftInStock);
-            itemsData << uint32(price);
+            itemsData << int32(itemTemplate->MaxDurability);
+            itemsData << int32(price);
             itemsData << uint32(vendorItem->Type); // 1 is items, 2 is currency
-            itemsData << int32(-1);
+            itemsData << int32(leftInStock); // Max Count
             itemsData << uint32(itemTemplate->DisplayInfoID);
             itemsData << uint32(itemTemplate->BuyCount);
             itemsData << uint32(vendorItem->item);
@@ -759,8 +755,13 @@ void WorldSession::SendListInventory(uint64 vendorGuid)
             else
                 hasExtendedCost[slot] = false;
 
-            itemsData << uint32(0);
-            itemsData << uint32(slot + 1); // client expects counting to start at 1
+            itemsData << uint32(0); // ItemUpgradeID
+
+            itemsData.WriteBit(hasCondition);
+            if (hasCondition)
+                itemsData << uint32(0);
+
+            itemsData << uint32(slot + 1);
 
             if (++count >= MAX_VENDOR_ITEMS)
                 break;
@@ -773,12 +774,12 @@ void WorldSession::SendListInventory(uint64 vendorGuid)
                 continue;
 
             if (!vendorItem->ExtendedCost)
-                continue; // there's no price defined for currencies, only extendedcost is used
+                continue;
 
-            itemsData << int32(-1); // left in stock
+            itemsData << int32(-1); // Max Durability
             itemsData << uint32(0); // price, only seen currency types that have Extended cost
             itemsData << uint32(vendorItem->Type); // 1 is items, 2 is currency
-            itemsData << int32(-1);
+            itemsData << int32(-1); // MaxCount
             itemsData << uint32(0); // displayId
             itemsData << uint32(0); // buy count
             itemsData << uint32(vendorItem->item);
@@ -786,13 +787,17 @@ void WorldSession::SendListInventory(uint64 vendorGuid)
             hasExtendedCost[slot] = true;
             itemsData << uint32(vendorItem->ExtendedCost);
 
-            itemsData << uint32(0);
-            itemsData << uint32(slot + 1); // client expects counting to start at 1
+            itemsData << uint32(0); // ItemUpgradeID
+
+            itemsData.WriteBit(hasCondition);
+            if (hasCondition)
+                itemsData << uint32(0);
+
+            itemsData << uint32(slot + 1);
 
             if (++count >= MAX_VENDOR_ITEMS)
                 break;
         }
-        // else error
     }
 
     ObjectGuid guid = vendorGuid;
@@ -803,23 +808,19 @@ void WorldSession::SendListInventory(uint64 vendorGuid)
     data.WriteBit(guid[1]);
     data.WriteBit(guid[3]);
     data.WriteBit(guid[6]);
-    data.WriteBits(count, 18); // item count
+    data.WriteBits(count, 18);
 
     for (uint32 i = 0; i < count; i++)
     {
         data.WriteBit(0); // unknown
-        data.WriteBit(!hasExtendedCost[i]); // has extended cost
-        data.WriteBit(1); // has unknown
+        data.WriteBit(!hasExtendedCost[i]);
+        data.WriteBit(hasCondition);
     }
 
     data.WriteBit(guid[4]);
     data.WriteBit(guid[0]);
     data.WriteBit(guid[2]);
 
-    /* It doesn't matter what value is used here (PROBABLY its full vendor size)
-    * What matters is that if count of items we can see is 0 and this field is 1
-    * then client will open the vendor list, otherwise it won't
-    */
     if (rawItemCount)
         data << uint8(rawItemCount);
     else
@@ -827,14 +828,7 @@ void WorldSession::SendListInventory(uint64 vendorGuid)
 
     data.append(itemsData);
 
-    data.WriteByteSeq(guid[3]);
-    data.WriteByteSeq(guid[7]);
-    data.WriteByteSeq(guid[0]);
-    data.WriteByteSeq(guid[6]);
-    data.WriteByteSeq(guid[2]);
-    data.WriteByteSeq(guid[1]);
-    data.WriteByteSeq(guid[4]);
-    data.WriteByteSeq(guid[5]);
+    data.WriteBytesSeq(guid, new uint8[] { 3, 7, 0, 6, 2, 1, 4, 5 });
 
     SendPacket(&data);
 }
