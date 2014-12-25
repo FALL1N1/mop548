@@ -75,9 +75,8 @@ void WorldSession::HandleTaxiQueryAvailableNodes(WorldPacket& recvData)
 
     ObjectGuid guid;
 
-    recvData.ReadBitInOrder(guid, new uint8 []{3, 1, 6, 0, 4, 7, 2, 5});
-
-    recvData.ReadBytesSeq(guid, new uint8 []{1, 6, 3, 0, 4, 5, 7, 2});
+    recvData.ReadBitInOrder(guid, new uint8[]{7, 1, 0, 4, 2, 5, 6, 3});
+    recvData.ReadBytesSeq(guid, new uint8[]{0, 3, 7, 5, 2, 6, 4, 1});
 
     // cheating checks
     Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_FLIGHTMASTER);

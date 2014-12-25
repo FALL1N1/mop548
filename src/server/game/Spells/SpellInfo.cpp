@@ -1186,19 +1186,8 @@ bool SpellInfo::NeedsToBeTriggeredByCaster(SpellInfo const* triggeringSpell) con
     if (NeedsExplicitUnitTarget())
         return true;
 
-    /*
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-    {
-        if (Effects[i].IsEffect())
-        {
-            if (Effects[i].TargetA.GetSelectionCategory() == TARGET_SELECT_CATEGORY_CHANNEL
-                || Effects[i].TargetB.GetSelectionCategory() == TARGET_SELECT_CATEGORY_CHANNEL)
-                return true;
-        }
-    }
-    */
-
-    if (triggeringSpell->IsChanneled())
+    // Hmmm... Something is wrong here... (<__<)
+    if (!triggeringSpell || triggeringSpell->IsChanneled())
     {
         uint32 mask = 0;
         for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)

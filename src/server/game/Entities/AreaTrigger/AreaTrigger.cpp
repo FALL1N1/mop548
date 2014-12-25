@@ -110,3 +110,17 @@ void AreaTrigger::Remove()
         AddObjectToRemoveList();
     }
 }
+
+void AreaTrigger::BindToCaster()
+{
+    m_caster = ObjectAccessor::GetUnit(*this, GetCasterGUID());
+    if (m_caster)
+        m_caster->_RegisterAreaTrigger(this);
+}
+
+void AreaTrigger::UnbindFromCaster()
+{
+    ASSERT(m_caster);
+    m_caster->_UnregisterAreaTrigger(this);
+    m_caster = NULL;
+}

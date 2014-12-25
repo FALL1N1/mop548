@@ -449,7 +449,7 @@ public:
     bool IsAffectingArea() const;
     bool IsTargetingArea() const;
     bool NeedsExplicitUnitTarget() const;
-    bool NeedsToBeTriggeredByCaster(SpellInfo const* triggeringSpell) const;
+    bool NeedsToBeTriggeredByCaster(SpellInfo const* triggeringSpell = NULL) const;
 
     bool IsPassive() const;
     bool IsAutocastable() const;

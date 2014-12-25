@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (C) 2011-2014 Project SkyFire <http://www.projectskyfire.org/>
  * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
@@ -5155,6 +5155,60 @@ void Player::SetSpecializationId(uint8 spec, uint32 id)
 
     if (spec == GetActiveSpec())
         SetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID, id);
+}
+
+uint32 Player::GetRoleForGroup(uint32 specializationId)
+{
+    uint32 roleId = 0;
+
+    switch (specializationId)
+    {
+    case CHAR_SPECIALIZATION_MAGE_FROST:
+    case CHAR_SPECIALIZATION_MAGE_FIRE:
+    case CHAR_SPECIALIZATION_MAGE_ARCANE:
+    case CHAR_SPECIALIZATION_ROGUE_COMBAT:
+    case CHAR_SPECIALIZATION_ROGUE_ASSASSINATION:
+    case CHAR_SPECIALIZATION_ROGUE_SUBTLETY:
+    case CHAR_SPECIALIZATION_HUNTER_BEAST_MASTERY:
+    case CHAR_SPECIALIZATION_HUNTER_MARKSMANSHIP:
+    case CHAR_SPECIALIZATION_HUNTER_SURVIVAL:
+    case CHAR_SPECIALIZATION_WARLOCK_AFFLICTION:
+    case CHAR_SPECIALIZATION_WARLOCK_DEMONOLOGY:
+    case CHAR_SPECIALIZATION_WARLOCK_DESTRUCTION:
+    case CHAR_SPECIALIZATION_PRIEST_SHADOW:
+    case CHAR_SPECIALIZATION_DEATH_KNIGHT_FROST:
+    case CHAR_SPECIALIZATION_DEATH_KNIGHT_UNHOLY:
+    case CHAR_SPECIALIZATION_MONK_WINDWALKER:
+    case CHAR_SPECIALIZATION_PALADIN_RETRIBUTION:
+    case CHAR_SPECIALIZATION_SHAMAN_ELEMENTAL:
+    case CHAR_SPECIALIZATION_SHAMAN_ENHANCEMENT:
+    case CHAR_SPECIALIZATION_WARRIOR_ARMS:
+    case CHAR_SPECIALIZATION_WARRIOR_FURY:
+    case CHAR_SPECIALIZATION_DRUID_BALANCE:
+    case CHAR_SPECIALIZATION_DRUID_FERAL:
+        roleId = ROLES_DPS;
+        break;
+    case CHAR_SPECIALIZATION_MONK_MISTWEAVER:
+    case CHAR_SPECIALIZATION_PALADIN_HOLY:
+    case CHAR_SPECIALIZATION_PRIEST_DISCIPLINE:
+    case CHAR_SPECIALIZATION_PRIEST_HOLY:
+    case CHAR_SPECIALIZATION_SHAMAN_RESTORATION:
+    case CHAR_SPECIALIZATION_DRUID_RESTORATION:
+        roleId = ROLES_HEALER;
+        break;
+    case CHAR_SPECIALIZATION_MONK_BREWMASTER:
+    case CHAR_SPECIALIZATION_DEATH_KNIGHT_BLOOD:
+    case CHAR_SPECIALIZATION_WARRIOR_PROTECTION:
+    case CHAR_SPECIALIZATION_DRUID_GUARDIAN:
+    case CHAR_SPECIALIZATION_PALADIN_PROTECTION:
+        roleId = ROLES_TANK;
+        break;
+    default: // CHAR_SPECIALIZATION_NONE
+        roleId = ROLES_DEFAULT;
+        break;
+    }
+
+    return roleId;
 }
 
 Mail* Player::GetMail(uint32 id)
@@ -26700,68 +26754,37 @@ uint32 Player::GetRuneTypeBaseCooldown(RuneType runeType) const
     float hastePct = 0.0f;
 
     AuraEffectList const& regenAura = GetAuraEffectsByType(SPELL_AURA_MOD_POWER_REGEN_PERCENT);
-    for (AuraEffectList::const_iterator i = regenAura.begin();i != regenAura.end(); ++i)
-        if ((*i)->GetMiscValue() == POWER_RUNES && (*i)->GetMiscValueB() == runeType)
-            cooldown *= 1.0f - (*i)->GetAmount() / 100.0f;
+    for (AuraEffectList::const_iterator i = regenAura.begin(); i != regenAura.end(); ++i)
+    if ((*i)->GetMiscValue() == POWER_RUNES)
+        cooldown /= ((*i)->GetAmount() + 100.0f) / 100.0f;
 
     // Runes cooldown are now affected by player's haste from equipment ...
     hastePct = GetRatingBonusValue(CR_HASTE_MELEE);
-
-    // ... and some auras.
     hastePct += GetTotalAuraModifier(SPELL_AURA_MOD_MELEE_HASTE);
-    hastePct += GetTotalAuraModifier(SPELL_AURA_MOD_MELEE_HASTE_2);
-    hastePct += GetTotalAuraModifier(SPELL_AURA_MOD_MELEE_HASTE_3);
+    hastePct += GetTotalAuraModifier(SPELL_AURA_MOD_MELEE_RANGED_HASTE) / 10.0f;
 
-    cooldown *=  1.0f - (hastePct / 100.0f);
+    cooldown *= 1.0f - (hastePct / 100.0f);
 
     return cooldown;
 }
 
-void Player::SetRuneCooldown(uint8 index, uint32 cooldown)
-{
-    m_runes->runes[index].Cooldown = cooldown;
-    m_runes->SetRuneState(index, (cooldown == 0) ? true : false);
-}
-
-void Player::SetRuneConvertAura(uint8 index, AuraEffect const* aura)
-{
-    m_runes->runes[index].ConvertAura = aura;
-}
-
-void Player::AddRuneByAuraEffect(uint8 index, RuneType newType, AuraEffect const* aura)
-{
-    SetRuneConvertAura(index, aura); ConvertRune(index, newType);
-}
-
-void Player::RemoveRunesByAuraEffect(AuraEffect const* aura)
+void Player::RemoveRunesBySpell(uint32 spell_id)
 {
     for (uint8 i = 0; i < MAX_RUNES; ++i)
     {
-        if (m_runes->runes[i].ConvertAura == aura)
+        if (m_runes->runes[i].spell_id == spell_id)
         {
             ConvertRune(i, GetBaseRune(i));
-            SetRuneConvertAura(i, NULL);
+            SetRuneConvertSpell(i, 0);
         }
     }
 }
 
 void Player::RestoreBaseRune(uint8 index)
 {
-    AuraEffect const* aura = m_runes->runes[index].ConvertAura;
-    // If rune was converted by a non-pasive aura that still active we should keep it converted
-    if (aura && !(aura->GetSpellInfo()->Attributes & SPELL_ATTR0_PASSIVE))
-        return;
+    uint32 spell_id = m_runes->runes[index].spell_id;
     ConvertRune(index, GetBaseRune(index));
-    SetRuneConvertAura(index, NULL);
-    // Don't drop passive talents providing rune convertion
-    if (!aura || aura->GetAuraType() != SPELL_AURA_CONVERT_RUNE)
-        return;
-    for (uint8 i = 0; i < MAX_RUNES; ++i)
-    {
-        if (aura == m_runes->runes[i].ConvertAura)
-            return;
-    }
-    aura->GetBase()->Remove();
+    SetRuneConvertSpell(index, 0);
 }
 
 void Player::ConvertRune(uint8 index, RuneType newType)
@@ -26784,6 +26807,23 @@ void Player::ResyncRunes(uint8 count)
         data << uint8(255 - (GetRuneCooldown(i) * 51));     // passed cooldown time (0-255)
     }
     GetSession()->SendPacket(&data);
+}
+
+void Player::SendDeathRuneUpdate()
+{
+    if (getClass() != CLASS_DEATH_KNIGHT)
+        return;
+
+    for (uint8 i = 0; i < MAX_RUNES; ++i)
+    {
+        if (m_runes->runes[i].CurrentRune != RUNE_DEATH)
+            continue;
+
+        WorldPacket data(SMSG_CONVERT_RUNE, 2);
+        data << uint8(i);
+        data << uint8(RUNE_DEATH);
+        GetSession()->SendPacket(&data);
+    }
 }
 
 void Player::AddRunePower(uint8 index)
@@ -26811,29 +26851,29 @@ void Player::InitRunes()
     m_runes = new Runes;
 
     m_runes->runeState = 0;
-    m_runes->lastUsedRune = RUNE_BLOOD;
 
     for (uint8 i = 0; i < MAX_RUNES; ++i)
     {
         SetBaseRune(i, runeSlotTypes[i]);                              // init base types
         SetCurrentRune(i, runeSlotTypes[i]);                           // init current types
         SetRuneCooldown(i, 0);                                         // reset cooldowns
-        SetRuneConvertAura(i, NULL);
+        SetRuneConvertSpell(i, 0);
         m_runes->SetRuneState(i);
+        SetDeathRuneUsed(i, false);
     }
 
-    for (uint8 i = 0; i < NUM_RUNE_TYPES; ++i)
-        SetFloatValue(PLAYER_FIELD_RUNE_REGEN + i, 0.1f);                  // set a base regen timer equal to 10 sec
+    UpdateAllRunesRegen();
 }
 
 bool Player::IsBaseRuneSlotsOnCooldown(RuneType runeType) const
 {
     for (uint8 i = 0; i < MAX_RUNES; ++i)
-        if (GetBaseRune(i) == runeType && GetRuneCooldown(i) == 0)
-            return false;
+    if (GetBaseRune(i) == runeType && GetRuneCooldown(i) == 0)
+        return false;
 
     return true;
 }
+
 
 void Player::AutoStoreLoot(uint8 bag, uint8 slot, uint32 loot_id, LootStore const& store, bool broadcast)
 {

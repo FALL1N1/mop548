@@ -1020,7 +1020,7 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
     }
 
     Spell* spell = new Spell(caster, spellInfo, TRIGGERED_NONE, 0, false);
-    spell->m_cast_count = castCount;                       // set count of casts
+    spell->m_cast_count = castCount;   // set count of casts
     spell->m_glyphIndex = glyphIndex;
 
     if (castFlags & 0x8)   // Archaeology
