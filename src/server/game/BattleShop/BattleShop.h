@@ -157,7 +157,7 @@ SlotEquipmentMap const hunterEquipment =
     { EQUIPMENT_SLOT_MAINHAND, 101066 }
 };
 
-SlotEquipmentMap const mageEquipment = 
+SlotEquipmentMap const mageEquipment =
 {
     { EQUIPMENT_SLOT_NECK, 101068 },
     { EQUIPMENT_SLOT_TRINKET2, 101069 },
@@ -535,42 +535,31 @@ SlotEquipmentMap const warriorEquipmentProtection =
 enum CharBoostMisc
 {
     // items
-    EMBERSILK_BAG_ID                = 54443,
-    EMBERSILK_BAG_COUNT             = 4,
-    LEMON_FLAVOUR_PUDING_ID         = 108920,
-    LEMON_FLAVOUR_PUDING_COUNT      = 20,
-
+    EMBERSILK_BAG_ID                    = 54443,
+    LEMON_FLAVOUR_PUDING_ID             = 108920,
+    LEMON_FLAVOUR_PUDING_COUNT          = 20,
     // spells
-    PLATE_MAIL_ARMOR_SPELL          = 750,
-    SWIFT_PURPLE_WIND_RIDER_SPELL   = 32297,
-    SWIFT_PURPLE_GRYPGON_SPELL      = 32292,
-
+    PLATE_MAIL_ARMOR_SPELL              = 750,
+    SWIFT_PURPLE_WIND_RIDER_SPELL       = 32297,
+    SWIFT_PURPLE_GRYPGON_SPELL          = 32292,
     // misc
-    VALE_OF_ETERNAL_BLOSSOMS_MAP_ID = 870
+    VALE_OF_ETERNAL_BLOSSOMS_MAP_ID     = 870
 };
 
-std::vector<uint32> const CharBoostSpells = 
+std::vector<uint32> const CharBoostSpells =
 {
     34091,  // Artisan Riding
     54197,  // ColdWeather Flying
     90267,  // Flight Master License
-    115913  // Wisdom of the Four Winds
+    115913, // Wisdom of the Four Winds
+    110406, // First aid
+    104381  // Cooking
 };
 
-float const hordeStartPosition[] =
+float const startPosition[2][4] =
 {
-    1605.908f,  // position x
-    921.2222f,  // position y
-    470.6227f,  // position z
-    0.124413f   // orientation
-};
-
-float const allianceStartPosition[] =
-{
-    880.6965f,  // position x
-    296.6945f,  // position y
-    503.1162f,  // position z
-    3.779655f   // orientation
+    {1605.908f, 921.2222f, 470.6227f, 0.124413f}, // horde
+    {880.6965f, 296.6945f, 503.1162f, 3.779655f}  // alliance
 };
 
 struct CharacterBoostData
@@ -586,32 +575,32 @@ struct CharacterBoostData
 
 class CharacterBooster
 {
-    public:
-        CharacterBooster(WorldSession* session);
+public:
+    CharacterBooster(WorldSession* session);
 
-        uint32 GetCurrentAction() const { return m_charBoostInfo.action; }
-        uint32 GetGuidLow() const { return m_charBoostInfo.lowGuid; }
-        void HandleCharacterBoost();
-        bool IsBoosting(uint32 lowGuid) const { return m_boosting && (m_charBoostInfo.lowGuid == lowGuid); }
-        void SetBoostedCharInfo(uint64 guid, uint32 action, uint32 specialization, bool allianceFaction);
-        void Update(uint32 diff);
+    uint32 GetCurrentAction() const { return m_charBoostInfo.action; }
+    uint32 GetGuidLow() const { return m_charBoostInfo.lowGuid; }
+    void HandleCharacterBoost();
+    bool IsBoosting(uint32 lowGuid) const { return m_boosting && (m_charBoostInfo.lowGuid == lowGuid); }
+    void SetBoostedCharInfo(uint64 guid, uint32 action, uint32 specialization, bool allianceFaction);
+    void Update(uint32 diff);
 
-    private:
-        SlotEquipmentMap const* _GetCharBoostItems(std::vector<std::pair<uint32, uint32> >& itemsToMail) const;
-        std::string _EquipItems(SQLTransaction& trans, SlotEquipmentMap const* itemsToEquip) const;
-        uint8 _GetRace() const;
-        void _HandleCharacterBoost() const;
-        void _LearnSpells(SQLTransaction& trans, uint8 const& raceId, uint8 const& classId) const;
-        void _MailEquipedItems(SQLTransaction& trans) const;
-        uint32 _PrepareMail(SQLTransaction& trans, std::string const& subject, std::string const& body) const;
-        std::string _SetSpecialization(SQLTransaction& trans, uint8 const& classId) const;
-        void _SaveBoostedChar(SQLTransaction& trans, std::string const& items, uint8 const& raceId, uint8 const& classId) const;
-        void _SendMail(SQLTransaction& trans, std::vector<std::pair<uint32, uint32> > const& items) const;
-        void _SendCharBoostPacket(SlotEquipmentMap const* items) const;
+private:
+    SlotEquipmentMap const* _GetCharBoostItems(std::vector<std::pair<uint32, uint32> >& itemsToMail) const;
+    std::string _EquipItems(SQLTransaction& trans, SlotEquipmentMap const* itemsToEquip) const;
+    uint8 _GetRace() const;
+    void _HandleCharacterBoost() const;
+    void _LearnSpells(SQLTransaction& trans, uint8 const& raceId, uint8 const& classId) const;
+    void _MailEquipedItems(SQLTransaction& trans) const;
+    uint32 _PrepareMail(SQLTransaction& trans, std::string const& subject, std::string const& body) const;
+    std::string _SetSpecialization(SQLTransaction& trans, uint8 const& classId) const;
+    void _SaveBoostedChar(SQLTransaction& trans, std::string const& items, uint8 const& raceId, uint8 const& classId) const;
+    void _SendMail(SQLTransaction& trans, std::vector<std::pair<uint32, uint32> > const& items) const;
+    void _SendCharBoostPacket(SlotEquipmentMap const* items) const;
 
-        CharacterBoostData m_charBoostInfo;
-        WorldSession* m_session;
-        uint32 m_timer;
-        bool m_boosting;
-        bool m_sendPacket;
+    CharacterBoostData m_charBoostInfo;
+    WorldSession* m_session;
+    uint32 m_timer;
+    bool m_boosting;
+    bool m_sendPacket;
 };
