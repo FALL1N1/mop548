@@ -464,38 +464,17 @@ WorldPacket Battlefield::BuildWarningAnnPacket(std::string const& msg)
     data.WriteBit(1);
     data.WriteBit(1);
 
-    data.WriteBit(unkGuid[0]);
-    data.WriteBit(unkGuid[1]);
-    data.WriteBit(unkGuid[5]);
-    data.WriteBit(unkGuid[4]);
-    data.WriteBit(unkGuid[3]);
-    data.WriteBit(unkGuid[2]);
-    data.WriteBit(unkGuid[6]);
-    data.WriteBit(unkGuid[7]);
+    data.WriteGuidMask(unkGuid, 0, 1, 5, 4, 3, 2, 6, 7);
 
     data.WriteBit(0);
 
-    data.WriteBit(source[7]);
-    data.WriteBit(source[6]);
-    data.WriteBit(source[1]);
-    data.WriteBit(source[4]);
-    data.WriteBit(source[0]);
-    data.WriteBit(source[2]);
-    data.WriteBit(source[3]);
-    data.WriteBit(source[5]);
+    data.WriteGuidMask(source, 7, 6, 1, 4, 0, 2, 3, 5);
 
     data.WriteBit(0);
     data.WriteBit(0); // Send Language
     data.WriteBit(1);
 
-    data.WriteBit(target[0]);
-    data.WriteBit(target[3]);
-    data.WriteBit(target[7]);
-    data.WriteBit(target[2]);
-    data.WriteBit(target[1]);
-    data.WriteBit(target[5]);
-    data.WriteBit(target[4]);
-    data.WriteBit(target[6]);
+    data.WriteGuidMask(target, 0, 3, 7, 2, 1, 5, 4, 6);
 
     data.WriteBit(1);
     data.WriteBit(0);
@@ -504,54 +483,19 @@ WorldPacket Battlefield::BuildWarningAnnPacket(std::string const& msg)
     data.WriteBit(1);
     data.WriteBit(0);
 
-    data.WriteBit(unkGuid2[2]);
-    data.WriteBit(unkGuid2[5]);
-    data.WriteBit(unkGuid2[7]);
-    data.WriteBit(unkGuid2[4]);
-    data.WriteBit(unkGuid2[0]);
-    data.WriteBit(unkGuid2[1]);
-    data.WriteBit(unkGuid2[3]);
-    data.WriteBit(unkGuid2[6]);
+    data.WriteGuidMask(unkGuid2, 2, 5, 7, 4, 0, 1, 3, 6);
 
     data.FlushBits();
 
-    data.WriteByteSeq(unkGuid2[4]);
-    data.WriteByteSeq(unkGuid2[5]);
-    data.WriteByteSeq(unkGuid2[7]);
-    data.WriteByteSeq(unkGuid2[3]);
-    data.WriteByteSeq(unkGuid2[2]);
-    data.WriteByteSeq(unkGuid2[6]);
-    data.WriteByteSeq(unkGuid2[0]);
-    data.WriteByteSeq(unkGuid2[1]);
+    data.WriteGuidBytes(unkGuid2, 4, 5, 7, 3, 2, 6, 0, 1);
 
-    data.WriteByteSeq(target[4]);
-    data.WriteByteSeq(target[7]);
-    data.WriteByteSeq(target[1]);
-    data.WriteByteSeq(target[5]);
-    data.WriteByteSeq(target[0]);
-    data.WriteByteSeq(target[6]);
-    data.WriteByteSeq(target[2]);
-    data.WriteByteSeq(target[3]);
+    data.WriteGuidBytes(target, 4, 7, 1, 5, 0, 6, 2, 3);
 
     data << uint8(CHAT_MSG_RAID_BOSS_EMOTE);
 
-    data.WriteByteSeq(unkGuid[1]);
-    data.WriteByteSeq(unkGuid[3]);
-    data.WriteByteSeq(unkGuid[4]);
-    data.WriteByteSeq(unkGuid[6]);
-    data.WriteByteSeq(unkGuid[0]);
-    data.WriteByteSeq(unkGuid[2]);
-    data.WriteByteSeq(unkGuid[5]);
-    data.WriteByteSeq(unkGuid[7]);
+    data.WriteGuidBytes(unkGuid, 1, 3, 4, 6, 0, 2, 5, 7);
 
-    data.WriteByteSeq(source[2]);
-    data.WriteByteSeq(source[5]);
-    data.WriteByteSeq(source[3]);
-    data.WriteByteSeq(source[6]);
-    data.WriteByteSeq(source[7]);
-    data.WriteByteSeq(source[4]);
-    data.WriteByteSeq(source[1]);
-    data.WriteByteSeq(source[0]);
+    data.WriteGuidBytes(source, 2, 5, 3, 6, 7, 4, 1, 0);
 
     data << uint8(LANG_UNIVERSAL);
     data.WriteString(msg);
@@ -751,17 +695,11 @@ void Battlefield::SendAreaSpiritHealerQueryOpcode(Player* player, ObjectGuid gui
     uint8 bitOrder[8] = {5, 2, 7, 6, 1, 0, 3, 4};
     data.WriteBitInOrder(guid, bitOrder);
 
-    data.WriteByteSeq(guid[2]);
-    data.WriteByteSeq(guid[3]);
-    data.WriteByteSeq(guid[5]);
-    data.WriteByteSeq(guid[4]);
-    data.WriteByteSeq(guid[6]);
+    data.WriteGuidBytes(guid, 2, 3, 5, 4, 6);
 
     data << time;
 
-    data.WriteByteSeq(guid[7]);
-    data.WriteByteSeq(guid[0]);
-    data.WriteByteSeq(guid[1]);
+    data.WriteGuidBytes(guid, 7, 0, 1);
 
     ASSERT(player && player->GetSession());
     player->GetSession()->SendPacket(&data);

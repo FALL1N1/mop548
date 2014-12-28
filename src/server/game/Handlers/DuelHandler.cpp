@@ -32,9 +32,9 @@ void WorldSession::HandleDuelProposedOpcode(WorldPacket& recvPacket)
 {
     ObjectGuid guid;
 
-    recvPacket.ReadBitInOrder(guid, new uint8 []{1, 5, 4, 6, 3, 2, 7, 0});
+    recvPacket.ReadGuidMask(guid, 1, 5, 4, 6, 3, 2, 7, 0);
 
-    recvPacket.ReadBytesSeq(guid, new uint8 []{4, 2, 5, 7, 1, 3, 6, 0});
+    recvPacket.ReadGuidBytes(guid, 4, 2, 5, 7, 1, 3, 6, 0);
 
     if (Player* player = sObjectAccessor->FindPlayer(guid))
     {
@@ -52,17 +52,11 @@ void WorldSession::HandleDuelResponseOpcode(WorldPacket& recvPacket)
     Player* player;
     Player* plTarget;
 
-    guid[7] = recvPacket.ReadBit();
-    guid[1] = recvPacket.ReadBit();
-    guid[3] = recvPacket.ReadBit();
-    guid[4] = recvPacket.ReadBit();
-    guid[0] = recvPacket.ReadBit();
-    guid[2] = recvPacket.ReadBit();
-    guid[6] = recvPacket.ReadBit();
+    recvPacket.ReadGuidMask(guid, 7, 1, 3, 4, 0, 2, 6);
     accepted = recvPacket.ReadBit();
     guid[5] = recvPacket.ReadBit();
 
-    recvPacket.ReadBytesSeq(guid, new uint8 []{6, 4, 5, 0, 1, 2, 7, 3});
+    recvPacket.ReadGuidBytes(guid, 6, 4, 5, 0, 1, 2, 7, 3);
 
     if (!GetPlayer()->duel)                                  // ignore accept from duel-sender
         return;

@@ -82,25 +82,20 @@ void WorldSession::HandleWargameRequest(WorldPacket& recvData)
     bgGUID[5] = recvData.ReadBit();
     targetGUID[1] = recvData.ReadBit();
     bgGUID[6] = recvData.ReadBit();
-    targetGUID[0] = recvData.ReadBit();
-    targetGUID[7] = recvData.ReadBit();
-    targetGUID[4] = recvData.ReadBit();
+    recvData.ReadGuidMask(targetGUID, 0, 7, 4);
     bgGUID[7] = recvData.ReadBit();
     targetGUID[6] = recvData.ReadBit();
     bgGUID[0] = recvData.ReadBit();
     targetGUID[3] = recvData.ReadBit();
-    bgGUID[2] = recvData.ReadBit();
-    bgGUID[4] = recvData.ReadBit();
+    recvData.ReadGuidMask(bgGUID, 2, 4);
     targetGUID[2] = recvData.ReadBit();
-    bgGUID[3] = recvData.ReadBit();
-    bgGUID[1] = recvData.ReadBit();
+    recvData.ReadGuidMask(bgGUID, 3, 1);
     targetGUID[5] = recvData.ReadBit();
 
     recvData.FlushBits();
 
     recvData.ReadByteSeq(bgGUID[4]);
-    recvData.ReadByteSeq(targetGUID[7]);
-    recvData.ReadByteSeq(targetGUID[2]);
+    recvData.ReadGuidBytes(targetGUID, 7, 2);
     recvData.ReadByteSeq(bgGUID[2]);
     recvData.ReadByteSeq(targetGUID[5]);
     recvData.ReadByteSeq(bgGUID[3]);
@@ -110,19 +105,15 @@ void WorldSession::HandleWargameRequest(WorldPacket& recvData)
     recvData.ReadByteSeq(bgGUID[1]);
     recvData.ReadByteSeq(targetGUID[4]);
     recvData.ReadByteSeq(bgGUID[6]);
-    recvData.ReadByteSeq(targetGUID[0]);
-    recvData.ReadByteSeq(targetGUID[6]);
-    recvData.ReadByteSeq(bgGUID[5]);
-    recvData.ReadByteSeq(bgGUID[7]);
+    recvData.ReadGuidBytes(targetGUID, 0, 6);
+    recvData.ReadGuidBytes(bgGUID, 5, 7);
     
     TC_LOG_ERROR("network", "Battleground: Player (%u) just challenged player (%u) for Wargame (TypeID: %u)", _player->GetGUIDLow(), GUID_LOPART(targetGUID), BattlegroundMgr::GetBattlegroundTypeIdFromGUID(bgGUID));
 
     // Send informative message to challenger
     WorldPacket data(SMSG_WARGAME_REQUEST_SENT, 6);    
-    uint8 bitOrder[8] = { 4, 3, 0, 2, 1, 6, 5, 7 };
-    recvData.WriteBitInOrder(targetGUID, bitOrder);
-    uint8 byteOrder[8] = { 1, 4, 5, 6, 2, 0, 3, 7 };
-    recvData.WriteBytesSeq(targetGUID, byteOrder);
+    recvData.WriteGuidMask(targetGUID, 4, 3, 0, 2, 1, 6, 5, 7);
+    recvData.WriteGuidBytes(targetGUID, 1, 4, 5, 6, 2, 0, 3, 7);
     _player->GetSession()->SendPacket(&data);    
 }
 
@@ -139,19 +130,13 @@ void WorldSession::HandleBattlemasterJoinOpcode(WorldPacket& recvData)
     for (int i = 0; i < 2; i++) // blacklistedMapIds
         recvData.read_skip<uint32>();
 
-    guid[1] = recvData.ReadBit();
-    guid[7] = recvData.ReadBit();
-    guid[0] = recvData.ReadBit();
-    guid[3] = recvData.ReadBit();
+    recvData.ReadGuidMask(guid, 1, 7, 0, 3);
     asGroup = recvData.ReadBit();           // As Group
     guid[4] = recvData.ReadBit();
     hasRoleMask = !recvData.ReadBit();
-    guid[6] = recvData.ReadBit();
-    guid[2] = recvData.ReadBit();
-    guid[5] = recvData.ReadBit();
+    recvData.ReadGuidMask(guid, 6, 2, 5);
 
-    uint8 byteOrder[8] = { 7, 2, 4, 5, 0, 6, 3, 1 };
-    recvData.ReadBytesSeq(guid, byteOrder);
+    recvData.ReadGuidBytes(guid, 7, 2, 4, 5, 0, 6, 3, 1);
 
     if (hasRoleMask)
         recvData >> roleMask; // Need to set this as group role later
@@ -353,42 +338,22 @@ void WorldSession::HandleBattlegroundPlayerPositionsOpcode(WorldPacket& /*recvDa
     data.WriteBits(acount, 22);
     for (uint8 i = 0; i < acount; i++)
     {
-        data.WriteBit(aguid[3]);
-        data.WriteBit(aguid[5]);
-        data.WriteBit(aguid[1]);
-        data.WriteBit(aguid[6]);
-        data.WriteBit(aguid[7]);
-        data.WriteBit(aguid[0]);
-        data.WriteBit(aguid[2]);
-        data.WriteBit(aguid[4]);
+        data.WriteGuidMask(aguid, 3, 5, 1, 6, 7, 0, 2, 4);
     }
 
     data.WriteBits(hcount, 22);
     for (uint8 i = 0; i < hcount; i++)
     {
-        data.WriteBit(hguid[6]);
-        data.WriteBit(hguid[5]);
-        data.WriteBit(hguid[4]);
-        data.WriteBit(hguid[7]);
-        data.WriteBit(hguid[2]);
-        data.WriteBit(hguid[1]);
-        data.WriteBit(hguid[0]);
-        data.WriteBit(hguid[3]);
+        data.WriteGuidMask(hguid, 6, 5, 4, 7, 2, 1, 0, 3);
     }
 
     data.FlushBits();
 
     for (uint8 i = 0; i < hcount; i++)
     {
-        data.WriteByteSeq(hguid[2]);
-        data.WriteByteSeq(hguid[1]);
+        data.WriteGuidBytes(hguid, 2, 1);
         data << float(hplr->GetPositionY());
-        data.WriteByteSeq(hguid[5]);
-        data.WriteByteSeq(hguid[4]);
-        data.WriteByteSeq(hguid[7]);
-        data.WriteByteSeq(hguid[0]);
-        data.WriteByteSeq(hguid[6]);
-        data.WriteByteSeq(hguid[3]);
+        data.WriteGuidBytes(hguid, 5, 4, 7, 0, 6, 3);
         data << float(hplr->GetPositionX());
     }
 
@@ -396,14 +361,9 @@ void WorldSession::HandleBattlegroundPlayerPositionsOpcode(WorldPacket& /*recvDa
     {
         data.WriteByteSeq(aguid[6]);
         data << float(aplr->GetPositionX());
-        data.WriteByteSeq(aguid[5]);
-        data.WriteByteSeq(aguid[3]);
+        data.WriteGuidBytes(aguid, 5, 3);
         data << float(aplr->GetPositionY());
-        data.WriteByteSeq(aguid[1]);
-        data.WriteByteSeq(aguid[7]);
-        data.WriteByteSeq(aguid[0]);
-        data.WriteByteSeq(aguid[2]);
-        data.WriteByteSeq(aguid[4]);
+        data.WriteGuidBytes(aguid, 1, 7, 0, 2, 4);
     }
 
     SendPacket(&data);
@@ -463,9 +423,9 @@ void WorldSession::HandleBattleFieldPortOpcode(WorldPacket &recvData)
     recvData >> id;
     recvData >> time;
 
-    recvData.ReadBitInOrder(guid, new uint8 []{6, 4, 2, 5, 0, 1, 7, 3});
+    recvData.ReadGuidMask(guid, 6, 4, 2, 5, 0, 1, 7, 3);
 
-    recvData.ReadBytesSeq(guid, new uint8 []{2, 5, 3, 0, 7, 4, 6, 1});
+    recvData.ReadGuidBytes(guid, 2, 5, 3, 0, 7, 4, 6, 1);
 
     if (!_player->InBattlegroundQueue())
     {

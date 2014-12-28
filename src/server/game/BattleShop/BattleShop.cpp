@@ -103,30 +103,18 @@ void CharacterBooster::_SendCharBoostPacket(SlotEquipmentMap const* items) const
     ObjectGuid guid = m_charBoostInfo.charGuid;
     WorldPacket data(SMSG_BATTLE_CHAR_BOOST_ITEMS, 8 + 3 + items->size());
 
-    data.WriteBit(guid[2]);
-    data.WriteBit(guid[0]);
-    data.WriteBit(guid[7]);
-    data.WriteBit(guid[5]);
-    data.WriteBit(guid[3]);
-    data.WriteBit(guid[4]);
-    data.WriteBit(guid[1]);
+    data.WriteGuidMask(guid, 2, 0, 7, 5, 3, 4, 1);
     data.WriteBits(items->size(), 22);
     data.WriteBit(guid[6]);
 
     data.FlushBits();
 
-    data.WriteByteSeq(guid[7]);
-    data.WriteByteSeq(guid[2]);
-    data.WriteByteSeq(guid[6]);
-    data.WriteByteSeq(guid[5]);
+    data.WriteGuidBytes(guid, 7, 2, 6, 5);
 
     for (SlotEquipmentMap::const_iterator itr = items->begin(); itr != items->end(); itr++)
         data << (uint32)itr->second;
 
-    data.WriteByteSeq(guid[0]);
-    data.WriteByteSeq(guid[1]);
-    data.WriteByteSeq(guid[3]);
-    data.WriteByteSeq(guid[4]);
+    data.WriteGuidBytes(guid, 0, 1, 3, 4);
 
     m_session->SendPacket(&data);
 }

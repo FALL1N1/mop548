@@ -333,29 +333,16 @@ void Object::DestroyForPlayer(Player* target, bool onDeath) const
     ObjectGuid guid(GetGUID());
     
     // BuildOutOfRangeUpdateBlock(GetGUID());
-    data.WriteBit(guid[3]);
-    data.WriteBit(guid[2]);
-    data.WriteBit(guid[4]);
-    data.WriteBit(guid[1]);
+    data.WriteGuidMask(guid, 3, 2, 4, 1);
 
     //! If the following bool is true, the client will call "void CGUnit_C::OnDeath()" for this object.
     //! OnDeath() does for eg trigger death animation and interrupts certain spells/missiles/auras/sounds...
     data.WriteBit(onDeath);
 
-    data.WriteBit(guid[7]);
-    data.WriteBit(guid[0]);
-    data.WriteBit(guid[6]);
-    data.WriteBit(guid[5]);
+    data.WriteGuidMask(guid, 7, 0, 6, 5);
     data.FlushBits();
 
-    data.WriteByteSeq(guid[0]);
-    data.WriteByteSeq(guid[4]);
-    data.WriteByteSeq(guid[7]);
-    data.WriteByteSeq(guid[2]);
-    data.WriteByteSeq(guid[6]);
-    data.WriteByteSeq(guid[3]);
-    data.WriteByteSeq(guid[1]);
-    data.WriteByteSeq(guid[5]);
+    data.WriteGuidBytes(guid, 0, 4, 7, 2, 6, 3, 1, 5);
 
     target->GetSession()->SendPacket(&data);
 }
@@ -2236,23 +2223,9 @@ void WorldObject::SendPlaySound(uint32 Sound, bool OnlySelf)
     ObjectGuid guid = GetGUID();
 
     WorldPacket data(SMSG_PLAY_SOUND, 4 + 9);
-    data.WriteBit(guid[2]);
-    data.WriteBit(guid[3]);
-    data.WriteBit(guid[7]);
-    data.WriteBit(guid[6]);
-    data.WriteBit(guid[0]);
-    data.WriteBit(guid[5]);
-    data.WriteBit(guid[4]);
-    data.WriteBit(guid[1]);
+    data.WriteGuidMask(guid, 2, 3, 7, 6, 0, 5, 4, 1);
     data << uint32(Sound);
-    data.WriteByteSeq(guid[3]);
-    data.WriteByteSeq(guid[2]);
-    data.WriteByteSeq(guid[4]);
-    data.WriteByteSeq(guid[7]);
-    data.WriteByteSeq(guid[5]);
-    data.WriteByteSeq(guid[0]);
-    data.WriteByteSeq(guid[6]);
-    data.WriteByteSeq(guid[1]);
+    data.WriteGuidBytes(guid, 3, 2, 4, 7, 5, 0, 6, 1);
     if (OnlySelf && GetTypeId() == TYPEID_PLAYER)
         this->ToPlayer()->GetSession()->SendPacket(&data);
     else
@@ -2438,23 +2411,9 @@ void WorldObject::SendObjectDeSpawnAnim(uint64 guid)
 {
     WorldPacket data(SMSG_GAMEOBJECT_DESPAWN_ANIM, 8);
     ObjectGuid GUID = guid;
-    data.WriteBit(GUID[0]);
-    data.WriteBit(GUID[2]);
-    data.WriteBit(GUID[4]);
-    data.WriteBit(GUID[1]);
-    data.WriteBit(GUID[7]);
-    data.WriteBit(GUID[3]);
-    data.WriteBit(GUID[6]);
-    data.WriteBit(GUID[5]);
+    data.WriteGuidMask(GUID, 0, 2, 4, 1, 7, 3, 6, 5);
 
-    data.WriteByteSeq(GUID[0]);
-    data.WriteByteSeq(GUID[2]);
-    data.WriteByteSeq(GUID[4]);
-    data.WriteByteSeq(GUID[5]);
-    data.WriteByteSeq(GUID[7]);
-    data.WriteByteSeq(GUID[3]);
-    data.WriteByteSeq(GUID[1]);
-    data.WriteByteSeq(GUID[6]);
+    data.WriteGuidBytes(GUID, 0, 2, 4, 5, 7, 3, 1, 6);
 
     SendMessageToSet(&data, true);
 }
@@ -3175,38 +3134,20 @@ void WorldObject::PlayDistanceSound(uint32 sound_id, Player* target /*= NULL*/)
 
     WorldPacket data(SMSG_PLAY_OBJECT_SOUND, 4 + 9);
     data.WriteBit(guid2[5]);
-    data.WriteBit(guid[7]);
-    data.WriteBit(guid[0]);
-    data.WriteBit(guid[3]);
+    data.WriteGuidMask(guid, 7, 0, 3);
     data.WriteBit(guid2[1]);
     data.WriteBit(guid[4]);
-    data.WriteBit(guid2[7]);
-    data.WriteBit(guid2[2]);
-    data.WriteBit(guid2[4]);
-    data.WriteBit(guid2[3]);
-    data.WriteBit(guid[5]);
-    data.WriteBit(guid[1]);
-    data.WriteBit(guid[6]);
-    data.WriteBit(guid[2]);
-    data.WriteBit(guid2[6]);
-    data.WriteBit(guid2[0]);
+    data.WriteGuidMask(guid2, 7, 2, 4, 3);
+    data.WriteGuidMask(guid, 5, 1, 6, 2);
+    data.WriteGuidMask(guid2, 6, 0);
 
-    data.WriteByteSeq(guid[6]);
-    data.WriteByteSeq(guid[2]);
-    data.WriteByteSeq(guid2[2]);
-    data.WriteByteSeq(guid2[5]);
-    data.WriteByteSeq(guid[7]);
-    data.WriteByteSeq(guid[5]);
-    data.WriteByteSeq(guid[3]);
-    data.WriteByteSeq(guid[1]);
-    data.WriteByteSeq(guid2[3]);
-    data.WriteByteSeq(guid2[1]);
+    data.WriteGuidBytes(guid, 6, 2);
+    data.WriteGuidBytes(guid2, 2, 5);
+    data.WriteGuidBytes(guid, 7, 5, 3, 1);
+    data.WriteGuidBytes(guid2, 3, 1);
     data << uint32(sound_id);
     data.WriteByteSeq(guid[4]);
-    data.WriteByteSeq(guid2[4]);
-    data.WriteByteSeq(guid2[7]);
-    data.WriteByteSeq(guid2[0]);
-    data.WriteByteSeq(guid2[6]);
+    data.WriteGuidBytes(guid2, 4, 7, 0, 6);
     data.WriteByteSeq(guid[0]);
 
     if (target)

@@ -32,11 +32,9 @@ void WorldSession::HandleBlackMarketHelloOpcode(WorldPacket& recvData)
 
     ObjectGuid guid;
 
-    uint8 bitOrder[8] = { 4, 5, 2, 7, 0, 1, 3, 6 };
-    recvData.ReadBitInOrder(guid, bitOrder);
+    recvData.ReadGuidMask(guid, 4, 5, 2, 7, 0, 1, 3, 6);
 
-    uint8 byteOrder[8] = { 3, 5, 0, 6, 4, 1, 7, 2 };
-    recvData.ReadBytesSeq(guid, byteOrder);
+    recvData.ReadGuidBytes(guid, 3, 5, 0, 6, 4, 1, 7, 2);
 
     uint64 npcGuid = uint64(guid);
 
@@ -62,13 +60,11 @@ void WorldSession::SendBlackMarketHello(uint64 npcGuid)
 
     ObjectGuid guid = npcGuid;
 
-    uint8 bitOrder[8] = { 2, 0, 4, 1, 3, 6, 5, 7 };
-    data.WriteBitInOrder(guid, bitOrder);
+    data.WriteGuidMask(guid, 2, 0, 4, 1, 3, 6, 5, 7);
 
     data.WriteBit(1); // Unknow
 
-    uint8 byteOrder[8] = { 6, 1, 2, 5, 0, 7, 4, 3 };
-    data.WriteBytesSeq(guid, byteOrder);
+    data.WriteGuidBytes(guid, 6, 1, 2, 5, 0, 7, 4, 3);
 
     SendPacket(&data);
 }
@@ -82,11 +78,9 @@ void WorldSession::HandleBlackMarketRequestItemOpcode(WorldPacket& recvData)
 
     recvData >> Timestamp;
 
-    uint8 bitOrder[8] = { 2, 6, 0, 3, 4, 5, 1, 7 };
-    recvData.ReadBitInOrder(guid, bitOrder);
+    recvData.ReadGuidMask(guid, 2, 6, 0, 3, 4, 5, 1, 7);
 
-    uint8 byteOrder[8] = { 6, 2, 3, 5, 7, 4, 1, 0 };
-    recvData.ReadBytesSeq(guid, byteOrder);
+    recvData.ReadGuidBytes(guid, 6, 2, 3, 5, 7, 4, 1, 0);
 
     uint64 NpcGuid = uint64(guid);
 
@@ -119,11 +113,9 @@ void WorldSession::HandleBlackMarketBidOpcode(WorldPacket& recvData)
 
     recvData >> id >> itemid >> price;
 
-    uint8 bitOrder[8] = { 0, 5, 4, 3, 7, 6, 1, 2 };
-    recvData.ReadBitInOrder(guid, bitOrder);
+    recvData.ReadGuidMask(guid, 0, 5, 4, 3, 7, 6, 1, 2);
 
-    uint8 byteOrder[8] = { 4, 3, 6, 5, 7, 1, 0, 2 };
-    recvData.ReadBytesSeq(guid, byteOrder);
+    recvData.ReadGuidBytes(guid, 4, 3, 6, 5, 7, 1, 0, 2);
 
     uint64 npcGuid = uint64(guid);
 

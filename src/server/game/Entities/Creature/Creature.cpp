@@ -1813,17 +1813,11 @@ void Creature::SendAIReaction(AiReaction reactionType)
     uint8 bitOrder[8] = {5, 7, 0, 4, 6, 2, 3, 1};
     data.WriteBitInOrder(guid, bitOrder);
     
-    data.WriteByteSeq(guid[4]);
-    data.WriteByteSeq(guid[6]);
-    data.WriteByteSeq(guid[5]);
+    data.WriteGuidBytes(guid, 4, 6, 5);
 
     data << uint32(reactionType);
     
-    data.WriteByteSeq(guid[7]);
-    data.WriteByteSeq(guid[1]);
-    data.WriteByteSeq(guid[2]);
-    data.WriteByteSeq(guid[0]);
-    data.WriteByteSeq(guid[3]);
+    data.WriteGuidBytes(guid, 7, 1, 2, 0, 3);
 
     ((WorldObject*)this)->SendMessageToSet(&data, true);
 

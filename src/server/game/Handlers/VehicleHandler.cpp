@@ -144,9 +144,9 @@ void WorldSession::HandleEnterPlayerVehicle(WorldPacket& recvData)
     TC_LOG_DEBUG("network", "WORLD: Recvd CMSG_PLAYER_VEHICLE_ENTER");
 
     ObjectGuid guid;
-    recvData.ReadBitInOrder(guid, new uint8 []{5, 7, 3, 0, 2, 4, 6, 1});
+    recvData.ReadGuidMask(guid, 5, 7, 3, 0, 2, 4, 6, 1);
 
-    recvData.ReadBytesSeq(guid, new uint8 []{5, 3, 1, 2, 7, 0, 6, 4});
+    recvData.ReadGuidBytes(guid, 5, 3, 1, 2, 7, 0, 6, 4);
 
     if (Player* player = ObjectAccessor::FindPlayer(guid))
     {

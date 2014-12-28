@@ -194,13 +194,7 @@ void AuraApplication::ClientUpdate(bool remove)
     data.WriteBit(targetGuid[7]);
     data.WriteBit(0);                                   // Is AURA_UPDATE_ALL
     data.WriteBits(1, 24);                              // Aura Count
-    data.WriteBit(targetGuid[6]);
-    data.WriteBit(targetGuid[1]);
-    data.WriteBit(targetGuid[3]);
-    data.WriteBit(targetGuid[0]);
-    data.WriteBit(targetGuid[4]);
-    data.WriteBit(targetGuid[2]);
-    data.WriteBit(targetGuid[5]);
+    data.WriteGuidMask(targetGuid, 6, 1, 3, 0, 4, 2, 5);
     data.WriteBit(!remove);                             // Not remove
 
     if (!remove)
@@ -222,14 +216,7 @@ void AuraApplication::ClientUpdate(bool remove)
         if (!(flags & AFLAG_CASTER))
         {
             ObjectGuid casterGuid = aura->GetCasterGUID();
-            data.WriteBit(casterGuid[3]);
-            data.WriteBit(casterGuid[4]);
-            data.WriteBit(casterGuid[6]);
-            data.WriteBit(casterGuid[1]);
-            data.WriteBit(casterGuid[5]);
-            data.WriteBit(casterGuid[2]);
-            data.WriteBit(casterGuid[0]);
-            data.WriteBit(casterGuid[7]);
+            data.WriteGuidMask(casterGuid, 3, 4, 6, 1, 5, 2, 0, 7);
         }
 
         data.WriteBits(0, 22);                          // Unk effect count
@@ -244,14 +231,7 @@ void AuraApplication::ClientUpdate(bool remove)
         if (!(flags & AFLAG_CASTER))
         {
             ObjectGuid casterGuid = aura->GetCasterGUID();
-            data.WriteByteSeq(casterGuid[3]);
-            data.WriteByteSeq(casterGuid[2]);
-            data.WriteByteSeq(casterGuid[1]);
-            data.WriteByteSeq(casterGuid[6]);
-            data.WriteByteSeq(casterGuid[4]);
-            data.WriteByteSeq(casterGuid[0]);
-            data.WriteByteSeq(casterGuid[5]);
-            data.WriteByteSeq(casterGuid[7]);
+            data.WriteGuidBytes(casterGuid, 3, 2, 1, 6, 4, 0, 5, 7);
         }
 
         data << uint8(flags);
@@ -286,14 +266,7 @@ void AuraApplication::ClientUpdate(bool remove)
 
     data << uint8(GetSlot());
 
-    data.WriteByteSeq(targetGuid[2]);
-    data.WriteByteSeq(targetGuid[6]);
-    data.WriteByteSeq(targetGuid[7]);
-    data.WriteByteSeq(targetGuid[1]);
-    data.WriteByteSeq(targetGuid[3]);
-    data.WriteByteSeq(targetGuid[4]);
-    data.WriteByteSeq(targetGuid[0]);
-    data.WriteByteSeq(targetGuid[5]);
+    data.WriteGuidBytes(targetGuid, 2, 6, 7, 1, 3, 4, 0, 5);
 
     _target->SendMessageToSet(&data, true);
 }

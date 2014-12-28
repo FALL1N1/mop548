@@ -322,9 +322,9 @@ void WorldSession::HandleReadItem(WorldPacket& recvData)
     uint8 bag, slot;
     recvData >> bag >> slot;
 
-    recvData.ReadBitInOrder(Guid, new uint8 []{2, 1, 3, 7, 6, 4, 0, 5});
+    recvData.ReadGuidMask(Guid, 2, 1, 3, 7, 6, 4, 0, 5);
 
-    recvData.ReadBytesSeq(Guid, new uint8 []{0, 6, 3, 5, 1, 7, 4, 2});
+    recvData.ReadGuidBytes(Guid, 0, 6, 3, 5, 1, 7, 4, 2);
 
     Item* pItem = _player->GetItemByPos(bag, slot);
 
@@ -360,39 +360,24 @@ void WorldSession::HandleSellItemOpcode(WorldPacket& recvData)
 
     recvData >> count;
 
-    itemGuid[4] = recvData.ReadBit();
-    itemGuid[3] = recvData.ReadBit();
-    itemGuid[7] = recvData.ReadBit();
-    vendorGuid[6] = recvData.ReadBit();
-    vendorGuid[5] = recvData.ReadBit();
-    vendorGuid[1] = recvData.ReadBit();
-    itemGuid[5] = recvData.ReadBit();
-    itemGuid[2] = recvData.ReadBit();
-    itemGuid[1] = recvData.ReadBit();
+    recvData.ReadGuidMask(itemGuid, 4, 3, 7);
+    recvData.ReadGuidMask(vendorGuid, 6, 5, 1);
+    recvData.ReadGuidMask(itemGuid, 5, 2, 1);
     vendorGuid[2] = recvData.ReadBit();
     itemGuid[6] = recvData.ReadBit();
-    vendorGuid[4] = recvData.ReadBit();
-    vendorGuid[0] = recvData.ReadBit();
-    vendorGuid[7] = recvData.ReadBit();
-    vendorGuid[3] = recvData.ReadBit();
+    recvData.ReadGuidMask(vendorGuid, 4, 0, 7, 3);
     itemGuid[0] = recvData.ReadBit();
 
-    recvData.ReadByteSeq(vendorGuid[6]);
-    recvData.ReadByteSeq(vendorGuid[3]);
-    recvData.ReadByteSeq(vendorGuid[1]);
+    recvData.ReadGuidBytes(vendorGuid, 6, 3, 1);
     recvData.ReadByteSeq(itemGuid[1]);
     recvData.ReadByteSeq(vendorGuid[2]);
-    recvData.ReadByteSeq(itemGuid[7]);
-    recvData.ReadByteSeq(itemGuid[5]);
+    recvData.ReadGuidBytes(itemGuid, 7, 5);
     recvData.ReadByteSeq(vendorGuid[7]);
     recvData.ReadByteSeq(itemGuid[2]);
-    recvData.ReadByteSeq(vendorGuid[0]);
-    recvData.ReadByteSeq(vendorGuid[5]);
-    recvData.ReadByteSeq(itemGuid[3]);
-    recvData.ReadByteSeq(itemGuid[6]);
+    recvData.ReadGuidBytes(vendorGuid, 0, 5);
+    recvData.ReadGuidBytes(itemGuid, 3, 6);
     recvData.ReadByteSeq(vendorGuid[4]);
-    recvData.ReadByteSeq(itemGuid[4]);
-    recvData.ReadByteSeq(itemGuid[0]);
+    recvData.ReadGuidBytes(itemGuid, 4, 0);
 
     if (!itemGuid)
         return;
@@ -507,9 +492,9 @@ void WorldSession::HandleBuybackItem(WorldPacket& recvData)
 
     recvData >> slot;
 
-    recvData.ReadBitInOrder(vendorGuid, new uint8 []{2, 3, 0, 4, 1, 7, 5, 6});
+    recvData.ReadGuidMask(vendorGuid, 2, 3, 0, 4, 1, 7, 5, 6);
 
-    recvData.ReadBytesSeq(vendorGuid, new uint8 []{0, 6, 1, 7, 5, 2, 3, 4});
+    recvData.ReadGuidBytes(vendorGuid, 0, 6, 1, 7, 5, 2, 3, 4);
 
     Creature* creature = GetPlayer()->GetNPCIfCanInteractWith(vendorGuid, UNIT_NPC_FLAG_VENDOR);
     if (!creature)
@@ -595,34 +580,23 @@ void WorldSession::HandleBuyItemOpcode(WorldPacket& recvData)
     recvData >> bagSlot >> count >> item >> slot;
 
     vendorGuid[6] = recvData.ReadBit();
-    bagGuid[6] = recvData.ReadBit();
-    bagGuid[4] = recvData.ReadBit();
+    recvData.ReadGuidMask(bagGuid, 6, 4);
     vendorGuid[4] = recvData.ReadBit();
     itemType = recvData.ReadBits(2);
-    vendorGuid[0] = recvData.ReadBit();
-    vendorGuid[3] = recvData.ReadBit();
+    recvData.ReadGuidMask(vendorGuid, 0, 3);
     bagGuid[3] = recvData.ReadBit();
-    vendorGuid[7] = recvData.ReadBit();
-    vendorGuid[5] = recvData.ReadBit();
+    recvData.ReadGuidMask(vendorGuid, 7, 5);
     bagGuid[2] = recvData.ReadBit();
     vendorGuid[1] = recvData.ReadBit();
     bagGuid[7] = recvData.ReadBit();
     vendorGuid[2] = recvData.ReadBit();
-    bagGuid[1] = recvData.ReadBit();
-    bagGuid[0] = recvData.ReadBit();
-    bagGuid[5] = recvData.ReadBit();
+    recvData.ReadGuidMask(bagGuid, 1, 0, 5);
     recvData.FlushBits();
 
-    recvData.ReadByteSeq(vendorGuid[5]);
-    recvData.ReadByteSeq(vendorGuid[0]);
-    recvData.ReadByteSeq(bagGuid[3]);
-    recvData.ReadByteSeq(bagGuid[1]);
-    recvData.ReadByteSeq(bagGuid[6]);
-    recvData.ReadByteSeq(vendorGuid[2]);
-    recvData.ReadByteSeq(vendorGuid[7]);
-    recvData.ReadByteSeq(vendorGuid[6]);
-    recvData.ReadByteSeq(bagGuid[0]);
-    recvData.ReadByteSeq(bagGuid[5]);
+    recvData.ReadGuidBytes(vendorGuid, 5, 0);
+    recvData.ReadGuidBytes(bagGuid, 3, 1, 6);
+    recvData.ReadGuidBytes(vendorGuid, 2, 7, 6);
+    recvData.ReadGuidBytes(bagGuid, 0, 5);
     recvData.ReadByteSeq(vendorGuid[4]);
     recvData.ReadByteSeq(bagGuid[2]);
     recvData.ReadByteSeq(vendorGuid[3]);
@@ -658,9 +632,9 @@ void WorldSession::HandleListInventoryOpcode(WorldPacket& recvData)
 {
     ObjectGuid guid;
 
-    recvData.ReadBitInOrder(guid, new uint8 []{6, 7, 3, 1, 2, 0, 4, 5});
+    recvData.ReadGuidMask(guid, 6, 7, 3, 1, 2, 0, 4, 5);
 
-    recvData.ReadBytesSeq(guid, new uint8 []{0, 7, 1, 6, 4, 3, 5, 2});
+    recvData.ReadGuidBytes(guid, 0, 7, 1, 6, 4, 3, 5, 2);
 
     if (!GetPlayer()->IsAlive())
         return;
@@ -892,9 +866,9 @@ void WorldSession::HandleBuyBankSlotOpcode(WorldPacket& recvData)
 
     ObjectGuid guid;
     bool timedCompleted = 1;
-    recvData.ReadBitInOrder(guid, new uint8 []{7, 6, 1, 3, 2, 0, 4, 5});
+    recvData.ReadGuidMask(guid, 7, 6, 1, 3, 2, 0, 4, 5);
 
-    recvData.ReadBytesSeq(guid, new uint8 []{3, 5, 1, 6, 7, 2, 0, 4});
+    recvData.ReadGuidBytes(guid, 3, 5, 1, 6, 7, 2, 0, 4);
     
     // cheating protection
     /* not critical if "cheated", and check skip allow by slots in bank windows open by .bank command.
@@ -929,19 +903,10 @@ void WorldSession::HandleBuyBankSlotOpcode(WorldPacket& recvData)
     progress->date = time(NULL); // set the date to the latest update.
 
     WorldPacket data(SMSG_CRITERIA_UPDATE, 8 + 4 + 4 + 8 + 4 + 4 + 8);
-    data.WriteBit(guid[4]);
-    data.WriteBit(guid[6]);
-    data.WriteBit(guid[2]);
-    data.WriteBit(guid[3]);
-    data.WriteBit(guid[7]);
-    data.WriteBit(guid[1]);
-    data.WriteBit(guid[5]);
-    data.WriteBit(guid[0]);
+    data.WriteGuidMask(guid, 4, 6, 2, 3, 7, 1, 5, 0);
     data.FlushBits();
 
-    data.WriteByteSeq(guid[3]);
-    data.WriteByteSeq(guid[6]);
-    data.WriteByteSeq(guid[2]);
+    data.WriteGuidBytes(guid, 3, 6, 2);
     data << uint32(entry->ID);
 
     if (!entry->timeLimit)
@@ -949,14 +914,12 @@ void WorldSession::HandleBuyBankSlotOpcode(WorldPacket& recvData)
     else
         data << uint32(timedCompleted ? 0 : 1); // this are some flags, 1 is for keeping the counter at 0 in client
 
-    data.WriteByteSeq(guid[5]);
-    data.WriteByteSeq(guid[1]);
+    data.WriteGuidBytes(guid, 5, 1);
     data.AppendPackedTime(progress->date);
     data.WriteByteSeq(guid[4]);
     data << uint32(timeElapsed); // time elapsed in seconds, always these 2 are similars
     data << uint32(timeElapsed);
-    data.WriteByteSeq(guid[7]);
-    data.WriteByteSeq(guid[0]);
+    data.WriteGuidBytes(guid, 7, 0);
     data << (uint64)progress->counter;
 
     if (!slotEntry)
@@ -1073,41 +1036,29 @@ void WorldSession::SendItemEnchantTimeUpdate(ObjectGuid Playerguid, ObjectGuid I
                                                             // last check 2.0.10
     WorldPacket data(SMSG_ITEM_ENCHANT_TIME_UPDATE, 21);
     
-    data.WriteBit(Itemguid[4]);
-    data.WriteBit(Itemguid[0]);
+    data.WriteGuidMask(Itemguid, 4, 0);
     data.WriteBit(Playerguid[3]);
     data.WriteBit(Itemguid[3]);
-    data.WriteBit(Playerguid[2]);
-    data.WriteBit(Playerguid[6]);
-    data.WriteBit(Playerguid[7]);
+    data.WriteGuidMask(Playerguid, 2, 6, 7);
     data.WriteBit(Itemguid[1]);
     data.WriteBit(Playerguid[4]);
-    data.WriteBit(Itemguid[6]);
-    data.WriteBit(Itemguid[5]);
+    data.WriteGuidMask(Itemguid, 6, 5);
     data.WriteBit(Playerguid[0]);
     data.WriteBit(Itemguid[2]);
-    data.WriteBit(Playerguid[5]);
-    data.WriteBit(Playerguid[1]);
+    data.WriteGuidMask(Playerguid, 5, 1);
     data.WriteBit(Itemguid[7]);
 
     data << uint32(slot);
 
-    data.WriteByteSeq(Playerguid[4]);
-    data.WriteByteSeq(Playerguid[2]);
-    data.WriteByteSeq(Itemguid[5]);
-    data.WriteByteSeq(Itemguid[4]);
+    data.WriteGuidBytes(Playerguid, 4, 2);
+    data.WriteGuidBytes(Itemguid, 5, 4);
     data.WriteByteSeq(Playerguid[6]);
     data.WriteByteSeq(Itemguid[1]);
-    data.WriteByteSeq(Playerguid[0]);
-    data.WriteByteSeq(Playerguid[1]);
-    data.WriteByteSeq(Itemguid[6]);
-    data.WriteByteSeq(Itemguid[2]);
+    data.WriteGuidBytes(Playerguid, 0, 1);
+    data.WriteGuidBytes(Itemguid, 6, 2);
     data.WriteByteSeq(Playerguid[7]);
-    data.WriteByteSeq(Itemguid[0]);
-    data.WriteByteSeq(Itemguid[3]);
-    data.WriteByteSeq(Itemguid[7]);
-    data.WriteByteSeq(Playerguid[3]);
-    data.WriteByteSeq(Playerguid[5]);
+    data.WriteGuidBytes(Itemguid, 0, 3, 7);
+    data.WriteGuidBytes(Playerguid, 3, 5);
 
     data << uint32(Duration);
 
@@ -1282,9 +1233,7 @@ void WorldSession::HandleSocketOpcode(WorldPacket& recvData)
     item_guid[7] = recvData.ReadBit();
     item_guid[1] = recvData.ReadBit();
 
-    recvData.ReadByteSeq(item_guid[7]);
-    recvData.ReadByteSeq(item_guid[2]);
-    recvData.ReadByteSeq(item_guid[6]);
+    recvData.ReadGuidBytes(item_guid, 7, 2, 6);
 
     for (int i = 0; i < MAX_GEM_SOCKETS; ++i)
         recvData.ReadByteSeq(gem_guids[i][6]);
@@ -1303,11 +1252,7 @@ void WorldSession::HandleSocketOpcode(WorldPacket& recvData)
     for (int i = 0; i < MAX_GEM_SOCKETS; ++i)
         recvData.ReadByteSeq(gem_guids[i][5]);
 
-    recvData.ReadByteSeq(item_guid[4]);
-    recvData.ReadByteSeq(item_guid[3]);
-    recvData.ReadByteSeq(item_guid[1]);
-    recvData.ReadByteSeq(item_guid[5]);
-    recvData.ReadByteSeq(item_guid[0]);
+    recvData.ReadGuidBytes(item_guid, 4, 3, 1, 5, 0);
 
     if (!item_guid)
         return;
@@ -1606,12 +1551,7 @@ void WorldSession::HandleTransmogrifyItems(WorldPacket& recvData)
     uint32 count;
     ObjectGuid npcGuid;
 
-    npcGuid[5] = recvData.ReadBit();
-    npcGuid[6] = recvData.ReadBit();
-    npcGuid[1] = recvData.ReadBit();
-    npcGuid[2] = recvData.ReadBit();
-    npcGuid[3] = recvData.ReadBit();
-    npcGuid[4] = recvData.ReadBit();
+    recvData.ReadGuidMask(npcGuid, 5, 6, 1, 2, 3, 4);
     count = recvData.ReadBits(19);
 
     if (count >= EQUIPMENT_SLOT_END)
@@ -1621,8 +1561,7 @@ void WorldSession::HandleTransmogrifyItems(WorldPacket& recvData)
         return;
     }
 
-    npcGuid[0] = recvData.ReadBit();
-    npcGuid[7] = recvData.ReadBit();
+    recvData.ReadGuidMask(npcGuid, 0, 7);
 
     std::vector<ObjectGuid> itemGuids(count, ObjectGuid(0));
     std::vector<uint32> newEntries(count, 0);
@@ -1637,26 +1576,12 @@ void WorldSession::HandleTransmogrifyItems(WorldPacket& recvData)
 
         if(unk1[i])
         {
-            itemGuids[i][5] = recvData.ReadBit();
-            itemGuids[i][6] = recvData.ReadBit();
-            itemGuids[i][1] = recvData.ReadBit();
-            itemGuids[i][3] = recvData.ReadBit();
-            itemGuids[i][0] = recvData.ReadBit();
-            itemGuids[i][4] = recvData.ReadBit();
-            itemGuids[i][7] = recvData.ReadBit();
-            itemGuids[i][2] = recvData.ReadBit();
+            recvData.ReadGuidMask(itemGuids[i], 5, 6, 1, 3, 0, 4, 7, 2);
         }
 
         if(unk0[i])
         {
-            itemGuids[i][4] = recvData.ReadBit();
-            itemGuids[i][1] = recvData.ReadBit();
-            itemGuids[i][0] = recvData.ReadBit();
-            itemGuids[i][6] = recvData.ReadBit();
-            itemGuids[i][5] = recvData.ReadBit();
-            itemGuids[i][2] = recvData.ReadBit();
-            itemGuids[i][7] = recvData.ReadBit();
-            itemGuids[i][3] = recvData.ReadBit();
+            recvData.ReadGuidMask(itemGuids[i], 4, 1, 0, 6, 5, 2, 7, 3);
         }
 
     }
@@ -1667,32 +1592,18 @@ void WorldSession::HandleTransmogrifyItems(WorldPacket& recvData)
         recvData >> slots[i];
     }
 
-    recvData.ReadBytesSeq(npcGuid, new uint8 []{5, 0, 1, 2, 3, 4, 6, 7});
+    recvData.ReadGuidBytes(npcGuid, 5, 0, 1, 2, 3, 4, 6, 7);
 
     for (uint8 i = 0; i < count; ++i)
     {
         if(unk0[i])
         {
-            recvData.ReadByteSeq(itemGuids[i][2]);
-            recvData.ReadByteSeq(itemGuids[i][5]);
-            recvData.ReadByteSeq(itemGuids[i][4]);
-            recvData.ReadByteSeq(itemGuids[i][3]);
-            recvData.ReadByteSeq(itemGuids[i][6]);
-            recvData.ReadByteSeq(itemGuids[i][0]);
-            recvData.ReadByteSeq(itemGuids[i][7]);
-            recvData.ReadByteSeq(itemGuids[i][1]);
+            recvData.ReadGuidBytes(itemGuids[i], 2, 5, 4, 3, 6, 0, 7, 1);
         }
 
         if(unk1[i])
         {
-            recvData.ReadByteSeq(itemGuids[i][7]);
-            recvData.ReadByteSeq(itemGuids[i][1]);
-            recvData.ReadByteSeq(itemGuids[i][6]);
-            recvData.ReadByteSeq(itemGuids[i][5]);
-            recvData.ReadByteSeq(itemGuids[i][4]);
-            recvData.ReadByteSeq(itemGuids[i][3]);
-            recvData.ReadByteSeq(itemGuids[i][0]);
-            recvData.ReadByteSeq(itemGuids[i][2]);
+            recvData.ReadGuidBytes(itemGuids[i], 7, 1, 6, 5, 4, 3, 0, 2);
         }
     }
 
@@ -1901,34 +1812,23 @@ void WorldSession::HandleUpgradeItem(WorldPacket& recvData)
 
     guid2[5] = recvData.ReadBit();
     guid[6] = recvData.ReadBit();
-    guid2[6] = recvData.ReadBit();
-    guid2[0] = recvData.ReadBit();
-    guid2[1] = recvData.ReadBit();
-    guid[4] = recvData.ReadBit();
-    guid[1] = recvData.ReadBit();
-    guid[7] = recvData.ReadBit();
-    guid2[7] = recvData.ReadBit();
-    guid2[2] = recvData.ReadBit();
-    guid2[3] = recvData.ReadBit();
-    guid[0] = recvData.ReadBit();
-    guid[2] = recvData.ReadBit();
-    guid[5] = recvData.ReadBit();
+    recvData.ReadGuidMask(guid2, 6, 0, 1);
+    recvData.ReadGuidMask(guid, 4, 1, 7);
+    recvData.ReadGuidMask(guid2, 7, 2, 3);
+    recvData.ReadGuidMask(guid, 0, 2, 5);
     guid2[4] = recvData.ReadBit();
     guid[3] = recvData.ReadBit();
 
     recvData.ReadByteSeq(guid2[7]);
     recvData.ReadByteSeq(guid[6]);
     recvData.ReadByteSeq(guid2[6]);
-    recvData.ReadByteSeq(guid[3]);
-    recvData.ReadByteSeq(guid[2]);
+    recvData.ReadGuidBytes(guid, 3, 2);
     recvData.ReadByteSeq(guid2[5]);
     recvData.ReadByteSeq(guid[1]);
     recvData.ReadByteSeq(guid2[1]);
     recvData.ReadByteSeq(guid[0]);
-    recvData.ReadByteSeq(guid2[2]);
-    recvData.ReadByteSeq(guid2[0]);
-    recvData.ReadByteSeq(guid[4]);
-    recvData.ReadByteSeq(guid[5]);
+    recvData.ReadGuidBytes(guid2, 2, 0);
+    recvData.ReadGuidBytes(guid, 4, 5);
     recvData.ReadByteSeq(guid2[3]);
     recvData.ReadByteSeq(guid[7]);
     recvData.ReadByteSeq(guid2[4]);

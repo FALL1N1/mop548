@@ -44,26 +44,12 @@ void WorldSession::HandleAutostoreLootItemOpcode(WorldPacket& recvData)
 
     for (int i = 0; i < lootCount; i++)
     {
-        (guids[i])[2] = recvData.ReadBit();
-        (guids[i])[7] = recvData.ReadBit();
-        (guids[i])[0] = recvData.ReadBit();
-        (guids[i])[6] = recvData.ReadBit();
-        (guids[i])[5] = recvData.ReadBit();
-        (guids[i])[3] = recvData.ReadBit();
-        (guids[i])[1] = recvData.ReadBit();
-        (guids[i])[4] = recvData.ReadBit();
+        recvData.ReadGuidMask((guids[i]), 2, 7, 0, 6, 5, 3, 1, 4);
     }
 
     for (int i = 0; i < lootCount; i++)
     {
-        recvData.ReadByteSeq((guids[i])[0]);
-        recvData.ReadByteSeq((guids[i])[4]);
-        recvData.ReadByteSeq((guids[i])[1]);
-        recvData.ReadByteSeq((guids[i])[7]);
-        recvData.ReadByteSeq((guids[i])[6]);
-        recvData.ReadByteSeq((guids[i])[5]);
-        recvData.ReadByteSeq((guids[i])[3]);
-        recvData.ReadByteSeq((guids[i])[2]);
+        recvData.ReadGuidBytes((guids[i]), 0, 4, 1, 7, 6, 5, 3, 2);
         uint8 lootSlot;
         recvData >> lootSlot;
 
@@ -264,9 +250,9 @@ void WorldSession::HandleLootOpcode(WorldPacket& recvData)
 
     ObjectGuid guid;
 
-    recvData.ReadBitInOrder(guid, new uint8 []{4, 5, 2, 7, 0, 1, 3, 6});
+    recvData.ReadGuidMask(guid, 4, 5, 2, 7, 0, 1, 3, 6);
 
-    recvData.ReadBytesSeq(guid, new uint8 []{3, 5, 0, 6, 4, 1, 7, 2});
+    recvData.ReadGuidBytes(guid, 3, 5, 0, 6, 4, 1, 7, 2);
 
     // Check possible cheat
     if (!_player->IsAlive())
@@ -287,9 +273,9 @@ void WorldSession::HandleLootReleaseOpcode(WorldPacket& recvData)
     // use internal stored guid
 
     ObjectGuid guid;
-    recvData.ReadBitInOrder(guid, new uint8 []{7, 4, 2, 3, 0, 5, 6, 1});
+    recvData.ReadGuidMask(guid, 7, 4, 2, 3, 0, 5, 6, 1);
 
-    recvData.ReadBytesSeq(guid, new uint8 []{0, 6, 4, 2, 5, 3, 7, 1});
+    recvData.ReadGuidBytes(guid, 0, 6, 4, 2, 5, 3, 7, 1);
 
     if (uint64 lootGuid = GetPlayer()->GetLootGUID())
         if (lootGuid == guid)

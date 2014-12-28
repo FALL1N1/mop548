@@ -77,44 +77,22 @@ namespace Movement
         data.WriteBit(1);
         data.WriteBit(1);
         data.WriteBit(1);
-        data.WriteBit(guid[7]);
-        data.WriteBit(guid[4]);
+        data.WriteGuidMask(guid, 7, 4);
         data.WriteBit(1);
         data.WriteBit(guid[5]);
         data.WriteBits(0, 22); // WP count
         data.WriteBit(guid[6]);
         data.WriteBit(0); // Fake bit
-        data.WriteBit(transport[7]);
-        data.WriteBit(transport[1]);
-        data.WriteBit(transport[3]);
-        data.WriteBit(transport[0]);
-        data.WriteBit(transport[6]);
-        data.WriteBit(transport[4]);
-        data.WriteBit(transport[5]);
-        data.WriteBit(transport[2]);
+        data.WriteGuidMask(transport, 7, 1, 3, 0, 6, 4, 5, 2);
         data.WriteBit(0); // Send no block
         data.WriteBit(0);
-        data.WriteBit(guid[2]);
-        data.WriteBit(guid[1]);
+        data.WriteGuidMask(guid, 2, 1);
 
         data.FlushBits();
 
         data.WriteByteSeq(guid[1]);
-        data.WriteByteSeq(transport[6]);
-        data.WriteByteSeq(transport[4]);
-        data.WriteByteSeq(transport[1]);
-        data.WriteByteSeq(transport[7]);
-        data.WriteByteSeq(transport[0]);
-        data.WriteByteSeq(transport[3]);
-        data.WriteByteSeq(transport[5]);
-        data.WriteByteSeq(transport[2]);
-        data.WriteByteSeq(guid[5]);
-        data.WriteByteSeq(guid[3]);
-        data.WriteByteSeq(guid[6]);
-        data.WriteByteSeq(guid[0]);
-        data.WriteByteSeq(guid[7]);
-        data.WriteByteSeq(guid[2]);
-        data.WriteByteSeq(guid[4]);
+        data.WriteGuidBytes(transport, 6, 4, 1, 7, 0, 3, 5, 2);
+        data.WriteGuidBytes(guid, 5, 3, 6, 0, 7, 2, 4);
     }
 
     void WriteLinearPath(Spline<int32> const& spline, ByteBuffer& data)
@@ -171,14 +149,7 @@ namespace Movement
         if (type == MonsterMoveFacingTarget)
         {
             ObjectGuid targetGuid = moveSpline.facing.target;
-            data.WriteBit(targetGuid[6]);
-            data.WriteBit(targetGuid[4]);
-            data.WriteBit(targetGuid[3]);
-            data.WriteBit(targetGuid[0]);
-            data.WriteBit(targetGuid[5]);
-            data.WriteBit(targetGuid[7]);
-            data.WriteBit(targetGuid[1]);
-            data.WriteBit(targetGuid[2]);
+            data.WriteGuidMask(targetGuid, 6, 4, 3, 0, 5, 7, 1, 2);
         }
 
         data.WriteBit(1);
@@ -194,8 +165,7 @@ namespace Movement
         data.WriteBit(1);
         data.WriteBit(1);
         data.WriteBit(!moveSpline.Duration());
-        data.WriteBit(guid[7]);
-        data.WriteBit(guid[4]);
+        data.WriteGuidMask(guid, 7, 4);
         data.WriteBit(1);
         data.WriteBit(guid[5]);
 
@@ -205,19 +175,11 @@ namespace Movement
         data.WriteBit(guid[6]);
         data.WriteBit(0); // Fake bit
 
-        data.WriteBit(transport[7]);
-        data.WriteBit(transport[1]);
-        data.WriteBit(transport[3]);
-        data.WriteBit(transport[0]);
-        data.WriteBit(transport[6]);
-        data.WriteBit(transport[4]);
-        data.WriteBit(transport[5]);
-        data.WriteBit(transport[2]);
+        data.WriteGuidMask(transport, 7, 1, 3, 0, 6, 4, 5, 2);
 
         data.WriteBit(0); // Send no block
         data.WriteBit(0);
-        data.WriteBit(guid[2]);
-        data.WriteBit(guid[1]);
+        data.WriteGuidMask(guid, 2, 1);
 
         data.FlushBits();
 
@@ -225,14 +187,7 @@ namespace Movement
             WriteLinearPath(moveSpline.spline, data);
 
         data.WriteByteSeq(guid[1]);
-        data.WriteByteSeq(transport[6]);
-        data.WriteByteSeq(transport[4]);
-        data.WriteByteSeq(transport[1]);
-        data.WriteByteSeq(transport[7]);
-        data.WriteByteSeq(transport[0]);
-        data.WriteByteSeq(transport[3]);
-        data.WriteByteSeq(transport[5]);
-        data.WriteByteSeq(transport[2]);
+        data.WriteGuidBytes(transport, 6, 4, 1, 7, 0, 3, 5, 2);
 
         if (moveSpline.splineflags & MoveSplineFlag::UncompressedPath)
         {
@@ -250,14 +205,7 @@ namespace Movement
         if (type == MonsterMoveFacingTarget)
         {
             ObjectGuid targetGuid = moveSpline.facing.target;
-            data.WriteByteSeq(targetGuid[5]);
-            data.WriteByteSeq(targetGuid[7]);
-            data.WriteByteSeq(targetGuid[0]);
-            data.WriteByteSeq(targetGuid[4]);
-            data.WriteByteSeq(targetGuid[3]);
-            data.WriteByteSeq(targetGuid[2]);
-            data.WriteByteSeq(targetGuid[6]);
-            data.WriteByteSeq(targetGuid[1]);
+            data.WriteGuidBytes(targetGuid, 5, 7, 0, 4, 3, 2, 6, 1);
         }
 
         data.WriteByteSeq(guid[5]);
@@ -275,10 +223,7 @@ namespace Movement
         if (type == MonsterMoveFacingPoint)
             data << moveSpline.facing.f.x << moveSpline.facing.f.y << moveSpline.facing.f.z;
 
-        data.WriteByteSeq(guid[0]);
-        data.WriteByteSeq(guid[7]);
-        data.WriteByteSeq(guid[2]);
-        data.WriteByteSeq(guid[4]);
+        data.WriteGuidBytes(guid, 0, 7, 2, 4);
 
         if (moveSpline.Duration())
             data << uint32(moveSpline.Duration());
@@ -349,23 +294,9 @@ namespace Movement
         if (GetMonsterMoveType(moveSpline) == MonsterMoveFacingTarget && !moveSpline.Finalized())
         {
             ObjectGuid facingGuid = moveSpline.facing.target;
-            data.WriteBit(facingGuid[4]);
-            data.WriteBit(facingGuid[7]);
-            data.WriteBit(facingGuid[0]);
-            data.WriteBit(facingGuid[5]);
-            data.WriteBit(facingGuid[1]);
-            data.WriteBit(facingGuid[2]);
-            data.WriteBit(facingGuid[3]);
-            data.WriteBit(facingGuid[6]);
+            data.WriteGuidMask(facingGuid, 4, 7, 0, 5, 1, 2, 3, 6);
 
-            data.WriteByteSeq(facingGuid[4]);
-            data.WriteByteSeq(facingGuid[2]);
-            data.WriteByteSeq(facingGuid[0]);
-            data.WriteByteSeq(facingGuid[5]);
-            data.WriteByteSeq(facingGuid[6]);
-            data.WriteByteSeq(facingGuid[3]);
-            data.WriteByteSeq(facingGuid[1]);
-            data.WriteByteSeq(facingGuid[7]);
+            data.WriteGuidBytes(facingGuid, 4, 2, 0, 5, 6, 3, 1, 7);
         }
     }
 }

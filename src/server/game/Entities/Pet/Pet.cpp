@@ -1214,17 +1214,12 @@ void Pet::_LoadSpellCooldowns()
         uint32 count = 0;
 
         WorldPacket data(SMSG_SPELL_COOLDOWN, 9 + 3 + result->GetRowCount() * 8);
-        data.WriteBit(guid[0]);
-        data.WriteBit(guid[6]);
+        data.WriteGuidMask(guid, 0, 6);
         data.WriteBit(1); // Missing flags
-        data.WriteBit(guid[7]);
-        data.WriteBit(guid[3]);
-        data.WriteBit(guid[1]);
-        data.WriteBit(guid[5]);
+        data.WriteGuidMask(guid, 7, 3, 1, 5);
         size_t bitpos = data.bitwpos();
         data.WriteBits(0, 21);
-        data.WriteBit(guid[2]);
-        data.WriteBit(guid[4]);
+        data.WriteGuidMask(guid, 2, 4);
         data.FlushBits();
 
         do
@@ -1255,14 +1250,7 @@ void Pet::_LoadSpellCooldowns()
         while (result->NextRow());
 
         data.PutBits(bitpos, count, 21);
-        data.WriteByteSeq(guid[5]);
-        data.WriteByteSeq(guid[3]);
-        data.WriteByteSeq(guid[7]);
-        data.WriteByteSeq(guid[4]);
-        data.WriteByteSeq(guid[1]);
-        data.WriteByteSeq(guid[0]);
-        data.WriteByteSeq(guid[2]);
-        data.WriteByteSeq(guid[6]);
+        data.WriteGuidBytes(guid, 5, 3, 7, 4, 1, 0, 2, 6);
 
         if (!m_CreatureSpellCooldowns.empty() && GetOwner())
             GetOwner()->GetSession()->SendPacket(&data);
@@ -1939,17 +1927,12 @@ void Pet::ProhibitSpellSchool(SpellSchoolMask idSchoolMask, uint32 unTimeMs)
         uint32 count = 0;
 
         WorldPacket data(SMSG_SPELL_COOLDOWN, 9 + 3 + m_spells.size() * 8);
-        data.WriteBit(guid[0]);
-        data.WriteBit(guid[6]);
+        data.WriteGuidMask(guid, 0, 6);
         data.WriteBit(1); // Missing flags
-        data.WriteBit(guid[7]);
-        data.WriteBit(guid[3]);
-        data.WriteBit(guid[1]);
-        data.WriteBit(guid[5]);
+        data.WriteGuidMask(guid, 7, 3, 1, 5);
         size_t bitpos = data.bitwpos();
         data.WriteBits(0, 21);
-        data.WriteBit(guid[2]);
-        data.WriteBit(guid[4]);
+        data.WriteGuidMask(guid, 2, 4);
         data.FlushBits();
 
     for (PetSpellMap::const_iterator itr = m_spells.begin(); itr != m_spells.end(); ++itr)
@@ -1982,14 +1965,7 @@ void Pet::ProhibitSpellSchool(SpellSchoolMask idSchoolMask, uint32 unTimeMs)
     }
 
     data.PutBits(bitpos, count, 21);
-    data.WriteByteSeq(guid[5]);
-    data.WriteByteSeq(guid[3]);
-    data.WriteByteSeq(guid[7]);
-    data.WriteByteSeq(guid[4]);
-    data.WriteByteSeq(guid[1]);
-    data.WriteByteSeq(guid[0]);
-    data.WriteByteSeq(guid[2]);
-    data.WriteByteSeq(guid[6]);
+    data.WriteGuidBytes(guid, 5, 3, 7, 4, 1, 0, 2, 6);
 
     if (Player* owner = GetOwner())
         owner->GetSession()->SendPacket(&data);

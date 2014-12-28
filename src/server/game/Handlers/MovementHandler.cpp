@@ -205,9 +205,9 @@ void WorldSession::HandleMoveTeleportAck(WorldPacket& recvPacket)
     uint32 flags, time;
     recvPacket >> time >> flags;
 
-    recvPacket.ReadBitInOrder(guid, new uint8 []{0, 7, 3, 5, 4, 6, 1, 2});
+    recvPacket.ReadGuidMask(guid, 0, 7, 3, 5, 4, 6, 1, 2);
 
-    recvPacket.ReadBytesSeq(guid, new uint8 []{4, 1, 6, 7, 0, 2, 5, 3});
+    recvPacket.ReadGuidBytes(guid, 4, 1, 6, 7, 0, 2, 5, 3);
 
     TC_LOG_DEBUG("network", "Guid " UI64FMTD, uint64(guid));
     TC_LOG_DEBUG("network", "Flags %u, time %u", flags, time/IN_MILLISECONDS);
@@ -504,11 +504,9 @@ void WorldSession::HandleSetActiveMoverOpcode(WorldPacket& recvPacket)
 
     recvPacket.ReadBit();
 
-    uint8 bitOrder[8] = { 3, 0, 2, 1, 5, 4, 7, 6 };
-    recvPacket.ReadBitInOrder(guid, bitOrder);
+    recvPacket.ReadGuidMask(guid, 3, 0, 2, 1, 5, 4, 7, 6);
 
-    uint8 byteOrder[8] = { 3, 4, 5, 2, 7, 0, 1, 6 };
-    recvPacket.ReadBytesSeq(guid, byteOrder);
+    recvPacket.ReadGuidBytes(guid, 3, 4, 5, 2, 7, 0, 1, 6);
 
     if (GetPlayer()->IsInWorld())
     {
@@ -532,11 +530,9 @@ void WorldSession::HandleMountSpecialAnimOpcode(WorldPacket& /*recvData*/)
 
     WorldPacket data(SMSG_MOUNT_SPECIAL_ANIM, 1 + 8);
     
-    uint8 bitOrder[8] = { 5, 7, 0, 3, 2, 1, 4, 6 };
-    data.WriteBitInOrder(guid, bitOrder);
+    data.WriteGuidMask(guid, 5, 7, 0, 3, 2, 1, 4, 6);
 
-    uint8 byteOrder[8] = { 7, 2, 0, 4, 5, 6, 1, 3 };
-    data.WriteBytesSeq(guid, byteOrder);
+    data.WriteGuidBytes(guid, 7, 2, 0, 4, 5, 6, 1, 3);
 
     GetPlayer()->SendMessageToSet(&data, false);
 }
@@ -609,8 +605,7 @@ void WorldSession::HandleMoveSetFly(WorldPacket& recvData)
     recvData.ReadBit();
     playerGuid[7] = recvData.ReadBit();
     bool unkBool4 = !recvData.ReadBit();
-    playerGuid[0] = recvData.ReadBit();
-    playerGuid[2] = recvData.ReadBit();
+    recvData.ReadGuidMask(playerGuid, 0, 2);
     bool unkBool5 = !recvData.ReadBit();
     bool unkBool11 = !recvData.ReadBit();
     playerGuid[1] = recvData.ReadBit();
@@ -623,14 +618,9 @@ void WorldSession::HandleMoveSetFly(WorldPacket& recvData)
     bool unkBool8, unkBool9 = false;
     if (hasTransportData)
     {
-        transportGuid[1] = recvData.ReadBit();
-        transportGuid[3] = recvData.ReadBit();
-        transportGuid[5] = recvData.ReadBit();
+        recvData.ReadGuidMask(transportGuid, 1, 3, 5);
         unkBool8 = recvData.ReadBit();
-        transportGuid[6] = recvData.ReadBit();
-        transportGuid[7] = recvData.ReadBit();
-        transportGuid[2] = recvData.ReadBit();
-        transportGuid[4] = recvData.ReadBit();
+        recvData.ReadGuidMask(transportGuid, 6, 7, 2, 4);
         unkBool9 = recvData.ReadBit();
         transportGuid[0] = recvData.ReadBit();
     }
@@ -645,29 +635,25 @@ void WorldSession::HandleMoveSetFly(WorldPacket& recvData)
     if (hasMovementFlag)
         _player->SetUnitMovementFlags(recvData.ReadBits(30));
 
-    recvData.ReadBytesSeq(playerGuid, new uint8 []{1, 6, 5, 2, 4, 0, 7, 3});
+    recvData.ReadGuidBytes(playerGuid, 1, 6, 5, 2, 4, 0, 7, 3);
 
     for (uint32 i = 0; i < unkCounter; i++)
         recvData.read_skip<uint32>();
 
     if (hasTransportData)
     {
-        recvData.ReadByteSeq(transportGuid[7]);
-        recvData.ReadByteSeq(transportGuid[5]);
-        recvData.ReadByteSeq(transportGuid[1]);
+        recvData.ReadGuidBytes(transportGuid, 7, 5, 1);
         recvData.read_skip<uint32>();
         recvData.read_skip<uint8>();
 
         if (unkBool9)
             recvData.read_skip<uint32>();
 
-        recvData.ReadByteSeq(transportGuid[0]);
-        recvData.ReadByteSeq(transportGuid[4]);
+        recvData.ReadGuidBytes(transportGuid, 0, 4);
         recvData.read_skip<float>();
         recvData.ReadByteSeq(transportGuid[3]);
         recvData.read_skip<float>();
-        recvData.ReadByteSeq(transportGuid[2]);
-        recvData.ReadByteSeq(transportGuid[6]);
+        recvData.ReadGuidBytes(transportGuid, 2, 6);
         recvData.read_skip<float>();
         recvData.read_skip<float>();
 

@@ -37,16 +37,12 @@ void WorldSession::SendBattlePayDistributionUpdate(uint64 playerGuid, int8 bonus
     ObjectGuid guid2 = 0;
 
     WorldPacket data(SMSG_BATTLE_PAY_DISTRIBUTION_UPDATE, 8 + 4 + 8 + bonusText.length() + bonusText2.length() + 8 + 1 + 4 + 4 + 8 + 4 + 4 + 4);
-    data.WriteBit(guid2[5]);
-    data.WriteBit(guid2[0]);
+    data.WriteGuidMask(guid2, 5, 0);
     data.WriteBit(1); // HasBattlePayProduct
     data.WriteBit(guid2[1]);
-    data.WriteBit(guid[4]);
-    data.WriteBit(guid[7]);
-    data.WriteBit(guid[0]);
+    data.WriteGuidMask(guid, 4, 7, 0);
     data.WriteBit(0); // Revoked
-    data.WriteBit(guid[1]);
-    data.WriteBit(guid[2]);
+    data.WriteGuidMask(guid, 1, 2);
     // if (unkBool)
     // {
         data.WriteBits(1, 2);
@@ -68,8 +64,7 @@ void WorldSession::SendBattlePayDistributionUpdate(uint64 playerGuid, int8 bonus
     data.WriteBit(guid[6]);
     data.WriteBit(guid2[2]);
     data.WriteBit(guid[5]);
-    data.WriteBit(guid2[3]);
-    data.WriteBit(guid2[6]);
+    data.WriteGuidMask(guid2, 3, 6);
     data.WriteBit(guid[3]);
     data.WriteBit(guid2[4]);
     data.FlushBits();
@@ -90,24 +85,16 @@ void WorldSession::SendBattlePayDistributionUpdate(uint64 playerGuid, int8 bonus
     data << int32(textId);
     data.WriteByteSeq(guid[4]);
     data << int64(0);
-    data.WriteByteSeq(guid[1]);
-    data.WriteByteSeq(guid[5]);
-    data.WriteByteSeq(guid2[2]);
-    data.WriteByteSeq(guid2[4]);
-    data.WriteByteSeq(guid2[1]);
-    data.WriteByteSeq(guid2[0]);
+    data.WriteGuidBytes(guid, 1, 5);
+    data.WriteGuidBytes(guid2, 2, 4, 1, 0);
     data << int32(0);
     data.WriteByteSeq(guid2[7]);
-    data.WriteByteSeq(guid[0]);
-    data.WriteByteSeq(guid[7]);
+    data.WriteGuidBytes(guid, 0, 7);
     data << int32(0);
     data << int32(bonusFlag);
     data.WriteByteSeq(guid[6]);
-    data.WriteByteSeq(guid2[5]);
-    data.WriteByteSeq(guid2[6]);
-    data.WriteByteSeq(guid2[3]);
-    data.WriteByteSeq(guid[3]);
-    data.WriteByteSeq(guid[2]);
+    data.WriteGuidBytes(guid2, 5, 6, 3);
+    data.WriteGuidBytes(guid, 3, 2);
 
     SendPacket(&data);
 }
@@ -127,37 +114,25 @@ void WorldSession::HandleBattleCharBoost(WorldPacket& recvData)
     recvData.read_skip<uint32>();
     guid[1] = recvData.ReadBit();
     CharacterGUID[0] = recvData.ReadBit();
-    guid[5] = recvData.ReadBit();
-    guid[4] = recvData.ReadBit();
+    recvData.ReadGuidMask(guid, 5, 4);
     CharacterGUID[3] = recvData.ReadBit();
-    guid[6] = recvData.ReadBit();
-    guid[0] = recvData.ReadBit();
+    recvData.ReadGuidMask(guid, 6, 0);
     CharacterGUID[5] = recvData.ReadBit();
-    guid[3] = recvData.ReadBit();
-    guid[7] = recvData.ReadBit();
+    recvData.ReadGuidMask(guid, 3, 7);
     CharacterGUID[1] = recvData.ReadBit();
     guid[2] = recvData.ReadBit();
     CharacterGUID[2] = recvData.ReadBit();
     hasCharInfo = !recvData.ReadBit();
-    CharacterGUID[7] = recvData.ReadBit();
-    CharacterGUID[4] = recvData.ReadBit();
-    CharacterGUID[6] = recvData.ReadBit();
+    recvData.ReadGuidMask(CharacterGUID, 7, 4, 6);
 
     recvData.ReadByteSeq(CharacterGUID[2]);
     recvData.ReadByteSeq(guid[0]);
-    recvData.ReadByteSeq(CharacterGUID[0]);
-    recvData.ReadByteSeq(CharacterGUID[7]);
+    recvData.ReadGuidBytes(CharacterGUID, 0, 7);
     recvData.ReadByteSeq(guid[7]);
     recvData.ReadByteSeq(CharacterGUID[3]);
-    recvData.ReadByteSeq(guid[6]);
-    recvData.ReadByteSeq(guid[4]);
-    recvData.ReadByteSeq(guid[5]);
-    recvData.ReadByteSeq(CharacterGUID[1]);
-    recvData.ReadByteSeq(CharacterGUID[6]);
-    recvData.ReadByteSeq(CharacterGUID[4]);
-    recvData.ReadByteSeq(guid[1]);
-    recvData.ReadByteSeq(guid[2]);
-    recvData.ReadByteSeq(guid[3]);
+    recvData.ReadGuidBytes(guid, 6, 4, 5);
+    recvData.ReadGuidBytes(CharacterGUID, 1, 6, 4);
+    recvData.ReadGuidBytes(guid, 1, 2, 3);
     recvData.ReadByteSeq(CharacterGUID[5]);
 
     if (hasCharInfo)
@@ -170,8 +145,8 @@ void WorldSession::HandleBattleCharBoost(WorldPacket& recvData)
 
         WorldPacket data(SMSG_CHARACTER_UPGRADE_STARTED, 8);
 
-        data.WriteBitInOrder(CharacterGUID, new uint8[] { 6, 2, 5, 4, 7, 0, 3, 1 });
-        data.WriteBytesSeq(CharacterGUID, new uint8[] { 4, 1, 6, 0, 7, 5, 2, 3 });
+        data.WriteGuidMask(CharacterGUID, 6, 2, 5, 4, 7, 0, 3, 1);
+        data.WriteGuidBytes(CharacterGUID, 4, 1, 6, 0, 7, 5, 2, 3);
 
         SendPacket(&data);
     }

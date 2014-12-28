@@ -397,23 +397,9 @@ void BattlePetMgr::SendBattlePetDeleted(uint64 id)
     ObjectGuid petEntry = id;
 
     WorldPacket data(SMSG_BATTLE_PET_DELETED, 1 + 8);
-    data.WriteBit(petEntry[0]);
-    data.WriteBit(petEntry[4]);
-    data.WriteBit(petEntry[7]);
-    data.WriteBit(petEntry[6]);
-    data.WriteBit(petEntry[1]);
-    data.WriteBit(petEntry[5]);
-    data.WriteBit(petEntry[2]);
-    data.WriteBit(petEntry[3]);
+    data.WriteGuidMask(petEntry, 0, 4, 7, 6, 1, 5, 2, 3);
 
-    data.WriteByteSeq(petEntry[6]);
-    data.WriteByteSeq(petEntry[1]);
-    data.WriteByteSeq(petEntry[7]);
-    data.WriteByteSeq(petEntry[0]);
-    data.WriteByteSeq(petEntry[4]);
-    data.WriteByteSeq(petEntry[3]);
-    data.WriteByteSeq(petEntry[5]);
-    data.WriteByteSeq(petEntry[2]);
+    data.WriteGuidBytes(petEntry, 6, 1, 7, 0, 4, 3, 5, 2);
 
     m_owner->GetSession()->SendPacket(&data);
 }
@@ -452,16 +438,12 @@ void BattlePetMgr::SendBattlePetJournal()
         ObjectGuid petEntry = battlePet->GetId();
 
         data.WriteBit(!battlePet->GetFlags());
-        data.WriteBit(petEntry[3]);
-        data.WriteBit(petEntry[7]);
+        data.WriteGuidMask(petEntry, 3, 7);
         data.WriteBits(battlePet->GetNickname().size(), 7);
         data.WriteBit(0);                       // BATTLE_PET_FLAG_NOT_ACCOUNT_BOUND
-        data.WriteBit(petEntry[0]);
-        data.WriteBit(petEntry[2]);
-        data.WriteBit(petEntry[6]);
+        data.WriteGuidMask(petEntry, 0, 2, 6);
         data.WriteBit(0);                       // unknown
-        data.WriteBit(petEntry[1]);
-        data.WriteBit(petEntry[5]);
+        data.WriteGuidMask(petEntry, 1, 5);
         data.WriteBit(!battlePet->GetBreed());
         data.WriteBit(petEntry[4]);
         data.WriteBit(!battlePet->GetQuality());
@@ -487,14 +469,11 @@ void BattlePetMgr::SendBattlePetJournal()
         journalData << uint32(creatureTemplate->Modelid1);
         journalData << uint32(battlePet->GetSpeed());
         journalData.WriteString(battlePet->GetNickname());
-        journalData.WriteByteSeq(petEntry[6]);
-        journalData.WriteByteSeq(petEntry[5]);
+        journalData.WriteGuidBytes(petEntry, 6, 5);
         journalData << uint32(battlePet->GetMaxHealth());
         journalData.WriteByteSeq(petEntry[4]);
         journalData << uint16(battlePet->GetXp());
-        journalData.WriteByteSeq(petEntry[0]);
-        journalData.WriteByteSeq(petEntry[1]);
-        journalData.WriteByteSeq(petEntry[3]);
+        journalData.WriteGuidBytes(petEntry, 0, 1, 3);
 
         petCount++;
     }
@@ -510,23 +489,9 @@ void BattlePetMgr::SendBattlePetJournal()
         data.WriteBit(1);                       // unknown
         data.WriteBit(0);                       // has slot number
         data.WriteBit(0);                       // fake
-        data.WriteBit(loadoutEntry[0]);
-        data.WriteBit(loadoutEntry[1]);
-        data.WriteBit(loadoutEntry[7]);
-        data.WriteBit(loadoutEntry[6]);
-        data.WriteBit(loadoutEntry[4]);
-        data.WriteBit(loadoutEntry[2]);
-        data.WriteBit(loadoutEntry[5]);
-        data.WriteBit(loadoutEntry[3]);
+        data.WriteGuidMask(loadoutEntry, 0, 1, 7, 6, 4, 2, 5, 3);
 
-        slotData.WriteByteSeq(loadoutEntry[5]);
-        slotData.WriteByteSeq(loadoutEntry[1]);
-        slotData.WriteByteSeq(loadoutEntry[7]);
-        slotData.WriteByteSeq(loadoutEntry[2]);
-        slotData.WriteByteSeq(loadoutEntry[3]);
-        slotData.WriteByteSeq(loadoutEntry[0]);
-        slotData.WriteByteSeq(loadoutEntry[4]);
-        slotData.WriteByteSeq(loadoutEntry[6]);
+        slotData.WriteGuidBytes(loadoutEntry, 5, 1, 7, 2, 3, 0, 4, 6);
         slotData << uint8(i);
     }
 
@@ -553,28 +518,14 @@ void BattlePetMgr::SendBattlePetSlotUpdate(uint8 slot, bool notification, uint64
         data.WriteBit(1);               // unknown
         data.WriteBit(0);               // unknown
         data.WriteBit(0);               // fake
-        data.WriteBit(petEntry[4]);
-        data.WriteBit(petEntry[5]);
-        data.WriteBit(petEntry[2]);
-        data.WriteBit(petEntry[1]);
-        data.WriteBit(petEntry[0]);
-        data.WriteBit(petEntry[3]);
-        data.WriteBit(petEntry[7]);
-        data.WriteBit(petEntry[6]);
+        data.WriteGuidMask(petEntry, 4, 5, 2, 1, 0, 3, 7, 6);
     }
 
     data.WriteBit(notification);
     data.FlushBits();
 
     {
-        data.WriteByteSeq(petEntry[0]);
-        data.WriteByteSeq(petEntry[3]);
-        data.WriteByteSeq(petEntry[2]);
-        data.WriteByteSeq(petEntry[1]);
-        data.WriteByteSeq(petEntry[6]);
-        data.WriteByteSeq(petEntry[4]);
-        data.WriteByteSeq(petEntry[5]);
-        data.WriteByteSeq(petEntry[7]);
+        data.WriteGuidBytes(petEntry, 0, 3, 2, 1, 6, 4, 5, 7);
         data << uint8(slot);
     }
 
@@ -591,9 +542,7 @@ void BattlePetMgr::SendBattlePetUpdate(BattlePet* battlePet, bool notification)
 
     WorldPacket data(SMSG_BATTLE_PET_UPDATE, 4 + 1 + 8 + battlePet->GetNickname().size() + 4 + 4 + 4 + 4 + 2 + 4 + 4 + 1 + 2 + 2 + 4 + 2);
     data.WriteBits(1, 19);
-    data.WriteBit(petEntry[4]);
-    data.WriteBit(petEntry[1]);
-    data.WriteBit(petEntry[7]);
+    data.WriteGuidMask(petEntry, 4, 1, 7);
     data.WriteBit(!battlePet->GetQuality());
     data.WriteBit(!battlePet->GetBreed());
     data.WriteBit(petEntry[5]);
@@ -601,8 +550,7 @@ void BattlePetMgr::SendBattlePetUpdate(BattlePet* battlePet, bool notification)
     data.WriteBit(petEntry[2]);
     data.WriteBit(!battlePet->GetFlags());
     data.WriteBit(0);                           // BATTLE_PET_FLAG_NOT_ACCOUNT_BOUND
-    data.WriteBit(petEntry[6]);
-    data.WriteBit(petEntry[3]);
+    data.WriteGuidMask(petEntry, 6, 3);
     data.WriteBits(battlePet->GetNickname().size(), 7);
     data.WriteBit(petEntry[0]);
     data.WriteBit(notification);
@@ -627,8 +575,7 @@ void BattlePetMgr::SendBattlePetUpdate(BattlePet* battlePet, bool notification)
     if (battlePet->GetQuality())
         data << uint8(battlePet->GetQuality());
 
-    data.WriteByteSeq(petEntry[2]);
-    data.WriteByteSeq(petEntry[3]);
+    data.WriteGuidBytes(petEntry, 2, 3);
     data << uint16(battlePet->GetXp());
     data.WriteByteSeq(petEntry[7]);
 

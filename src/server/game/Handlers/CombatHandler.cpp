@@ -33,9 +33,9 @@ void WorldSession::HandleAttackSwingOpcode(WorldPacket& recvData)
 {
     ObjectGuid guid;
 
-    recvData.ReadBitInOrder(guid, new uint8 []{6, 5, 7, 0, 3, 1, 4, 2});
+    recvData.ReadGuidMask(guid, 6, 5, 7, 0, 3, 1, 4, 2);
 
-    recvData.ReadBytesSeq(guid, new uint8 []{6, 7, 1, 3, 2, 0, 4, 5});
+    recvData.ReadGuidBytes(guid, 6, 7, 1, 3, 2, 0, 4, 5);
 
     TC_LOG_DEBUG("network", "WORLD: Recvd CMSG_ATTACK_SWING Message guidlow:%u guidhigh:%u", GUID_LOPART(guid), GUID_HIPART(guid));
 
