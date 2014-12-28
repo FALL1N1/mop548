@@ -344,6 +344,7 @@ enum Difficulty
     SCENARIO_DIFFICULTY                 = 12,   // difficulty_entry_12
                                                 // difficulty_entry_13
     RAID_DIFFICULTY_FLEXIBLE            = 14,   // difficulty_entry_14
+    DUNGEON_DIFFICULTY_MAX              = 15
 };
 
 #define MAX_DUNGEON_DIFFICULTY     DUNGEON_DIFFICULTY_CHALLENGE + 1

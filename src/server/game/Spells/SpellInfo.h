@@ -237,6 +237,7 @@ class SpellEffectInfo
     SpellInfo const* _spellInfo;
     uint8 _effIndex;
 public:
+    uint32    EffectIndex;
     uint32    Effect;
     uint32    ApplyAuraName;
     uint32    Amplitude;
@@ -244,9 +245,9 @@ public:
     float     RealPointsPerLevel;
     int32     BasePoints;
     float     PointsPerComboPoint;
+    float     SpellPowerCoeff;
     float     ValueMultiplier;
     float     DamageMultiplier;
-    float     BonusMultiplier;
     int32     MiscValue;
     int32     MiscValueB;
     Mechanics Mechanic;
@@ -300,6 +301,14 @@ private:
     };
     static StaticData _data[TOTAL_SPELL_EFFECTS];
 };
+
+typedef std::vector<SpellEffectInfo const*> SpellEffectInfoVector;
+typedef std::unordered_map<uint32, SpellEffectInfoVector> SpellEffectInfoMap;
+
+typedef std::vector<SpellEffectEntry const*> SpellEffectEntryVector;
+typedef std::unordered_map<uint32, SpellEffectEntryVector> SpellEffectEntryMap;
+
+typedef std::vector<AuraEffect*> AuraEffectVector;
 
 class SpellInfo
 {
@@ -538,6 +547,13 @@ public:
 
     // unloading helpers
     void _UnloadImplicitTargetConditionLists();
+
+    SpellEffectInfoVector GetEffectsForDifficulty(uint32 difficulty) const;
+    SpellEffectInfo const* GetEffect(uint32 difficulty, uint32 index) const;
+    SpellEffectInfo const* GetEffect(uint32 index) const { return GetEffect(REGULAR_DIFFICULTY, index); }
+    SpellEffectInfo const* GetEffect(WorldObject* obj, uint32 index) const { return GetEffect(obj->GetMap()->GetDifficulty(), index); }
+
+    SpellEffectInfoMap _effects;
 };
 
 #endif // _SPELLINFO_H
