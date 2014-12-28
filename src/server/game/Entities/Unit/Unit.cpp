@@ -9257,7 +9257,7 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uin
         DoneAdvertisedBenefit += ((Guardian*)this)->GetBonusDamage();
 
     // Check for table values
-    float coeff = spellProto->GetEffect(effIndex)->SpellPowerCoeff;
+    float coeff = spellProto->Effects[effIndex].SpellPowerCoeff;
     
     // This field seems to be not present in DBC.. check better
     /*
@@ -9349,7 +9349,7 @@ uint32 Unit::SpellDamageBonusTaken(Unit* caster, SpellInfo const* spellProto, ui
     int32 TakenAdvertisedBenefit = SpellBaseDamageBonusTaken(spellProto->GetSchoolMask());
 
     // Check for table values
-    float coeff = spellProto->GetEffect(effIndex)->SpellPowerCoeff;
+    float coeff = spellProto->Effects[effIndex].SpellPowerCoeff;
 
     // Default calculation
     if (TakenAdvertisedBenefit)
@@ -9804,7 +9804,7 @@ uint32 Unit::SpellHealingBonusDone(Unit* victim, SpellInfo const* spellProto, ui
         }
 
     // Check for table values
-    float coeff = spellProto->GetEffect(effIndex)->SpellPowerCoeff;
+        float coeff = spellProto->Effects[effIndex].SpellPowerCoeff;
     float factorMod = 1.0f;
     
     // This field is not present in DBC check where is savede MELEE BONUS spell
@@ -9900,7 +9900,7 @@ uint32 Unit::SpellHealingBonusTaken(Unit* caster, SpellInfo const* spellProto, u
     }
 
     // Check for table values
-    float coeff = spellProto->GetEffect(effIndex)->SpellPowerCoeff;
+    float coeff = spellProto->Effects[effIndex].SpellPowerCoeff;
     float factorMod = 1.0f;
     if (coeff <= 0.0f)
     {
