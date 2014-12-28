@@ -2157,7 +2157,7 @@ struct SpellEffectEntry
     uint32    EffectApplyAuraName;                          // 4         m_effectAura
     uint32    EffectAmplitude;                              // 5         m_effectAuraPeriod
     int32     EffectBasePoints;                             // 6         m_effectBasePoints (don't must be used in spell/auras explicitly, must be used cached Spell::m_currentBasePoints)
-    float     EffectBonusMultiplier;                        // 7         m_effectBonus
+    float     EffectSpellPowerCoeff;                        // 7         m_effectSpellpowerCoeff
     float     EffectDamageMultiplier;                       // 8         m_effectChainAmplitude
     uint32    EffectChainTarget;                            // 9         m_effectChainTargets
     int32     EffectDieSides;                               // 10         m_effectDieSides
@@ -2171,12 +2171,12 @@ struct SpellEffectEntry
     float     EffectRealPointsPerLevel;                     // 18        m_effectRealPointsPerLevel
     flag128   EffectSpellClassMask;                         // 19 20 21 22 m_effectSpellClassMask1(2/3), effect 0
     uint32    EffectTriggerSpell;                           // 23        m_effectTriggerSpell
-    //uint32  Unk0                                          // 24        unk - Pandaria
+    float     EffectPosFacing;                              // 24
     uint32    EffectImplicitTargetA;                        // 25        m_implicitTargetA
     uint32    EffectImplicitTargetB;                        // 26        m_implicitTargetB
     uint32    EffectSpellId;                                // 27        new 4.0.0
     uint32    EffectIndex;                                  // 28        new 4.0.0
-    //uint32  Unk0                                          // 29        4.2.0 only 0 or 1
+    uint32    EffectAttributes;                             // 29
 };
 
 #define MAX_SPELL_EFFECTS 32

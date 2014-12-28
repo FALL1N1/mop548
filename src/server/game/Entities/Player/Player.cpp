@@ -29214,7 +29214,7 @@ float Player::GetMasterySpellCoefficient() const
 
     // retrieve the mastery value multiplier from the mastery spell base points
     if (SpellInfo const* mastery = sSpellMgr->GetSpellInfo(specEntry->specializationSpell))
-        return (GetFloatValue(PLAYER_FIELD_MASTERY) * mastery->Effects[EFFECT_0].BonusMultiplier);
+        return (GetFloatValue(PLAYER_FIELD_MASTERY) * mastery->Effects[EFFECT_0].SpellPowerCoeff);
 
     return 1.0f;
 }
