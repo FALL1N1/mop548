@@ -326,7 +326,48 @@ public:
             if (type == "")
                 break;
 
-            if (type == "uint8")
+            if (type == "flush")
+            {
+                data.FlushBits();
+            }
+            else if (type == "bit")
+            {
+                uint32 bit;
+                parsedStream >> bit;
+                
+            }
+            else if (type == "bitseq")
+            {
+                uint32 size, bit;
+                parsedStream >> size;
+                for (uint32 i = 0; i < size; i++) {
+                    parsedStream >> bit;
+                    data.WriteBit(bit);
+                }
+            }
+            else if (type == "bits")
+            {
+                uint32 bit, size;
+                parsedStream >> bit >> size;
+                data.WriteBits(bit, size_t(size));
+            }
+            else if (type == "byte")
+            {
+                uint8 byte;
+                parsedStream >> byte;
+                data.WriteByteSeq(uint8(byte));
+            }
+            else if (type == "byteseq")
+            {
+                uint16 byte;
+                uint32 size;
+                parsedStream >> size;
+                for (uint32 i = 0; i < size; i++) {
+                    parsedStream >> byte;
+                    data.WriteByteSeq(uint8(byte));
+                }
+            }
+            else if (type == "uint8")
             {
                 uint16 val1;
                 parsedStream >> val1;

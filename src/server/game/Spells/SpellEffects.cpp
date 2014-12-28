@@ -6073,6 +6073,35 @@ void Spell::EffectCreateAreaTrigger(SpellEffIndex effIndex)
     AreaTrigger * areaTrigger = new AreaTrigger;
     if (!areaTrigger->CreateAreaTrigger(sObjectMgr->GenerateLowGuid(HIGHGUID_AREATRIGGER), triggerEntry, GetCaster(), GetSpellInfo(), pos))
         delete areaTrigger;
+
+    // TODO: Find a better place for this
+    switch (m_spellInfo->Id)
+    {
+        case 116011: // Rune of Power
+        {
+            int32 count = m_caster->CountAreaTrigger(m_spellInfo->Id);
+
+            if (count > 2)
+            {
+                std::list<AreaTrigger*> runeOfPowerList;
+                m_caster->GetAreaTriggerList(runeOfPowerList, m_spellInfo->Id);
+
+                if (!runeOfPowerList.empty())
+                {
+                    runeOfPowerList.sort(Trinity::AreaTriggerDurationPctOrderPred());
+
+                    for (auto itr : runeOfPowerList)
+                    {
+                        AreaTrigger* runeOfPower = itr;
+                        runeOfPower->SetDuration(0);
+                        break;
+                    }
+                }
+            }
+
+            break;
+        }
+    }
 }
 
 void Spell::EffectRemoveTalent(SpellEffIndex effIndex)

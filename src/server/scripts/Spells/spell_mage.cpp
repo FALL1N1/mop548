@@ -52,7 +52,16 @@ enum MageSpells
     SPELL_MAGE_COMBUSTION_IMPACT            = 118271,
     SPELL_MAGE_INFERNO_BLAST                = 108853,
     SPELL_MAGE_INFERNO_BLAST_IMPACT         = 118280,
+    SPELL_MAGE_NETHER_BOMB                  = 114923,
+    SPELL_MAGE_LIVING_BOMB                  = 44457,
+    SPELL_MAGE_FROST_BOMB                   = 112948,
     SPELL_MAGE_LIVING_BOMB_TRIGGERED        = 44461,
+    SPELL_MAGE_FROST_BOMB_TRIGGERED         = 113092,
+    SPELL_MAGE_NETHER_TEMPEST_DIRECT_DAMAGE = 114954,
+    SPELL_MAGE_NETHER_TEMPEST_VISUAL        = 114924,
+    SPELL_MAGE_NETHER_TEMPEST_MISSILE       = 114956,
+    SPELL_MAGE_PYROMANIAC_AURA              = 132209,
+    SPELL_MAGE_PYROMANIAC_DAMAGE_DONE       = 132210,
     SPELL_MAGE_BRAIN_FREEZE                 = 44549,
     SPELL_MAGE_BRAIN_FREEZE_TRIGGERED       = 57761,
     SPELL_MAGE_IGNITE                       = 12654,
@@ -1005,44 +1014,6 @@ public:
     }
 };
 
-class spell_mage_living_bomb : public SpellScriptLoader
-{
-public:
-    spell_mage_living_bomb() : SpellScriptLoader("spell_mage_living_bomb") { }
-
-    class spell_mage_living_bomb_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_mage_living_bomb_AuraScript);
-
-        void AfterRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
-        {
-            AuraRemoveMode removeMode = GetTargetApplication()->GetRemoveMode();
-            if (removeMode != AURA_REMOVE_BY_DEATH && removeMode != AURA_REMOVE_BY_EXPIRE)
-                return;
-
-            Unit* caster = GetCaster();
-            if (!caster)
-                return;
-
-            caster->CastSpell(GetTarget(), SPELL_MAGE_LIVING_BOMB_TRIGGERED, true);
-
-            if (caster->HasAura(SPELL_MAGE_BRAIN_FREEZE))
-                caster->CastSpell(caster, SPELL_MAGE_BRAIN_FREEZE_TRIGGERED, true);
-
-        }
-
-        void Register()
-        {
-            AfterEffectRemove += AuraEffectRemoveFn(spell_mage_living_bomb_AuraScript::AfterRemove, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-        }
-    };
-
-    AuraScript* GetAuraScript() const
-    {
-        return new spell_mage_living_bomb_AuraScript();
-    }
-};
-
 class spell_mage_mastery_ignite : public SpellScriptLoader
 {
 public:
@@ -1479,6 +1450,164 @@ public:
     }
 };
 
+// Called by Nether Tempest - 114923, Frost Bomb - 112948 and Living Bomb - 44457
+// Pyromaniac - 132209
+class spell_mage_pyromaniac : public SpellScriptLoader
+{
+public:
+    spell_mage_pyromaniac() : SpellScriptLoader("spell_mage_pyromaniac") { }
+
+    class spell_mage_pyromaniac_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_mage_pyromaniac_SpellScript);
+
+        void HandleOnHit()
+        {
+            if (Player* _player = GetCaster()->ToPlayer())
+            if (Unit* target = GetHitUnit())
+            if (_player->HasAura(SPELL_MAGE_PYROMANIAC_AURA))
+                _player->CastSpell(target, SPELL_MAGE_PYROMANIAC_DAMAGE_DONE, true);
+        }
+
+        void Register()
+        {
+            OnHit += SpellHitFn(spell_mage_pyromaniac_SpellScript::HandleOnHit);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_mage_pyromaniac_SpellScript();
+    }
+};
+
+class CheckNetherImpactPredicate
+{
+    public:
+        CheckNetherImpactPredicate(Unit* caster, Unit* mainTarget) : _caster(caster), _mainTarget(mainTarget) {}
+
+        bool operator()(Unit* target)
+        {
+            if (!_caster || !_mainTarget)
+                return true;
+
+            if (!_caster->IsValidAttackTarget(target))
+                return true;
+
+            if (!target->IsWithinLOSInMap(_caster))
+                return true;
+
+            if (!_caster->isInFront(target))
+                return true;
+
+            if (target->GetGUID() == _caster->GetGUID())
+                return true;
+
+            if (target->GetGUID() == _mainTarget->GetGUID())
+                return true;
+
+            return false;
+        }
+
+    private:
+        Unit* _caster;
+        Unit* _mainTarget;
+};
+
+class spell_mage_magic_bomb : public SpellScriptLoader
+{
+    public:
+        spell_mage_magic_bomb(const char* name, uint32 spellId) : SpellScriptLoader(name), _spellId(spellId) { }
+
+        class spell_mage_magic_bomb_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_mage_magic_bomb_AuraScript);
+
+            public:
+                spell_mage_magic_bomb_AuraScript(uint32 spellId) : AuraScript(), _spellId(spellId) { }
+
+                void AfterRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+                {
+                    if (Unit* caster = GetCaster()) {
+                        AuraRemoveMode removeMode = GetTargetApplication()->GetRemoveMode();
+
+                        switch (_spellId) {
+                            case SPELL_MAGE_LIVING_BOMB:
+                                if (removeMode != AURA_REMOVE_BY_DEATH && removeMode != AURA_REMOVE_BY_EXPIRE)
+                                    return;
+
+                                caster->CastSpell(GetTarget(), SPELL_MAGE_LIVING_BOMB_TRIGGERED, true);
+
+                                if (caster->HasAura(SPELL_MAGE_BRAIN_FREEZE))
+                                    caster->CastSpell(caster, SPELL_MAGE_BRAIN_FREEZE_TRIGGERED, true);
+                                break;
+                            case SPELL_MAGE_FROST_BOMB:
+                                if (removeMode != AURA_REMOVE_BY_EXPIRE)
+                                    return;
+
+                                caster->CastSpell(GetTarget(), SPELL_MAGE_FROST_BOMB_TRIGGERED, true);
+
+                                if (caster->HasAura(SPELL_MAGE_BRAIN_FREEZE))
+                                    caster->CastSpell(caster, SPELL_MAGE_BRAIN_FREEZE_TRIGGERED, true);
+                                break;
+                        }
+                    }
+                }
+
+                void OnTick(AuraEffect const* aurEff)
+                {
+                    if (Unit* caster = GetCaster())
+                    {
+                        if (Player* _player = caster->ToPlayer())
+                        {
+                            std::list<Unit*> targetList;
+
+                            GetTarget()->GetAttackableUnitListInRange(targetList, 10.0f);
+                            targetList.remove_if(CheckNetherImpactPredicate(_player, GetTarget()));
+
+                            Trinity::Containers::RandomResizeList(targetList, 1);
+
+                            for (auto itr : targetList)
+                            {
+                                caster->CastSpell(itr, SPELL_MAGE_NETHER_TEMPEST_DIRECT_DAMAGE, true);
+                                caster->CastSpell(itr, SPELL_MAGE_NETHER_TEMPEST_VISUAL, true);
+                                caster->CastSpell(itr, SPELL_MAGE_NETHER_TEMPEST_MISSILE, true);
+                            }
+
+                            if (caster->HasAura(SPELL_MAGE_BRAIN_FREEZE))
+                            if (roll_chance_i(10))
+                                caster->CastSpell(caster, SPELL_MAGE_BRAIN_FREEZE_TRIGGERED, true);
+                        }
+                    }
+                }
+
+                void Register()
+                {
+                    switch (_spellId) {
+                        case SPELL_MAGE_NETHER_BOMB:
+                            OnEffectPeriodic += AuraEffectPeriodicFn(spell_mage_magic_bomb_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+                            break;
+                        case SPELL_MAGE_LIVING_BOMB:
+                            AfterEffectRemove += AuraEffectRemoveFn(spell_mage_magic_bomb_AuraScript::AfterRemove, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                            break;
+                        case SPELL_MAGE_FROST_BOMB:
+                            AfterEffectRemove += AuraEffectRemoveFn(spell_mage_magic_bomb_AuraScript::AfterRemove, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                            break;
+                    }
+                }
+
+            private:
+                uint32 _spellId;
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_mage_magic_bomb_AuraScript(_spellId);
+        }
+    private:
+        uint32 _spellId;
+};
+
 void AddSC_mage_spell_scripts()
 {
     new spell_mage_conjure_refreshment();
@@ -1498,7 +1627,10 @@ void AddSC_mage_spell_scripts()
     new spell_mage_ice_lance();
     new spell_mage_deep_freeze();
     new spell_mage_combustion();
-    new spell_mage_living_bomb();
+    new spell_mage_pyromaniac();                    // SpellID: 132209 (44457, 112948, 114923)
+    new spell_mage_magic_bomb("spell_mage_nether_bomb", SPELL_MAGE_NETHER_BOMB);
+    new spell_mage_magic_bomb("spell_mage_living_bomb", SPELL_MAGE_LIVING_BOMB);
+    new spell_mage_magic_bomb("spell_mage_frost_bomb",  SPELL_MAGE_FROST_BOMB);
     new spell_mage_mastery_ignite();
     new spell_mage_mastery_icicles();
     new spell_mage_icicle_trigger();

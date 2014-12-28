@@ -18,12 +18,15 @@
  */
 
 #include "ObjectAccessor.h"
+#include "GridNotifiersImpl.h"
+#include "CellImpl.h"
+#include "GridNotifiers.h"
 #include "Unit.h"
 #include "SpellInfo.h"
 #include "Log.h"
 #include "AreaTrigger.h"
 
-AreaTrigger::AreaTrigger() : WorldObject(false), _duration(0)
+AreaTrigger::AreaTrigger() : WorldObject(false), _duration(0), m_caster(NULL), m_visualRadius(0.0f)
 {
     m_objectType |= TYPEMASK_AREATRIGGER;
     m_objectTypeId = TYPEID_AREATRIGGER;
@@ -35,6 +38,7 @@ AreaTrigger::AreaTrigger() : WorldObject(false), _duration(0)
 
 AreaTrigger::~AreaTrigger()
 {
+    ASSERT(!m_caster);
 }
 
 void AreaTrigger::AddToWorld()
@@ -44,6 +48,7 @@ void AreaTrigger::AddToWorld()
     {
         sObjectAccessor->AddObject(this);
         WorldObject::AddToWorld();
+        BindToCaster();
     }
 }
 
@@ -52,9 +57,7 @@ void AreaTrigger::RemoveFromWorld()
     ///- Remove the AreaTrigger from the accessor and from all lists of objects in world
     if (IsInWorld())
     {
-        if (!IsInWorld())
-            return;
-
+        UnbindFromCaster();
         WorldObject::RemoveFromWorld();
         sObjectAccessor->RemoveObject(this);
     }
@@ -81,9 +84,14 @@ bool AreaTrigger::CreateAreaTrigger(uint32 guidlow, uint32 triggerEntry, Unit* c
     SetUInt32Value(AREATRIGGER_FIELD_SPELL_VISUAL_ID, spell->SpellVisual[0]);
     SetUInt32Value(AREATRIGGER_FIELD_DURATION, spell->GetDuration());
     SetUInt32Value(AREATRIGGER_FIELD_EXPLICIT_SCALE, 1);
-    //SetFloatValue(AREATRIGGER_FINAL_POS + 0, pos.GetPositionX());
-    //SetFloatValue(AREATRIGGER_FINAL_POS + 1, pos.GetPositionY());
-    //SetFloatValue(AREATRIGGER_FINAL_POS + 2, pos.GetPositionZ());
+
+    // TODO: Find a better place for this
+    switch (spell->Id)
+    {
+        case 116011: // Rune of Power
+            SetVisualRadius(3.5f);
+            break;
+    }
 
     if (!GetMap()->AddToMap(this))
         return false;
@@ -99,12 +107,75 @@ void AreaTrigger::Update(uint32 p_time)
         Remove(); // expired
 
     WorldObject::Update(p_time);
+
+    // TODO: Find a better place for this
+
+    SpellInfo const* m_spellInfo = sSpellMgr->GetSpellInfo(GetUInt32Value(AREATRIGGER_FIELD_SPELL_ID));
+    if (!m_spellInfo)
+        return;
+
+    if (!GetCaster())
+    {
+        Remove();
+        return;
+    }
+
+    Unit* caster = GetCaster();
+    float radius = 0.0f;
+
+    switch (m_spellInfo->Id)
+    {
+        case 116011: // Rune of Power
+        {
+            std::list<Unit*> targetList;
+            bool affected = false;
+            radius = 2.25f;
+
+            Trinity::AnyFriendlyUnitInRangeCheck u_check(caster, radius);
+            Trinity::UnitListSearcher<Trinity::AnyFriendlyUnitInRangeCheck> searcher(caster, targetList, u_check);
+            caster->VisitNearbyObject(radius, searcher);
+
+            if (!targetList.empty())
+            {
+                for (auto itr : targetList)
+                {
+                    if (/*itr->GetGUID() == caster->GetGUID() ||*/ itr->GetEntry() == 60199 && itr->GetOwnerGUID() == caster->GetGUID())
+                    {
+                        affected = true;
+
+                        if (!caster->HasAura(116014))
+                            caster->CastSpell(caster, 116014, true);
+
+                        return;
+                    }
+                }
+            }
+
+            if (!affected && caster->HasAura(116014))
+                caster->RemoveAura(116014);
+
+            break;
+        }
+    }
 }
 
 void AreaTrigger::Remove()
 {
     if (IsInWorld())
     {
+        // TODO: Find a better place for this
+        SpellInfo const* m_spellInfo = sSpellMgr->GetSpellInfo(GetUInt32Value(AREATRIGGER_FIELD_SPELL_ID));
+        if (!m_spellInfo)
+            return;
+
+        switch (m_spellInfo->Id)
+        {
+            case 116011: // Rune of Power : Remove the buff if caster is still in radius
+                if (m_caster && m_caster->HasAura(116014))
+                    m_caster->RemoveAura(116014);
+                break;
+        }
+
         SendObjectDeSpawnAnim(GetGUID());
         RemoveFromWorld();
         AddObjectToRemoveList();

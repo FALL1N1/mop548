@@ -22492,14 +22492,16 @@ void Player::AddSpellMod(SpellModifier* mod, bool apply)
     TC_LOG_DEBUG("spells", "Player::AddSpellMod %d", mod->spellId);
 
     Opcodes opcode = Opcodes((mod->type == SPELLMOD_FLAT) ? SMSG_SET_FLAT_SPELL_MODIFIER : SMSG_SET_PCT_SPELL_MODIFIER);
+
     int i = 0;
     flag128 _mask = 0;
     uint32 modTypeCount = 0;    // count of mods per one mod->op
+
+    ByteBuffer dataBuffer;
     WorldPacket data(opcode);
+
     data.WriteBits(1, 22);      // count of different mod->op's in packet
-    size_t writePos = data.wpos();
-    data.WriteBits(modTypeCount, 21);
-    data << uint8(mod->op);
+
     for (int eff = 0; eff < 128; ++eff)
     {
         if (eff != 0 && (eff % 32) == 0)
@@ -22518,8 +22520,8 @@ void Player::AddSpellMod(SpellModifier* mod, bool apply)
                 if (mod->value)
                     val += apply ? float(mod->value) / 100 : 1 / (float((mod->value)) / 100);
 
-                data << float(val);
-                data << uint8(eff);
+                dataBuffer << float(val);
+                dataBuffer << uint8(eff);
                 ++modTypeCount;
                 continue;
             }
@@ -22528,14 +22530,35 @@ void Player::AddSpellMod(SpellModifier* mod, bool apply)
             for (SpellModList::iterator itr = m_spellMods[mod->op].begin(); itr != m_spellMods[mod->op].end(); ++itr)
                 if ((*itr)->type == mod->type && (*itr)->mask & _mask)
                     val += (*itr)->value;
+
             val += apply ? mod->value : -(mod->value);
 
-            data << float(val);
-            data << uint8(eff);
+            dataBuffer << float(val);
+            dataBuffer << uint8(eff);
             ++modTypeCount;
         }
     }
-    data.PutBits(writePos, modTypeCount, 21);
+
+    data.WriteBits(modTypeCount, 21);
+
+    if (opcode == SMSG_SET_FLAT_SPELL_MODIFIER)
+    {
+        data << uint8(mod->op);
+
+        if (dataBuffer.size())
+            data.append(dataBuffer);
+    }
+    else
+    {
+        if (dataBuffer.size())
+        {
+            data.FlushBits();
+            data.append(dataBuffer);
+        }
+
+        data << uint8(mod->op);
+    }
+
     SendDirectMessage(&data);
 
     if (apply)
@@ -22543,7 +22566,6 @@ void Player::AddSpellMod(SpellModifier* mod, bool apply)
     else
     {
         m_spellMods[mod->op].remove(mod);
-        // mods bound to aura will be removed in AuraEffect::~AuraEffect
         if (!mod->ownerAura)
             delete mod;
     }
@@ -26755,8 +26777,8 @@ uint32 Player::GetRuneTypeBaseCooldown(RuneType runeType) const
 
     AuraEffectList const& regenAura = GetAuraEffectsByType(SPELL_AURA_MOD_POWER_REGEN_PERCENT);
     for (AuraEffectList::const_iterator i = regenAura.begin(); i != regenAura.end(); ++i)
-    if ((*i)->GetMiscValue() == POWER_RUNES)
-        cooldown /= ((*i)->GetAmount() + 100.0f) / 100.0f;
+        if ((*i)->GetMiscValue() == POWER_RUNES)
+            cooldown /= ((*i)->GetAmount() + 100.0f) / 100.0f;
 
     // Runes cooldown are now affected by player's haste from equipment ...
     hastePct = GetRatingBonusValue(CR_HASTE_MELEE);
@@ -29649,6 +29671,16 @@ void Player::RemovePassiveTalentSpell(uint32 spellId)
             RemoveAura(108499);
             if (Pet* pet = GetPet())
                 pet->DespawnOrUnsummon();
+            break;
+        case 116011:// Rune of Power
+            if (CountDynObject(spellId))
+            {
+                std::list<DynamicObject*> dynObjList;
+                GetDynObjectList(dynObjList, spellId);
+
+                for (auto itr : dynObjList)
+                    itr->SetDuration(0);
+            }
             break;
         default:
             break;
