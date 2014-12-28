@@ -718,7 +718,6 @@ class SpellMgr
         void LoadSpellGroupStackRules();
         void LoadSpellProcEvents();
         void LoadSpellProcs();
-        void LoadSpellBonusess();
         void LoadSpellThreats();
         void LoadSkillLineAbilityMap();
         void LoadSpellPetAuras();

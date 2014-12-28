@@ -302,14 +302,6 @@ private:
     static StaticData _data[TOTAL_SPELL_EFFECTS];
 };
 
-typedef std::vector<SpellEffectInfo const*> SpellEffectInfoVector;
-typedef std::unordered_map<uint32, SpellEffectInfoVector> SpellEffectInfoMap;
-
-typedef std::vector<SpellEffectEntry const*> SpellEffectEntryVector;
-typedef std::unordered_map<uint32, SpellEffectEntryVector> SpellEffectEntryMap;
-
-typedef std::vector<AuraEffect*> AuraEffectVector;
-
 class SpellInfo
 {
 public:
@@ -547,13 +539,6 @@ public:
 
     // unloading helpers
     void _UnloadImplicitTargetConditionLists();
-
-    SpellEffectInfoVector GetEffectsForDifficulty(uint32 difficulty) const;
-    SpellEffectInfo const* GetEffect(uint32 difficulty, uint32 index) const;
-    SpellEffectInfo const* GetEffect(uint32 index) const { return GetEffect(REGULAR_DIFFICULTY, index); }
-    SpellEffectInfo const* GetEffect(WorldObject* obj, uint32 index) const { return GetEffect(obj->GetMap()->GetDifficulty(), index); }
-
-    SpellEffectInfoMap _effects;
 };
 
 #endif // _SPELLINFO_H
