@@ -64,19 +64,12 @@ void Totem::InitStats(uint32 duration)
 
         ObjectGuid guid;
 
-        uint8 bitOrder[8] = { 6, 1, 2, 5, 3, 4, 7, 0 };
-        data.WriteBitInOrder(guid, bitOrder);
+        data.WriteGuidMask(guid, 6, 1, 2, 5, 3, 4, 7, 0);
         data << uint32(duration);
         data << uint32(GetUInt32Value(UNIT_FIELD_CREATED_BY_SPELL));
-        data.WriteByteSeq(guid[3]);
-        data.WriteByteSeq(guid[4]);
-        data.WriteByteSeq(guid[5]);
-        data.WriteByteSeq(guid[6]);
-        data.WriteByteSeq(guid[0]);
-        data.WriteByteSeq(guid[2]);
+        data.WriteGuidBytes(guid, 3, 4, 5, 6, 0, 2);
         data << uint8(m_Properties->Slot - 1);
-        data.WriteByteSeq(guid[1]);
-        data.WriteByteSeq(guid[7]);
+        data.WriteGuidBytes(guid, 1, 7);
        
         GetOwner()->ToPlayer()->SendDirectMessage(&data);
 

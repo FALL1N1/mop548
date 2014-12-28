@@ -30,6 +30,8 @@
 #include "SpellAuraDefines.h"
 #include "ThreatManager.h"
 #include "MoveSplineInit.h"
+#include "../DynamicObject/DynamicObject.h"
+#include "../AreaTrigger/AreaTrigger.h"
 
 #define WORLD_TRIGGER   12999
 
@@ -353,6 +355,7 @@ class AuraEffect;
 class Creature;
 class Spell;
 class SpellInfo;
+class SpellEffectInfo;
 class DynamicObject;
 class GameObject;
 class Item;
@@ -820,53 +823,10 @@ enum UnitTypeMask
     UNIT_MASK_ACCESSORY             = 0x00000200
 };
 
-enum TalentSpecialization
-{
-    CHAR_SPECIALIZATION_NONE                    = 0,
-    CHAR_SPECIALIZATION_MAGE_ARCANE             = 62,
-    CHAR_SPECIALIZATION_MAGE_FIRE               = 63,
-    CHAR_SPECIALIZATION_MAGE_FROST              = 64,
-    CHAR_SPECIALIZATION_PALADIN_HOLY            = 65,
-    CHAR_SPECIALIZATION_PALADIN_PROTECTION      = 66,
-    CHAR_SPECIALIZATION_PALADIN_RETRIBUTION     = 70,
-    CHAR_SPECIALIZATION_WARRIOR_ARMS            = 71,
-    CHAR_SPECIALIZATION_WARRIOR_FURY            = 72,
-    CHAR_SPECIALIZATION_WARRIOR_PROTECTION      = 73,
-    PET_SPECIALIZATION_FEROCITY                 = 74,
-    PET_SPECIALIZATION_TENACITY                 = 81,
-    PET_SPECIALIZATION_CUNNING                  = 79,
-    CHAR_SPECIALIZATION_DRUID_BALANCE           = 102,
-    CHAR_SPECIALIZATION_DRUID_FERAL             = 103,
-    CHAR_SPECIALIZATION_DRUID_GUARDIAN          = 104,
-    CHAR_SPECIALIZATION_DRUID_RESTORATION       = 105,
-    CHAR_SPECIALIZATION_DEATH_KNIGHT_BLOOD      = 250,
-    CHAR_SPECIALIZATION_DEATH_KNIGHT_FROST      = 251,
-    CHAR_SPECIALIZATION_DEATH_KNIGHT_UNHOLY     = 252,
-    CHAR_SPECIALIZATION_HUNTER_BEAST_MASTERY    = 253,
-    CHAR_SPECIALIZATION_HUNTER_MARKSMANSHIP     = 254,
-    CHAR_SPECIALIZATION_HUNTER_SURVIVAL         = 255,
-    CHAR_SPECIALIZATION_PRIEST_DISCIPLINE       = 256,
-    CHAR_SPECIALIZATION_PRIEST_HOLY             = 257,
-    CHAR_SPECIALIZATION_PRIEST_SHADOW           = 258,
-    CHAR_SPECIALIZATION_ROGUE_ASSASSINATION     = 259,
-    CHAR_SPECIALIZATION_ROGUE_COMBAT            = 260,
-    CHAR_SPECIALIZATION_ROGUE_SUBTLETY          = 261,
-    CHAR_SPECIALIZATION_SHAMAN_ELEMENTAL        = 262,
-    CHAR_SPECIALIZATION_SHAMAN_ENHANCEMENT      = 263,
-    CHAR_SPECIALIZATION_SHAMAN_RESTORATION      = 264,
-    CHAR_SPECIALIZATION_WARLOCK_AFFLICTION      = 265,
-    CHAR_SPECIALIZATION_WARLOCK_DEMONOLOGY      = 266,
-    CHAR_SPECIALIZATION_WARLOCK_DESTRUCTION     = 267,
-    CHAR_SPECIALIZATION_MONK_BREWMASTER         = 268,
-    CHAR_SPECIALIZATION_MONK_WINDWALKER         = 269,
-    CHAR_SPECIALIZATION_MONK_MISTWEAVER         = 270
-};
-
 struct DiminishingReturn
 {
     DiminishingReturn(DiminishingGroup group, uint32 t, uint32 count)
-        : DRGroup(group), stack(0), hitTime(t), hitCount(count)
-    { }
+        : DRGroup(group), stack(0), hitTime(t), hitCount(count) { }
 
     DiminishingGroup        DRGroup:16;
     uint16                  stack:16;
@@ -882,27 +842,24 @@ enum MeleeHitOutcome
 
 class DispelInfo
 {
-public:
-    explicit DispelInfo(Unit* dispeller, uint32 dispellerSpellId, uint8 chargesRemoved) :
-    _dispellerUnit(dispeller), _dispellerSpell(dispellerSpellId), _chargesRemoved(chargesRemoved) { }
+    public:
+        explicit DispelInfo(Unit* dispeller, uint32 dispellerSpellId, uint8 chargesRemoved)
+            : _dispellerUnit(dispeller), _dispellerSpell(dispellerSpellId), _chargesRemoved(chargesRemoved) { }
 
-    Unit* GetDispeller() const { return _dispellerUnit; }
-    uint32 GetDispellerSpellId() const { return _dispellerSpell; }
-    uint8 GetRemovedCharges() const { return _chargesRemoved; }
-    void SetRemovedCharges(uint8 amount)
-    {
-        _chargesRemoved = amount;
-    }
-private:
-    Unit* _dispellerUnit;
-    uint32 _dispellerSpell;
-    uint8 _chargesRemoved;
+        Unit* GetDispeller() const { return _dispellerUnit; }
+        uint32 GetDispellerSpellId() const { return _dispellerSpell; }
+        uint8 GetRemovedCharges() const { return _chargesRemoved; }
+        void SetRemovedCharges(uint8 amount) { _chargesRemoved = amount; }
+    private:
+        Unit* _dispellerUnit;
+        uint32 _dispellerSpell;
+        uint8 _chargesRemoved;
 };
 
 struct CleanDamage
 {
-    CleanDamage(uint32 mitigated, uint32 absorbed, WeaponAttackType _attackType, MeleeHitOutcome _hitOutCome) :
-    absorbed_damage(absorbed), mitigated_damage(mitigated), attackType(_attackType), hitOutCome(_hitOutCome) { }
+    CleanDamage(uint32 mitigated, uint32 absorbed, WeaponAttackType _attackType, MeleeHitOutcome _hitOutCome)
+        : absorbed_damage(absorbed), mitigated_damage(mitigated), attackType(_attackType), hitOutCome(_hitOutCome) { }
 
     uint32 absorbed_damage;
     uint32 mitigated_damage;
@@ -915,92 +872,90 @@ struct CalcDamageInfo;
 
 class DamageInfo
 {
-private:
-    Unit* const m_attacker;
-    Unit* const m_victim;
-    uint32 m_damage;
-    SpellInfo const* const m_spellInfo;
-    SpellSchoolMask const m_schoolMask;
-    DamageEffectType const m_damageType;
-    WeaponAttackType m_attackType;
-    uint32 m_absorb;
-    uint32 m_resist;
-    uint32 m_block;
-public:
-    explicit DamageInfo(Unit* _attacker, Unit* _victim, uint32 _damage, SpellInfo const* _spellInfo, SpellSchoolMask _schoolMask, DamageEffectType _damageType);
-    explicit DamageInfo(CalcDamageInfo& dmgInfo);
+    private:
+        Unit* const m_attacker;
+        Unit* const m_victim;
+        uint32 m_damage;
+        SpellInfo const* const m_spellInfo;
+        SpellSchoolMask const m_schoolMask;
+        DamageEffectType const m_damageType;
+        WeaponAttackType m_attackType;
+        uint32 m_absorb;
+        uint32 m_resist;
+        uint32 m_block;
+    public:
+        explicit DamageInfo(Unit* _attacker, Unit* _victim, uint32 _damage, SpellInfo const* _spellInfo, SpellSchoolMask _schoolMask, DamageEffectType _damageType);
+        explicit DamageInfo(CalcDamageInfo& dmgInfo);
 
-    void ModifyDamage(int32 amount);
-    void AbsorbDamage(uint32 amount);
-    void ResistDamage(uint32 amount);
-    void BlockDamage(uint32 amount);
+        void ModifyDamage(int32 amount);
+        void AbsorbDamage(uint32 amount);
+        void ResistDamage(uint32 amount);
+        void BlockDamage(uint32 amount);
 
-    Unit* GetAttacker() const { return m_attacker; }
-    Unit* GetVictim() const { return m_victim; }
-    SpellInfo const* GetSpellInfo() const { return m_spellInfo; }
-    SpellSchoolMask GetSchoolMask() const { return m_schoolMask; }
-    DamageEffectType GetDamageType() const { return m_damageType; }
-    WeaponAttackType GetAttackType() const { return m_attackType; }
-    uint32 GetDamage() const { return m_damage; }
-    uint32 GetAbsorb() const { return m_absorb; }
-    uint32 GetResist() const { return m_resist; }
-    uint32 GetBlock() const { return m_block; }
+        Unit* GetAttacker() const { return m_attacker; }
+        Unit* GetVictim() const { return m_victim; }
+        SpellInfo const* GetSpellInfo() const { return m_spellInfo; }
+        SpellSchoolMask GetSchoolMask() const { return m_schoolMask; }
+        DamageEffectType GetDamageType() const { return m_damageType; }
+        WeaponAttackType GetAttackType() const { return m_attackType; }
+        uint32 GetDamage() const { return m_damage; }
+        uint32 GetAbsorb() const { return m_absorb; }
+        uint32 GetResist() const { return m_resist; }
+        uint32 GetBlock() const { return m_block; }
 };
 
 class HealInfo
 {
-private:
-    uint32 m_heal;
-    uint32 m_absorb;
-public:
-    explicit HealInfo(uint32 heal)
-        : m_heal(heal)
-    {
-        m_absorb = 0;
-    }
-    void AbsorbHeal(uint32 amount)
-    {
-        amount = std::min(amount, GetHeal());
-        m_absorb += amount;
-        m_heal -= amount;
-    }
+    private:
+        uint32 m_heal;
+        uint32 m_absorb;
+    public:
+        explicit HealInfo(uint32 heal)
+            : m_heal(heal) { m_absorb = 0; }
 
-    uint32 GetHeal() const { return m_heal; }
+        void AbsorbHeal(uint32 amount)
+        {
+            amount = std::min(amount, GetHeal());
+            m_absorb += amount;
+            m_heal -= amount;
+        }
+
+        uint32 GetHeal() const { return m_heal; }
 };
 
 class ProcEventInfo
 {
-public:
-    ProcEventInfo(Unit* actor, Unit* actionTarget, Unit* procTarget, uint32 typeMask,
-                  uint32 spellTypeMask, uint32 spellPhaseMask, uint32 hitMask,
-                  Spell* spell, DamageInfo* damageInfo, HealInfo* healInfo);
+    public:
+        ProcEventInfo(Unit* actor, Unit* actionTarget, Unit* procTarget, uint32 typeMask,
+                      uint32 spellTypeMask, uint32 spellPhaseMask, uint32 hitMask,
+                      Spell* spell, DamageInfo* damageInfo, HealInfo* healInfo);
 
-    Unit* GetActor() { return _actor; }
-    Unit* GetActionTarget() const { return _actionTarget; }
-    Unit* GetProcTarget() const { return _procTarget; }
+        Unit* GetActor() { return _actor; }
+        Unit* GetActionTarget() const { return _actionTarget; }
+        Unit* GetProcTarget() const { return _procTarget; }
 
-    uint32 GetTypeMask() const { return _typeMask; }
-    uint32 GetSpellTypeMask() const { return _spellTypeMask; }
-    uint32 GetSpellPhaseMask() const { return _spellPhaseMask; }
-    uint32 GetHitMask() const { return _hitMask; }
+        uint32 GetTypeMask() const { return _typeMask; }
+        uint32 GetSpellTypeMask() const { return _spellTypeMask; }
+        uint32 GetSpellPhaseMask() const { return _spellPhaseMask; }
+        uint32 GetHitMask() const { return _hitMask; }
 
-    SpellInfo const* GetSpellInfo() const { return NULL; }
-    SpellSchoolMask GetSchoolMask() const { return SPELL_SCHOOL_MASK_NONE; }
+        SpellInfo const* GetSpellInfo() const { return NULL; }
+        SpellSchoolMask GetSchoolMask() const { return SPELL_SCHOOL_MASK_NONE; }
 
-    DamageInfo* GetDamageInfo() const { return _damageInfo; }
-    HealInfo* GetHealInfo() const { return _healInfo; }
+        DamageInfo* GetDamageInfo() const { return _damageInfo; }
+        HealInfo* GetHealInfo() const { return _healInfo; }
 
-private:
-    Unit* const _actor;
-    Unit* const _actionTarget;
-    Unit* const _procTarget;
-    uint32 _typeMask;
-    uint32 _spellTypeMask;
-    uint32 _spellPhaseMask;
-    uint32 _hitMask;
-    Spell* _spell;
-    DamageInfo* _damageInfo;
-    HealInfo* _healInfo;
+    private:
+        Unit* const _actor;
+        Unit* const _actionTarget;
+        Unit* const _procTarget;
+        uint32 _typeMask;
+        uint32 _spellTypeMask;
+        uint32 _spellPhaseMask;
+        uint32 _hitMask;
+        Spell* _spell;
+        DamageInfo* _damageInfo;
+        HealInfo* _healInfo;
 };
 
 // Struct for use in Unit::CalculateMeleeDamage
@@ -1016,8 +971,8 @@ struct CalcDamageInfo
     uint32 blocked_amount;
     uint32 HitInfo;
     uint32 TargetState;
-// Helper
-    WeaponAttackType attackType; //
+    // Helper
+    WeaponAttackType attackType;
     uint32 procAttacker;
     uint32 procVictim;
     uint32 procEx;
@@ -1030,8 +985,7 @@ struct SpellNonMeleeDamage
 {
     SpellNonMeleeDamage(Unit* _attacker, Unit* _target, uint32 _SpellID, uint32 _schoolMask)
         : target(_target), attacker(_attacker), SpellID(_SpellID), damage(0), overkill(0), schoolMask(_schoolMask),
-        absorb(0), resist(0), physicalLog(false), unused(false), blocked(0), HitInfo(0), cleanDamage(0)
-    { }
+        absorb(0), resist(0), physicalLog(false), unused(false), blocked(0), HitInfo(0), cleanDamage(0) { }
 
     Unit   *target;
     Unit   *attacker;
@@ -1056,7 +1010,7 @@ struct SpellPeriodicAuraLogInfo
 
     AuraEffect const* auraEff;
     uint32 damage;
-    uint32 overDamage;                                      // overkill/overheal
+    uint32 overDamage; // overkill/overheal
     uint32 absorb;
     uint32 resist;
     float  multiplier;
@@ -1117,16 +1071,16 @@ typedef UNORDERED_MAP<uint32 /*category*/, GlobalCooldown> GlobalCooldownList;
 
 class GlobalCooldownMgr                                     // Shared by Player and CharmInfo
 {
-public:
-    GlobalCooldownMgr() { }
+    public:
+        GlobalCooldownMgr() { }
 
-public:
-    bool HasGlobalCooldown(SpellInfo const* spellInfo) const;
-    void AddGlobalCooldown(SpellInfo const* spellInfo, uint32 gcd);
-    void CancelGlobalCooldown(SpellInfo const* spellInfo);
+    public:
+        bool HasGlobalCooldown(SpellInfo const* spellInfo) const;
+        void AddGlobalCooldown(SpellInfo const* spellInfo, uint32 gcd);
+        void CancelGlobalCooldown(SpellInfo const* spellInfo);
 
-private:
-    GlobalCooldownList m_GlobalCooldowns;
+    private:
+        GlobalCooldownList m_GlobalCooldowns;
 };
 
 enum ActiveStates
@@ -1418,6 +1372,7 @@ class Unit : public WorldObject
         void StopAttackFaction(uint32 faction_id);
         void GetAttackableUnitListInRange(std::list<Unit*> &list, float fMaxSearchRange) const;
         Unit* SelectNearbyTarget(Unit* exclude = NULL, float dist = NOMINAL_MELEE_RANGE) const;
+        Unit* SelectNearbyAlly(Unit* exclude = NULL, float dist = NOMINAL_MELEE_RANGE) const;
         void SendMeleeAttackStop(Unit* victim = NULL);
         void SendMeleeAttackStart(Unit* victim);
 
@@ -1854,6 +1809,7 @@ class Unit : public WorldObject
         void RemoveAllAurasRequiringDeadTarget();
         void RemoveAllAurasExceptType(AuraType type);
         void RemoveAllAurasExceptType(AuraType type1, AuraType type2); /// @todo: once we support variadic templates use them here
+        void RemoveAllAurasByType(AuraType type);
         void DelayOwnedAuras(uint32 spellId, uint64 caster, int32 delaytime);
 
         void _RemoveAllAuraStatMods();
@@ -2042,8 +1998,19 @@ class Unit : public WorldObject
         void _RegisterDynObject(DynamicObject* dynObj);
         void _UnregisterDynObject(DynamicObject* dynObj);
         DynamicObject* GetDynObject(uint32 spellId);
+        int32 CountDynObject(uint32 spellId);
+        void GetDynObjectList(std::list<DynamicObject*> &list, uint32 spellId);
         void RemoveDynObject(uint32 spellId);
         void RemoveAllDynObjects();
+
+        // AreaTrigger management
+        void _RegisterAreaTrigger(AreaTrigger* areaTrigger);
+        void _UnregisterAreaTrigger(AreaTrigger* areaTrigger);
+        AreaTrigger* GetAreaTrigger(uint32 spellId);
+        int32 CountAreaTrigger(uint32 spellId);
+        void GetAreaTriggerList(std::list<AreaTrigger*> &list, uint32 spellId);
+        void RemoveAreaTrigger(uint32 spellId);
+        void RemoveAllAreasTrigger();
 
         GameObject* GetGameObject(uint32 spellId) const;
         void AddGameObject(GameObject* gameObj);
@@ -2062,12 +2029,12 @@ class Unit : public WorldObject
 
         int32 SpellBaseDamageBonusDone(SpellSchoolMask schoolMask) const;
         int32 SpellBaseDamageBonusTaken(SpellSchoolMask schoolMask) const;
-        uint32 SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uint32 pdamage, DamageEffectType damagetype, uint32 stack = 1) const;
-        uint32 SpellDamageBonusTaken(Unit* caster, SpellInfo const* spellProto, uint32 pdamage, DamageEffectType damagetype, uint32 stack = 1) const;
+        uint32 SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uint32 pdamage, DamageEffectType damagetype, uint8 effIndex, uint32 stack = 1) const;
+        uint32 SpellDamageBonusTaken(Unit* caster, SpellInfo const* spellProto, uint32 pdamage, DamageEffectType damagetype, uint8 effIndex, uint32 stack = 1) const;
         int32 SpellBaseHealingBonusDone(SpellSchoolMask schoolMask) const;
         int32 SpellBaseHealingBonusTaken(SpellSchoolMask schoolMask) const;
-        uint32 SpellHealingBonusDone(Unit* victim, SpellInfo const* spellProto, uint32 healamount, DamageEffectType damagetype, uint32 stack = 1) const;
-        uint32 SpellHealingBonusTaken(Unit* caster, SpellInfo const* spellProto, uint32 healamount, DamageEffectType damagetype, uint32 stack = 1) const;
+        uint32 SpellHealingBonusDone(Unit* victim, SpellInfo const* spellProto, uint32 healamount, DamageEffectType damagetype, uint8 effIndex, uint32 stack = 1) const;
+        uint32 SpellHealingBonusTaken(Unit* caster, SpellInfo const* spellProto, uint32 healamount, DamageEffectType damagetype, uint8 effIndex, uint32 stack = 1) const;
 
         uint32 MeleeDamageBonusDone(Unit* pVictim, uint32 damage, WeaponAttackType attType, SpellInfo const* spellProto = NULL);
         uint32 MeleeDamageBonusTaken(Unit* attacker, uint32 pdamage, WeaponAttackType attType, SpellInfo const* spellProto = NULL);
@@ -2277,6 +2244,9 @@ class Unit : public WorldObject
         typedef std::list<DynamicObject*> DynObjectList;
         DynObjectList m_dynObj;
 
+        typedef std::list<AreaTrigger*> AreaTriggerList;
+        AreaTriggerList m_AreaTrigger;
+
         typedef std::list<GameObject*> GameObjectList;
         GameObjectList m_gameObj;
         bool m_isSorted;
@@ -2415,6 +2385,36 @@ namespace Trinity
             }
         private:
             const bool m_ascending;
+    };
+
+    // Binary predicate for sorting DynamicObjects based on value of duration
+    class AreaTriggerDurationPctOrderPred
+    {
+    public:
+        AreaTriggerDurationPctOrderPred(bool ascending = true) : m_ascending(ascending) {}
+        bool operator() (const AreaTrigger* a, const AreaTrigger* b) const
+        {
+            int32 rA = a->GetDuration() ? float(a->GetDuration()) : 0;
+            int32 rB = b->GetDuration() ? float(b->GetDuration()) : 0;
+            return m_ascending ? rA < rB : rA > rB;
+        }
+    private:
+        const bool m_ascending;
+    };
+
+    // Binary predicate for sorting Units based on value of distance of an GameObject
+    class DistanceCompareOrderPred
+    {
+    public:
+        DistanceCompareOrderPred(const DynamicObject* object, bool ascending = true) : m_object(object), m_ascending(ascending) {}
+        bool operator() (const Unit* a, const Unit* b) const
+        {
+            return m_ascending ? a->GetDistance(m_object) < b->GetDistance(m_object) :
+                a->GetDistance(m_object) > b->GetDistance(m_object);
+        }
+    private:
+        const DynamicObject* m_object;
+        const bool m_ascending;
     };
 }
 #endif

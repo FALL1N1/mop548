@@ -122,15 +122,9 @@ void WorldSession::SendUpdateTrade(bool trader_data /*= true*/)
 
         if (notWrapped)
         {
-            data.WriteBit(creatorGuid[3]);
-            data.WriteBit(creatorGuid[5]);
-            data.WriteBit(creatorGuid[1]);
-            data.WriteBit(creatorGuid[6]);
-            data.WriteBit(creatorGuid[0]);
+            data.WriteGuidMask(creatorGuid, 3, 5, 1, 6, 0);
             data.WriteBit(item->GetTemplate()->LockID != 0);
-            data.WriteBit(creatorGuid[4]);
-            data.WriteBit(creatorGuid[7]);
-            data.WriteBit(creatorGuid[2]);
+            data.WriteGuidMask(creatorGuid, 4, 7, 2);
 
             itemData.WriteByteSeq(creatorGuid[3]);
 
@@ -138,11 +132,7 @@ void WorldSession::SendUpdateTrade(bool trader_data /*= true*/)
             itemData << uint32(0); // unk7
             itemData << uint32(item->GetDynamicUInt32Value(ITEM_DYNAMIC_FIELD_MODIFIERS, 0));
 
-            itemData.WriteByteSeq(creatorGuid[1]);
-            itemData.WriteByteSeq(creatorGuid[5]);
-            itemData.WriteByteSeq(creatorGuid[7]);
-            itemData.WriteByteSeq(creatorGuid[6]);
-            itemData.WriteByteSeq(creatorGuid[0]);
+            itemData.WriteGuidBytes(creatorGuid, 1, 5, 7, 6, 0);
 
             itemData << uint32(item->GetEnchantmentId(PERM_ENCHANTMENT_SLOT));
             itemData << uint32(item->GetUInt32Value(ITEM_FIELD_DURABILITY)); // ok
@@ -159,27 +149,17 @@ void WorldSession::SendUpdateTrade(bool trader_data /*= true*/)
             itemData.WriteByteSeq(creatorGuid[4]);
         }
 
-        data.WriteBit(giftCreatorGuid[0]);
-        data.WriteBit(giftCreatorGuid[4]);
-        data.WriteBit(giftCreatorGuid[7]);
-        data.WriteBit(giftCreatorGuid[3]);
-        data.WriteBit(giftCreatorGuid[6]);
-        data.WriteBit(giftCreatorGuid[1]);
-        data.WriteBit(giftCreatorGuid[5]);
+        data.WriteGuidMask(giftCreatorGuid, 0, 4, 7, 3, 6, 1, 5);
 
         itemData.WriteByteSeq(giftCreatorGuid[4]);
 
         itemData << uint8(i);
 
-        itemData.WriteByteSeq(giftCreatorGuid[5]);
-        itemData.WriteByteSeq(giftCreatorGuid[1]);
-        itemData.WriteByteSeq(giftCreatorGuid[2]);
-        itemData.WriteByteSeq(giftCreatorGuid[3]);
+        itemData.WriteGuidBytes(giftCreatorGuid, 5, 1, 2, 3);
 
         itemData << uint32(item->GetTemplate()->ItemId);
 
-        itemData.WriteByteSeq(giftCreatorGuid[7]);
-        itemData.WriteByteSeq(giftCreatorGuid[0]);
+        itemData.WriteGuidBytes(giftCreatorGuid, 7, 0);
 
         itemData << uint32(item->GetCount());
 
@@ -622,23 +602,9 @@ void WorldSession::HandleInitiateTradeOpcode(WorldPacket& recvPacket)
 {
     ObjectGuid guid;
 
-    guid[5] = recvPacket.ReadBit();
-    guid[1] = recvPacket.ReadBit();
-    guid[4] = recvPacket.ReadBit();
-    guid[2] = recvPacket.ReadBit();
-    guid[3] = recvPacket.ReadBit();
-    guid[7] = recvPacket.ReadBit();
-    guid[0] = recvPacket.ReadBit();
-    guid[6] = recvPacket.ReadBit();
+    recvPacket.ReadGuidMask(guid, 5, 1, 4, 2, 3, 7, 0, 6);
 
-    recvPacket.ReadByteSeq(guid[4]);
-    recvPacket.ReadByteSeq(guid[6]);
-    recvPacket.ReadByteSeq(guid[2]);
-    recvPacket.ReadByteSeq(guid[0]);
-    recvPacket.ReadByteSeq(guid[3]);
-    recvPacket.ReadByteSeq(guid[7]);
-    recvPacket.ReadByteSeq(guid[5]);
-    recvPacket.ReadByteSeq(guid[1]);
+    recvPacket.ReadGuidBytes(guid, 4, 6, 2, 0, 3, 7, 5, 1);
 
     if (GetPlayer()->m_trade)
         return;
@@ -745,23 +711,9 @@ void WorldSession::HandleInitiateTradeOpcode(WorldPacket& recvPacket)
 
     ObjectGuid playerGuid = _player->GetGUID();
 
-    data.WriteBit(playerGuid[6]);
-    data.WriteBit(playerGuid[2]);
-    data.WriteBit(playerGuid[1]);
-    data.WriteBit(playerGuid[4]);
-    data.WriteBit(playerGuid[7]);
-    data.WriteBit(playerGuid[3]);
-    data.WriteBit(playerGuid[0]);
-    data.WriteBit(playerGuid[5]);
+    data.WriteGuidMask(playerGuid, 6, 2, 1, 4, 7, 3, 0, 5);
 
-    data.WriteByteSeq(playerGuid[6]);
-    data.WriteByteSeq(playerGuid[2]);
-    data.WriteByteSeq(playerGuid[1]);
-    data.WriteByteSeq(playerGuid[7]);
-    data.WriteByteSeq(playerGuid[5]);
-    data.WriteByteSeq(playerGuid[4]);
-    data.WriteByteSeq(playerGuid[0]);
-    data.WriteByteSeq(playerGuid[3]);
+    data.WriteGuidBytes(playerGuid, 6, 2, 1, 7, 5, 4, 0, 3);
 
     pOther->GetSession()->SendPacket(&data);
 }

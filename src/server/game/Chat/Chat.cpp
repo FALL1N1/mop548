@@ -713,41 +713,20 @@ size_t ChatHandler::BuildChatPacket(WorldPacket& data, ChatMsg chatType, Languag
     data.WriteBit(!chatTag); // ChatFlags
     data.WriteBit(1); // RealmID ?
 
-    data.WriteBit(groupGUID[0]);
-    data.WriteBit(groupGUID[1]);
-    data.WriteBit(groupGUID[5]);
-    data.WriteBit(groupGUID[4]);
-    data.WriteBit(groupGUID[3]);
-    data.WriteBit(groupGUID[2]);
-    data.WriteBit(groupGUID[6]);
-    data.WriteBit(groupGUID[7]);
+    data.WriteGuidMask(groupGUID, 0, 1, 5, 4, 3, 2, 6, 7);
 
      if (chatTag)
         data.WriteBits(chatTag, 9);
 
     data.WriteBit(0); // Fake Bit
 
-    data.WriteBit(receiverGUID[7]);
-    data.WriteBit(receiverGUID[6]);
-    data.WriteBit(receiverGUID[1]);
-    data.WriteBit(receiverGUID[4]);
-    data.WriteBit(receiverGUID[0]);
-    data.WriteBit(receiverGUID[2]);
-    data.WriteBit(receiverGUID[3]);
-    data.WriteBit(receiverGUID[5]);
+    data.WriteGuidMask(receiverGUID, 7, 6, 1, 4, 0, 2, 3, 5);
 
     data.WriteBit(0); // Fake Bit
     data.WriteBit(!language);
     data.WriteBit(!hasPrefix);
 
-    data.WriteBit(senderGUID[0]);
-    data.WriteBit(senderGUID[3]);
-    data.WriteBit(senderGUID[7]);
-    data.WriteBit(senderGUID[2]);
-    data.WriteBit(senderGUID[1]);
-    data.WriteBit(senderGUID[5]);
-    data.WriteBit(senderGUID[4]);
-    data.WriteBit(senderGUID[6]);
+    data.WriteGuidMask(senderGUID, 0, 3, 7, 2, 1, 5, 4, 6);
 
     data.WriteBit(!hasAchievementId);
     data.WriteBit(!message.length());
@@ -770,25 +749,11 @@ size_t ChatHandler::BuildChatPacket(WorldPacket& data, ChatMsg chatType, Languag
 
     data.WriteBit(0); // Fake Bit
 
-    data.WriteBit(guildGUID[2]);
-    data.WriteBit(guildGUID[5]);
-    data.WriteBit(guildGUID[7]);
-    data.WriteBit(guildGUID[4]);
-    data.WriteBit(guildGUID[0]);
-    data.WriteBit(guildGUID[1]);
-    data.WriteBit(guildGUID[3]);
-    data.WriteBit(guildGUID[6]);
+    data.WriteGuidMask(guildGUID, 2, 5, 7, 4, 0, 1, 3, 6);
 
     data.FlushBits();
 
-    data.WriteByteSeq(guildGUID[4]);
-    data.WriteByteSeq(guildGUID[5]);
-    data.WriteByteSeq(guildGUID[7]);
-    data.WriteByteSeq(guildGUID[3]);
-    data.WriteByteSeq(guildGUID[2]);
-    data.WriteByteSeq(guildGUID[6]);
-    data.WriteByteSeq(guildGUID[0]);
-    data.WriteByteSeq(guildGUID[1]);
+    data.WriteGuidBytes(guildGUID, 4, 5, 7, 3, 2, 6, 0, 1);
 
     if (hasChannelName)
         data.WriteString(channelName);
@@ -799,37 +764,16 @@ size_t ChatHandler::BuildChatPacket(WorldPacket& data, ChatMsg chatType, Languag
     // if (hasFakeTime)
     //     data << float(fakeTime);
 
-    data.WriteByteSeq(senderGUID[4]);
-    data.WriteByteSeq(senderGUID[7]);
-    data.WriteByteSeq(senderGUID[1]);
-    data.WriteByteSeq(senderGUID[5]);
-    data.WriteByteSeq(senderGUID[0]);
-    data.WriteByteSeq(senderGUID[6]);
-    data.WriteByteSeq(senderGUID[2]);
-    data.WriteByteSeq(senderGUID[3]);
+    data.WriteGuidBytes(senderGUID, 4, 7, 1, 5, 0, 6, 2, 3);
 
     data << uint8(chatType);
 
     if (hasAchievementId)
         data << uint32(achievementId);
 
-    data.WriteByteSeq(groupGUID[1]);
-    data.WriteByteSeq(groupGUID[3]);
-    data.WriteByteSeq(groupGUID[4]);
-    data.WriteByteSeq(groupGUID[6]);
-    data.WriteByteSeq(groupGUID[0]);
-    data.WriteByteSeq(groupGUID[2]);
-    data.WriteByteSeq(groupGUID[5]);
-    data.WriteByteSeq(groupGUID[7]);
+    data.WriteGuidBytes(groupGUID, 1, 3, 4, 6, 0, 2, 5, 7);
 
-    data.WriteByteSeq(receiverGUID[2]);
-    data.WriteByteSeq(receiverGUID[5]);
-    data.WriteByteSeq(receiverGUID[3]);
-    data.WriteByteSeq(receiverGUID[6]);
-    data.WriteByteSeq(receiverGUID[7]);
-    data.WriteByteSeq(receiverGUID[4]);
-    data.WriteByteSeq(receiverGUID[1]);
-    data.WriteByteSeq(receiverGUID[0]);
+    data.WriteGuidBytes(receiverGUID, 2, 5, 3, 6, 7, 4, 1, 0);
 
     if (language)
         data << uint8(language);

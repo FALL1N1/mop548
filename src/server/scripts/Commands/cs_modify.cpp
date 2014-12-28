@@ -964,7 +964,7 @@ public:
         {
             int64 newmoney = int64(targetMoney) + moneyToAdd;
 
-            TC_LOG_DEBUG("misc", handler->GetTrinityString(LANG_CURRENT_MONEY), uint32(targetMoney), int32(moneyToAdd), uint32(newmoney));
+            TC_LOG_DEBUG("misc", handler->GetTrinityString(LANG_CURRENT_MONEY), uint32(targetMoney), int32(moneyToAdd), int32(newmoney));
             if (newmoney <= 0)
             {
                 handler->PSendSysMessage(LANG_YOU_TAKE_ALL_MONEY, handler->GetNameLink(target).c_str());
@@ -976,7 +976,7 @@ public:
             else
             {
                 uint32 moneyToAddMsg = moneyToAdd * -1;
-                if (newmoney > int64(MAX_MONEY_AMOUNT))
+                if (newmoney > MAX_MONEY_AMOUNT)
                     newmoney = MAX_MONEY_AMOUNT;
 
                 handler->PSendSysMessage(LANG_YOU_TAKE_MONEY, moneyToAddMsg, handler->GetNameLink(target).c_str());
@@ -987,20 +987,17 @@ public:
         }
         else
         {
-            handler->PSendSysMessage(LANG_YOU_GIVE_MONEY, uint32(moneyToAdd), handler->GetNameLink(target).c_str());
+            handler->PSendSysMessage(LANG_YOU_GIVE_MONEY, int32(moneyToAdd), handler->GetNameLink(target).c_str());
             if (handler->needReportToTarget(target))
-                ChatHandler(target->GetSession()).PSendSysMessage(LANG_YOURS_MONEY_GIVEN, handler->GetNameLink().c_str(), uint32(moneyToAdd));
+                ChatHandler(target->GetSession()).PSendSysMessage(LANG_YOURS_MONEY_GIVEN, handler->GetNameLink().c_str(), int32(moneyToAdd));
 
-            if (moneyToAdd >= int64(MAX_MONEY_AMOUNT))
-                moneyToAdd = MAX_MONEY_AMOUNT;
-
-            if (targetMoney >= uint64(MAX_MONEY_AMOUNT) - moneyToAdd)
-                moneyToAdd -= targetMoney;
-
-            target->ModifyMoney(moneyToAdd);
+            if (targetMoney + moneyToAdd >= MAX_MONEY_AMOUNT)
+                target->SetMoney(MAX_MONEY_AMOUNT);
+            else
+                target->ModifyMoney(moneyToAdd);
         }
 
-        TC_LOG_DEBUG("misc", handler->GetTrinityString(LANG_NEW_MONEY), uint32(targetMoney), int32(moneyToAdd), uint32(target->GetMoney()));
+        TC_LOG_DEBUG("misc", handler->GetTrinityString(LANG_NEW_MONEY), int32(targetMoney), int32(moneyToAdd), uint32(target->GetMoney()));
 
         return true;
     }

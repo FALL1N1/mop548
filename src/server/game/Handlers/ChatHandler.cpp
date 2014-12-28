@@ -694,37 +694,26 @@ namespace Trinity
                 data.WriteBit(sender[6]);
                 data.WriteBit(i_target[5]);
                 data.WriteBit(sender[3]);
-                data.WriteBit(i_target[6]);
-                data.WriteBit(i_target[2]);
+                data.WriteGuidMask(i_target, 6, 2);
                 data.WriteBit(sender[7]);
-                data.WriteBit(i_target[0]);
-                data.WriteBit(i_target[1]);
-                data.WriteBit(sender[4]);
-                data.WriteBit(sender[2]);
-                data.WriteBit(i_target[3]);
-                data.WriteBit(i_target[4]);
-                data.WriteBit(sender[0]);
-                data.WriteBit(sender[5]);
+                data.WriteGuidMask(i_target, 0, 1);
+                data.WriteGuidMask(sender, 4, 2);
+                data.WriteGuidMask(i_target, 3, 4);
+                data.WriteGuidMask(sender, 0, 5);
 
-                data.WriteByteSeq(i_target[2]);
-                data.WriteByteSeq(i_target[1]);
-                data.WriteByteSeq(sender[7]);
-                data.WriteByteSeq(sender[4]);
+                data.WriteGuidBytes(i_target, 2, 1);
+                data.WriteGuidBytes(sender, 7, 4);
                 data.WriteByteSeq(i_target[7]);
-                data.WriteByteSeq(sender[5]);
-                data.WriteByteSeq(sender[2]);
+                data.WriteGuidBytes(sender, 5, 2);
 
                 data << uint32(i_text_emote);
 
                 data.WriteByteSeq(sender[6]);
                 data.WriteByteSeq(i_target[0]);
-                data.WriteByteSeq(sender[3]);
-                data.WriteByteSeq(sender[1]);
+                data.WriteGuidBytes(sender, 3, 1);
                 data.WriteByteSeq(i_target[6]);
                 data.WriteByteSeq(sender[0]);
-                data.WriteByteSeq(i_target[3]);
-                data.WriteByteSeq(i_target[5]);
-                data.WriteByteSeq(i_target[4]);
+                data.WriteGuidBytes(i_target, 3, 5, 4);
 
                 data << uint32(i_emote_num);
             }
@@ -755,23 +744,9 @@ void WorldSession::HandleTextEmoteOpcode(WorldPacket& recvData)
     recvData >> text_emote;
     recvData >> emoteNum;
 
-guid[6] = recvData.ReadBit();
-guid[7] = recvData.ReadBit();
-guid[3] = recvData.ReadBit();
-guid[2] = recvData.ReadBit();
-guid[0] = recvData.ReadBit();
-guid[5] = recvData.ReadBit();
-guid[1] = recvData.ReadBit();
-guid[4] = recvData.ReadBit();
+recvData.ReadGuidMask(guid, 6, 7, 3, 2, 0, 5, 1, 4);
 
-recvData.ReadByteSeq(guid[0]);
-recvData.ReadByteSeq(guid[5]);
-recvData.ReadByteSeq(guid[1]);
-recvData.ReadByteSeq(guid[4]);
-recvData.ReadByteSeq(guid[2]);
-recvData.ReadByteSeq(guid[3]);
-recvData.ReadByteSeq(guid[7]);
-recvData.ReadByteSeq(guid[6]);
+recvData.ReadGuidBytes(guid, 0, 5, 1, 4, 2, 3, 7, 6);
 
     sScriptMgr->OnPlayerTextEmote(GetPlayer(), text_emote, emoteNum, guid);
 
@@ -828,22 +803,9 @@ void WorldSession::HandleChatIgnoredOpcode(WorldPacket& recvData)
 
     guid[5] = recvData.ReadBit();
     recvData >> unk;                                       // probably related to spam reporting
-    guid[0] = recvData.ReadBit();
-    guid[1] = recvData.ReadBit();
-    guid[3] = recvData.ReadBit();
-    guid[6] = recvData.ReadBit();
-    guid[7] = recvData.ReadBit();
-    guid[4] = recvData.ReadBit();
-    guid[2] = recvData.ReadBit();
+    recvData.ReadGuidMask(guid, 0, 1, 3, 6, 7, 4, 2);
 
-    recvData.ReadByteSeq(guid[2]);
-    recvData.ReadByteSeq(guid[0]);
-    recvData.ReadByteSeq(guid[3]);
-    recvData.ReadByteSeq(guid[4]);
-    recvData.ReadByteSeq(guid[7]);
-    recvData.ReadByteSeq(guid[6]);
-    recvData.ReadByteSeq(guid[0]);
-    recvData.ReadByteSeq(guid[5]);
+    recvData.ReadGuidBytes(guid, 2, 0, 3, 4, 7, 6, 0, 5);
 
     Player* player = ObjectAccessor::FindPlayer(guid);
     if (!player || !player->GetSession())

@@ -882,6 +882,23 @@ namespace Trinity
             uint32 i_lowguid;
     };
 
+    class AnyFriendlyUnitInRangeCheck
+    {
+    public:
+        AnyFriendlyUnitInRangeCheck(Unit const* unit, float range, bool playerOnly = false) : i_unit(unit), i_range(range), i_playerOnly(playerOnly) { }
+        bool operator()(Unit* u)
+        {
+            if (u->IsAlive() && i_unit->IsWithinDistInMap(u, i_range) && i_unit->IsFriendlyTo(u) && (!i_playerOnly || u->GetTypeId() == TYPEID_PLAYER))
+                return true;
+            else
+                return false;
+        }
+    private:
+        Unit const* i_unit;
+        float i_range;
+        bool i_playerOnly;
+    };
+
     class AnyFriendlyUnitInObjectRangeCheck
     {
         public:

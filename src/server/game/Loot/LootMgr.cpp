@@ -93,7 +93,7 @@ class LootTemplate::LootGroup                               // A set of loot def
 
         void Verify(LootStore const& lootstore, uint32 id, uint8 group_id) const;
         void CollectLootIds(LootIdSet& set) const;
-        void CheckLootRefs(LootTemplateMap const& store, LootIdSet* ref_set) const;
+        void CheckLootRefs(const LootStore *store, LootTemplateMap const& loot, LootIdSet* ref_set) const;
         LootStoreItemList* GetExplicitlyChancedItemList() { return &ExplicitlyChanced; }
         LootStoreItemList* GetEqualChancedItemList() { return &EqualChanced; }
         void CopyConditions(ConditionList conditions);
@@ -261,7 +261,7 @@ uint32 LootStore::LoadAndCollectLootIds(LootIdSet& lootIdSet)
 void LootStore::CheckLootRefs(LootIdSet* ref_set) const
 {
     for (LootTemplateMap::const_iterator ltItr = m_LootTemplates.begin(); ltItr != m_LootTemplates.end(); ++ltItr)
-        ltItr->second->CheckLootRefs(m_LootTemplates, ref_set);
+        ltItr->second->CheckLootRefs(this, m_LootTemplates, ref_set);
 }
 
 void LootStore::ReportUnusedIds(LootIdSet const& lootIdSet) const
@@ -1313,14 +1313,16 @@ void LootTemplate::LootGroup::Verify(LootStore const& lootstore, uint32 id, uint
         TC_LOG_ERROR("sql.sql", "Table '%s' entry %u group %d has items with chance=0%% but group total chance >= 100%% (%f)", lootstore.GetName(), id, group_id, chance);
 }
 
-void LootTemplate::LootGroup::CheckLootRefs(LootTemplateMap const& /*store*/, LootIdSet* ref_set) const
+void LootTemplate::LootGroup::CheckLootRefs(const LootStore* store, LootTemplateMap const& /*loot*/, LootIdSet* ref_set) const
 {
     for (LootStoreItemList::const_iterator ieItr = ExplicitlyChanced.begin(); ieItr != ExplicitlyChanced.end(); ++ieItr)
     {
         LootStoreItem* item = *ieItr;
         if (item->mincountOrRef < 0)
         {
-            if (!LootTemplates_Reference.GetLootFor(-item->mincountOrRef))
+            if (store->GetLootFor(-item->mincountOrRef))
+                continue;
+            else if (!LootTemplates_Reference.GetLootFor(-item->mincountOrRef))
                 LootTemplates_Reference.ReportNotExistedId(-item->mincountOrRef);
             else if (ref_set)
                 ref_set->erase(-item->mincountOrRef);
@@ -1526,14 +1528,16 @@ void LootTemplate::Verify(LootStore const& lootstore, uint32 id) const
     /// @todo References validity checks
 }
 
-void LootTemplate::CheckLootRefs(LootTemplateMap const& store, LootIdSet* ref_set) const
+void LootTemplate::CheckLootRefs(const LootStore* store, LootTemplateMap const& loot, LootIdSet* ref_set) const
 {
     for (LootStoreItemList::const_iterator ieItr = Entries.begin(); ieItr != Entries.end(); ++ieItr)
     {
         LootStoreItem* item = *ieItr;
         if (item->mincountOrRef < 0)
         {
-            if (!LootTemplates_Reference.GetLootFor(-item->mincountOrRef))
+            if (store->GetLootFor(-item->mincountOrRef))
+                continue;
+            else if (!LootTemplates_Reference.GetLootFor(-item->mincountOrRef))
                 LootTemplates_Reference.ReportNotExistedId(-item->mincountOrRef);
             else if (ref_set)
                 ref_set->erase(-item->mincountOrRef);
@@ -1542,7 +1546,7 @@ void LootTemplate::CheckLootRefs(LootTemplateMap const& store, LootIdSet* ref_se
 
     for (LootGroups::const_iterator grItr = Groups.begin(); grItr != Groups.end(); ++grItr)
         if (LootGroup* group = *grItr)
-            group->CheckLootRefs(store, ref_set);
+            group->CheckLootRefs(store, loot, ref_set);
 }
 
 bool LootTemplate::addConditionItem(Condition* cond)

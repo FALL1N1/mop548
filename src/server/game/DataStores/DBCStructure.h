@@ -2157,7 +2157,7 @@ struct SpellEffectEntry
     uint32    EffectApplyAuraName;                          // 4         m_effectAura
     uint32    EffectAmplitude;                              // 5         m_effectAuraPeriod
     int32     EffectBasePoints;                             // 6         m_effectBasePoints (don't must be used in spell/auras explicitly, must be used cached Spell::m_currentBasePoints)
-    float     EffectBonusMultiplier;                        // 7         m_effectBonus
+    float     EffectSpellPowerCoeff;                        // 7         m_effectSpellpowerCoeff
     float     EffectDamageMultiplier;                       // 8         m_effectChainAmplitude
     uint32    EffectChainTarget;                            // 9         m_effectChainTargets
     int32     EffectDieSides;                               // 10         m_effectDieSides
@@ -2171,12 +2171,12 @@ struct SpellEffectEntry
     float     EffectRealPointsPerLevel;                     // 18        m_effectRealPointsPerLevel
     flag128   EffectSpellClassMask;                         // 19 20 21 22 m_effectSpellClassMask1(2/3), effect 0
     uint32    EffectTriggerSpell;                           // 23        m_effectTriggerSpell
-    //uint32  Unk0                                          // 24        unk - Pandaria
+    float     EffectPosFacing;                              // 24
     uint32    EffectImplicitTargetA;                        // 25        m_implicitTargetA
     uint32    EffectImplicitTargetB;                        // 26        m_implicitTargetB
     uint32    EffectSpellId;                                // 27        new 4.0.0
     uint32    EffectIndex;                                  // 28        new 4.0.0
-    //uint32  Unk0                                          // 29        4.2.0 only 0 or 1
+    uint32    EffectAttributes;                             // 29
 };
 
 #define MAX_SPELL_EFFECTS 32
@@ -2530,23 +2530,29 @@ struct SpellDurationEntry
     int32     Duration[3];
 };
 
+
 struct SpellItemEnchantmentEntry
 {
     uint32      ID;                                         // 0        m_ID
     //uint32      charges;                                  // 1        m_charges
     uint32      type[MAX_ITEM_ENCHANTMENT_EFFECTS];         // 2-4      m_effect[MAX_ITEM_ENCHANTMENT_EFFECTS]
     uint32      amount[MAX_ITEM_ENCHANTMENT_EFFECTS];       // 5-7      m_effectPointsMin[MAX_ITEM_ENCHANTMENT_EFFECTS]
-    //uint32      amount2[MAX_ITEM_ENCHANTMENT_EFFECTS]     // 8-10     m_effectPointsMax[MAX_ITEM_ENCHANTMENT_EFFECTS]
-    uint32      spellid[MAX_ITEM_ENCHANTMENT_EFFECTS];      // 11-13    m_effectArg[MAX_ITEM_ENCHANTMENT_EFFECTS]
-    char*       description;                                // 14       m_name_lang
-    uint32      aura_id;                                    // 15       m_itemVisual
-    uint32      slot;                                       // 16       m_flags
-    uint32      GemID;                                      // 17       m_src_itemID
-    uint32      EnchantmentCondition;                       // 18       m_condition_id
-    uint32      requiredSkill;                              // 19       m_requiredSkillID
-    uint32      requiredSkillValue;                         // 20       m_requiredSkillRank
-    uint32      requiredLevel;                              // 21       new in 3.1
-                                                            // 22       new in 3.1
+    uint32      spellid[MAX_ITEM_ENCHANTMENT_EFFECTS];      // 8-10     m_effectArg[MAX_ITEM_ENCHANTMENT_EFFECTS]
+    char*       description;                                // 11       m_name_lang
+    uint32      aura_id;                                    // 12       m_itemVisual
+    uint32      slot;                                       // 13       m_flags
+    uint32      GemID;                                      // 14       m_src_itemID
+    uint32      EnchantmentCondition;                       // 15       m_condition_id
+    uint32      requiredSkill;                              // 16       m_requiredSkillID
+    uint32      requiredSkillValue;                         // 17       m_requiredSkillRank
+    uint32      requiredLevel;                              // 18       new in 3.1
+                                                            // 19       unk 5.4.8
+                                                            // 20       new in 3.1
+                                                            // 21       unk 5.4.8
+                                                            // 22       unk 5.4.8
+                                                            // 23       unk 5.4.8
+                                                            // 24       unk 5.4.8
+                                                            // 25       unk 5.4.8
 };
 
 struct SpellItemEnchantmentConditionEntry
@@ -2576,21 +2582,20 @@ struct SummonPropertiesEntry
     uint32  Flags;                                          // 5
 };
 
-#define MAX_TALENT_RANK 1 // REMOVE ME !!!
 #define MAX_TALENT_TABS 4
 
 struct TalentEntry
 {
-    uint32    TalentID;                                     // 0
+    uint32  TalentID;                                       // 0
     //uint32    specID;                                     // 1
-    uint32    Row;                                          // 2
-    uint32    Col;                                          // 3
-    uint32    SpellId;                                      // 4
+    uint32  Row;                                            // 2
+    uint32  Col;                                            // 3
+    uint32  SpellId;                                        // 4
     //uint32    flags;                                      // 5
     //uint32    categoryMask;                               // 6
     //uint32    categoryMask;                               // 7
-    uint32    playerClass;                                  // 8
-    //uint32 replacesSpell                                  // 9
+    uint32  playerClass;                                    // 8
+    uint32  replacesSpell;                                  // 9
     //char* description                                     // 10
 };
 

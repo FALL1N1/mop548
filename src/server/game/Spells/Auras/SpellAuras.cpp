@@ -194,13 +194,7 @@ void AuraApplication::ClientUpdate(bool remove)
     data.WriteBit(targetGuid[7]);
     data.WriteBit(0);                                   // Is AURA_UPDATE_ALL
     data.WriteBits(1, 24);                              // Aura Count
-    data.WriteBit(targetGuid[6]);
-    data.WriteBit(targetGuid[1]);
-    data.WriteBit(targetGuid[3]);
-    data.WriteBit(targetGuid[0]);
-    data.WriteBit(targetGuid[4]);
-    data.WriteBit(targetGuid[2]);
-    data.WriteBit(targetGuid[5]);
+    data.WriteGuidMask(targetGuid, 6, 1, 3, 0, 4, 2, 5);
     data.WriteBit(!remove);                             // Not remove
 
     if (!remove)
@@ -222,14 +216,7 @@ void AuraApplication::ClientUpdate(bool remove)
         if (!(flags & AFLAG_CASTER))
         {
             ObjectGuid casterGuid = aura->GetCasterGUID();
-            data.WriteBit(casterGuid[3]);
-            data.WriteBit(casterGuid[4]);
-            data.WriteBit(casterGuid[6]);
-            data.WriteBit(casterGuid[1]);
-            data.WriteBit(casterGuid[5]);
-            data.WriteBit(casterGuid[2]);
-            data.WriteBit(casterGuid[0]);
-            data.WriteBit(casterGuid[7]);
+            data.WriteGuidMask(casterGuid, 3, 4, 6, 1, 5, 2, 0, 7);
         }
 
         data.WriteBits(0, 22);                          // Unk effect count
@@ -244,14 +231,7 @@ void AuraApplication::ClientUpdate(bool remove)
         if (!(flags & AFLAG_CASTER))
         {
             ObjectGuid casterGuid = aura->GetCasterGUID();
-            data.WriteByteSeq(casterGuid[3]);
-            data.WriteByteSeq(casterGuid[2]);
-            data.WriteByteSeq(casterGuid[1]);
-            data.WriteByteSeq(casterGuid[6]);
-            data.WriteByteSeq(casterGuid[4]);
-            data.WriteByteSeq(casterGuid[0]);
-            data.WriteByteSeq(casterGuid[5]);
-            data.WriteByteSeq(casterGuid[7]);
+            data.WriteGuidBytes(casterGuid, 3, 2, 1, 6, 4, 0, 5, 7);
         }
 
         data << uint8(flags);
@@ -286,14 +266,7 @@ void AuraApplication::ClientUpdate(bool remove)
 
     data << uint8(GetSlot());
 
-    data.WriteByteSeq(targetGuid[2]);
-    data.WriteByteSeq(targetGuid[6]);
-    data.WriteByteSeq(targetGuid[7]);
-    data.WriteByteSeq(targetGuid[1]);
-    data.WriteByteSeq(targetGuid[3]);
-    data.WriteByteSeq(targetGuid[4]);
-    data.WriteByteSeq(targetGuid[0]);
-    data.WriteByteSeq(targetGuid[5]);
+    data.WriteGuidBytes(targetGuid, 2, 6, 7, 1, 3, 4, 0, 5);
 
     _target->SendMessageToSet(&data, true);
 }
@@ -751,6 +724,8 @@ void Aura::Update(uint32 diff, Unit* caster)
         m_duration -= diff;
         if (m_duration < 0)
             m_duration = 0;
+
+        CallScriptAuraUpdateHandlers(diff);
 
         // handle manaPerSecond/manaPerSecondPerLevel
         if (m_timeCla)
@@ -1333,8 +1308,8 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                     // Improved Devouring Plague
                     if (AuraEffect const* aurEff = caster->GetDummyAuraEffect(SPELLFAMILY_PRIEST, 3790, 0))
                     {
-                        uint32 damage = caster->SpellDamageBonusDone(target, GetSpellInfo(), GetEffect(0)->GetAmount(), DOT);
-                        damage = target->SpellDamageBonusTaken(caster, GetSpellInfo(), damage, DOT);
+                        uint32 damage = caster->SpellDamageBonusDone(target, GetSpellInfo(), GetEffect(0)->GetAmount(), DOT, EFFECT_0);
+                        damage = target->SpellDamageBonusTaken(caster, GetSpellInfo(), damage, DOT, EFFECT_0);
                         int32 basepoints0 = aurEff->GetAmount() * GetEffect(0)->GetTotalTicks() * int32(damage) / 100;
                         int32 heal = int32(CalculatePct(basepoints0, 15));
 
@@ -1471,7 +1446,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                 // Blood of the North
                 // Reaping
                 // Death Rune Mastery
-                if (GetSpellInfo()->SpellIconID == 3041 || GetSpellInfo()->SpellIconID == 22 || GetSpellInfo()->SpellIconID == 2622)
+                /*if (GetSpellInfo()->SpellIconID == 3041 || GetSpellInfo()->SpellIconID == 22 || GetSpellInfo()->SpellIconID == 2622)
                 {
                     if (!GetEffect(0) || GetEffect(0)->GetAuraType() != SPELL_AURA_PERIODIC_DUMMY)
                         break;
@@ -1481,8 +1456,8 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                         break;
 
                      // aura removed - remove death runes
-                    target->ToPlayer()->RemoveRunesByAuraEffect(GetEffect(0));
-                }
+                    target->ToPlayer()->RemoveRunesBySpell(GetId());
+                }*/
                 break;
             case SPELLFAMILY_HUNTER:
                 // Glyph of Freezing Trap
@@ -2000,6 +1975,33 @@ bool Aura::CallScriptEffectPeriodicHandlers(AuraEffect const* aurEff, AuraApplic
     }
 
     return preventDefault;
+}
+
+void Aura::CallScriptAuraUpdateHandlers(uint32 diff)
+{
+    for (std::list<AuraScript*>::iterator scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
+    {
+        (*scritr)->_PrepareScriptCall(AURA_SCRIPT_HOOK_ON_UPDATE);
+        std::list<AuraScript::AuraUpdateHandler>::iterator hookItrEnd = (*scritr)->OnAuraUpdate.end(), hookItr = (*scritr)->OnAuraUpdate.begin();
+        for (; hookItr != hookItrEnd; ++hookItr)
+            (*hookItr).Call(*scritr, diff);
+        (*scritr)->_FinishScriptCall();
+    }
+}
+
+void Aura::CallScriptEffectUpdateHandlers(uint32 diff, AuraEffect* aurEff)
+{
+    for (std::list<AuraScript*>::iterator scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
+    {
+        (*scritr)->_PrepareScriptCall(AURA_SCRIPT_HOOK_EFFECT_UPDATE);
+        std::list<AuraScript::EffectUpdateHandler>::iterator effEndItr = (*scritr)->OnEffectUpdate.end(), effItr = (*scritr)->OnEffectUpdate.begin();
+        for (; effItr != effEndItr; ++effItr)
+        {
+            if ((*effItr).IsEffectAffected(m_spellInfo, aurEff->GetEffIndex()))
+                (*effItr).Call(*scritr, diff, aurEff);
+        }
+        (*scritr)->_FinishScriptCall();
+    }
 }
 
 void Aura::CallScriptEffectUpdatePeriodicHandlers(AuraEffect* aurEff)

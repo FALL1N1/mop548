@@ -367,8 +367,8 @@ SpellEffectInfo::SpellEffectInfo(SpellEntry const* /*spellEntry*/, SpellInfo con
     BasePoints = _effect ? _effect->EffectBasePoints : 0;
     PointsPerComboPoint = _effect ? _effect->EffectPointsPerComboPoint : 0.0f;
     ValueMultiplier = _effect ? _effect->EffectValueMultiplier : 0.0f;
+    SpellPowerCoeff = _effect ? _effect->EffectSpellPowerCoeff : 0.0f;
     DamageMultiplier = _effect ? _effect->EffectDamageMultiplier : 0.0f;
-    BonusMultiplier = _effect ? _effect->EffectBonusMultiplier : 0.0f;
     MiscValue = _effect ? _effect->EffectMiscValue : 0;
     MiscValueB = _effect ? _effect->EffectMiscValueB : 0;
     Mechanic = Mechanics(_effect ? _effect->EffectMechanic : 0);
@@ -1013,6 +1013,16 @@ SpellInfo::SpellInfo(SpellEntry const* spellEntry, SpellEffectEntry const** effe
             OverrideSpellList.push_back(specializationInfo->SpellId);
     }
 
+    // TalentEntry -> OverrideSpellList
+    TalentEntry const* talentInfo = NULL;
+    for (uint32 i = 0; i < sTalentStore.GetNumRows(); ++i)
+    {
+        talentInfo = sTalentStore.LookupEntry(i);
+
+        if (talentInfo && talentInfo->replacesSpell == Id)
+            OverrideSpellList.push_back(talentInfo->SpellId);
+    }
+
     ChainEntry = NULL;
 }
 
@@ -1176,19 +1186,8 @@ bool SpellInfo::NeedsToBeTriggeredByCaster(SpellInfo const* triggeringSpell) con
     if (NeedsExplicitUnitTarget())
         return true;
 
-    /*
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-    {
-        if (Effects[i].IsEffect())
-        {
-            if (Effects[i].TargetA.GetSelectionCategory() == TARGET_SELECT_CATEGORY_CHANNEL
-                || Effects[i].TargetB.GetSelectionCategory() == TARGET_SELECT_CATEGORY_CHANNEL)
-                return true;
-        }
-    }
-    */
-
-    if (triggeringSpell->IsChanneled())
+    // Hmmm... Something is wrong here... (<__<)
+    if (!triggeringSpell || triggeringSpell->IsChanneled())
     {
         uint32 mask = 0;
         for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)

@@ -396,9 +396,7 @@ void BattlegroundMgr::BuildPvpLogDataPacket(WorldPacket* data, Battleground* bg)
         data->WriteBit(playerGUID[1]);
 
         buff << uint32(score->HealingDone);
-        buff.WriteByteSeq(playerGUID[4]);
-        buff.WriteByteSeq(playerGUID[5]);
-        buff.WriteByteSeq(playerGUID[2]);
+        buff.WriteGuidBytes(playerGUID, 4, 5, 2);
 
         if (!bg->IsArena())
         {
@@ -416,10 +414,7 @@ void BattlegroundMgr::BuildPvpLogDataPacket(WorldPacket* data, Battleground* bg)
             buff << int32(score->PersonalRatingChange);
         }
 
-        buff.WriteByteSeq(playerGUID[1]);
-        buff.WriteByteSeq(playerGUID[6]);
-        buff.WriteByteSeq(playerGUID[7]);
-        buff.WriteByteSeq(playerGUID[0]);
+        buff.WriteGuidBytes(playerGUID, 1, 6, 7, 0);
         buff << int32(player->GetSpecializationId(player->GetActiveSpec()));
 
         switch (bg->GetTypeID(true))                                                        // Custom values
@@ -1150,7 +1145,7 @@ void BattlegroundMgr::BuildBattlegroundListPacket(WorldPacket* data, uint64 guid
     data->WriteBit(guidBytes[4]);
     data->WriteBit(0);                                      // unk
     data->WriteBit(guidBytes[2]);
-    data->WriteBit(0);                                      // unk
+    data->WriteBit(1);                                      // unk
     data->WriteBit(guidBytes[7]);
     data->WriteBit(guidBytes[6]);
     data->WriteBit(guidBytes[5]);
@@ -1211,17 +1206,11 @@ void BattlegroundMgr::SendAreaSpiritHealerQueryOpcode(Player* player, Battlegrou
     uint8 bitOrder[8] = {5, 2, 7, 6, 1, 0, 3, 4};
     data.WriteBitInOrder(guid, bitOrder);
 
-    data.WriteByteSeq(guid[2]);
-    data.WriteByteSeq(guid[3]);
-    data.WriteByteSeq(guid[5]);
-    data.WriteByteSeq(guid[4]);
-    data.WriteByteSeq(guid[6]);
+    data.WriteGuidBytes(guid, 2, 3, 5, 4, 6);
 
     data << time_;
 
-    data.WriteByteSeq(guid[7]);
-    data.WriteByteSeq(guid[0]);
-    data.WriteByteSeq(guid[1]);
+    data.WriteGuidBytes(guid, 7, 0, 1);
 
     player->GetSession()->SendPacket(&data);
 }

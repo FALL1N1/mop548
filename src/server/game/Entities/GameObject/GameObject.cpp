@@ -1792,13 +1792,7 @@ void GameObject::SendCustomAnim(uint32 anim)
 {
     ObjectGuid GUID = GetGUID();
     WorldPacket data(SMSG_GAMEOBJECT_CUSTOM_ANIM, 8+4+2);
-    data.WriteBit(GUID[4]);
-    data.WriteBit(GUID[7]);
-    data.WriteBit(GUID[1]);
-    data.WriteBit(GUID[0]);
-    data.WriteBit(GUID[5]);
-    data.WriteBit(GUID[3]);
-    data.WriteBit(GUID[2]);
+    data.WriteGuidMask(GUID, 4, 7, 1, 0, 5, 3, 2);
     data.WriteBit((anim > 0 ? 1 : 0));
     data.WriteBit(GUID[6]);
     data.WriteBit(1);
@@ -1806,14 +1800,7 @@ void GameObject::SendCustomAnim(uint32 anim)
     if (anim > 0)
         data << uint32(anim);
 
-    data.WriteByteSeq(GUID[5]);
-    data.WriteByteSeq(GUID[6]);
-    data.WriteByteSeq(GUID[7]);
-    data.WriteByteSeq(GUID[3]);
-    data.WriteByteSeq(GUID[4]);
-    data.WriteByteSeq(GUID[0]);
-    data.WriteByteSeq(GUID[2]);
-    data.WriteByteSeq(GUID[1]);
+    data.WriteGuidBytes(GUID, 5, 6, 7, 3, 4, 0, 2, 1);
     
     SendMessageToSet(&data, true);
 }

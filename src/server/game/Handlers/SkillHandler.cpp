@@ -103,20 +103,13 @@ void WorldSession::HandleTalentWipeConfirmOpcode(WorldPacket& recvData)
         uint8 specializationReset;
         uint32 cost;
 
-        uint8 bitOrder[8] = { 5, 7, 3, 2, 1, 0, 4, 6 };
-        recvData.ReadBitInOrder(guid, bitOrder);
+        recvData.ReadGuidMask(guid, 5, 7, 3, 2, 1, 0, 4, 6);
 
-        recvData.ReadByteSeq(guid[1]);
-        recvData.ReadByteSeq(guid[0]);
+        recvData.ReadGuidBytes(guid, 1, 0);
 
         recvData >> specializationReset;
 
-        recvData.ReadByteSeq(guid[7]);
-        recvData.ReadByteSeq(guid[3]);
-        recvData.ReadByteSeq(guid[2]);
-        recvData.ReadByteSeq(guid[5]);
-        recvData.ReadByteSeq(guid[6]);
-        recvData.ReadByteSeq(guid[4]);
+        recvData.ReadGuidBytes(guid, 7, 3, 2, 5, 6, 4);
 
         recvData >> cost;
 
@@ -139,18 +132,11 @@ void WorldSession::HandleTalentWipeConfirmOpcode(WorldPacket& recvData)
 
                 WorldPacket data(MSG_TALENT_WIPE_CONFIRM, 8 + 4);    //you have not any talent
 
-                uint8 bitOrder[8] = { 5, 7, 3, 2, 1, 0, 4, 6 };
-                data.WriteBitInOrder(Guid, bitOrder);
+                data.WriteGuidMask(Guid, 5, 7, 3, 2, 1, 0, 4, 6);
 
-                data.WriteByteSeq(Guid[1]);
-                data.WriteByteSeq(Guid[0]);
+                data.WriteGuidBytes(Guid, 1, 0);
                 data << uint8(0);
-                data.WriteByteSeq(Guid[7]);
-                data.WriteByteSeq(Guid[3]);
-                data.WriteByteSeq(Guid[2]);
-                data.WriteByteSeq(Guid[5]);
-                data.WriteByteSeq(Guid[6]);
-                data.WriteByteSeq(Guid[4]);
+                data.WriteGuidBytes(Guid, 7, 3, 2, 5, 6, 4);
                 data << uint32(0);
                 SendPacket(&data);
                 return;

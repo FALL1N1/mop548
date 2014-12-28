@@ -1,7 +1,4 @@
 /*
- * Copyright (C) 2011-2014 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
  * Copyright (C) 2013-2014 TimelessCore <http://timeless.sk/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -25,7 +22,7 @@ CharacterBooster::CharacterBooster(WorldSession* session) : m_session(session), 
 
 SlotEquipmentMap const* CharacterBooster::_GetCharBoostItems(std::vector<std::pair<uint32, uint32> >& itemsToMail) const
 {
-    for (uint8 i = 0; i < EMBERSILK_BAG_COUNT; i++)
+    for (uint8 i = 0; i < 4; i++) // BagCount
         itemsToMail.push_back(std::make_pair(EMBERSILK_BAG_ID, 1));
 
     itemsToMail.push_back(std::make_pair(LEMON_FLAVOUR_PUDING_ID, LEMON_FLAVOUR_PUDING_COUNT));
@@ -105,27 +102,19 @@ void CharacterBooster::_SendCharBoostPacket(SlotEquipmentMap const* items) const
 {
     ObjectGuid guid = m_charBoostInfo.charGuid;
     WorldPacket data(SMSG_BATTLE_CHAR_BOOST_ITEMS, 8 + 3 + items->size());
-    data.WriteBit(guid[2]);
-    data.WriteBit(guid[0]);
-    data.WriteBit(guid[7]);
-    data.WriteBit(guid[5]);
-    data.WriteBit(guid[3]);
-    data.WriteBit(guid[4]);
-    data.WriteBit(guid[1]);
+
+    data.WriteGuidMask(guid, 2, 0, 7, 5, 3, 4, 1);
     data.WriteBits(items->size(), 22);
     data.WriteBit(guid[6]);
+
     data.FlushBits();
 
-    data.WriteByteSeq(guid[7]);
-    data.WriteByteSeq(guid[2]);
-    data.WriteByteSeq(guid[6]);
-    data.WriteByteSeq(guid[5]);
+    data.WriteGuidBytes(guid, 7, 2, 6, 5);
+
     for (SlotEquipmentMap::const_iterator itr = items->begin(); itr != items->end(); itr++)
         data << (uint32)itr->second;
-    data.WriteByteSeq(guid[0]);
-    data.WriteByteSeq(guid[1]);
-    data.WriteByteSeq(guid[3]);
-    data.WriteByteSeq(guid[4]);
+
+    data.WriteGuidBytes(guid, 0, 1, 3, 4);
 
     m_session->SendPacket(&data);
 }
@@ -134,20 +123,22 @@ uint32 CharacterBooster::_PrepareMail(SQLTransaction& trans, std::string const& 
 {
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_MAIL);
     uint32 mailId = sObjectMgr->GenerateMailID();
-    stmt->setUInt32(0, mailId);
-    stmt->setUInt8(1, MAIL_NORMAL);
-    stmt->setInt8(2, MAIL_STATIONERY_DEFAULT);
-    stmt->setUInt16(3, 0);
-    stmt->setUInt32(4, m_charBoostInfo.lowGuid);
-    stmt->setUInt32(5, m_charBoostInfo.lowGuid);
-    stmt->setString(6, subject);
-    stmt->setString(7, body);
-    stmt->setBool(8, true);
-    stmt->setUInt64(9, time(NULL) + 180 * DAY);
-    stmt->setUInt64(10, time(NULL)); // send immediatly
+
+    stmt->setUInt32(0,  mailId);
+    stmt->setUInt8(1,   MAIL_NORMAL);
+    stmt->setInt8(2,    MAIL_STATIONERY_DEFAULT);
+    stmt->setUInt16(3,  0);
+    stmt->setUInt32(4,  m_charBoostInfo.lowGuid);
+    stmt->setUInt32(5,  m_charBoostInfo.lowGuid);
+    stmt->setString(6,  subject);
+    stmt->setString(7,  body);
+    stmt->setBool(8,    true);
+    stmt->setUInt64(9,  time(NULL) + 180 * DAY);
+    stmt->setUInt64(10, time(NULL));
     stmt->setUInt32(11, 0);
     stmt->setUInt32(12, 0);
-    stmt->setUInt8(13, 0);
+    stmt->setUInt8(13,  0);
+
     trans->Append(stmt);
 
     return mailId;
@@ -168,9 +159,11 @@ void CharacterBooster::_SendMail(SQLTransaction& trans, std::vector<std::pair<ui
             item->SetBinding(true);
             item->SaveToDB(trans);
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_MAIL_ITEM);
+
             stmt->setUInt32(0, mailId);
             stmt->setUInt32(1, item->GetGUIDLow());
             stmt->setUInt32(2, m_charBoostInfo.lowGuid);
+
             trans->Append(stmt);
         }
     }
@@ -192,7 +185,6 @@ void CharacterBooster::_MailEquipedItems(SQLTransaction& trans) const
 
     do
     {
-        // Item count is limited per mail
         if (itemCount++ > 10)
         {
             itemCount = 0;
@@ -201,17 +193,22 @@ void CharacterBooster::_MailEquipedItems(SQLTransaction& trans) const
 
         uint32 itemGuid = (*result)[0].GetUInt32();
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_MAIL_ITEM);
+
         stmt->setUInt32(0, mailId);
         stmt->setUInt32(1, itemGuid);
         stmt->setUInt32(2, m_charBoostInfo.lowGuid);
+
         trans->Append(stmt);
-    } while (result->NextRow());
+    }
+    while (result->NextRow());
 
     // unEquip after sending
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_INVENTORY_UNTIL_BAG_SLOT);
+
     stmt->setUInt32(0, 0);
-    stmt->setUInt8(1, EQUIPMENT_SLOT_END);
+    stmt->setUInt8(1,  EQUIPMENT_SLOT_END);
     stmt->setUInt32(2, m_charBoostInfo.lowGuid);
+
     trans->Append(stmt);
 }
 
@@ -227,7 +224,8 @@ std::string CharacterBooster::_SetSpecialization(SQLTransaction& trans, uint8 co
             stmt->setUInt32(0, (*result)[0].GetUInt32());
             stmt->setUInt32(1, m_charBoostInfo.lowGuid);
             trans->Append(stmt);
-        } while (result->NextRow());
+        }
+        while (result->NextRow());
     }
 
     if (uint32 const* specs = GetClassSpecializations(classId))
@@ -271,10 +269,12 @@ void CharacterBooster::_LearnSpells(SQLTransaction& trans, uint8 const& raceId, 
         for (uint8 i = 0; i < PANDAREN_FACTION_LANGUAGE_COUNT; i++)
         {
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_SPELL);
+
             stmt->setUInt32(0, m_charBoostInfo.lowGuid);
             stmt->setUInt32(1, languageSpells[i]);
-            stmt->setBool(2, true);
-            stmt->setBool(3, false);
+            stmt->setBool(2,   true);
+            stmt->setBool(3,   false);
+
             trans->Append(stmt);
         }
     }
@@ -295,10 +295,12 @@ void CharacterBooster::_LearnSpells(SQLTransaction& trans, uint8 const& raceId, 
     for (uint8 i = 0; i < spellsToLearn.size(); i++)
     {
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_SPELL);
+
         stmt->setUInt32(0, m_charBoostInfo.lowGuid);
         stmt->setUInt32(1, spellsToLearn[i]);
-        stmt->setBool(2, true);
-        stmt->setBool(3, false);
+        stmt->setBool(2,   true);
+        stmt->setBool(3,   false);
+
         trans->Append(stmt);
     }
 }
@@ -335,10 +337,12 @@ std::string CharacterBooster::_EquipItems(SQLTransaction& trans, SlotEquipmentMa
                 item->SaveToDB(trans);
 
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_INVENTORY);
+
                 stmt->setUInt32(0, m_charBoostInfo.lowGuid);
                 stmt->setUInt32(1, 0);
-                stmt->setUInt8(2, itr->first);
+                stmt->setUInt8(2,  itr->first);
                 stmt->setUInt32(3, item->GetGUIDLow());
+
                 trans->Append(stmt);
 
                 items << (itr->second) << " 0 ";
@@ -355,18 +359,20 @@ std::string CharacterBooster::_EquipItems(SQLTransaction& trans, SlotEquipmentMa
 
 void CharacterBooster::_SaveBoostedChar(SQLTransaction& trans, std::string const& items, uint8 const& raceId, uint8 const& classId) const
 {
-    float const* position = m_charBoostInfo.allianceFaction ? allianceStartPosition : hordeStartPosition;
+    float const* position = m_charBoostInfo.allianceFaction ? startPosition[1] : startPosition[0];
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHARACTER_FOR_BOOST);
-    stmt->setUInt8(0, raceId);
-    stmt->setFloat(1, position[0]);
-    stmt->setFloat(2, position[1]);
-    stmt->setFloat(3, position[2]);
-    stmt->setFloat(4, position[3]);
+
+    stmt->setUInt8(0,  raceId);
+    stmt->setFloat(1,  position[0]);
+    stmt->setFloat(2,  position[1]);
+    stmt->setFloat(3,  position[2]);
+    stmt->setFloat(4,  position[3]);
     stmt->setUInt16(5, VALE_OF_ETERNAL_BLOSSOMS_MAP_ID);
     stmt->setString(6, _SetSpecialization(trans, classId));
     stmt->setUInt16(7, AT_LOGIN_FIRST);
     stmt->setString(8, items);
     stmt->setUInt32(9, m_charBoostInfo.lowGuid);
+
     trans->Append(stmt);
 }
 
@@ -408,14 +414,14 @@ void CharacterBooster::HandleCharacterBoost()
     {
         case CHARACTER_BOOST_ITEMS:
             m_session->SendBattlePayDistributionUpdate(m_charBoostInfo.charGuid, CHARACTER_BOOST, m_charBoostInfo.action,
-                CHARACTER_BOOST_TEXT_ID, CHARACTER_BOOST_BONUS_TEXT, CHARACTER_BOOST_BONUS_TEXT2);
+                                                       CHARACTER_BOOST_TEXT_ID, CHARACTER_BOOST_BONUS_TEXT, CHARACTER_BOOST_BONUS_TEXT2);
             m_charBoostInfo.action = CHARACTER_BOOST_APPLIED;
             m_timer = 500;
             m_sendPacket = true;
             break;
         case CHARACTER_BOOST_APPLIED:
             m_session->SendBattlePayDistributionUpdate(m_charBoostInfo.charGuid, CHARACTER_BOOST, m_charBoostInfo.action,
-                CHARACTER_BOOST_TEXT_ID, CHARACTER_BOOST_BONUS_TEXT, CHARACTER_BOOST_BONUS_TEXT2);
+                                                       CHARACTER_BOOST_TEXT_ID, CHARACTER_BOOST_BONUS_TEXT, CHARACTER_BOOST_BONUS_TEXT2);
             m_charBoostInfo = CharacterBoostData();
             break;
         default:
@@ -425,11 +431,11 @@ void CharacterBooster::HandleCharacterBoost()
 
 void CharacterBooster::SetBoostedCharInfo(uint64 guid, uint32 action, uint32 specialization, bool allianceFaction)
 {
-    m_boosting = true;
-    m_charBoostInfo.charGuid = guid;
-    m_charBoostInfo.lowGuid = GUID_LOPART(guid);
-    m_charBoostInfo.action = action;
-    m_charBoostInfo.specialization = specialization;
+    m_boosting                      = true;
+    m_charBoostInfo.charGuid        = guid;
+    m_charBoostInfo.lowGuid         = GUID_LOPART(guid);
+    m_charBoostInfo.action          = action;
+    m_charBoostInfo.specialization  = specialization;
     m_charBoostInfo.allianceFaction = allianceFaction;
 }
 

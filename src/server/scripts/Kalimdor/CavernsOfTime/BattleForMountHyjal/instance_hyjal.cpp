@@ -195,23 +195,9 @@ public:
                                             ObjectGuid guid = unit->GetGUID();
 
                                             WorldPacket data2(SMSG_PLAY_SOUND, 4 + 9);
-                                            data2.WriteBit(guid[2]);
-                                            data2.WriteBit(guid[3]);
-                                            data2.WriteBit(guid[7]);
-                                            data2.WriteBit(guid[6]);
-                                            data2.WriteBit(guid[0]);
-                                            data2.WriteBit(guid[5]);
-                                            data2.WriteBit(guid[4]);
-                                            data2.WriteBit(guid[1]);
+                                            data2.WriteGuidMask(guid, 2, 3, 7, 6, 0, 5, 4, 1);
                                             data2 << uint32(10986);
-                                            data2.WriteByteSeq(guid[3]);
-                                            data2.WriteByteSeq(guid[2]);
-                                            data2.WriteByteSeq(guid[4]);
-                                            data2.WriteByteSeq(guid[7]);
-                                            data2.WriteByteSeq(guid[5]);
-                                            data2.WriteByteSeq(guid[0]);
-                                            data2.WriteByteSeq(guid[6]);
-                                            data2.WriteByteSeq(guid[1]);
+                                            data2.WriteGuidBytes(guid, 3, 2, 4, 7, 5, 0, 6, 1);
                                             i->GetSource()->GetSession()->SendPacket(&data2);
                                          }
                                     }

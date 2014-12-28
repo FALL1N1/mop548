@@ -3105,25 +3105,11 @@ class spell_gen_spirit_healer_res : public SpellScriptLoader
                 {
                     ObjectGuid guid = target->GetGUID();
                     WorldPacket data(SMSG_SPIRIT_HEALER_CONFIRM, 1 + 8);
-                    data.WriteBit(guid[6]);
-                    data.WriteBit(guid[5]);
-                    data.WriteBit(guid[7]);
-                    data.WriteBit(guid[1]);
-                    data.WriteBit(guid[4]);
-                    data.WriteBit(guid[2]);
-                    data.WriteBit(guid[3]);
-                    data.WriteBit(guid[0]);
+                    data.WriteGuidMask(guid, 6, 5, 7, 1, 4, 2, 3, 0);
                     
                     data.FlushBits();
 
-                    data.WriteByteSeq(guid[0]);
-                    data.WriteByteSeq(guid[4]);
-                    data.WriteByteSeq(guid[2]);
-                    data.WriteByteSeq(guid[3]);
-                    data.WriteByteSeq(guid[7]);
-                    data.WriteByteSeq(guid[6]);
-                    data.WriteByteSeq(guid[5]);
-                    data.WriteByteSeq(guid[1]);
+                    data.WriteGuidBytes(guid, 0, 4, 2, 3, 7, 6, 5, 1);
                     
                     originalCaster->GetSession()->SendPacket(&data);
                 }
