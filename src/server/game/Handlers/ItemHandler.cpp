@@ -679,6 +679,8 @@ void WorldSession::SendListInventory(uint64 vendorGuid)
             const bool hasCondition = false;
             const uint32 conditionID = 0;
 
+            hasExtendedCost[count] = vendorItem->ExtendedCost == 0;
+
             if (vendorItem->Type == ITEM_VENDOR_TYPE_ITEM)
             {
                 ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(vendorItem->item);
@@ -717,7 +719,6 @@ void WorldSession::SendListInventory(uint64 vendorGuid)
                 itemsData << uint32(vendorItem->item);
 
                 if (vendorItem->ExtendedCost != 0) {
-                    hasExtendedCost[count] = vendorItem->ExtendedCost == 0;
                     itemsData << uint32(vendorItem->ExtendedCost);
                 }
                 
@@ -751,7 +752,6 @@ void WorldSession::SendListInventory(uint64 vendorGuid)
 
                 itemsData << uint32(vendorItem->item);
 
-                hasExtendedCost[count] = false;
                 itemsData << uint32(vendorItem->ExtendedCost);
                 itemsData << uint32(0);                             // Item Upgrade ID
 
