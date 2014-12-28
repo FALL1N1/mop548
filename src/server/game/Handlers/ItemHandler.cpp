@@ -664,112 +664,106 @@ void WorldSession::SendListInventory(uint64 vendorGuid)
 
     VendorItemData const* vendorItems = vendor->GetVendorItems();
     uint32 rawItemCount = vendorItems ? vendorItems->GetItemCount() : 0;
-    bool hasCondition = false;
-
-    //if (rawItemCount > 300),
-    // rawItemCount = 300; // client cap but uint8 max value is 255
-
-    ByteBuffer itemsData(32 * rawItemCount);
 
     bool hasExtendedCost[MAX_VENDOR_ITEMS];
+    ByteBuffer itemsData;
 
     const float discountMod = _player->GetReputationPriceDiscount(vendor);
-    uint8 count = 0;
+    const int32 priceMod = _player->GetTotalAuraModifier(SPELL_AURA_MOD_VENDOR_ITEMS_PRICES);
+
+    uint32 count = 0;
     for (uint32 slot = 0; slot < rawItemCount; ++slot)
     {
-        VendorItem const* vendorItem = vendorItems->GetItem(slot);
-        if (!vendorItem)
-            continue;
-
-        if (vendorItem->Type == ITEM_VENDOR_TYPE_ITEM)
+        if (const VendorItem* vendorItem = vendorItems->GetItem(slot))
         {
-            ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(vendorItem->item);
-            if (!itemTemplate)
-                continue;
+            const bool hasCondition = false;
+            const uint32 conditionID = 0;
 
-            uint32 leftInStock = !vendorItem->maxcount ? 0xFFFFFFFF : vendor->GetVendorItemCurrentCount(vendorItem);
-            if (!_player->IsGameMaster())
+            if (vendorItem->Type == ITEM_VENDOR_TYPE_ITEM)
             {
-                if (!(itemTemplate->AllowableClass & _player->getClassMask()) && itemTemplate->Bonding == BIND_WHEN_PICKED_UP)
+                ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(vendorItem->item);
+                if (!itemTemplate)
                     continue;
 
-                if ((itemTemplate->Flags2 & ITEM_FLAGS_EXTRA_HORDE_ONLY && _player->GetTeam() == ALLIANCE) ||
-                    (itemTemplate->Flags2 & ITEM_FLAGS_EXTRA_ALLIANCE_ONLY && _player->GetTeam() == HORDE))
-                    continue;
+                uint32 leftInStock = !vendorItem->maxcount ? 0xFFFFFFFF : vendor->GetVendorItemCurrentCount(vendorItem);
+                if (!_player->IsGameMaster()) // ignore conditions if GM on
+                {
+                    // Respect allowed class
+                    if (!(itemTemplate->AllowableClass & _player->getClassMask()) && itemTemplate->Bonding == BIND_WHEN_PICKED_UP)
+                        continue;
 
-                if (leftInStock == 0)
-                    continue;
+                    // Only display items in vendor lists for the team the player is on
+                    if ((itemTemplate->Flags2 & ITEM_FLAGS_EXTRA_HORDE_ONLY && _player->GetTeam() == ALLIANCE) ||
+                        (itemTemplate->Flags2 & ITEM_FLAGS_EXTRA_ALLIANCE_ONLY && _player->GetTeam() == HORDE))
+                        continue;
+
+                    // Items sold out are not displayed in list
+                    if (leftInStock == 0)
+                        continue;
+                }
+
+                int32 price = vendorItem->IsGoldRequired(itemTemplate) ? uint32(floor(itemTemplate->BuyPrice * discountMod)) : 0;
+
+                if (priceMod > 0)
+                    price -= CalculatePct(price, priceMod);
+
+                itemsData << uint32(leftInStock);
+                itemsData << uint32(price);
+                itemsData << uint32(vendorItem->Type);              // 1 is items, 2 is currency
+                itemsData << uint32(0);                             // UNK
+                itemsData << uint32(itemTemplate->DisplayInfoID);
+                itemsData << uint32(itemTemplate->BuyCount);
+
+                itemsData << uint32(vendorItem->item);
+
+                if (vendorItem->ExtendedCost != 0) {
+                    hasExtendedCost[count] = vendorItem->ExtendedCost == 0;
+                    itemsData << uint32(vendorItem->ExtendedCost);
+                }
+                
+                itemsData << uint32(0);                             // Item Upgrade ID
+                
+                if (hasCondition) 
+                    itemsData << uint32(conditionID);               // TODO: Fix this piece of shit!
+
+                itemsData << uint32(count + 1);                     // client expects counting to start at 1
+
+                ++count;
             }
-
-            ConditionList conditions = sConditionMgr->GetConditionsForNpcVendorEvent(vendor->GetEntry(), vendorItem->item);
-            if (!sConditionMgr->IsObjectMeetToConditions(_player, vendor, conditions))
+            else if (vendorItem->Type == ITEM_VENDOR_TYPE_CURRENCY)
             {
-                TC_LOG_DEBUG("condition", "SendListInventory: conditions not met for creature entry %u item %u", vendor->GetEntry(), vendorItem->item);
-                continue;
-            }
+                CurrencyTypesEntry const* currencyTemplate = sCurrencyTypesStore.LookupEntry(vendorItem->item);
 
-            int32 price = vendorItem->IsGoldRequired(itemTemplate) ? uint32(floor(itemTemplate->BuyPrice * discountMod)) : 0;
+                if (!currencyTemplate)
+                    continue;
 
-            if (int32 priceMod = _player->GetTotalAuraModifier(SPELL_AURA_MOD_VENDOR_ITEMS_PRICES))
-                price -= CalculatePct(price, priceMod);
+                if (vendorItem->ExtendedCost == 0)
+                    continue; // there's no price defined for currencies, only extendedcost is used
 
-            itemsData << int32(itemTemplate->MaxDurability);
-            itemsData << int32(price);
-            itemsData << uint32(vendorItem->Type); // 1 is items, 2 is currency
-            itemsData << int32(leftInStock); // Max Count
-            itemsData << uint32(itemTemplate->DisplayInfoID);
-            itemsData << uint32(itemTemplate->BuyCount);
-            itemsData << uint32(vendorItem->item);
+                uint32 precision = (currencyTemplate->Flags & CURRENCY_FLAG_HIGH_PRECISION) ? 100 : 1;
 
-            if (vendorItem->ExtendedCost)
-            {
-                hasExtendedCost[slot] = true;
+                itemsData << uint32(vendorItem->maxcount * precision);
+                itemsData << uint32(0);
+                itemsData << uint32(vendorItem->Type);              // 1 is items, 2 is currency
+                itemsData << uint32(0);                             // UNK
+                itemsData << uint32(0);
+                itemsData << uint32(precision);
+
+                itemsData << uint32(vendorItem->item);
+
+                hasExtendedCost[count] = false;
                 itemsData << uint32(vendorItem->ExtendedCost);
+                itemsData << uint32(0);                             // Item Upgrade ID
+
+                if (hasCondition)
+                    itemsData << uint32(conditionID);
+
+                itemsData << uint32(count + 1);                     // client expects counting to start at 1
+
+                ++count;
             }
-            else
-                hasExtendedCost[slot] = false;
-
-            itemsData << uint32(0); // ItemUpgradeID
-
-            itemsData.WriteBit(hasCondition);
-            if (hasCondition)
-                itemsData << uint32(0);
-
-            itemsData << uint32(slot + 1);
-
-            if (++count >= MAX_VENDOR_ITEMS)
-                break;
-        }
-
-        else if (vendorItem->Type == ITEM_VENDOR_TYPE_CURRENCY)
-        {
-            CurrencyTypesEntry const* currencyTemplate = sCurrencyTypesStore.LookupEntry(vendorItem->item);
-            if (!currencyTemplate)
-                continue;
-
-            if (!vendorItem->ExtendedCost)
-                continue;
-
-            itemsData << int32(-1); // Max Durability
-            itemsData << uint32(0); // price, only seen currency types that have Extended cost
-            itemsData << uint32(vendorItem->Type); // 1 is items, 2 is currency
-            itemsData << int32(-1); // MaxCount
-            itemsData << uint32(0); // displayId
-            itemsData << uint32(0); // buy count
-            itemsData << uint32(vendorItem->item);
-
-            hasExtendedCost[slot] = true;
-            itemsData << uint32(vendorItem->ExtendedCost);
-
-            itemsData << uint32(0); // ItemUpgradeID
-
-            itemsData.WriteBit(hasCondition);
-            if (hasCondition)
-                itemsData << uint32(0);
-
-            itemsData << uint32(slot + 1);
-
-            if (++count >= MAX_VENDOR_ITEMS)
+            
+            if (count >= MAX_VENDOR_ITEMS)
                 break;
         }
     }
@@ -777,32 +771,25 @@ void WorldSession::SendListInventory(uint64 vendorGuid)
     ObjectGuid guid = vendorGuid;
 
     WorldPacket data(SMSG_LIST_INVENTORY, 12 + itemsData.size());
-    data.WriteBit(guid[5]);
-    data.WriteBit(guid[7]);
-    data.WriteBit(guid[1]);
-    data.WriteBit(guid[3]);
-    data.WriteBit(guid[6]);
-    data.WriteBits(count, 18);
+    data.WriteGuidMask(guid, 5, 7, 1, 3, 6);
+
+    data.WriteBits(count, 18); // item count
 
     for (uint32 i = 0; i < count; i++)
     {
-        data.WriteBit(0); // unknown
-        data.WriteBit(!hasExtendedCost[i]);
-        data.WriteBit(hasCondition);
+        data.WriteBit(0);
+        data.WriteBit(hasExtendedCost[i] ? 1 : 0);
+        data.WriteBit(1);
     }
 
-    data.WriteBit(guid[4]);
-    data.WriteBit(guid[0]);
-    data.WriteBit(guid[2]);
+    data.WriteGuidMask(guid, 4, 0, 2);
 
-    if (rawItemCount)
-        data << uint8(rawItemCount);
-    else
-        data << uint8(vendor->IsArmorer());
+    data << uint8(count); // unk byte, item count 0: 1, item count != 0: 0 or some "random" value below 300
 
+    data.FlushBits();
     data.append(itemsData);
-
-    data.WriteBytesSeq(guid, new uint8[] { 3, 7, 0, 6, 2, 1, 4, 5 });
+    
+    data.WriteGuidBytes(guid, 3, 7, 0, 6, 2, 1, 4, 5);
 
     SendPacket(&data);
 }
