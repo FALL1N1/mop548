@@ -255,7 +255,6 @@ void WorldSession::HandleTrainerBuySpellOpcode(WorldPacket& recvData)
     recvData >> spellId >> trainerId;
 
     recvData.ReadGuidMask(guid, 1, 4, 0, 6, 3, 2, 5, 7);
-
     recvData.ReadGuidBytes(guid, 3, 1, 4, 7, 0, 5, 6, 2);
 
     TC_LOG_DEBUG("network", "WORLD: Received CMSG_TRAINER_BUY_SPELL NpcGUID=%u, learn spell id is: %u", uint32(GUID_LOPART(guid)), spellId);
@@ -324,13 +323,11 @@ void WorldSession::HandleTrainerBuySpellOpcode(WorldPacket& recvData)
 void WorldSession::SendTrainerBuyFailed(ObjectGuid guid, uint32 spellId, uint32 reason)
 {
     WorldPacket data(SMSG_TRAINER_BUY_FAILED, 4 + 4);
-    
-    uint8 bitOrder[8] = {3, 0, 4, 7, 6, 1, 5, 2};
-    data.WriteBitInOrder(guid, bitOrder);
 
-    data.ReadGuidBytes(guid, 1, 2, 0, 3, 4);
+    data.WriteGuidMask(guid, 3, 0, 4, 7, 6, 1, 5, 2);
+    data.WriteGuidBytes(guid, 1, 2, 0, 3, 4);
     data << uint32(reason);         // 1 == "Not enough money for trainer service." 0 == "Trainer service %d unavailable."
-    data.ReadGuidBytes(guid, 5, 6, 7);
+    data.WriteGuidBytes(guid, 5, 6, 7);
     data << uint32(spellId);        // should be same as in packet from client
     
     SendPacket(&data);
