@@ -207,28 +207,41 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
     SetUInt64Value(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_NONE);
     SetName(fields[8].GetString());
 
+    Powers powerType = POWER_MANA;
+    switch (cinfo->unit_class)
+    {
+    case CLASS_WARRIOR:
+        powerType = POWER_RAGE;
+        break;
+    case CLASS_ROGUE:
+        powerType = POWER_ENERGY;
+        break;
+    }
+
+
+
     switch (getPetType())
     {
         case SUMMON_PET:
             petlevel = owner->getLevel();
 
-            SetClass(CLASS_MAGE);
+            SetUInt32Value(UNIT_FIELD_SEX, 0x800); // class = mage
             SetUInt32Value(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE);
+            // this enables popup window (pet dismiss, cancel)
             if (owner && owner->getClass() == CLASS_WARLOCK)
             {
-                SetClass(CLASS_ROGUE);
+                SetUInt32Value(UNIT_FIELD_SEX, 0x400); // class = rogue
                 setPowerType(POWER_ENERGY); // Warlock's pets have energy
             }
             break;
         case HUNTER_PET:
+            SetUInt32Value(UNIT_FIELD_SEX, 0x02020300); // class = warrior, gender = none, power = focus
             SetSheath(SHEATH_STATE_MELEE);
-            SetClass(CLASS_WARRIOR);
-            SetGender(GENDER_NONE);
-            SetFieldPowerType(POWER_FOCUS);
             SetByteFlag(UNIT_FIELD_SHAPESHIFT_FORM, 2, fields[9].GetBool() ? UNIT_CAN_BE_ABANDONED : UNIT_CAN_BE_RENAMED | UNIT_CAN_BE_ABANDONED);
-            SetUInt32Value(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE);
-            setPowerType(POWER_FOCUS);
 
+            SetUInt32Value(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE);
+            // this enables popup window (pet abandon, cancel)
+            SetFieldPowerType(POWER_FOCUS);
             SetSpecializationId(fields[16].GetUInt32());
             break;
         default:

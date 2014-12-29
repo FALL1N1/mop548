@@ -5417,7 +5417,7 @@ void Movement::ExtraMovementStatusElement::ReadNextElement(ByteBuffer& packet)
 void Movement::ExtraMovementStatusElement::WriteNextElement(ByteBuffer& packet)
 {
     MovementStatusElements const element = _elements[_index++];
-
+    float data = 0;
     switch (element)
     {
         case MSEHasGuidByte0:
@@ -5442,7 +5442,7 @@ void Movement::ExtraMovementStatusElement::WriteNextElement(ByteBuffer& packet)
             break;
         case MSEExtraFloat:
             packet << Data.floatData.front();
-            Data.floatData.pop_front();
+            Data.floatData.reverse();
             break;
         case MSEExtraInt8:
             packet << Data.byteData;

@@ -107,6 +107,12 @@ void PetAI::UpdateAI(uint32 diff)
         if (owner && !owner->IsInCombat())
             owner->SetInCombatWith(me->GetVictim());
 
+        if (!me->IsWithinMeleeRange(me->GetVictim()) && !me->isMoving()) {
+            me->GetMotionMaster()->Clear();
+            me->GetMotionMaster()->MoveChase(me->GetVictim(), 0);
+            //me->Attack(me->GetVictim(), true);
+        }
+
         DoMeleeAttackIfReady();
     }
     else if (owner && me->GetCharmInfo()) //no victim
@@ -329,7 +335,7 @@ void PetAI::AttackStart(Unit* target)
         return;
 
     // Only chase if not commanded to stay or if stay but commanded to attack
-    DoAttack(target, (!me->GetCharmInfo()->HasCommandState(COMMAND_STAY) || me->GetCharmInfo()->IsCommandAttack()));
+    DoAttack(target, ((!me->GetCharmInfo()->HasCommandState(COMMAND_STAY) && !me->GetCharmInfo()->HasCommandState(COMMAND_MOVE_TO)) || me->GetCharmInfo()->IsCommandAttack()));
 }
 
 void PetAI::OwnerAttackedBy(Unit* attacker)
@@ -428,7 +434,7 @@ void PetAI::HandleReturnMovement()
 
     if (me->GetCharmInfo()->HasCommandState(COMMAND_STAY) || me->GetCharmInfo()->HasCommandState(COMMAND_MOVE_TO))
     {
-        if (!me->GetCharmInfo()->IsAtStay() && !me->GetCharmInfo()->IsReturning() && !me->GetCharmInfo()->IsCommandAttack())
+        if (!me->GetCharmInfo()->IsAtStay() && !me->GetCharmInfo()->IsReturning() && !me->IsInCombat())
         {
             // Return to previous position where stay was clicked
             float x, y, z;
@@ -549,8 +555,12 @@ bool PetAI::CanAttack(Unit* target)
         return !me->GetCharmInfo()->IsCommandFollow();
 
     // Stay - can attack if target is within range or commanded to
-    if (me->GetCharmInfo()->HasCommandState(COMMAND_STAY) || me->GetCharmInfo()->HasCommandState(COMMAND_MOVE_TO))
-        return (me->IsWithinMeleeRange(target) || me->GetCharmInfo()->IsCommandAttack());
+    if (me->GetCharmInfo()->HasCommandState(COMMAND_STAY) || me->GetCharmInfo()->HasCommandState(COMMAND_MOVE_TO)) {
+        if (me->HasReactState(REACT_AGGRESSIVE))
+            return true;
+        else
+            return (me->IsWithinMeleeRange(target) || me->GetCharmInfo()->IsCommandAttack());
+    }
 
     //  Pets attacking something (or chasing) should only switch targets if owner tells them to
     if (me->GetVictim() && me->GetVictim() != target)
