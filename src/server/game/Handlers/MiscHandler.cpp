@@ -1365,39 +1365,141 @@ void WorldSession::HandleInspectOpcode(WorldPacket& recvData)
     ObjectGuid guid;
 
     recvData.ReadGuidMask(guid, 0, 3, 7, 2, 5, 1, 4, 6);
-
     recvData.ReadGuidBytes(guid, 3, 5, 2, 4, 1, 6, 0, 7);
 
     TC_LOG_DEBUG("network", "WORLD: Received CMSG_INSPECT");
 
     Player* player = ObjectAccessor::FindPlayer(guid);
     if (!player)
-    {
-        TC_LOG_DEBUG("network", "CMSG_INSPECT: No player found from GUID: " UI64FMTD, (uint64)guid);
         return;
+
+    ObjectGuid GUIDInspectee = player->GetGUID();
+    Guild* guild = sGuildMgr->GetGuildById(player->GetGuildId());
+    uint32 items = 0;
+    uint32 talentCount = 0;
+    uint32 glyphes = 0;
+    ObjectGuid gGuildId = guild->GetGUID;
+    ByteBuffer itemsBites, itemsBytes, talentsBytes, glyphesBytes;
+    size_t* wpos = new size_t[player->GetSpecsCount()];
+
+    WorldPacket data(SMSG_INSPECT_RESULTS_UPDATE);
+
+    data.WriteBit(guild != NULL);
+    data.WriteGuidMask(GUIDInspectee, 2);
+
+    if (guild)
+        data.WriteGuidMask(gGuildId, 7, 0, 5, 3, 2, 4, 6, 1);
+
+    data.WriteGuidMask(GUIDInspectee, 4, 3, 5, 7);
+
+    for (uint32 i = 0; i < EQUIPMENT_SLOT_END; ++i)
+    {
+        if (const Item* item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, i))
+        {
+            ObjectGuid CreatorGUID = item->GetUInt64Value(ITEM_FIELD_CREATOR);
+            ByteBuffer enchantBytes;
+            uint32 enchantments = 0;
+            uint16 enchantmentMask = 0;
+
+            for (uint8 j = 0; j < MAX_ENCHANTMENT_SLOT; ++j)
+            {
+                if (uint32 enchId = item->GetEnchantmentId(EnchantmentSlot(j)))
+                {
+                    enchantBytes << uint32(enchId);
+                    enchantBytes << uint8(j);
+                    enchantmentMask |= (1 << j);
+                    enchantments++;
+                }
+            }
+
+            itemsBites.WriteGuidMask(CreatorGUID, 1);
+            itemsBites.WriteBit(false); // unk88
+            itemsBites.WriteBit(false); // unk112
+            itemsBites.WriteGuidMask(CreatorGUID, 3);
+            itemsBites.WriteBits(enchantments, 21);
+            itemsBites.WriteGuidMask(CreatorGUID, 2, 6, 4);
+            itemsBites.WriteBit(enchantmentMask != 0);
+            itemsBites.WriteGuidMask(CreatorGUID, 0, 5, 7);
+ 
+
+            if (enchantmentMask != 0)
+                itemsBytes << uint16(enchantmentMask);
+
+            itemsBytes.WriteGuidBytes(CreatorGUID, 3);
+            itemsBytes << uint32(0);    // seed lenght ?
+            itemsBytes.append(enchantBytes);
+            itemsBytes << uint32(item->GetEntry());
+            itemsBytes.WriteGuidBytes(CreatorGUID, 6, 4, 7, 2);
+            
+            if (false)  // unk88
+                itemsBytes << uint32(0);    // unk84
+
+            itemsBytes.WriteGuidBytes(CreatorGUID, 5);
+            itemsBytes << uint8(i);
+            itemsBytes.WriteGuidBytes(CreatorGUID, 0, 1);
+            
+            items++;
+        }
     }
 
-    uint32 talent_points = 41;
-    WorldPacket data(SMSG_INSPECT_TALENT, 8 + 4 + 1 + 1 + talent_points + 8 + 4 + 8 + 4);
-    data << player->GetGUID();
+    data.WriteBits(items, 20);
+    data.WriteGuidMask(GUIDInspectee, 0);
 
-    if (sWorld->getBoolConfig(CONFIG_TALENTS_INSPECTING) || _player->IsGameMaster())
-        player->BuildPlayerTalentsInfoData(&data);
-    else
-    {
-        data << uint32(0);                                  // unspentTalentPoints
-        data << uint8(0);                                   // talentGroupCount
-        data << uint8(0);                                   // talentGroupIndex
-    }
+    size_t pos = data.wpos();
+    data.WriteBits(0, 23);
 
-    player->BuildEnchantmentsInfoData(&data);
-    if (Guild* guild = sGuildMgr->GetGuildById(player->GetGuildId()))
+    data.WriteBits(glyphes, 23);
+
+    data.WriteGuidMask(GUIDInspectee, 6, 1);
+    data.WriteGuidBytes(GUIDInspectee, 1, 4, 2);
+    data.append(itemsBytes);
+
+    if (guild)
     {
-        data << uint64(guild->GetGUID());
-        data << uint32(guild->GetLevel());
+        data.WriteGuidBytes(gGuildId, 6, 2, 5, 0);
+        data << uint32(guild->GetMembersCount()); // unk36
+        data.WriteGuidBytes(gGuildId, 4, 7);
         data << uint64(guild->GetExperience());
-        data << uint32(guild->GetMembersCount());
+        data.WriteGuidBytes(gGuildId, 1);
+        data << uint32(guild->GetLevel()); // unk32
+        data.WriteGuidBytes(gGuildId, 3);
     }
+
+    data.WriteGuidBytes(GUIDInspectee, 5);
+
+    for (int32 i = 0; i < player->GetSpecsCount(); i++)
+    {
+        uint32 const* talentTabIds = GetClassSpecializations(player->getClass());
+
+        int32 talentCount = 0;
+        for (uint32 talentId = 0; talentId < sTalentStore.GetNumRows(); ++talentId)
+        {
+            TalentEntry const* talentInfo = sTalentStore.LookupEntry(talentId);
+            if (!talentInfo)
+                continue;
+
+            if (talentInfo->playerClass != player->getClass())
+                continue;
+
+            if (!player->HasTalent(talentInfo->SpellId, i))
+                continue;
+
+            data << uint16(talentInfo->TalentID);
+
+            talentCount++;
+
+            for (uint8 j = 0; j < MAX_GLYPH_SLOT_INDEX; ++j)
+                glyphesBytes << uint16(player->GetGlyph(i, j));
+        }
+
+        data.PutBits(wpos[i], talentCount, 23);
+    }
+
+    data.WriteGuidBytes(GUIDInspectee, 0);
+    data << uint32(player->GetActiveSpec());
+    data.append(glyphesBytes);
+    data.WriteGuidBytes(GUIDInspectee, 7, 3, 6);
+
     SendPacket(&data);
 }
 
