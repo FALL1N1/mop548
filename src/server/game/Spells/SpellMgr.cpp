@@ -3743,6 +3743,14 @@ void SpellMgr::LoadSpellInfoCorrections()
                 break;
             // ENDOF ISLE OF CONQUEST SPELLS
             //
+            // Rogue - Invisibility
+            case 1784:
+                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(21);
+                break;
+            // Mage - Blazing speed
+            case 108843:
+                spellInfo->AttributesEx4 &= ~SPELL_ATTR4_TRIGGERED;
+                break;
             default:
                 break;
         }

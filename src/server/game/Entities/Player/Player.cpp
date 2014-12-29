@@ -28167,7 +28167,7 @@ void Player::SendMovementSetCollisionHeight(float height)
 {
     static MovementStatusElements const extraElements[] = { MSEExtraFloat, MSEExtraFloat };
     Movement::ExtraMovementStatusElement extra(extraElements);
-    extra.Data.floatData = height;
+    extra.Data.floatData = { 1, height };
     Movement::PacketSender(this, NULL_OPCODE, SMSG_MOVE_SET_COLLISION_HEIGHT, SMSG_MOVE_UPDATE_COLLISION_HEIGHT, &extra).Send();
 }
 

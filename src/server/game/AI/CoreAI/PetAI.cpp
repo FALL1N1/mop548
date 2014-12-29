@@ -76,7 +76,7 @@ void PetAI::_stopAttack()
 
 void PetAI::UpdateAI(uint32 diff)
 {
-    if (!me->IsAlive() || !me->GetCharmInfo())
+    if (!me->IsAlive())
         return;
 
     Unit* owner = me->GetCharmerOrOwner();
@@ -87,7 +87,8 @@ void PetAI::UpdateAI(uint32 diff)
     else
         m_updateAlliesTimer -= diff;
 
-    if (me->GetVictim() && me->GetVictim()->IsAlive())
+    // me->getVictim() can't be used for check in case stop fighting, me->getVictim() clear at Unit death etc.
+    if (me->GetVictim())
     {
         // is only necessary to stop casting, the pet must not exit combat
         if (me->GetVictim()->HasBreakableByDamageCrowdControlAura(me))
@@ -103,24 +104,20 @@ void PetAI::UpdateAI(uint32 diff)
             return;
         }
 
-        // Check before attacking to prevent pets from leaving stay position
-        if (me->GetCharmInfo()->HasCommandState(COMMAND_STAY))
-        {
-            if (me->GetCharmInfo()->IsCommandAttack() || (me->GetCharmInfo()->IsAtStay() && me->IsWithinMeleeRange(me->GetVictim())))
-                DoMeleeAttackIfReady();
-        }
-        else
-            DoMeleeAttackIfReady();
+        if (owner && !owner->IsInCombat())
+            owner->SetInCombatWith(me->GetVictim());
+
+        DoMeleeAttackIfReady();
     }
-    else
+    else if (owner && me->GetCharmInfo()) //no victim
     {
-        if (me->HasReactState(REACT_AGGRESSIVE) || me->GetCharmInfo()->IsAtStay())
+        // Only aggressive pets do target search every update.
+        // Defensive pets do target search only in these cases:
+        //  * Owner attacks something - handled by OwnerAttacked()
+        //  * Owner receives damage - handled by OwnerDamagedBy()
+        //  * Pet is in combat and current target dies - handled by KilledUnit()
+        if (me->HasReactState(REACT_AGGRESSIVE))
         {
-            // Every update we need to check targets only in certain cases
-            // Aggressive - Allow auto select if owner or pet don't have a target
-            // Stay - Only pick from pet or owner targets / attackers so targets won't run by
-            //   while chasing our owner. Don't do auto select.
-            // All other cases (ie: defensive) - Targets are assigned by AttackedBy(), OwnerAttackedBy(), OwnerAttacked(), etc.
             Unit* nextTarget = SelectNextTarget(me->HasReactState(REACT_AGGRESSIVE));
 
             if (nextTarget)
@@ -131,6 +128,11 @@ void PetAI::UpdateAI(uint32 diff)
         else
             HandleReturnMovement();
     }
+    else if (owner && !me->HasUnitState(UNIT_STATE_FOLLOW)) // no charm info and no victim
+        me->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, me->GetFollowAngle());
+
+    if (!me->GetCharmInfo())
+        return;
 
     // Autocast (casted only in combat or persistent spells in any state)
     if (!me->HasUnitState(UNIT_STATE_CASTING))
@@ -182,9 +184,6 @@ void PetAI::UpdateAI(uint32 diff)
                     }
                 }
 
-                if (spellInfo->HasEffect(SPELL_EFFECT_JUMP_DEST))
-                    continue; // Pets must only jump to target
-
                 // No enemy, check friendly
                 if (!spellUsed)
                 {
@@ -224,7 +223,7 @@ void PetAI::UpdateAI(uint32 diff)
         {
             uint32 index = urand(0, targetSpellStore.size() - 1);
 
-            Spell* spell  = targetSpellStore[index].second;
+            Spell* spell = targetSpellStore[index].second;
             Unit*  target = targetSpellStore[index].first;
 
             targetSpellStore.erase(targetSpellStore.begin() + index);
@@ -253,10 +252,10 @@ void PetAI::UpdateAI(uint32 diff)
     }
 
     // Update speed as needed to prevent dropping too far behind and despawning
-    me->UpdateSpeed(MOVE_RUN, true);
-    me->UpdateSpeed(MOVE_WALK, true);
-    me->UpdateSpeed(MOVE_FLIGHT, true);
-
+    // This not need to call every update.
+    //me->UpdateSpeed(MOVE_RUN, true);
+    //me->UpdateSpeed(MOVE_WALK, true);
+    //me->UpdateSpeed(MOVE_FLIGHT, true);
 }
 
 void PetAI::UpdateAllies()

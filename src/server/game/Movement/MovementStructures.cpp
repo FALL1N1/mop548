@@ -5395,10 +5395,10 @@ void Movement::ExtraMovementStatusElement::ReadNextElement(ByteBuffer& packet)
             packet.ReadByteSeq(Data.guid[element - MSEGuidByte0]);
             break;
         case MSEExtraFloat:
-        {
-            packet >> Data.floatData;
+            float data;
+            packet >> data;
+            Data.floatData.push_back(data);
             break;
-        }
         case MSEExtraInt8:
             packet >> Data.byteData;
             break;
@@ -5441,11 +5441,9 @@ void Movement::ExtraMovementStatusElement::WriteNextElement(ByteBuffer& packet)
             packet.WriteByteSeq(Data.guid[element - MSEGuidByte0]);
             break;
         case MSEExtraFloat:
-        {
-            // Get the front one and rotate list to the left
-            packet << Data.floatData;
+            packet << Data.floatData.front();
+            Data.floatData.pop_front();
             break;
-        }
         case MSEExtraInt8:
             packet << Data.byteData;
             break;

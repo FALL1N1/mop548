@@ -851,19 +851,16 @@ void WorldSession::HandleBuyBankSlotOpcode(WorldPacket& recvData)
 {
     TC_LOG_DEBUG("network", "WORLD: CMSG_BUY_BANK_SLOT");
 
-    ObjectGuid guid;
-    bool timedCompleted = 1;
-    recvData.ReadGuidMask(guid, 7, 6, 1, 3, 2, 0, 4, 5);
+    uint64 guid;
+    recvData >> guid;
 
-    recvData.ReadGuidBytes(guid, 3, 5, 1, 6, 7, 2, 0, 4);
-    
     // cheating protection
     /* not critical if "cheated", and check skip allow by slots in bank windows open by .bank command.
     Creature* creature = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_BANKER);
     if (!creature)
     {
-        TC_LOG_DEBUG("WORLD: HandleBuyBankSlotOpcode - Unit (GUID: %u) not found or you can't interact with him.", uint32(GUID_LOPART(guid)));
-        return;
+    sLog->outDebug("WORLD: HandleBuyBankSlotOpcode - Unit (GUID: %u) not found or you can't interact with him.", uint32(GUID_LOPART(guid)));
+    return;
     }
     */
 
@@ -872,52 +869,21 @@ void WorldSession::HandleBuyBankSlotOpcode(WorldPacket& recvData)
     // next slot
     ++slot;
 
-    TC_LOG_INFO("network", "PLAYER: Buy bank bag slot, slot number = %u", slot);
+    TC_LOG_DEBUG("network", "PLAYER: Buy bank bag slot, slot number = %u", slot);
 
     BankBagSlotPricesEntry const* slotEntry = sBankBagSlotPricesStore.LookupEntry(slot);
-    AchievementCriteriaEntry const* entry = sAchievementCriteriaStore.LookupEntry(uint32(ACHIEVEMENT_CRITERIA_TYPE_BUY_BANK_SLOT));
-    CriteriaProgress* progress = new CriteriaProgress;
-    
-    // BankBagSlotPricesEntry const* slotEntry = sBankBagSlotPricesStore.LookupEntry(slot);
-    // AchievementCriteriaEntry const* entry = ACHIEVEMENT_CRITERIA_TYPE_BUY_BANK_SLOT;
-    
-    // _player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BUY_BANK_SLOT, slot, 0, NULL);
-    guid = _player->GetGUID();
-    uint32 timeElapsed = 0;
-    
-    progress->counter = (uint64)slot;
-    progress->changed = true;
-    progress->date = time(NULL); // set the date to the latest update.
 
-    WorldPacket data(SMSG_CRITERIA_UPDATE, 8 + 4 + 4 + 8 + 4 + 4 + 8);
-    data.WriteGuidMask(guid, 4, 6, 2, 3, 7, 1, 5, 0);
-    data.FlushBits();
-
-    data.WriteGuidBytes(guid, 3, 6, 2);
-    data << uint32(entry->ID);
-
-    if (!entry->timeLimit)
-        data << uint32(0);
-    else
-        data << uint32(timedCompleted ? 0 : 1); // this are some flags, 1 is for keeping the counter at 0 in client
-
-    data.WriteGuidBytes(guid, 5, 1);
-    data.AppendPackedTime(progress->date);
-    data.WriteByteSeq(guid[4]);
-    data << uint32(timeElapsed); // time elapsed in seconds, always these 2 are similars
-    data << uint32(timeElapsed);
-    data.WriteGuidBytes(guid, 7, 0);
-    data << (uint64)progress->counter;
+    WorldPacket data(SMSG_BUY_BANK_SLOT_RESULT, 4);
 
     if (!slotEntry)
     {
-    //    data << uint32(ERR_BANKSLOT_FAILED_TOO_MANY);
-    //    SendPacket(&data);
+        data << uint32(ERR_BANKSLOT_FAILED_TOO_MANY);
+        SendPacket(&data);
         return;
     }
 
     uint32 price = slotEntry->price;
-    /*
+
     if (!_player->HasEnoughMoney(uint64(price)))
     {
         data << uint32(ERR_BANKSLOT_INSUFFICIENT_FUNDS);
@@ -928,10 +894,10 @@ void WorldSession::HandleBuyBankSlotOpcode(WorldPacket& recvData)
     _player->SetBankBagSlotCount(slot);
     _player->ModifyMoney(-int64(price));
 
-     data << uint32(ERR_BANKSLOT_OK);
-     */
+    data << uint32(ERR_BANKSLOT_OK);
     SendPacket(&data);
-    // _player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BUY_BANK_SLOT);
+
+    _player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BUY_BANK_SLOT);
 }
 
 void WorldSession::HandleAutoBankItemOpcode(WorldPacket& recvPacket)
