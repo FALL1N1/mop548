@@ -1528,7 +1528,7 @@ void WorldSession::HandleTransmogrifyItems(WorldPacket& recvData)
         HasunkItemGuid[i] = recvData.ReadBit();
 
         if (HasunkItemGuid[i])
-            recvData.ReadGuidMask(itemGuids[i], 5, 6, 1, 3, 0, 4, 7, 2);
+            recvData.ReadGuidMask(itemUnkGuids[i], 5, 6, 1, 3, 0, 4, 7, 2);
 
         if (HasItemGuid[i])
             recvData.ReadGuidMask(itemGuids[i], 4, 1, 0, 6, 5, 2, 7, 3);
@@ -1545,10 +1545,10 @@ void WorldSession::HandleTransmogrifyItems(WorldPacket& recvData)
     for (uint8 i = 0; i < count; ++i)
     {
         if (HasunkItemGuid[i])
-            recvData.ReadGuidBytes(itemGuids[i], 7, 1, 6, 5, 4, 3, 0, 2);
+            recvData.ReadGuidBytes(itemUnkGuids[i], 2, 5, 4, 3, 6, 0, 7, 1);
 
         if (HasItemGuid[i])
-            recvData.ReadGuidBytes(itemGuids[i], 2, 5, 4, 3, 6, 0, 7, 1);
+            recvData.ReadGuidBytes(itemGuids[i], 7, 1, 6, 5, 4, 3, 0, 2);
     }
 
     // Validate
