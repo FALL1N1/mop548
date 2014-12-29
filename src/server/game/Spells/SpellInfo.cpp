@@ -1014,6 +1014,15 @@ SpellInfo::SpellInfo(SpellEntry const* spellEntry, SpellEffectEntry const** effe
             OverrideSpellList.push_back(specializationInfo->SpellId);
     }
 
+    switch (Id) {
+        case 31801:
+            SpecializationIdList.push_back(70);
+            SpecializationIdList.push_back(66);
+        case 105361:
+            OverrideSpellList.push_back(105361);
+            break;
+    }
+
     // TalentEntry -> OverrideSpellList
     TalentEntry const* talentInfo = NULL;
     for (uint32 i = 0; i < sTalentStore.GetNumRows(); ++i)
@@ -2182,6 +2191,15 @@ SpellSpecificType SpellInfo::GetSpellSpecific() const
         }
         case SPELLFAMILY_PALADIN:
         {
+            // Collection of all the seal family flags. No other paladin spell has any of those.
+            // Collection of all the seal Id.
+            if (Id == 20164         // Seal of Justice
+                || Id == 20154      // Seal of Righteoussness
+                || Id == 31801      // Seal of Truth
+                || Id == 20165      // Seal of Insight
+                || Id == 105361)    // Seal of Command
+                return SPELL_SPECIFIC_SEAL;
+
             // Collection of all the seal family flags. No other paladin spell has any of those.
             if (SpellFamilyFlags[1] & 0x26000C00
                 || SpellFamilyFlags[0] & 0x0A000000)
