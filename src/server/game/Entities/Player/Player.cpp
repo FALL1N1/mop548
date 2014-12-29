@@ -3483,12 +3483,6 @@ void Player::GiveLevel(uint8 level)
     uint32 basehp = 0, basemana = 0;
     sObjectMgr->GetPlayerClassLevelInfo(getClass(), level, basehp, basemana);
 
-    if (HasAuraType(SPELL_AURA_INCREASE_BASE_MANA))
-    {
-        float insight = GetTotalAuraMultiplier(SPELL_AURA_INCREASE_BASE_MANA);
-        basemana *= insight;
-    }
-    
     // send levelup info to client
     WorldPacket data(SMSG_LEVELUP_INFO, ((MAX_POWERS_PER_CLASS * 4) + 4 + 4 + (MAX_STATS * 4) + 4));
 
@@ -3710,12 +3704,6 @@ void Player::InitStatsForLevel(bool reapplyMods)
 
     uint32 basehp = 0, basemana = 0;
     sObjectMgr->GetPlayerClassLevelInfo(getClass(), getLevel(), basehp, basemana);
-
-    if (HasAuraType(SPELL_AURA_INCREASE_BASE_MANA))
-    {
-        float insight = GetTotalAuraMultiplier(SPELL_AURA_INCREASE_BASE_MANA);
-        basemana *= insight;
-    }
 
     PlayerLevelInfo info;
     sObjectMgr->GetPlayerLevelInfo(getRace(), getClass(), getLevel(), &info);
@@ -19215,7 +19203,7 @@ void Player::_LoadVoidStorage(PreparedQueryResult result)
             creatorGuid = 0;
         }
 
-        _voidStorageItems[slot] = new VoidStorageItem(itemId, itemEntry, creatorGuid, randomProperty, suffixFactor);
+        _voidStorageItems[slot] = new VoidStorageItem(itemId, itemEntry, creatorGuid, randomProperty, suffixFactor, 0);
     }
     while (result->NextRow());
 }
@@ -28085,7 +28073,7 @@ uint8 Player::AddVoidStorageItem(const VoidStorageItem& item)
     }
 
     _voidStorageItems[slot] = new VoidStorageItem(item.ItemId, item.ItemEntry,
-        item.CreatorGuid, item.ItemRandomPropertyId, item.ItemSuffixFactor);
+        item.CreatorGuid, item.ItemRandomPropertyId, item.ItemSuffixFactor, 0);
     return slot;
 }
 
@@ -28105,7 +28093,7 @@ void Player::AddVoidStorageItemAtSlot(uint8 slot, const VoidStorageItem& item)
     }
 
     _voidStorageItems[slot] = new VoidStorageItem(item.ItemId, item.ItemId,
-        item.CreatorGuid, item.ItemRandomPropertyId, item.ItemSuffixFactor);
+        item.CreatorGuid, item.ItemRandomPropertyId, item.ItemSuffixFactor, 0);
 }
 
 void Player::DeleteVoidStorageItem(uint8 slot)

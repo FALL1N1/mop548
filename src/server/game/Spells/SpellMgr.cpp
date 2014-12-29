@@ -2789,76 +2789,22 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
 
         switch (spellInfo->Id)
         {
-            // override list
-            case 34433: // Shadowfiend
-                spellInfo->OverrideSpellList.push_back(123040); // Add Mindbender to override spell list of Shadowfiend
-                break;
-            case 853:   // Hammer of Justice
-                spellInfo->OverrideSpellList.push_back(105593); // Replace Hammer of Justice by Fist of Justice
-                break;
-            case 2484:  // Earthbind Totem
-                spellInfo->OverrideSpellList.push_back(51485);
-                break;
-            case 1784:  // Stealth
-                spellInfo->OverrideSpellList.push_back(115191); // Add Stealth (talent) to override spell list of Stealth
             case 9005:  // Pounce
-                spellInfo->OverrideSpellList.push_back(102546); // Replace Pounce by Pounce (Incarnation)
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(35); // 4s
                 break;
-            case 121733:// Throw
-                spellInfo->OverrideSpellList.push_back(114014); // Add Shuriken Toss to override spell list of Throw
-                break;
-            case 105361:// Seal of Command
-                spellInfo->OverrideSpellList.push_back(31801); // Replace Seal of Command with Seal of Truth
-                break;
-            case 13165: // Aspect of the Hawk
-                spellInfo->OverrideSpellList.push_back(109260); // Add Aspect of the Iron Hack to override spell list of Aspect of the Hawk
-                break;
-            case 115008:// Chi Torpedo
-                spellInfo->OverrideSpellList.push_back(121828); // Override List with Chi Torpedo - Talent
-                break;
-            case 109132:// Roll
-                spellInfo->OverrideSpellList.push_back(115008); // Override List with Chi Torpedo
-                spellInfo->OverrideSpellList.push_back(121827); // Override List with Roll - Talent
-                break;
             case 66:    // Invisibility
-                spellInfo->OverrideSpellList.push_back(110959); // Greater Invisibility
                 spellInfo->Dispel = DISPEL_INVISIBILITY;
-                break;
-            case 47476: // Strangulate
-                spellInfo->OverrideSpellList.push_back(108194); // Asphyxiate
-                break;
-            case 689:   // Drain Life
-                spellInfo->OverrideSpellList.push_back(108371); // Harvest Life (talent)
-                break;
-            case 34428: // Victory Rush
-                spellInfo->OverrideSpellList.push_back(103840); // Impending Victory
                 break;
             case 6785:  // Ravage
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_REQ_CASTER_BEHIND_TARGET;
-                spellInfo->OverrideSpellList.push_back(102545); // Replace Ravage by Ravage (Incarnation)
-                break;
-            case 5212:  // Prowl
-                spellInfo->OverrideSpellList.push_back(102547); // Replace Prowl by Prowl (Incarnation)
-                break;
-            case 16914: // Hurricane
-                spellInfo->OverrideSpellList.push_back(106996); // Replace Hurricane by Astral Storm
-                break;
-            case 755:   // Health Funnel
-                spellInfo->OverrideSpellList.push_back(108415); // Replace Health Funnel by Soul Link
-                break;
-            case 85673: // Word of Glory
-                spellInfo->OverrideSpellList.push_back(114163); // Replace World of glory by Eternal Flame
                 break;
             case 115073:// Spinning Fire Blossom
                 spellInfo->Effects[0].TargetA = 0;
                 spellInfo->Effects[0].Effect = 0;
                 spellInfo->Effects[0].BasePoints = 0;
-                spellInfo->OverrideSpellList.push_back(123408); // Add Spinning Fire Blossom (Overrided by Glyph) to override spell list of Spinning Fire Blossom
                 break;
             case 5782:  // Fear
                 spellInfo->Dispel = DISPEL_MAGIC;
-                spellInfo->OverrideSpellList.push_back(111397);
                 spellInfo->Mechanic = 0;
                 spellInfo->Effects[0].Mechanic = MECHANIC_NONE;
                 break;

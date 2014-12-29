@@ -1098,7 +1098,7 @@ enum SpellEffects
     SPELL_EFFECT_HEAL_BATTLEPET_PCT                 = 200, // Battle pet Healing  125439, 125801
     SPELL_EFFECT_BATTLE_PET                         = 201, // Battle pet first slot and track
     SPELL_EFFECT_202                                = 202,
-    SPELL_EFFECT_203                                = 203,
+    SPELL_EFFECT_TRIGGER_MISSILE2                   = 203,
     SPELL_EFFECT_204                                = 204,
     SPELL_EFFECT_205                                = 205,
     SPELL_EFFECT_206                                = 206,

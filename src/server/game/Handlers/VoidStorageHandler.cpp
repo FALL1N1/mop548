@@ -43,8 +43,8 @@ void WorldSession::HandleVoidStorageUnlock(WorldPacket& recvData)
     Player* player = GetPlayer();
 
     ObjectGuid npcGuid;
-    recvData.ReadGuidMask(npcGuid, 3, 1, 5, 6, 4, 0, 7, 2);
 
+    recvData.ReadGuidMask(npcGuid, 3, 1, 5, 6, 4, 0, 7, 2);
     recvData.ReadGuidBytes(npcGuid, 4, 3, 6, 2, 1, 5, 7, 0);
 
     Creature* unit = player->GetNPCIfCanInteractWith(npcGuid, UNIT_NPC_FLAG_VAULTKEEPER);
@@ -72,7 +72,6 @@ void WorldSession::HandleVoidStorageQuery(WorldPacket& recvData)
     ObjectGuid npcGuid;
 
     recvData.ReadGuidMask(npcGuid, 1, 5, 6, 0, 7, 2, 3, 4);
-
     recvData.ReadGuidBytes(npcGuid, 1, 6, 4, 3, 7, 0, 2, 5);
 
     Creature* unit = player->GetNPCIfCanInteractWith(npcGuid, UNIT_NPC_FLAG_VAULTKEEPER);
@@ -93,11 +92,11 @@ void WorldSession::HandleVoidStorageQuery(WorldPacket& recvData)
         if (player->GetVoidStorageItem(i))
             ++count;
 
+    ByteBuffer itemData;
+
     WorldPacket data(SMSG_VOID_STORAGE_CONTENTS, 2 * count + (14 + 4 + 4 + 4 + 4) * count);
 
-    data.WriteBits(count, 8);
-
-    ByteBuffer itemData((14 + 4 + 4 + 4 + 4) * count);
+    data.WriteBits(count, 7);
 
     for (uint8 i = 0; i < VOID_STORAGE_MAX_SLOT; ++i)
     {
@@ -122,26 +121,16 @@ void WorldSession::HandleVoidStorageQuery(WorldPacket& recvData)
         itemData.WriteByteSeq(itemId[6]);
         itemData.WriteByteSeq(creatorGuid[6]);
         itemData.WriteByteSeq(itemId[2]);
-
-        itemData << uint32(item->ItemSuffixFactor); //= 32
-
+        itemData << uint32(item->ItemSuffixFactor);
         itemData.WriteGuidBytes(itemId, 7, 3);
         itemData.WriteByteSeq(creatorGuid[0]);
-
-        itemData << uint32(i); //= 16
-
+        itemData << uint32(item->ItemUpgrade);
         itemData.WriteByteSeq(itemId[0]);
-
-        itemData << uint32(item->ItemRandomPropertyId); //= 24
-
+        itemData << uint32(item->ItemRandomPropertyId);
         itemData.WriteGuidBytes(creatorGuid, 2, 5, 3);
-
-        itemData << uint32(item->ItemEntry); //= 28
-
+        itemData << uint32(item->ItemEntry);
         itemData.WriteGuidBytes(itemId, 5, 1);
-
-        itemData << uint32(0); //= 20
-
+        itemData << uint32(i);
         itemData.WriteByteSeq(itemId[4]);
         itemData.WriteByteSeq(creatorGuid[1]);
     }
@@ -154,27 +143,14 @@ void WorldSession::HandleVoidStorageQuery(WorldPacket& recvData)
 
 void WorldSession::HandleVoidStorageTransfer(WorldPacket& recvData)
 {
-TC_LOG_DEBUG("network", "WORLD: Received CMSG_VOID_STORAGE_TRANSFER");
+    TC_LOG_DEBUG("network", "WORLD: Received CMSG_VOID_STORAGE_TRANSFER");
     Player* player = GetPlayer();
 
     ObjectGuid npcGuid;
+
     recvData.ReadGuidMask(npcGuid, 7, 4);
 
-    uint32 countWithdraw = recvData.ReadBits(26);
-
-    if (countWithdraw > 9)
-    {
-        TC_LOG_DEBUG("network", "WORLD: HandleVoidStorageTransfer - Player (GUID: %u, name: %s) wants to withdraw more than 9 items (%u).", player->GetGUIDLow(), player->GetName().c_str(), countWithdraw);
-        return;
-    }
-
-    std::vector<ObjectGuid> itemIds(countWithdraw);
-    for (uint32 i = 0; i < countWithdraw; ++i)
-    {
-        recvData.ReadGuidMask(itemIds[i], 4, 0, 5, 7, 6, 1, 2, 3);
-    }
-
-    uint32 countDeposit = recvData.ReadBits(26); //40
+    uint32 countDeposit = recvData.ReadBits(24); //40
 
     if (countDeposit > 9)
     {
@@ -184,23 +160,30 @@ TC_LOG_DEBUG("network", "WORLD: Received CMSG_VOID_STORAGE_TRANSFER");
 
     std::vector<ObjectGuid> itemGuids(countDeposit);
     for (uint32 i = 0; i < countDeposit; ++i)
-    {
         recvData.ReadGuidMask(itemGuids[i], 0, 3, 6, 5, 4, 2, 1, 7);
+
+   
+    uint32 countWithdraw = recvData.ReadBits(24);
+
+    if (countWithdraw > 9)
+    {
+        TC_LOG_DEBUG("network", "WORLD: HandleVoidStorageTransfer - Player (GUID: %u, name: %s) wants to withdraw more than 9 items (%u).", player->GetGUIDLow(), player->GetName().c_str(), countWithdraw);
+        return;
     }
+
+    std::vector<ObjectGuid> itemIds(countWithdraw);
+    for (uint32 i = 0; i < countWithdraw; ++i)
+        recvData.ReadGuidMask(itemIds[i], 4, 0, 5, 7, 6, 1, 2, 3);
 
     recvData.ReadGuidMask(npcGuid, 6, 0, 3, 1, 2, 5);
 
-    for (uint32 i = 0; i < countWithdraw; ++i)
-    {
-        recvData.ReadGuidBytes(itemIds[i], 0, 4, 1, 2, 6, 3, 7, 5);
-    }
+    for (uint32 i = 0; i < countDeposit; ++i)
+        recvData.ReadGuidBytes(itemGuids[i], 5, 6, 3, 4, 1, 7, 2, 0);
 
     recvData.ReadByteSeq(npcGuid[5]);
 
-    for (uint32 i = 0; i < countDeposit; ++i)
-    {
-        recvData.ReadGuidBytes(itemGuids[i], 5, 6, 3, 4, 1, 7, 2, 0);
-    }
+    for (uint32 i = 0; i < countWithdraw; ++i)
+        recvData.ReadGuidBytes(itemIds[i], 0, 4, 1, 2, 6, 3, 7, 5);
 
     recvData.ReadGuidBytes(npcGuid, 1, 7, 4, 3, 2, 0, 6);
 
@@ -258,7 +241,7 @@ TC_LOG_DEBUG("network", "WORLD: Received CMSG_VOID_STORAGE_TRANSFER");
             continue;
         }
 
-        VoidStorageItem itemVS(sObjectMgr->GenerateVoidStorageItemId(), item->GetEntry(), item->GetUInt64Value(ITEM_FIELD_CREATOR), item->GetItemRandomPropertyId(), item->GetItemSuffixFactor());
+        VoidStorageItem itemVS(sObjectMgr->GenerateVoidStorageItemId(), item->GetEntry(), item->GetUInt64Value(ITEM_FIELD_CREATOR), item->GetItemRandomPropertyId(), item->GetItemSuffixFactor(), 0);
 
         uint8 slot = player->AddVoidStorageItem(itemVS);
 
@@ -302,66 +285,66 @@ TC_LOG_DEBUG("network", "WORLD: Received CMSG_VOID_STORAGE_TRANSFER");
         player->DeleteVoidStorageItem(slot);
     }
 
-    WorldPacket data(SMSG_VOID_STORAGE_TRANSFER_CHANGES, ((5 + 5 + (7 + 7) * depositCount +
-        7 * withdrawCount) / 8) + 7 * withdrawCount + (7 + 7 + 4 * 4) * depositCount);
+    printf("w %u d %u", withdrawCount, depositCount);
 
-    data.WriteBits(depositCount, 5);
-    data.WriteBits(withdrawCount, 5);
+    WorldPacket data(SMSG_VOID_STORAGE_TRANSFER_CHANGES);
 
+    data.WriteBits(withdrawCount, 4);
+    
+    for (uint8 i = 0; i < withdrawCount; ++i)
+    {
+        ObjectGuid itemId = withdrawItems[i].ItemId;
+        data.WriteGuidMask(itemId, 1, 6, 7, 3, 2, 0, 4, 5);
+    }
+
+    data.WriteBits(depositCount, 4);
+    
     for (uint8 i = 0; i < depositCount; ++i)
     {
         ObjectGuid itemId = depositItems[i].first.ItemId;
         ObjectGuid creatorGuid = depositItems[i].first.CreatorGuid;
-        data.WriteBit(creatorGuid[7]);
-        data.WriteGuidMask(itemId, 7, 4);
-        data.WriteGuidMask(creatorGuid, 6, 5);
-        data.WriteGuidMask(itemId, 3, 5);
-        data.WriteGuidMask(creatorGuid, 4, 2, 0, 3, 1);
-        data.WriteGuidMask(itemId, 2, 0, 1, 6);
-    }
 
-    for (uint8 i = 0; i < withdrawCount; ++i)
-    {
-        ObjectGuid itemId = withdrawItems[i].ItemId;
-        data.WriteGuidMask(itemId, 1, 7, 3, 5, 6, 2, 4, 0);
+        data.WriteGuidMask(itemId, 0);
+        data.WriteGuidMask(creatorGuid, 6, 4);
+        data.WriteGuidMask(itemId, 3);
+        data.WriteGuidMask(creatorGuid, 3);
+        data.WriteGuidMask(itemId, 5, 7);
+        data.WriteGuidMask(creatorGuid, 0, 5, 7);
+        data.WriteGuidMask(itemId, 6, 4);
+        data.WriteGuidMask(creatorGuid, 1);
+        data.WriteGuidMask(itemId, 1);
+        data.WriteGuidMask(creatorGuid, 2);
+        data.WriteGuidMask(itemId, 2);
     }
 
     data.FlushBits();
 
-    for (uint8 i = 0; i < withdrawCount; ++i)
-    {
-        ObjectGuid itemId = withdrawItems[i].ItemId;
-        data.WriteGuidBytes(itemId, 3, 1, 0, 2, 7, 5, 6, 4);
-    }
-
     for (uint8 i = 0; i < depositCount; ++i)
     {
         ObjectGuid itemId = depositItems[i].first.ItemId;
         ObjectGuid creatorGuid = depositItems[i].first.CreatorGuid;
 
-        data << uint32(depositItems[i].first.ItemSuffixFactor);
-
-        data.WriteGuidBytes(itemId, 6, 4);
-        data.WriteByteSeq(creatorGuid[4]);
-        data.WriteByteSeq(itemId[2]);
-        data.WriteGuidBytes(creatorGuid, 1, 3);
-        data.WriteByteSeq(itemId[3]);
-        data.WriteByteSeq(creatorGuid[0]);
-        data.WriteByteSeq(itemId[0]);
-        data.WriteByteSeq(creatorGuid[6]);
-        data.WriteByteSeq(itemId[5]);
-        data.WriteGuidBytes(creatorGuid, 5, 7);
-
-        data << uint32(depositItems[i].first.ItemEntry);
-
-        data.WriteByteSeq(itemId[1]);
-
         data << uint32(depositItems[i].second); // slot
-
-        data.WriteByteSeq(creatorGuid[2]);
-        data.WriteByteSeq(itemId[7]);
-
+        data.WriteGuidBytes(creatorGuid, 5);
+        data << uint32(depositItems[i].first.ItemEntry);
+        data.WriteGuidBytes(creatorGuid, 6, 3);
+        data << uint32(depositItems[i].first.ItemSuffixFactor); 
+        data.WriteGuidBytes(creatorGuid, 2);
+        data.WriteGuidBytes(itemId, 5);
         data << uint32(depositItems[i].first.ItemRandomPropertyId);
+        data.WriteGuidBytes(itemId, 3);
+        data.WriteGuidBytes(creatorGuid, 7, 4, 1);
+        data.WriteGuidBytes(itemId, 0, 4, 6);
+        data << uint32(depositItems[i].first.ItemUpgrade);
+        data.WriteGuidBytes(itemId, 1, 2);
+        data.WriteGuidBytes(creatorGuid, 0);
+        data.WriteGuidBytes(itemId, 7);
+    }
+
+    for (uint8 i = 0; i < withdrawCount; ++i)
+    {
+        ObjectGuid itemId = withdrawItems[i].ItemId;
+        data.WriteGuidBytes(itemId, 7, 3, 1, 5, 4, 0, 6, 2);
     }
 
     SendPacket(&data);
@@ -380,25 +363,22 @@ void WorldSession::HandleVoidSwapItem(WorldPacket& recvData)
 
     recvData >> newSlot;
 
-    //  -- sub_6949E7
-    // To Do : Complete SMSG_VOID_ITEM_SWAP_RESPONSE
-
-    npcGuid[6] = recvData.ReadBit(); // >23
-    itemId[4]  = recvData.ReadBit(); // <23
-    itemId[7]  = recvData.ReadBit(); // <23
-    itemId[3]  = recvData.ReadBit(); // <23
-    itemId[2]  = recvData.ReadBit(); // <23
-    npcGuid[4] = recvData.ReadBit(); // >23
-    npcGuid[2] = recvData.ReadBit(); // >23
-    itemId[0]  = recvData.ReadBit(); // <23
-    itemId[1]  = recvData.ReadBit(); // <23
-    npcGuid[7] = recvData.ReadBit(); // >23
-    npcGuid[1] = recvData.ReadBit(); // >23
-    itemId[6]  = recvData.ReadBit(); // <23
-    npcGuid[3] = recvData.ReadBit(); // >23
-    npcGuid[5] = recvData.ReadBit(); // >23
-    itemId[5]  = recvData.ReadBit(); // <23
-    npcGuid[0] = recvData.ReadBit(); // >23
+    npcGuid[6] = recvData.ReadBit();
+    itemId[4]  = recvData.ReadBit();
+    itemId[7]  = recvData.ReadBit();
+    itemId[3]  = recvData.ReadBit();
+    itemId[2]  = recvData.ReadBit();
+    npcGuid[4] = recvData.ReadBit();
+    npcGuid[2] = recvData.ReadBit();
+    itemId[0]  = recvData.ReadBit();
+    itemId[1]  = recvData.ReadBit();
+    npcGuid[7] = recvData.ReadBit();
+    npcGuid[1] = recvData.ReadBit();
+    itemId[6]  = recvData.ReadBit();
+    npcGuid[3] = recvData.ReadBit();
+    npcGuid[5] = recvData.ReadBit();
+    itemId[5]  = recvData.ReadBit();
+    npcGuid[0] = recvData.ReadBit();
 
     recvData.ReadGuidBytes(npcGuid, 3, 5);
     recvData.ReadByteSeq(itemId[6]);
@@ -445,40 +425,24 @@ void WorldSession::HandleVoidSwapItem(WorldPacket& recvData)
 
     WorldPacket data(SMSG_VOID_ITEM_SWAP_RESPONSE, 1 + (usedSrcSlot + usedDestSlot) * (1 + 7 + 4));
 
-    data.WriteBit(!usedDestSlot);
     data.WriteBit(!usedSrcSlot);
-
-    if (usedSrcSlot)
-    {
-        data.WriteGuidMask(itemId, 5, 2, 1, 4, 0, 6, 7, 3);
-    }
-
-    data.WriteBit(!usedDestSlot); // unk
-
-    if (usedDestSlot)
-    {
-        data.WriteGuidMask(itemIdDest, 7, 3, 4, 0, 5, 1, 2, 6);
-    }
-
+    data.WriteGuidMask(itemId, 4, 1, 6, 0, 3, 7, 2, 5);
+    data.WriteBit(!usedDestSlot);
+    data.WriteGuidMask(itemIdDest, 6, 0, 3, 2, 1, 5, 7, 4);
+     
     data.WriteBit(!usedSrcSlot); // unk
+    data.WriteBit(!usedDestSlot); // unk
 
     data.FlushBits();
 
-    if (usedDestSlot)
-    {
-        data.WriteGuidBytes(itemIdDest, 4, 6, 5, 2, 3, 1, 7, 0);
-    }
-
-    if (usedSrcSlot)
-    {
-        data.WriteGuidBytes(itemId, 6, 3, 5, 0, 1, 2, 4, 7);
-    }
-
-    if (usedDestSlot)
-        data << uint32(oldSlot);
+    data.WriteGuidBytes(itemIdDest, 3, 7, 2, 5, 0, 1, 4, 6);
+    data.WriteGuidBytes(itemId, 0, 2, 7, 5, 6, 4, 3, 1);
 
     if (usedSrcSlot)
         data << uint32(newSlot);
+
+    if (usedDestSlot)
+        data << uint32(oldSlot);
 
     SendPacket(&data);
 }
