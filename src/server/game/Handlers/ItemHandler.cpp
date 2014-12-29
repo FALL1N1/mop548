@@ -1513,9 +1513,7 @@ void WorldSession::HandleTransmogrifyItems(WorldPacket& recvData)
         recvData.rfinish();
         return;
     }
-
-    recvData.ReadGuidMask(npcGuid, 0, 7);
-
+    
     std::vector<ObjectGuid> itemGuids(count, ObjectGuid(0)), itemUnkGuids(count, ObjectGuid(0));
     std::vector<uint32> newEntries(count, 0);
     std::vector<uint32> slots(count, 0);
@@ -1526,7 +1524,12 @@ void WorldSession::HandleTransmogrifyItems(WorldPacket& recvData)
     {
         HasItemGuid[i] = recvData.ReadBit();
         HasunkItemGuid[i] = recvData.ReadBit();
+    }
 
+    recvData.ReadGuidMask(npcGuid, 0, 7);
+
+    for (uint8 i = 0; i < count; ++i)
+    {
         if (HasunkItemGuid[i])
             recvData.ReadGuidMask(itemUnkGuids[i], 5, 6, 1, 3, 0, 4, 7, 2);
 
@@ -1536,8 +1539,8 @@ void WorldSession::HandleTransmogrifyItems(WorldPacket& recvData)
 
     for (uint8 i = 0; i < count; ++i)
     {
-        recvData >> newEntries[i];
         recvData >> slots[i];
+        recvData >> newEntries[i];   
     }
 
     recvData.ReadGuidBytes(npcGuid, 5, 0, 1, 2, 3, 4, 6, 7);

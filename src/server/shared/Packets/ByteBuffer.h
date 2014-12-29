@@ -717,6 +717,14 @@ class ByteBuffer
                 append(buffer.contents(), buffer.wpos());
         }
 
+        void AppendBits(const ByteBuffer& buffer)
+        {
+            for (uint32 i = 0; i < buffer.wpos(); ++i)
+                WriteBits(*(buffer.contents() + i), 8);
+
+            WriteBits(buffer._curbitval >> buffer._bitpos, 8 - buffer._bitpos);
+        }
+
         // can be used in SMSG_MONSTER_MOVE opcode
         void appendPackXYZ(float x, float y, float z)
         {

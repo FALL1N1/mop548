@@ -19215,7 +19215,7 @@ void Player::_LoadVoidStorage(PreparedQueryResult result)
             creatorGuid = 0;
         }
 
-        _voidStorageItems[slot] = new VoidStorageItem(itemId, itemEntry, creatorGuid, randomProperty, suffixFactor);
+        _voidStorageItems[slot] = new VoidStorageItem(itemId, itemEntry, creatorGuid, randomProperty, suffixFactor, 0);
     }
     while (result->NextRow());
 }
@@ -28085,7 +28085,7 @@ uint8 Player::AddVoidStorageItem(const VoidStorageItem& item)
     }
 
     _voidStorageItems[slot] = new VoidStorageItem(item.ItemId, item.ItemEntry,
-        item.CreatorGuid, item.ItemRandomPropertyId, item.ItemSuffixFactor);
+        item.CreatorGuid, item.ItemRandomPropertyId, item.ItemSuffixFactor, 0);
     return slot;
 }
 
@@ -28105,7 +28105,7 @@ void Player::AddVoidStorageItemAtSlot(uint8 slot, const VoidStorageItem& item)
     }
 
     _voidStorageItems[slot] = new VoidStorageItem(item.ItemId, item.ItemId,
-        item.CreatorGuid, item.ItemRandomPropertyId, item.ItemSuffixFactor);
+        item.CreatorGuid, item.ItemRandomPropertyId, item.ItemSuffixFactor, 0);
 }
 
 void Player::DeleteVoidStorageItem(uint8 slot)

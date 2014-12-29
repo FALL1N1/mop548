@@ -1056,15 +1056,17 @@ struct VoidStorageItem
         CreatorGuid = 0;
         ItemRandomPropertyId = 0;
         ItemSuffixFactor = 0;
+        ItemUpgrade = 0;
     }
 
-    VoidStorageItem(uint64 id, uint32 entry, uint32 creator, uint32 randomPropertyId, uint32 suffixFactor)
+    VoidStorageItem(uint64 id, uint32 entry, uint32 creator, uint32 randomPropertyId, uint32 suffixFactor, uint32 itemUpgrade)
     {
         ItemId = id;
         ItemEntry = entry;
         CreatorGuid = creator;
         ItemRandomPropertyId = randomPropertyId;
         ItemSuffixFactor = suffixFactor;
+        ItemUpgrade = itemUpgrade;
     }
 
     uint64 ItemId;
@@ -1072,6 +1074,7 @@ struct VoidStorageItem
     uint32 CreatorGuid;
     uint32 ItemRandomPropertyId;
     uint32 ItemSuffixFactor;
+    uint32 ItemUpgrade;
 };
 
 class TradeData
