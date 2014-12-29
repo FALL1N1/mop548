@@ -215,9 +215,8 @@ class AuraEffect
         void HandleModTotalPercentStat(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModResistenceOfStatPercent(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModExpertise(AuraApplication const* aurApp, uint8 mode, bool apply) const;
-        void HandleModManaRegenByHaste(AuraApplication const* aurApp, uint8 mode, bool apply) const;
-        void HandleAuraIncreaseBaseMana(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleOverrideSpellPowerByAttackPower(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+        void HandleAuraModRatings(AuraApplication const *aurApp, uint8 mode, bool apply) const;
         //   heal and energize
         void HandleModPowerRegen(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleModPowerRegenPCT(AuraApplication const* aurApp, uint8 mode, bool apply) const;
@@ -228,6 +227,7 @@ class AuraEffect
         void HandleAuraModIncreaseEnergyPercent(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModIncreaseHealthPercent(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraIncreaseBaseHealthPercent(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+        void HandleModManaRegenByHaste(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         //   fight
         void HandleAuraModParryPercent(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModDodgePercent(AuraApplication const* aurApp, uint8 mode, bool apply) const;
@@ -307,6 +307,7 @@ class AuraEffect
         void HandleProcTriggerDamageAuraProc(AuraApplication* aurApp, ProcEventInfo& eventInfo);
         void HandleRaidProcFromChargeAuraProc(AuraApplication* aurApp, ProcEventInfo& eventInfo);
         void HandleRaidProcFromChargeWithValueAuraProc(AuraApplication* aurApp, ProcEventInfo& eventInfo);
+        void HandleModNextSpell(AuraApplication const * aurApp, uint8 mode, bool apply) const;
 };
 
 namespace Trinity

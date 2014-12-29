@@ -3483,12 +3483,6 @@ void Player::GiveLevel(uint8 level)
     uint32 basehp = 0, basemana = 0;
     sObjectMgr->GetPlayerClassLevelInfo(getClass(), level, basehp, basemana);
 
-    if (HasAuraType(SPELL_AURA_INCREASE_BASE_MANA))
-    {
-        float insight = GetTotalAuraMultiplier(SPELL_AURA_INCREASE_BASE_MANA);
-        basemana *= insight;
-    }
-    
     // send levelup info to client
     WorldPacket data(SMSG_LEVELUP_INFO, ((MAX_POWERS_PER_CLASS * 4) + 4 + 4 + (MAX_STATS * 4) + 4));
 
@@ -3710,12 +3704,6 @@ void Player::InitStatsForLevel(bool reapplyMods)
 
     uint32 basehp = 0, basemana = 0;
     sObjectMgr->GetPlayerClassLevelInfo(getClass(), getLevel(), basehp, basemana);
-
-    if (HasAuraType(SPELL_AURA_INCREASE_BASE_MANA))
-    {
-        float insight = GetTotalAuraMultiplier(SPELL_AURA_INCREASE_BASE_MANA);
-        basemana *= insight;
-    }
 
     PlayerLevelInfo info;
     sObjectMgr->GetPlayerLevelInfo(getRace(), getClass(), getLevel(), &info);
