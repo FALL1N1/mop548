@@ -177,11 +177,19 @@ void WorldSession::HandlePetActionHelper(Unit* pet, uint64 guid1, uint32 spellid
         case ACT_COMMAND:                                   //0x07
             switch (spellid)
             {
+                case COMMAND_MOVE_TO:
                 case COMMAND_STAY:                          //flat=1792  //STAY
                     pet->StopMoving();
                     pet->GetMotionMaster()->Clear(false);
-                    pet->GetMotionMaster()->MoveIdle();
-                    charmInfo->SetCommandState(COMMAND_STAY);
+                    if (spellid == COMMAND_STAY) {
+                        pet->GetMotionMaster()->MoveIdle();
+                        charmInfo->SetCommandState(COMMAND_STAY);
+                    }
+                    else
+                    {
+                        pet->GetMotionMaster()->MovePoint(0, x, y, z);
+                        charmInfo->SetCommandState(COMMAND_MOVE_TO);
+                    }
 
                     charmInfo->SetIsCommandAttack(false);
                     charmInfo->SetIsAtStay(true);
@@ -284,7 +292,7 @@ void WorldSession::HandlePetActionHelper(Unit* pet, uint64 guid1, uint32 spellid
                         }
                     }
                     break;
-                case COMMAND_MOVE_TO:
+                /*case COMMAND_MOVE_TO:
                     pet->StopMoving();
                     pet->GetMotionMaster()->Clear(false);
                     pet->GetMotionMaster()->MovePoint(0, x, y, z);
@@ -295,7 +303,7 @@ void WorldSession::HandlePetActionHelper(Unit* pet, uint64 guid1, uint32 spellid
                     charmInfo->SetIsFollowing(false);
                     charmInfo->SetIsReturning(false);
                     charmInfo->SaveStayPosition();
-                    break;
+                    break;*/
                 default:
                     TC_LOG_ERROR("network", "WORLD: unknown PET flag Action %i and spellid %i.", uint32(flag), spellid);
             }

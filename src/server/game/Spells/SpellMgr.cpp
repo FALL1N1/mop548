@@ -2961,6 +2961,9 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
             case 72293: // Mark of the Fallen Champion (Deathbringer Saurfang)
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE_EFF0;
                 break;
+            case 115450: // Detox
+                spellInfo->Effects[3].activatedByAura = 146954;
+                break;
             default:
                 break;
         }
@@ -3689,6 +3692,14 @@ void SpellMgr::LoadSpellInfoCorrections()
                 break;
             // ENDOF ISLE OF CONQUEST SPELLS
             //
+            // Rogue - Invisibility
+            case 1784:
+                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(21);
+                break;
+            // Mage - Blazing speed
+            case 108843:
+                spellInfo->AttributesEx4 &= ~SPELL_ATTR4_TRIGGERED;
+                break;
             default:
                 break;
         }

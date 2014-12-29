@@ -2328,6 +2328,29 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
     if (!caster)
         return;
 
+
+    // Override effectMask for spells that require certain auras to be present on caster to activete partial effects
+    uint32 newMask = 0;
+    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    {
+        if (mask & (1 << i))
+        {
+            if (m_spellInfo->Effects[i].activatedByAura == 0)
+                newMask |= (1 << i);
+            else
+            {
+                // Number of the beast, effect is never activated!
+                if (m_spellInfo->Effects[i].activatedByAura == 666)
+                    continue;
+
+                if (caster->HasAura(m_spellInfo->Effects[i].activatedByAura))
+                    newMask |= (1 << i);
+            }
+        }
+    }
+
+    mask = newMask;
+
     SpellMissInfo missInfo = target->missCondition;
 
     // Need init unitTarget by default unit (can changed in code on reflect)

@@ -433,7 +433,7 @@ void WorldSession::HandleForceSpeedChangeAck(WorldPacket &recvData)
         return;
     }
 
-    float newspeed = extras.Data.floatData;
+    float newspeed = extras.Data.floatData.front();
 
     /*----------------*/
 

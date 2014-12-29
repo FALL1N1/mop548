@@ -442,6 +442,13 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                 }
                 break;
             }
+            case SPELLFAMILY_MONK:
+                // Touch of Death
+                if (m_spellInfo->Id == 115080)
+                {
+                    damage = unitTarget->GetHealth();
+                }
+                break;
             case SPELLFAMILY_WARRIOR:
             {
                 // Victory Rush
