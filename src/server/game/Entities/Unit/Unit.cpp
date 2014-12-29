@@ -9263,17 +9263,34 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uin
     // Check for table values
     float coeff = spellProto->Effects[effIndex].SpellPowerCoeff;
     
-    // This field seems to be not present in DBC.. check better
-    /*
-    if (effect->BonusCoefficientFromAP > 0)
+    // Melee data is not present inside DBC! Use DB Value.
+    SpellBonusEntry const* bonus = sSpellMgr->GetSpellBonusData(spellProto->Id);
+    if (bonus)
     {
-        WeaponAttackType attType = (spellProto->IsRangedWeaponSpell() && spellProto->DmgClass != SPELL_DAMAGE_CLASS_MELEE) ? RANGED_ATTACK : BASE_ATTACK;
-        float APbonus = float(victim->GetTotalAuraModifier(attType == BASE_ATTACK ? SPELL_AURA_MELEE_ATTACK_POWER_ATTACKER_BONUS : SPELL_AURA_RANGED_ATTACK_POWER_ATTACKER_BONUS));
-        APbonus += GetTotalAttackPowerValue(attType);
-        DoneTotal += int32(effect->BonusCoefficientFromAP * stack * ApCoeffMod * APbonus);
+        if (damagetype == DOT)
+        {
+            coeff = bonus->dot_damage;
+            if (bonus->ap_dot_bonus > 0)
+            {
+                WeaponAttackType attType = (spellProto->IsRangedWeaponSpell() && spellProto->DmgClass != SPELL_DAMAGE_CLASS_MELEE) ? RANGED_ATTACK : BASE_ATTACK;
+                float APbonus = float(victim->GetTotalAuraModifier(attType == BASE_ATTACK ? SPELL_AURA_MELEE_ATTACK_POWER_ATTACKER_BONUS : SPELL_AURA_RANGED_ATTACK_POWER_ATTACKER_BONUS));
+                APbonus += GetTotalAttackPowerValue(attType);
+                DoneTotal += int32(bonus->ap_dot_bonus * stack * ApCoeffMod * APbonus);
+            }
+        }
+        else
+        {
+            coeff = bonus->direct_damage;
+            if (bonus->ap_bonus > 0)
+            {
+                WeaponAttackType attType = (spellProto->IsRangedWeaponSpell() && spellProto->DmgClass != SPELL_DAMAGE_CLASS_MELEE) ? RANGED_ATTACK : BASE_ATTACK;
+                float APbonus = float(victim->GetTotalAuraModifier(attType == BASE_ATTACK ? SPELL_AURA_MELEE_ATTACK_POWER_ATTACKER_BONUS : SPELL_AURA_RANGED_ATTACK_POWER_ATTACKER_BONUS));
+                APbonus += GetTotalAttackPowerValue(attType);
+                DoneTotal += int32(bonus->ap_bonus * stack * ApCoeffMod * APbonus);
+            }
+        }
     }
-    */
-
+    
     // Default calculation
     if (DoneAdvertisedBenefit)
     {
@@ -9808,17 +9825,30 @@ uint32 Unit::SpellHealingBonusDone(Unit* victim, SpellInfo const* spellProto, ui
         }
 
     // Check for table values
-        float coeff = spellProto->Effects[effIndex].SpellPowerCoeff;
+    float coeff = spellProto->Effects[effIndex].SpellPowerCoeff;
     float factorMod = 1.0f;
     
+    SpellBonusEntry const* bonus = sSpellMgr->GetSpellBonusData(spellProto->Id);
+
     // This field is not present in DBC check where is savede MELEE BONUS spell
-    /*
-    if (effect->BonusCoefficientFromAP > 0.0f)
+    if (bonus)
     {
-        DoneTotal += int32(effect->BonusCoefficientFromAP * stack * GetTotalAttackPowerValue(
-            (spellProto->IsRangedWeaponSpell() && spellProto->DmgClass != SPELL_DAMAGE_CLASS_MELEE) ? RANGED_ATTACK : BASE_ATTACK));
-    }
-    else */
+        if (damagetype == DOT)
+        {
+            coeff = bonus->dot_damage;
+            if (bonus->ap_dot_bonus > 0)
+                DoneTotal += int32(bonus->ap_dot_bonus * stack * GetTotalAttackPowerValue(
+                (spellProto->IsRangedWeaponSpell() && spellProto->DmgClass != SPELL_DAMAGE_CLASS_MELEE) ? RANGED_ATTACK : BASE_ATTACK));
+        }
+        else
+        {
+            coeff = bonus->direct_damage;
+            if (bonus->ap_bonus > 0)
+                DoneTotal += int32(bonus->ap_bonus * stack * GetTotalAttackPowerValue(
+                (spellProto->IsRangedWeaponSpell() && spellProto->DmgClass != SPELL_DAMAGE_CLASS_MELEE) ? RANGED_ATTACK : BASE_ATTACK));
+        }
+    }   
+
     if (coeff <= 0.0f)
     {
         // No bonus healing for SPELL_DAMAGE_CLASS_NONE class spells by default
