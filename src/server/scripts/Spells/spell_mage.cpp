@@ -995,7 +995,7 @@ public:
                 if (!(*i)->GetAmplitude())
                     continue;
 
-                combustionBp += caster->SpellDamageBonusDone(target, (*i)->GetSpellInfo(), (*i)->GetAmount(), DOT) * 1000 / (*i)->GetAmplitude();
+                combustionBp += caster->SpellDamageBonusDone(target, (*i)->GetSpellInfo(), (*i)->GetAmount(), DOT, (*i)->GetEffIndex()) * 1000 / (*i)->GetAmplitude();
             }
 
             if (combustionBp)

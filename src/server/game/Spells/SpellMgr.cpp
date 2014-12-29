@@ -1987,9 +1987,9 @@ void SpellMgr::LoadSpellBonusess()
 
         SpellBonusEntry& sbe = mSpellBonusMap[entry];
         sbe.direct_damage = fields[1].GetFloat();
-        sbe.dot_damage    = fields[2].GetFloat();
-        sbe.ap_bonus      = fields[3].GetFloat();
-        sbe.ap_dot_bonus   = fields[4].GetFloat();
+        sbe.dot_damage = fields[2].GetFloat();
+        sbe.ap_bonus = fields[3].GetFloat();
+        sbe.ap_dot_bonus = fields[4].GetFloat();
 
         ++count;
     } while (result->NextRow());

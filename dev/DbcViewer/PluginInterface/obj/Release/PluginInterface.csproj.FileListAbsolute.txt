@@ -1,5 +1,0 @@
-C:\timeless-other\dbcviewer\PluginInterface\bin\Release\PluginInterface.dll
-C:\timeless-other\dbcviewer\PluginInterface\bin\Release\PluginInterface.pdb
-C:\timeless-other\dbcviewer\PluginInterface\obj\Release\PluginInterface.csprojResolveAssemblyReference.cache
-C:\timeless-other\dbcviewer\PluginInterface\obj\Release\PluginInterface.dll
-C:\timeless-other\dbcviewer\PluginInterface\obj\Release\PluginInterface.pdb

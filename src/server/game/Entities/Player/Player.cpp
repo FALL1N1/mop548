@@ -26974,16 +26974,14 @@ void Player::ResetAchievementCriteria(AchievementCriteriaTypes type, uint64 misc
 void Player::UpdateAchievementCriteria(AchievementCriteriaTypes type, uint64 miscValue1 /*= 0*/, uint64 miscValue2 /*= 0*/, uint64 miscValue3 /*= 0*/, Unit* unit /*= NULL*/)
 {
     m_achievementMgr->UpdateAchievementCriteria(type, miscValue1, miscValue2, miscValue3, unit, this);
-    Guild* guild = sGuildMgr->GetGuildById(GetGuildId());
-    if (!guild)
-        return;
-
+    
     // Update only individual achievement criteria here, otherwise we may get multiple updates
     // from a single boss kill
     if (sAchievementMgr->IsGroupCriteriaType(type))
         return;
-
-    guild->UpdateAchievementCriteria(type, miscValue1, miscValue2, miscValue3, unit, this);
+    
+    if (Guild* guild = sGuildMgr->GetGuildById(GetGuildId()))
+        guild->UpdateAchievementCriteria(type, miscValue1, miscValue2, miscValue3, unit, this);
 }
 
 void Player::CompletedAchievement(AchievementEntry const* entry)
@@ -29216,7 +29214,7 @@ float Player::GetMasterySpellCoefficient() const
 
     // retrieve the mastery value multiplier from the mastery spell base points
     if (SpellInfo const* mastery = sSpellMgr->GetSpellInfo(specEntry->specializationSpell))
-        return (GetFloatValue(PLAYER_FIELD_MASTERY) * mastery->Effects[EFFECT_0].BonusMultiplier);
+        return (GetFloatValue(PLAYER_FIELD_MASTERY) * mastery->Effects[EFFECT_0].SpellPowerCoeff);
 
     return 1.0f;
 }

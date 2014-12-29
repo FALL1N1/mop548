@@ -237,6 +237,7 @@ class SpellEffectInfo
     SpellInfo const* _spellInfo;
     uint8 _effIndex;
 public:
+    uint32    EffectIndex;
     uint32    Effect;
     uint32    ApplyAuraName;
     uint32    Amplitude;
@@ -244,9 +245,9 @@ public:
     float     RealPointsPerLevel;
     int32     BasePoints;
     float     PointsPerComboPoint;
+    float     SpellPowerCoeff;
     float     ValueMultiplier;
     float     DamageMultiplier;
-    float     BonusMultiplier;
     int32     MiscValue;
     int32     MiscValueB;
     Mechanics Mechanic;

@@ -773,7 +773,7 @@ void WorldSession::SendListInventory(uint64 vendorGuid)
     WorldPacket data(SMSG_LIST_INVENTORY, 12 + itemsData.size());
     data.WriteGuidMask(guid, 5, 7, 1, 3, 6);
 
-    data.WriteBits(count, 18); // item count
+    data.WriteBits(count, 18);
 
     for (uint32 i = 0; i < count; i++)
     {
@@ -784,7 +784,7 @@ void WorldSession::SendListInventory(uint64 vendorGuid)
 
     data.WriteGuidMask(guid, 4, 0, 2);
 
-    data << uint8(count); // unk byte, item count 0: 1, item count != 0: 0 or some "random" value below 300
+    data << uint8(count);
 
     data.FlushBits();
     data.append(itemsData);
