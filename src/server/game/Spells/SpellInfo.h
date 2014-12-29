@@ -264,6 +264,7 @@ public:
     float     ScalingMultiplier;
     float     DeltaScalingMultiplier;
     float     ComboScalingMultiplier;
+    uint32    activatedByAura;
 
     SpellEffectInfo() { }
     SpellEffectInfo(SpellEntry const* spellEntry, SpellInfo const* spellInfo, uint8 effIndex, SpellEffectEntry const* effect);

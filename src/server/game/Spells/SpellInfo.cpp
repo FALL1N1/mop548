@@ -386,6 +386,7 @@ SpellEffectInfo::SpellEffectInfo(SpellEntry const* /*spellEntry*/, SpellInfo con
     SpellEffectScalingEntry const* _effectScalingEntry = sSpellEffectScalingStore.LookupEntry(_effectScalingId);
 
     ScalingMultiplier = 0.0f;
+    activatedByAura = 0;
 
     if (!_effectScalingEntry)
         return;

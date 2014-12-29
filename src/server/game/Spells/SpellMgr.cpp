@@ -3015,6 +3015,9 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
             case 72293: // Mark of the Fallen Champion (Deathbringer Saurfang)
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE_EFF0;
                 break;
+            case 115450: // Detox
+                spellInfo->Effects[3].activatedByAura = 146954;
+                break;
             default:
                 break;
         }

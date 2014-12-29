@@ -45,6 +45,7 @@ enum MonkSpells
     SPELL_MONK_LEGACY_OF_THE_EMPEROR_RAID           = 117666,
     SPELL_MONK_LEGACY_OF_THE_EMPEROR_ALLY           = 117667,
     SPELL_MONK_EXPEL_HARM_AREA_DMG                  = 115129,
+    SPELL_MONK_TOUCH_OF_DEATH_PLAYER                = 124490
 };
 
 // 117952 - Crackling Jade Lightning
@@ -309,6 +310,53 @@ public:
     }
 };
 
+class spell_monk_touch_of_death : public SpellScriptLoader
+{
+public:
+    spell_monk_touch_of_death() : SpellScriptLoader("spell_monk_touch_of_death") { }
+
+    class spell_monk_touch_of_death_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_monk_touch_of_death_SpellScript);
+
+        SpellCastResult CheckRequirement()
+        {
+            if (Unit* caster = GetCaster())
+            {
+                if (Unit* target = GetExplTargetUnit())
+                {
+                    if (target->ToPlayer())
+                    {
+                        if (caster->HasAura(SPELL_MONK_TOUCH_OF_DEATH_PLAYER))
+                        {
+                            if (target->HealthAbovePct(GetSpellInfo()->Effects[EFFECT_1].BasePoints))
+                                return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
+                        }
+                        else
+                            return SPELL_FAILED_TARGET_IS_PLAYER;
+                    }
+                    else
+                    {
+                        if (target->GetHealth() > caster->GetHealth())
+                            return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
+                    }
+                }
+            }
+            return SPELL_CAST_OK;
+        }
+
+        void Register() override
+        {
+            OnCheckCast += SpellCheckCastFn(spell_monk_touch_of_death_SpellScript::CheckRequirement);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_monk_touch_of_death_SpellScript();
+    }
+};
+
 void AddSC_monk_spell_scripts()
 {
     new spell_monk_crackling_jade_lightning();
@@ -317,4 +365,5 @@ void AddSC_monk_spell_scripts()
     new spell_monk_breath_of_fire();
     new spell_monk_legacy_of_the_emperor();
     new spell_monk_expel_harm();
+    new spell_monk_touch_of_death();
 }
