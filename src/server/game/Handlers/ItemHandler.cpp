@@ -1505,7 +1505,7 @@ void WorldSession::HandleTransmogrifyItems(WorldPacket& recvData)
     ObjectGuid npcGuid;
 
     recvData.ReadGuidMask(npcGuid, 5, 6, 1, 2, 3, 4);
-    count = recvData.ReadBits(19);
+    count = recvData.ReadBits(21);
 
     if (count >= EQUIPMENT_SLOT_END)
     {
@@ -1516,27 +1516,22 @@ void WorldSession::HandleTransmogrifyItems(WorldPacket& recvData)
 
     recvData.ReadGuidMask(npcGuid, 0, 7);
 
-    std::vector<ObjectGuid> itemGuids(count, ObjectGuid(0));
+    std::vector<ObjectGuid> itemGuids(count, ObjectGuid(0)), itemUnkGuids(count, ObjectGuid(0));
     std::vector<uint32> newEntries(count, 0);
     std::vector<uint32> slots(count, 0);
-    std::vector<bool> unk0(count, false);
-    std::vector<bool> unk1(count, false);
+    std::vector<bool> HasItemGuid(count, false);
+    std::vector<bool> HasunkItemGuid(count, false);
 
     for (uint8 i = 0; i < count; ++i)
     {
-        unk0[i] = recvData.ReadBit();
-        unk1[i] = recvData.ReadBit();
+        HasItemGuid[i] = recvData.ReadBit();
+        HasunkItemGuid[i] = recvData.ReadBit();
 
-        if(unk1[i])
-        {
-            recvData.ReadGuidMask(itemGuids[i], 5, 6, 1, 3, 0, 4, 7, 2);
-        }
+        if (HasunkItemGuid[i])
+            recvData.ReadGuidMask(itemUnkGuids[i], 5, 6, 1, 3, 0, 4, 7, 2);
 
-        if(unk0[i])
-        {
+        if (HasItemGuid[i])
             recvData.ReadGuidMask(itemGuids[i], 4, 1, 0, 6, 5, 2, 7, 3);
-        }
-
     }
 
     for (uint8 i = 0; i < count; ++i)
@@ -1549,15 +1544,11 @@ void WorldSession::HandleTransmogrifyItems(WorldPacket& recvData)
 
     for (uint8 i = 0; i < count; ++i)
     {
-        if(unk0[i])
-        {
-            recvData.ReadGuidBytes(itemGuids[i], 2, 5, 4, 3, 6, 0, 7, 1);
-        }
+        if (HasunkItemGuid[i])
+            recvData.ReadGuidBytes(itemUnkGuids[i], 2, 5, 4, 3, 6, 0, 7, 1);
 
-        if(unk1[i])
-        {
+        if (HasItemGuid[i])
             recvData.ReadGuidBytes(itemGuids[i], 7, 1, 6, 5, 4, 3, 0, 2);
-        }
     }
 
     // Validate
