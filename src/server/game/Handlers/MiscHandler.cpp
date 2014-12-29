@@ -1378,9 +1378,11 @@ void WorldSession::HandleInspectOpcode(WorldPacket& recvData)
     uint32 items = 0;
     uint32 talentCount = 0;
     uint32 glyphes = 0;
-    ObjectGuid gGuildId = guild->GetGUID;
+    uint64 gGuildId = guild ? guild->GetId() : 0;
     ByteBuffer itemsBites, itemsBytes, talentsBytes, glyphesBytes;
     size_t* wpos = new size_t[player->GetSpecsCount()];
+    uint32 const* talentTabIds = GetClassSpecializations(player->getClass());
+    uint8 spec = player->GetActiveSpec();
 
     WorldPacket data(SMSG_INSPECT_RESULTS_UPDATE);
 
@@ -1445,10 +1447,10 @@ void WorldSession::HandleInspectOpcode(WorldPacket& recvData)
     data.WriteBits(items, 20);
     data.WriteGuidMask(GUIDInspectee, 0);
 
-    size_t pos = data.wpos();
+    size_t pos = data.wpos(); // talents
     data.WriteBits(0, 23);
-
-    data.WriteBits(glyphes, 23);
+    size_t pos2 = data.wpos(); // glyphs
+    data.WriteBits(0, 23);
 
     data.WriteGuidMask(GUIDInspectee, 6, 1);
     data.WriteGuidBytes(GUIDInspectee, 1, 4, 2);
@@ -1467,36 +1469,33 @@ void WorldSession::HandleInspectOpcode(WorldPacket& recvData)
 
     data.WriteGuidBytes(GUIDInspectee, 5);
 
-    for (int32 i = 0; i < player->GetSpecsCount(); i++)
+    for (uint32 talentId = 0; talentId < sTalentStore.GetNumRows(); ++talentId)
     {
-        uint32 const* talentTabIds = GetClassSpecializations(player->getClass());
+        TalentEntry const* talentInfo = sTalentStore.LookupEntry(talentId);
+        if (!talentInfo)
+            continue;
 
-        int32 talentCount = 0;
-        for (uint32 talentId = 0; talentId < sTalentStore.GetNumRows(); ++talentId)
-        {
-            TalentEntry const* talentInfo = sTalentStore.LookupEntry(talentId);
-            if (!talentInfo)
-                continue;
+        if (talentInfo->playerClass != player->getClass())
+            continue;
 
-            if (talentInfo->playerClass != player->getClass())
-                continue;
+        if (!player->HasTalent(talentInfo->SpellId, spec))
+            continue;
 
-            if (!player->HasTalent(talentInfo->SpellId, i))
-                continue;
+        data << uint16(talentInfo->TalentID);
 
-            data << uint16(talentInfo->TalentID);
+        talentCount++;
 
-            talentCount++;
+        for (uint8 j = 0; j < MAX_GLYPH_SLOT_INDEX; ++j)
+            glyphesBytes << uint16(player->GetGlyph(spec, j));
 
-            for (uint8 j = 0; j < MAX_GLYPH_SLOT_INDEX; ++j)
-                glyphesBytes << uint16(player->GetGlyph(i, j));
-        }
-
-        data.PutBits(wpos[i], talentCount, 23);
+        glyphes++;
     }
 
+    data.PutBits(pos, talentCount, 23);
+    data.PutBits(pos2, glyphes, 23);
+
     data.WriteGuidBytes(GUIDInspectee, 0);
-    data << uint32(player->GetActiveSpec());
+    data << uint32(spec);
     data.append(glyphesBytes);
     data.WriteGuidBytes(GUIDInspectee, 7, 3, 6);
 
