@@ -1177,14 +1177,7 @@ void WorldSession::HandleSocketOpcode(WorldPacket& recvData)
     for (int i = 0; i < MAX_GEM_SOCKETS; ++i)
         gem_guids[i][5] = recvData.ReadBit();
 
-    item_guid[5] = recvData.ReadBit();
-    item_guid[0] = recvData.ReadBit();
-    item_guid[6] = recvData.ReadBit();
-    item_guid[2] = recvData.ReadBit();
-    item_guid[3] = recvData.ReadBit();
-    item_guid[4] = recvData.ReadBit();
-    item_guid[7] = recvData.ReadBit();
-    item_guid[1] = recvData.ReadBit();
+    recvData.ReadGuidMask(item_guid, 5, 0, 6, 2, 3, 4, 7, 1);
 
     recvData.ReadGuidBytes(item_guid, 7, 2, 6);
 

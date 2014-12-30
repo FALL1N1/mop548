@@ -269,6 +269,39 @@ class CharacterCreateInfo
         uint8 CharCount;
 };
 
+// Pets into memory
+struct PetSlots
+{
+    void clean_start()
+    {
+        entry = 0;
+        pettemplate = 0;
+        guid = 0;
+        namelen = 0;
+        slot = 0;
+        slottype = 0;
+        level = 0;
+        name = "";
+        petType = 1;
+        SetDisplayId = 0;
+        SetSpecializationId = 0;
+    }
+
+    uint32 entry;
+    uint32 pettemplate;
+    uint64 guid;
+    uint8 namelen;
+    uint8 slot;
+    uint8 slottype;
+    uint8 level;
+    uint8 petType = 1;
+    uint32 SetDisplayId;
+    uint32 SetSpecializationId;
+    std::string name;
+};
+
+typedef std::unordered_map<uint8, PetSlots> PetSlotsList;
+
 /// Player session in the World
 class WorldSession
 {
@@ -378,6 +411,8 @@ class WorldSession
         void SendStablePetCallback(PreparedQueryResult result, uint64 guid);
         void SendStableResult(uint8 guid);
         bool CheckStableMaster(uint64 guid);
+        void HandleSetPetSlot(WorldPacket& recvData);
+        void HandleStableChangeSlot(WorldPacket& recvData);
 
         // Account Data
         AccountData* GetAccountData(AccountDataType type) { return &m_accountData[type]; }
@@ -705,7 +740,7 @@ class WorldSession
         void HandleBinderActivateOpcode(WorldPacket& recvPacket);
         void HandleListStabledPetsOpcode(WorldPacket& recvPacket);
         void HandleStablePet(WorldPacket& recvPacket);
-        void HandleStablePetCallback(PreparedQueryResult result);
+        void HandleStablePetCallback(PreparedQueryResult result, uint64 guid);
         void HandleUnstablePet(WorldPacket& recvPacket);
         void HandleUnstablePetCallback(PreparedQueryResult result, uint32 petId);
         void HandleBuyStableSlot(WorldPacket& recvPacket);
@@ -863,6 +898,18 @@ class WorldSession
         void HandlePetCastSpellOpcode(WorldPacket& recvPacket);
         void HandlePetLearnSpecialization(WorldPacket& recvPacket);
         void HandleLearnPreviewTalentsPet(WorldPacket& recvPacket);
+
+        // Pets in memory system
+        PetSlotsList    m_petslist;
+
+        bool addPet(uint8 slot, uint32 entry, uint32 pettemplate, uint64 guid, uint8 petlevel, std::string name, bool checking = false);
+        bool addPet(uint8 slot, PetSlots PetToSave, bool checking = false);
+        bool delPet(uint8 slot);
+        bool delPet(Unit* pet_entry);
+        bool movePet(uint8 slot, uint32 entry);
+        PetSlots checkPets(uint8 slot, uint32 entry);
+        PetSlots savePet(uint8 slot);
+        uint8 CheckEmptyPetSlot(Player* owner);
 
         void HandleSetActionBarToggles(WorldPacket& recvData);
 

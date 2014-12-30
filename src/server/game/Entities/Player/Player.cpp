@@ -954,6 +954,7 @@ Player::~Player()
     delete m_achievementMgr;
     delete m_reputationMgr;
     delete m_battlePetMgr;
+    GetSession()->m_petslist.clear();
 
     for (uint8 i = 0; i < VOID_STORAGE_MAX_SLOT; ++i)
         delete _voidStorageItems[i];
@@ -18528,11 +18529,36 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
     uint32 extraflags = fields[32].GetUInt16();
 
     m_stableSlots = fields[33].GetUInt8();
+
+    if (getClass() == CLASS_WARLOCK)
+    {
+        Pet* pet = GetPet();
+        if (!pet)
+            SetPetSlot(PET_SAVE_NOT_IN_SLOT, false);
+        else
+            if (pet->GetEntry() && pet->GetEntry() == PET_ENTRY_IMP)
+                SetPetSlot(PET_SAVE_AS_CURRENT, true, pet->GetCharmInfo()->GetPetNumber());
+            else if (pet->GetEntry())
+                SetPetSlot(PET_SAVE_NOT_IN_SLOT, false, pet->GetCharmInfo()->GetPetNumber());
+    }
+
     if (m_stableSlots > MAX_PET_STABLES)
     {
         TC_LOG_ERROR("entities.player", "Player can have not more %u stable slots, but have in DB %u", MAX_PET_STABLES, uint32(m_stableSlots));
         m_stableSlots = MAX_PET_STABLES;
     }
+
+    if (getClass() == CLASS_MAGE)
+    {
+        Pet* pet = GetPet();
+        if (pet && pet->GetEntry())
+            SetPetSlot(PET_SAVE_NOT_IN_SLOT, false, pet->GetCharmInfo()->GetPetNumber());
+        else
+            SetPetSlot(PET_SAVE_NOT_IN_SLOT, false, 0);
+    }
+
+    if (getClass() == CLASS_HUNTER)
+        SetPetSlot(m_stableSlots);
 
     m_atLoginFlags = fields[34].GetUInt16();
 
@@ -20287,6 +20313,8 @@ void Player::SaveToDB(bool create /*=false*/)
     PreparedStatement* stmt = NULL;
     uint8 index = 0;
 
+    Pet* pet = GetPet(); // Lets check if we got a pet and then check later what place to set it to.
+
     if (create)
     {
         //! Insert query
@@ -20335,6 +20363,8 @@ void Player::SaveToDB(bool create /*=false*/)
         stmt->setUInt16(index++, (uint16)m_atLoginFlags);
         stmt->setUInt16(index++, GetZoneId());
         stmt->setUInt32(index++, uint32(m_deathExpireTime));
+
+        SetPetSlot(m_stableSlots); // Set it to the start pet at the create time.
 
         ss.str("");
         ss << m_taxi.SaveTaxiDestinationsToString();
@@ -20449,12 +20479,19 @@ void Player::SaveToDB(bool create /*=false*/)
         stmt->setUInt32(index++, GetTalentResetCost());
         stmt->setUInt32(index++, GetTalentResetTime());
 
+        if (pet && pet->GetEntry() && pet->GetEntry() == PET_ENTRY_IMP)
+            SetPetSlot(0, true);
+
         ss.str("");
         for (uint8 i = 0; i < MAX_TALENT_SPECS; ++i)
             ss << GetSpecializationId(i) << " ";
+
+        if (getClass() == CLASS_MAGE)
+            SetPetSlot(PET_SAVE_NOT_IN_SLOT);
+
         stmt->setString(index++, ss.str());
         stmt->setUInt16(index++, (uint16)m_ExtraFlags);
-        stmt->setUInt8(index++,  m_stableSlots);
+        stmt->setUInt8(index++, (GetPetSlot())); // m_stableSlots); // This is where we update our current slot.
         stmt->setUInt16(index++, (uint16)m_atLoginFlags);
         stmt->setUInt16(index++, GetZoneId());
         stmt->setUInt32(index++, uint32(m_deathExpireTime));
@@ -20574,8 +20611,8 @@ void Player::SaveToDB(bool create /*=false*/)
     CharacterDatabase.CommitTransaction(trans);
 
     // save pet (hunter pet level and experience and all type pets health/mana).
-    if (Pet* pet = GetPet())
-        pet->SavePetToDB(PET_SAVE_AS_CURRENT);
+    if (pet && getClass() == CLASS_HUNTER)
+        pet->SavePetToDB(PetSaveMode(GetPetSlot()));
 }
 
 // fast save function for item/money cheating preventing - save only inventory and money state
@@ -21650,6 +21687,9 @@ Pet* Player::GetPet() const
 
 void Player::RemovePet(Pet* pet, PetSaveMode mode, bool returnreagent)
 {
+    if (mode != -1)
+        mode = PetSaveMode(GetPetSlot());
+
     if (!pet)
         pet = GetPet();
 
@@ -24347,6 +24387,7 @@ Unit* Player::GetSelectedUnit() const
 {
     if (uint64 selectionGUID = GetUInt64Value(UNIT_FIELD_TARGET))
         return ObjectAccessor::GetUnit(*this, selectionGUID);
+
     return NULL;
 }
 
@@ -24354,13 +24395,13 @@ Player* Player::GetSelectedPlayer() const
 {
     if (uint64 selectionGUID = GetUInt64Value(UNIT_FIELD_TARGET))
         return ObjectAccessor::GetPlayer(*this, selectionGUID);
+
     return NULL;
 }
 
 void Player::SendComboPoints()
 {
-    Unit* combotarget = ObjectAccessor::GetUnit(*this, m_comboTarget);
-    if (combotarget)
+    if (Unit* combotarget = ObjectAccessor::GetUnit(*this, m_comboTarget))
     {
         WorldPacket data;
         if (m_mover != this)
@@ -24370,6 +24411,7 @@ void Player::SendComboPoints()
         }
         else
             data.Initialize(SMSG_UPDATE_COMBO_POINTS, combotarget->GetPackGUID().size()+1);
+
         ObjectGuid guid = combotarget->GetGUID();
         data.WriteGuidMask(guid, 0, 5, 6, 3, 7, 4, 1, 2);
         data.FlushBits();
@@ -24425,8 +24467,11 @@ void Player::GainSpellComboPoints(int8 count)
         return;
 
     m_comboPoints += count;
-    if (m_comboPoints > 5) m_comboPoints = 5;
-    else if (m_comboPoints < 0) m_comboPoints = 0;
+
+    if (m_comboPoints > 5)
+        m_comboPoints = 5;
+    else if (m_comboPoints < 0)
+        m_comboPoints = 0;
 
     SendComboPoints();
 }
@@ -24462,6 +24507,128 @@ void Player::SetGroup(Group* group, int8 subgroup)
     }
 
     UpdateObjectVisibility(false);
+}
+
+void Player::DataPetGuids(WorldPacket &data_guids, ByteBuffer &data_guids2, ObjectGuid guid)
+{
+    data_guids.WriteGuidMask(guid, 1, 6, 0, 4, 5, 7, 2, 3);
+    data_guids2.WriteGuidBytes(guid, 5, 2, 3, 0, 6, 1, 4, 7);
+}
+
+void Player::SendPetsInSlots(Player* owner, uint64 guid, bool all, int64 show_num)
+{
+    uint32 ownerid = owner->GetGUIDLow();
+    m_free_slot = 0;
+    WorldPacket data_guids(SMSG_PET_GUIDS, 3 + (8 * GetSession()->m_petslist.size()));
+    ByteBuffer data_guids2;
+    ObjectGuid pet_guids;
+
+    if (all == true && show_num == -1)
+        data_guids.WriteBits(GetSession()->m_petslist.size(), 24); // This is for adding all Pets guid for the actual 5 first pets.
+    else if (all == true && show_num > -1)
+        data_guids.WriteBits(1, 24); // This is for adding 1 Pet guid for 1 actual pet.
+
+    ObjectGuid guid_zero = guid;
+    WorldPacket data(SMSG_STABLE_LIST, 200);
+
+    data.WriteGuidMask(guid_zero, 3, 0, 4, 7, 2, 1, 6, 5);
+    ByteBuffer data2((4 + 4 + 1 + 4 + 20 + 4 + 4)* uint32(GetSession()->m_petslist.size()));
+
+    data.WriteBits(uint32(GetSession()->m_petslist.size()), 19);
+    uint8 petNum = 0;
+    uint64 guid_new_pet;
+    for (PetSlotsList::iterator itr = GetSession()->m_petslist.begin(); itr != GetSession()->m_petslist.end(); ++itr)
+    {
+        guid_new_pet = itr->second.guid;
+        data.WriteBits(itr->second.name.length(), 8);
+        if (itr->second.slot < 5)
+        {
+            if (m_free_slot == itr->second.slot)
+                ++m_free_slot;
+        }
+        if (all == true)
+        {
+            if (show_num > -1)
+            {
+                if (uint8(show_num) == petNum)
+                {
+                    ObjectGuid guid2 = itr->second.guid;
+                    DataPetGuids(data_guids, data_guids2, guid2);
+                }
+            }
+            else
+            {
+                ObjectGuid guid2 = itr->second.guid;
+                DataPetGuids(data_guids, data_guids2, guid2);
+            }
+        }
+
+        data2 << uint32(itr->second.pettemplate);                       // creature_template
+        data2 << uint32(itr->second.level);                             // Level
+        data2 << uint8(itr->second.slottype);                           // 1 = current, 3 = in stable (any from 4, 5, ... create problems with proper show)
+        data2 << uint32(GUID_LOPART(itr->second.guid));                 // The PetGUIDLow
+        data2.WriteString(itr->second.name);                            // petname
+        data2 << uint32(itr->second.entry);                             // PetEntry
+        data2 << uint32(itr->second.slot);                              // petNum
+        ++petNum;
+    }
+
+    data.FlushBits();
+    data2.WriteGuidBytes(guid_zero, 3, 5, 7, 2, 0, 4, 1, 6);
+
+    data.append(data2);
+    if (all == true)
+    {
+        data_guids.FlushBits();
+        data_guids.append(data_guids2);
+        GetSession()->SendPacket(&data_guids); // Lets send this one first if "all" is true -> SMSG_PET_GUIDS.
+    }
+
+    GetSession()->SendPacket(&data); // now we can send this -> SMSG_STABLE_LIST.
+}
+
+void Player::InitializePetSlots(Player* owner, uint64 guid)
+{
+    uint32 ownerid = owner->GetGUIDLow();
+    PreparedStatement* stmt;
+    PreparedQueryResult result;
+
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_PET_BY_SLOT_2);
+    stmt->setUInt32(0, ownerid);
+    stmt->setUInt8(1, uint8(PET_SAVE_AS_CURRENT));
+    stmt->setUInt8(2, uint8(MAX_PET_STABLES_STABLED));
+    result = CharacterDatabase.AsyncQuery(stmt);
+
+    if (!result) // You dont have any pets
+        return;
+    
+    m_free_slot = 0;
+    do
+    {
+        Field* fields = result->Fetch();
+        uint32 length = fields[8].GetString().length();
+        uint64 guid_new_pet = 0;
+        std::string name = "";
+        name = fields[8].GetString();
+
+        if (name.length() == 0)
+        {
+            name = "unknown";
+        }
+
+        if (fields[7].GetUInt8() < 5) // only the first 5 pets should have a guid and a check if there is some place empty for a new pet.
+        {
+            if (m_free_slot == fields[7].GetUInt8())
+                ++m_free_slot;
+
+            guid_new_pet = MAKE_NEW_GUID(fields[0].GetUInt32(), fields[7].GetUInt8(), HIGHGUID_PET); // Create an uniqe GUID for the pet.
+        }
+        else
+            guid_new_pet = 0;
+
+        GetSession()->addPet(fields[7].GetUInt8(), fields[0].GetUInt32(), fields[1].GetUInt32(), guid_new_pet, fields[4].GetUInt8(), fields[8].GetString(), true);
+
+    } while (result->NextRow());
 }
 
 void Player::SendInitialPacketsBeforeAddToMap()
@@ -24540,6 +24707,9 @@ void Player::SendInitialPacketsBeforeAddToMap()
 
     SendCurrencies();
     SetMover(this);
+
+    if (getClass() == CLASS_HUNTER)
+        InitializePetSlots(this);
 }
 
 void Player::SendInitialPacketsAfterAddToMap()
@@ -24599,6 +24769,10 @@ void Player::SendInitialPacketsAfterAddToMap()
 
     m_battlePetMgr->SendBattlePetJournal();
     m_battlePetMgr->SendBattlePetJournalLock();
+
+    // Sending the pets that you have.
+    if (getClass() == CLASS_HUNTER)
+        SendPetsInSlots(GetSession()->GetPlayer());
 }
 
 void Player::SendUpdateToOutOfRangeGroupMembers()
@@ -27045,13 +27219,38 @@ void Player::UnsummonPetTemporaryIfAny()
     if (!pet)
         return;
 
-    if (!m_temporaryUnsummonedPetNumber && pet->isControlled() && !pet->isTemporarySummoned())
+    if (pet->isControlled() && !pet->isTemporarySummoned())
     {
         m_temporaryUnsummonedPetNumber = pet->GetCharmInfo()->GetPetNumber();
         m_oldpetspell = pet->GetUInt32Value(UNIT_FIELD_CREATED_BY_SPELL);
     }
+    else if (pet->isControlled() && !pet->isTemporarySummoned() && m_temporaryUnsummonedPetNumber != GetSession()->m_petslist[GetPetSlot()].entry)
+    {
+        m_temporaryUnsummonedPetNumber = GetSession()->m_petslist[GetPetSlot()].entry;
+    }
+    else if (!pet->isControlled() && getClass() == CLASS_HUNTER)
+        m_temporaryUnsummonedPetNumber = 0;
 
-    RemovePet(pet, PET_SAVE_AS_CURRENT);
+    if (getClass() == CLASS_HUNTER)
+    {
+        RemovePet(pet, PetSaveMode(GetPetSlot()));
+    }
+    else if (getClass() == CLASS_WARLOCK)
+    {
+        if (pet->GetEntry() && pet->GetEntry() == PET_ENTRY_IMP)
+            RemovePet(pet, PET_SAVE_AS_CURRENT);
+        else
+            RemovePet(pet, PET_SAVE_NOT_IN_SLOT);
+
+        m_temporaryUnsummonedPetNumber = pet->GetCharmInfo()->GetPetNumber();
+    }
+    else if (getClass() == CLASS_MAGE)
+    {
+        RemovePet(pet, PET_SAVE_NOT_IN_SLOT);
+        m_temporaryUnsummonedPetNumber = pet->GetCharmInfo()->GetPetNumber();
+    }
+    else
+        RemovePet(pet, PET_SAVE_AS_CURRENT);
 }
 
 void Player::ResummonPetTemporaryUnSummonedIfAny()
@@ -27064,6 +27263,9 @@ void Player::ResummonPetTemporaryUnSummonedIfAny()
         return;
 
     if (GetPetGUID())
+        return;
+
+    if (getClass() == CLASS_HUNTER && m_temporaryUnsummonedPetNumber == 0)
         return;
 
     Pet* NewPet = new Pet(this);
@@ -28304,6 +28506,9 @@ Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
             pet->InitPetCreateSpells();
             pet->SavePetToDB(PET_SAVE_AS_CURRENT);
             PetSpellInitialize();
+            break;
+        case HUNTER_PET:
+            pet->SavePetToDB(PetSaveMode(GetPetSlot()));
             break;
         default:
             break;

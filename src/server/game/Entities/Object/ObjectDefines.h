@@ -25,6 +25,7 @@
 enum HighGuid
 {
     HIGHGUID_AREATRIGGER    = 0xF102,
+    HIGHGUID_PETBAR         = 0x00C,
     HIGHGUID_BATTLEGROUND   = 0x1F1,
     HIGHGUID_CONTAINER      = 0x400,
     HIGHGUID_CORPSE         = 0xF0C0,

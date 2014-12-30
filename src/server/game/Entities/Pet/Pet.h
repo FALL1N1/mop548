@@ -23,7 +23,7 @@
 #include "PetDefines.h"
 #include "TemporarySummon.h"
 
-#define PET_FOCUS_REGEN_INTERVAL 4 * IN_MILLISECONDS
+#define PET_FOCUS_REGEN_INTERVAL 1 * IN_MILLISECONDS
 #define HAPPINESS_LEVEL_SIZE        333000
 
 struct PetSpell

@@ -28,6 +28,8 @@ enum PetType
 };
 
 #define MAX_PET_STABLES         4
+// 5-54 is stables slot that is when pet is stabled inside and not with you
+#define MAX_PET_STABLES_STABLED 54
 
 // stored in character_pet.slot
 enum PetSaveMode
@@ -36,6 +38,8 @@ enum PetSaveMode
     PET_SAVE_AS_CURRENT        =  0,                        // in current slot (with player)
     PET_SAVE_FIRST_STABLE_SLOT =  1,
     PET_SAVE_LAST_STABLE_SLOT  =  MAX_PET_STABLES,          // last in DB stable slot index (including), all higher have same meaning as PET_SAVE_NOT_IN_SLOT
+    PET_SAVE_FIRST_STABLED_PET =  5,
+    PET_SAVE_LAST_STABLED_PET  =  MAX_PET_STABLES_STABLED,
     PET_SAVE_NOT_IN_SLOT       =  100                       // for avoid conflict with stable size grow will use 100
 };
 
