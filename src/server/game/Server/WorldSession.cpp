@@ -167,6 +167,8 @@ WorldSession::~WorldSession()
     delete _warden;
     delete _RBACData;
     delete m_charBooster;
+    for (uint32 i = 0; i < m_petslist.size(); ++i)
+        delete &this->m_petslist[i];
 
     ///- empty incoming packet queue
     WorldPacket* packet = NULL;
@@ -1157,8 +1159,9 @@ void WorldSession::ProcessQueryCallbacks()
     //- HandleStablePet
     if (_stablePetCallback.ready())
     {
+        uint64 param = _unstablePetCallback.GetParam();
         _stablePetCallback.get(result);
-        HandleStablePetCallback(result);
+        HandleStablePetCallback(result, param);
         _stablePetCallback.cancel();
     }
 
@@ -1179,6 +1182,209 @@ void WorldSession::ProcessQueryCallbacks()
         HandleStableSwapPetCallback(result, param);
         _stableSwapCallback.FreeResult();
     }
+}
+bool WorldSession::addPet(uint8 slot, uint32 entry, uint32 pettemplate, uint64 guid, uint8 petlevel, std::string name, bool checking)
+{
+    if (checking == true)
+    {
+        PetSlots CheckPetSlot = checkPets(slot, entry);
+        if (CheckPetSlot.name > "" && _player->m_free_slot < 5 && _player->m_free_slot == slot)
+        {
+            ++_player->m_free_slot;
+        }
+    }
+
+    if (guid == entry)
+    {
+        guid = MAKE_NEW_GUID(entry, 0, HIGHGUID_PET);
+    }
+
+    PetSlots petSlot;
+    petSlot.entry = entry;
+    petSlot.guid = guid;
+    petSlot.name = (name.length() > 0 ? name : "unknown");
+    petSlot.namelen = name.length();
+    petSlot.slot = (slot);
+    petSlot.slottype = (slot < 5 ? 1 : 3);
+    petSlot.pettemplate = pettemplate;
+    petSlot.level = petlevel;
+    m_petslist[slot] = petSlot;
+    return true;
+}
+
+bool WorldSession::addPet(uint8 slot, PetSlots PetToSave, bool checking)
+{
+    if (checking == true)
+    {
+        PetSlots CheckPetSlot = checkPets(slot, PetToSave.entry);
+        // Maby not maby the best place to do this check
+        if (CheckPetSlot.name > "" && _player->m_free_slot < 5 && _player->m_free_slot == slot)
+        {
+            ++_player->m_free_slot;
+        }
+    }
+    if (PetToSave.guid == PetToSave.entry)
+    {
+        PetToSave.guid = MAKE_NEW_GUID(PetToSave.entry, 0, HIGHGUID_PET);
+    }
+
+    m_petslist[slot] = PetToSave;
+    return true;
+}
+
+bool WorldSession::delPet(uint8 slot)
+{
+    m_petslist.erase(slot);
+    return true;
+}
+
+bool WorldSession::delPet(Unit* pet_entry)
+{
+    for (PetSlotsList::iterator itr = m_petslist.begin(); itr != m_petslist.end(); ++itr)
+    {
+        if (itr->second.entry == pet_entry->GetCharmInfo()->GetPetNumber())
+        {
+            m_petslist.erase(itr->first);
+            return true;
+        }
+    }
+
+    return false;
+}
+
+PetSlots WorldSession::savePet(uint8 slot)
+{
+    PetSlotsList::const_iterator itr2 = m_petslist.find(slot);
+    if (itr2 != m_petslist.end())
+        return itr2->second;
+    else
+    {
+        PetSlots not_found;
+        not_found.clean_start();
+        return not_found;
+    }
+}
+
+bool WorldSession::movePet(uint8 slot, uint32 entry)
+{
+    bool found = false;
+
+    for (PetSlotsList::iterator itr = m_petslist.begin(); itr != m_petslist.end(); ++itr)
+    {
+        if (itr->second.entry == entry)
+        {
+            PetSlots Save = itr->second;
+            PetSlotsList test;
+            PetSlotsList test2;
+            PetSlots test3;
+
+            test[slot] = itr->second;
+            PetSlotsList::const_iterator itr2 = m_petslist.find(slot);
+            if (itr2 != m_petslist.end())
+            {
+                test2[slot] = itr2->second;
+                test3 = itr2->second;
+
+                found = true;
+            }
+
+            if (found)
+            {
+                if (slot > 4)
+                    test[slot].guid = 0;
+                else if (test[slot].guid == 0)
+                    test[slot].guid = MAKE_NEW_GUID(test[slot].entry, 0, HIGHGUID_PET); // Create an uniqe GUID for the pet if its in slot 1-5.
+                if (itr->first > 4)
+                    test2[slot].guid = 0;
+                else if (test2[slot].guid == 0)
+                    test2[slot].guid = MAKE_NEW_GUID(test2[slot].entry, 0, HIGHGUID_PET); // Create an uniqe GUID for the pet if its in slot 1-5.
+                test[slot].slottype = slot > 4 ? 3 : 1;
+                test2[slot].slottype = slot > 4 ? 3 : 1;
+                addPet(itr->first, test2[slot]);
+                addPet(slot, test[slot]);
+                return true;
+            }
+            else
+            {
+                test[slot].clean_start();
+                test[slot] = itr->second;
+                if (slot > 4)
+                    test[slot].guid = 0;
+                else if (test[slot].guid == 0)
+                    test[slot].guid = MAKE_NEW_GUID(test[slot].entry, 0, HIGHGUID_PET); // Create an uniqe GUID for the pet.
+
+                test[slot].slot = slot;
+                test[slot].slottype = slot > 4 ? 3 : 1;
+                addPet(slot, test[slot]);
+                delPet(itr->first);
+
+                return true;
+            }
+        }
+        if (itr == m_petslist.end())
+        {
+            return false;
+        }
+    }
+    return false;
+}
+
+PetSlots WorldSession::checkPets(uint8 slot, uint32 entry) // The same as movePet but this return the pet it should swap with ..
+{
+    bool found = false;
+    PetSlots temp;
+    temp.clean_start();
+
+    for (PetSlotsList::iterator itr = m_petslist.begin(); itr != m_petslist.end(); ++itr)
+    {
+        if (itr->second.entry == entry)
+        {
+            PetSlots Save = itr->second;
+            PetSlots test;
+            test = itr->second;
+            PetSlotsList::const_iterator itr2 = m_petslist.find(slot);
+            if (itr2 != m_petslist.end())
+            {
+                found = true;
+            }
+
+            if (found)
+            {
+                temp = itr2->second;
+                return temp;
+            }
+            else
+                return Save;
+        }
+        if (itr == m_petslist.end())
+        {
+            // couldent find a single pet so its a big miss for this player
+            return temp;
+        }
+    }
+    return temp;
+}
+
+uint8 WorldSession::CheckEmptyPetSlot(Player* owner)
+{
+    uint8 slot = 5;
+    uint32 spell[] = { 883, 83242, 83243, 83244, 83245 };
+
+    for (int i = 0; i < 5; ++i)
+    {
+        if (!owner->HasSpell(spell[i]))
+        {
+            return slot;
+        }
+
+        std::unordered_map<uint8, PetSlots>::iterator it = m_petslist.find(i);
+        if (it == m_petslist.end())
+        {
+           slot = i;
+           return slot;
+        }
+    }
+    return slot;
 }
 
 void WorldSession::InitWarden(BigNumber* k, std::string const& os)

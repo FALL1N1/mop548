@@ -2910,6 +2910,16 @@ void Spell::EffectEnchantItemTmp(SpellEffIndex effIndex)
 
 void Spell::EffectTameCreature(SpellEffIndex /*effIndex*/)
 {
+    Player* owner = m_originalCaster->ToPlayer();
+    {
+        if (owner)
+        {
+            owner->m_free_slot = owner->GetSession()->CheckEmptyPetSlot(owner);
+            if (owner->m_free_slot > 4)
+                return;
+        }
+    }
+
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
 
@@ -2957,8 +2967,22 @@ void Spell::EffectTameCreature(SpellEffIndex /*effIndex*/)
 
     if (m_caster->GetTypeId() == TYPEID_PLAYER)
     {
-        pet->SavePetToDB(PET_SAVE_AS_CURRENT);
-        m_caster->ToPlayer()->PetSpellInitialize();
+        if (owner->getClass() == CLASS_HUNTER)
+        {
+            owner->GetSession()->addPet(owner->m_free_slot, pet->GetGUIDLow(), pet->GetCreatureTemplate()->Entry, pet->GetGUID(), pet->getLevel(), pet->GetName(), true);
+            owner->SetPetSlot(owner->m_free_slot);
+            owner->SendPetsInSlots(owner, pet->GetGUID(), true, owner->m_free_slot);
+            pet->SavePetToDB(PetSaveMode(owner->m_free_slot));
+            owner->PetSpellInitialize();
+            owner->SetTemporaryUnsummonedPetNumber(pet->GetCharmInfo()->GetPetNumber());
+        }
+        else if (owner->getClass() != CLASS_HUNTER)
+        {
+            pet->SavePetToDB(PET_SAVE_AS_CURRENT);
+            unitTarget->ToPlayer()->PetSpellInitialize();
+            owner->SetTemporaryUnsummonedPetNumber(0);
+
+        }
     }
 }
 
@@ -2975,6 +2999,35 @@ void Spell::EffectSummonPet(SpellEffIndex effIndex)
             owner = m_originalCaster->GetCharmerOrOwnerPlayerOrPlayerItself();
     }
 
+    if (owner && owner->GetTypeId() == TYPEID_PLAYER && owner->getClass() == CLASS_HUNTER)
+    {
+        switch (m_spellInfo->Id)
+        {
+        case 883:
+            owner->SetPetSlot(0);
+            break;
+
+        case 83242:
+            owner->SetPetSlot(1);
+            break;
+
+        case 83243:
+            owner->SetPetSlot(2);
+            break;
+
+        case 83244:
+            owner->SetPetSlot(3);
+            break;
+
+        case 83245:
+            owner->SetPetSlot(4);
+            break;
+
+        default:
+            // owner->SetPetSlot(100);
+            break;
+        }
+    }
     uint32 petentry = m_spellInfo->Effects[effIndex].MiscValue;
 
     if (!owner)
@@ -3066,7 +3119,7 @@ void Spell::EffectLearnPetSpell(SpellEffIndex effIndex)
         return;
 
     pet->learnSpell(learn_spellproto->Id);
-    pet->SavePetToDB(PET_SAVE_AS_CURRENT);
+    pet->SavePetToDB(PetSaveMode(pet->ToPlayer()->GetPetSlot())); 
     pet->GetOwner()->PetSpellInitialize();
 }
 
@@ -4936,7 +4989,7 @@ void Spell::EffectSummonDeadPet(SpellEffIndex /*effIndex*/)
 
     //pet->AIM_Initialize();
     //player->PetSpellInitialize();
-    pet->SavePetToDB(PET_SAVE_AS_CURRENT);
+    pet->SavePetToDB(PetSaveMode(player->GetPetSlot()));
 }
 
 void Spell::EffectDestroyAllTotems(SpellEffIndex /*effIndex*/)
@@ -5499,6 +5552,18 @@ void Spell::EffectActivateRune(SpellEffIndex effIndex)
 
 void Spell::EffectCreateTamedPet(SpellEffIndex effIndex)
 {
+    Player* owner = m_originalCaster->ToPlayer();
+
+    /*
+    {
+        if (owner && owner->getClass() == CLASS_HUNTER)
+        {
+            owner->m_free_slot = owner->GetSession()->CheckEmptyPetSlot(owner);
+            if (owner->m_free_slot > 4)
+                return;
+        }
+    }
+    */
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
 
@@ -5523,8 +5588,23 @@ void Spell::EffectCreateTamedPet(SpellEffIndex effIndex)
 
     if (unitTarget->GetTypeId() == TYPEID_PLAYER)
     {
-        pet->SavePetToDB(PET_SAVE_AS_CURRENT);
-        unitTarget->ToPlayer()->PetSpellInitialize();
+        if (owner->getClass() == CLASS_HUNTER)
+        {
+
+            owner->GetSession()->addPet(owner->m_free_slot, pet->GetGUIDLow(), pet->GetCreatureTemplate()->Entry, pet->GetGUID(), pet->getLevel(), pet->GetName(), true);
+            owner->SetPetSlot(owner->m_free_slot);
+            owner->SendPetsInSlots(owner, pet->GetGUID(), true, owner->m_free_slot);
+            pet->SavePetToDB(PetSaveMode(owner->m_free_slot));
+            owner->PetSpellInitialize();
+            owner->SetTemporaryUnsummonedPetNumber(owner->GetSession()->m_petslist[owner->m_free_slot].entry);
+        }
+        else if (owner->getClass() != CLASS_HUNTER)
+        {
+            pet->SavePetToDB(PET_SAVE_AS_CURRENT);
+            unitTarget->ToPlayer()->PetSpellInitialize();
+            owner->SetTemporaryUnsummonedPetNumber(0);
+
+        }
     }
 }
 
@@ -6088,12 +6168,8 @@ void Spell::EffectPetBar(SpellEffIndex effIndex)
     if (!player)
         return;
 
-    // player->SetFlag();
-    // triggered spells with spell visual != 0
     uint32 castFlags = 777;
     
-    // printf("Sending SMSG_SPELL_GO id=[%u]\tflags=[%u] \n", m_spellInfo->Id, castFlags); // Used for checking the values
-
     if ((IsTriggered() && !m_spellInfo->IsAutoRepeatRangedSpell()) || m_triggeredByAuraSpell)
         castFlags |= CAST_FLAG_PENDING;
 

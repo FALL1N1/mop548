@@ -368,15 +368,12 @@ void WorldSession::HandleVoidSwapItem(WorldPacket& recvData)
     itemId[7]  = recvData.ReadBit();
     itemId[3]  = recvData.ReadBit();
     itemId[2]  = recvData.ReadBit();
-    npcGuid[4] = recvData.ReadBit();
-    npcGuid[2] = recvData.ReadBit();
+    recvData.ReadGuidMask(npcGuid, 4, 2);
     itemId[0]  = recvData.ReadBit();
     itemId[1]  = recvData.ReadBit();
-    npcGuid[7] = recvData.ReadBit();
-    npcGuid[1] = recvData.ReadBit();
+    recvData.ReadGuidMask(npcGuid, 7, 1);
     itemId[6]  = recvData.ReadBit();
-    npcGuid[3] = recvData.ReadBit();
-    npcGuid[5] = recvData.ReadBit();
+    recvData.ReadGuidMask(npcGuid, 3, 5);
     itemId[5]  = recvData.ReadBit();
     npcGuid[0] = recvData.ReadBit();
 

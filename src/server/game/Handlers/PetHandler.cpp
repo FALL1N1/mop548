@@ -746,8 +746,7 @@ void WorldSession::HandlePetAbandon(WorldPacket& recvData)
 {
     uint64 guid;
     recvData >> guid;                                      //pet guid
-    TC_LOG_DEBUG("network", "HandlePetAbandon. CMSG_PET_ABANDON pet guid is %u", GUID_LOPART(guid));
-
+    
     if (!_player->IsInWorld())
         return;
 

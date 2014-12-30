@@ -34,9 +34,41 @@ enum DeathKnightSpells
 
 };
 
+// Death Grip - 49560
+class spell_dk_death_grip : public SpellScriptLoader
+{
+    public:
+        spell_dk_death_grip() : SpellScriptLoader("spell_dk_death_grip") { }
+
+        class spell_dk_death_grip_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_dk_death_grip_SpellScript);
+
+            void HandleDummy(SpellEffIndex /*effIndex*/)
+            {
+                int32 damage = GetEffectValue();
+                Position const* pos = GetExplTargetDest();
+                if (Unit* target = GetHitUnit())
+                {
+                    if (!target->HasAuraType(SPELL_AURA_DEFLECT_SPELLS)) // Deterrence
+                        target->CastSpell(pos->GetPositionX(), pos->GetPositionY(), pos->GetPositionZ(), damage, true);
+                }
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_dk_death_grip_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_dk_death_grip_SpellScript();
+        }
+};
 
 void AddSC_deathknight_spell_scripts()
 {
- 
- 
+    new spell_dk_death_grip();
 }

@@ -8342,6 +8342,8 @@ void Unit::SetMinion(Minion *minion, bool apply)
         // Ghoul pets and Warlock's pets have energy instead of mana (is anywhere better place for this code?)
         if (minion->IsPetGhoul() || (minion->GetOwner() && minion->GetOwner()->getClass() == CLASS_WARLOCK))
             minion->setPowerType(POWER_ENERGY);
+        else if (minion->GetOwner() && minion->GetOwner()->getClass() == CLASS_HUNTER)
+            minion->setPowerType(POWER_FOCUS);
 
         if (GetTypeId() == TYPEID_PLAYER)
         {
@@ -14097,6 +14099,15 @@ bool Unit::InitTamedPet(Pet* pet, uint8 level, uint32 spell_id)
     {
         TC_LOG_ERROR("entities.unit", "Pet::InitStatsForLevel() failed for creature (Entry: %u)!", pet->GetEntry());
         return false;
+    }
+
+    if (pet->getPetType() == HUNTER_PET)
+    {
+        pet->SetSheath(SHEATH_STATE_MELEE);
+        pet->SetByteFlag(UNIT_FIELD_SHAPESHIFT_FORM, 2, UNIT_CAN_BE_RENAMED | UNIT_CAN_BE_ABANDONED);
+        pet->SetUInt32Value(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE);
+        pet->SetClass(CLASS_ROGUE);
+        pet->setPowerType(POWER_FOCUS);
     }
 
     pet->GetCharmInfo()->SetPetNumber(sObjectMgr->GeneratePetNumber(), true);

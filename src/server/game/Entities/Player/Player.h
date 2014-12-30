@@ -2416,6 +2416,36 @@ class Player : public Unit, public GridObject<Player>
 
         WorldLocation GetStartPosition() const;
 
+        uint8 m_free_slot = 0;
+        uint8 m_slot;
+
+        // Pets slots and lists
+        uint8 GetPetSlot(){ return m_slot > 100 ? 100 : m_slot; };
+        void SetPetSlot(uint8 slot, bool imp = false, uint32 entry = 0)
+        {
+            if (getClass() == CLASS_HUNTER && slot != -1)
+                m_slot = slot;
+            else if (slot == -1)
+                m_slot = -1;
+            else if (getClass() == CLASS_MAGE)
+                m_slot = 100;
+            else if (slot = uint8(PET_SAVE_AS_CURRENT))
+                m_slot = 0;
+            else
+                m_slot = 100; // This is for Other pets, like Warlock and mage.
+
+            if (imp)
+                m_slot = 0;
+            
+            m_stableSlots = m_slot;
+            if (entry > 0)
+                SetTemporaryUnsummonedPetNumber(entry);
+        };
+
+        void DataPetGuids(WorldPacket &data_guids, ByteBuffer &data_guids2, ObjectGuid guid);
+        void SendPetsInSlots(Player* owner, uint64 guid = 0, bool all = true, int64 show_num = -1);
+        void InitializePetSlots(Player* owner, uint64 guid = 0);
+
         // currently visible objects at player client
         typedef std::set<uint64> ClientGUIDs;
         ClientGUIDs m_clientGUIDs;

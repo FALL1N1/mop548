@@ -1019,7 +1019,7 @@ SpellInfo::SpellInfo(SpellEntry const* spellEntry, SpellEffectEntry const** effe
             SpecializationIdList.push_back(70);
             SpecializationIdList.push_back(66);
         case 105361:
-            OverrideSpellList.push_back(105361);
+            OverrideSpellList.push_back(31801);
             break;
     }
 
