@@ -97,11 +97,7 @@ class SpellCastTargets
 {
     public:
         SpellCastTargets();
-        SpellCastTargets(Unit* caster, uint32 targetMask, uint64 targetGuid, uint64 itemTargetGuid, uint64 srcTransportGuid, uint64 destTransportGuid, Position srcPos, Position destPos, float elevation, float missileSpeed, std::string targetString);
         ~SpellCastTargets();
-
-        void Read(ByteBuffer& data, Unit* caster);
-        void Write(ByteBuffer& data);
 
         uint32 GetTargetMask() const { return m_targetMask; }
         void SetTargetMask(uint32 newMask) { m_targetMask = newMask; }
@@ -111,6 +107,7 @@ class SpellCastTargets
         uint64 GetUnitTargetGUID() const;
         Unit* GetUnitTarget() const;
         void SetUnitTarget(Unit* target);
+        void SetUnitTargetGUID(uint64 guid) { m_objectTargetGUID = guid; }
 
         uint64 GetGOTargetGUID() const;
         GameObject* GetGOTarget() const;
@@ -126,12 +123,14 @@ class SpellCastTargets
         uint64 GetItemTargetGUID() const { return m_itemTargetGUID; }
         Item* GetItemTarget() const { return m_itemTarget; }
         uint32 GetItemTargetEntry() const { return m_itemTargetEntry; }
+        void SetItemTargetGUID(uint64 guid) { m_itemTargetGUID = guid; }
         void SetItemTarget(Item* item);
         void SetTradeItemTarget(Player* caster);
         void UpdateTradeSlotItem();
 
         SpellDestination const* GetSrc() const;
         Position const* GetSrcPos() const;
+        void SetSrc(const SpellDestination& src);
         void SetSrc(float x, float y, float z);
         void SetSrc(Position const& pos);
         void SetSrc(WorldObject const& wObj);
@@ -139,6 +138,7 @@ class SpellCastTargets
         void RemoveSrc();
 
         SpellDestination const* GetDst() const;
+        void SetDst(const SpellDestination& dst);
         WorldLocation const* GetDstPos() const;
         void SetDst(float x, float y, float z, float orientation, uint32 mapId = MAPID_INVALID);
         void SetDst(Position const& pos);
