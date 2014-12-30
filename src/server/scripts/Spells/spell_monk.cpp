@@ -45,7 +45,10 @@ enum MonkSpells
     SPELL_MONK_LEGACY_OF_THE_EMPEROR_RAID           = 117666,
     SPELL_MONK_LEGACY_OF_THE_EMPEROR_ALLY           = 117667,
     SPELL_MONK_EXPEL_HARM_AREA_DMG                  = 115129,
-    SPELL_MONK_TOUCH_OF_DEATH_PLAYER                = 124490
+    SPELL_MONK_TOUCH_OF_DEATH_PLAYER                = 124490,
+    SPELL_MONK_ROLL                                 = 109132,
+    SPELL_MONK_ROLL_TRIGGER                         = 107427,
+    SPELL_MONK_ITEM_PVP_GLOVES_BONUS                = 124489
 };
 
 // 117952 - Crackling Jade Lightning
@@ -357,6 +360,61 @@ public:
     }
 };
 
+// Roll - 109132 or Roll (3 charges) - 121827
+class spell_monk_roll : public SpellScriptLoader
+{
+    public:
+        spell_monk_roll() : SpellScriptLoader("spell_monk_roll") { }
+
+        class spell_monk_roll_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_monk_roll_SpellScript);
+
+            bool Validate(SpellInfo const* /*spell*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_MONK_ROLL))
+                    return false;
+                return true;
+            }
+
+            void HandleBeforeCast()
+            {
+                Aura* aur = GetCaster()->AddAura(SPELL_MONK_ROLL_TRIGGER, GetCaster());
+                if (!aur)
+                    return;
+
+                AuraApplication* app =  aur->GetApplicationOfTarget(GetCaster()->GetGUID());
+                if (!app)
+                    return;
+
+                app->ClientUpdate();
+            }
+
+            void HandleAfterCast()
+            {
+                Unit* caster = GetCaster();
+                if (!caster || caster->GetTypeId() != TYPEID_PLAYER)
+                    return;
+
+                caster->CastSpell(caster, SPELL_MONK_ROLL_TRIGGER, true);
+
+                if (caster->HasAura(SPELL_MONK_ITEM_PVP_GLOVES_BONUS))
+                    caster->RemoveAurasByType(SPELL_AURA_MOD_DECREASE_SPEED);
+            }
+
+            void Register()
+            {
+                BeforeCast += SpellCastFn(spell_monk_roll_SpellScript::HandleBeforeCast);
+                AfterCast += SpellCastFn(spell_monk_roll_SpellScript::HandleAfterCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_monk_roll_SpellScript();
+        }
+};
+
 void AddSC_monk_spell_scripts()
 {
     new spell_monk_crackling_jade_lightning();
@@ -366,4 +424,5 @@ void AddSC_monk_spell_scripts()
     new spell_monk_legacy_of_the_emperor();
     new spell_monk_expel_harm();
     new spell_monk_touch_of_death();
+    new spell_monk_roll();
 }

@@ -3696,8 +3696,9 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 1784:
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(21);
                 break;
-            // Mage - Blazing speed
-            case 108843:
+            
+            case 108839: // Mage - Ice Floes (right?)
+            case 108843: // Mage - Blazing speed
                 spellInfo->AttributesEx4 &= ~SPELL_ATTR4_TRIGGERED;
                 break;
             default:
