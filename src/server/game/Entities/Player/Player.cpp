@@ -1350,17 +1350,18 @@ uint32 Player::EnvironmentalDamage(EnviromentalDamage type, uint32 damage)
     ObjectGuid Guid = GetGUID();
 
     WorldPacket data(SMSG_ENVIRONMENTAL_DAMAGE_LOG, 9 + 1 + 4 + 1 + 4 + 4);
+
     data.WriteGuidMask(Guid, 5, 7, 1, 4, 2, 0);
     data.WriteBit(0); // Power Data
     data.WriteGuidMask(Guid, 6, 3);
-
-    data << uint32(damage);
+    data << uint32(resist);
     data.WriteGuidBytes(Guid, 0, 7);
     data << uint8(type != DAMAGE_FALL_TO_VOID ? type : DAMAGE_FALL);
     data.WriteGuidBytes(Guid, 6, 3, 5);
     data << uint32(absorb);
     data.WriteGuidBytes(Guid, 1, 2, 4);
-    data << uint32(resist);
+    data << uint32(damage);
+
     SendMessageToSet(&data, true);
 
     uint32 final_damage = DealDamage(this, damage, NULL, SELF_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
@@ -19072,6 +19073,9 @@ void Player::_LoadInventory(PreparedQueryResult result, uint32 timeDiff)
         std::map<uint32, Item*> invalidBagMap;                       // fast guid lookup for bags
         std::list<Item*> problematicItems;
         SQLTransaction trans = CharacterDatabase.BeginTransaction();
+
+        m_enchantDuration.clear();
+        m_itemDuration.clear();
 
         // Prevent items from being added to the queue while loading
         m_itemUpdateQueueBlocked = true;

@@ -3701,6 +3701,13 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 108843: // Mage - Blazing speed
                 spellInfo->AttributesEx4 &= ~SPELL_ATTR4_TRIGGERED;
                 break;
+            case 48263:
+                spellInfo->Effects[EFFECT_0].ApplyAuraName = 0;
+                spellInfo->Effects[EFFECT_1].ApplyAuraName = 0;
+                spellInfo->Effects[EFFECT_2].ApplyAuraName = 0;
+                spellInfo->Effects[EFFECT_3].ApplyAuraName = 0;
+                spellInfo->Effects[EFFECT_4].ApplyAuraName = 0;
+                break;
             default:
                 break;
         }
