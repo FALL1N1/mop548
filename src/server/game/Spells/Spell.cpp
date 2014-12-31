@@ -101,119 +101,7 @@ SpellCastTargets::SpellCastTargets() : m_elevation(0), m_speed(0), m_strTarget()
     m_targetMask = 0;
 }
 
-SpellCastTargets::SpellCastTargets(Unit* caster, uint32 targetMask, uint64 targetGuid, uint64 itemTargetGuid, uint64 srcTransportGuid, uint64 destTransportGuid, Position srcPos, Position destPos, float elevation, float missileSpeed, std::string targetString) :
-    m_targetMask(targetMask), m_objectTargetGUID(targetGuid), m_itemTargetGUID(itemTargetGuid), m_elevation(elevation), m_speed(missileSpeed), m_strTarget(targetString)
-{
-    m_objectTarget = NULL;
-    m_itemTarget = NULL;
-    m_itemTargetEntry = 0;
-
-    m_src._transportGUID = srcTransportGuid;
-    if (m_src._transportGUID)
-        m_src._transportOffset.Relocate(srcPos);
-    else
-        m_src._position.Relocate(srcPos);
-
-    m_dst._transportGUID = destTransportGuid;
-    if (m_dst._transportGUID)
-        m_dst._transportOffset.Relocate(destPos);
-    else
-        m_dst._position.Relocate(destPos);
-
-    Update(caster);
-}
-
 SpellCastTargets::~SpellCastTargets() { }
-
-void SpellCastTargets::Read(ByteBuffer& data, Unit* caster)
-{
-    data >> m_targetMask;
-
-    if (m_targetMask == TARGET_FLAG_NONE)
-        return;
-
-    if (m_targetMask & (TARGET_FLAG_UNIT | TARGET_FLAG_UNIT_MINIPET | TARGET_FLAG_GAMEOBJECT | TARGET_FLAG_CORPSE_ENEMY | TARGET_FLAG_CORPSE_ALLY))
-        data.readPackGUID(m_objectTargetGUID);
-
-    if (m_targetMask & (TARGET_FLAG_ITEM | TARGET_FLAG_TRADE_ITEM))
-        data.readPackGUID(m_itemTargetGUID);
-
-    if (m_targetMask & TARGET_FLAG_SOURCE_LOCATION)
-    {
-        data.readPackGUID(m_src._transportGUID);
-        if (m_src._transportGUID)
-            data >> m_src._transportOffset.PositionXYZStream();
-        else
-            data >> m_src._position.PositionXYZStream();
-    }
-    else
-    {
-        m_src._transportGUID = caster->GetTransGUID();
-        if (m_src._transportGUID)
-            m_src._transportOffset.Relocate(caster->GetTransOffsetX(), caster->GetTransOffsetY(), caster->GetTransOffsetZ(), caster->GetTransOffsetO());
-        else
-            m_src._position.Relocate(caster);
-    }
-
-    if (m_targetMask & TARGET_FLAG_DEST_LOCATION)
-    {
-        data.readPackGUID(m_dst._transportGUID);
-        if (m_dst._transportGUID)
-            data >> m_dst._transportOffset.PositionXYZStream();
-        else
-            data >> m_dst._position.PositionXYZStream();
-    }
-    else
-    {
-        m_dst._transportGUID = caster->GetTransGUID();
-        if (m_dst._transportGUID)
-            m_dst._transportOffset.Relocate(caster->GetTransOffsetX(), caster->GetTransOffsetY(), caster->GetTransOffsetZ(), caster->GetTransOffsetO());
-        else
-            m_dst._position.Relocate(caster);
-    }
-
-    if (m_targetMask & TARGET_FLAG_STRING)
-        data >> m_strTarget;
-
-    Update(caster);
-}
-
-void SpellCastTargets::Write(ByteBuffer& data)
-{
-    data << uint32(m_targetMask);
-
-    if (m_targetMask & (TARGET_FLAG_UNIT | TARGET_FLAG_CORPSE_ALLY | TARGET_FLAG_GAMEOBJECT | TARGET_FLAG_CORPSE_ENEMY | TARGET_FLAG_UNIT_MINIPET))
-        data.appendPackGUID(m_objectTargetGUID);
-
-    if (m_targetMask & (TARGET_FLAG_ITEM | TARGET_FLAG_TRADE_ITEM))
-    {
-        if (m_itemTarget)
-            data.append(m_itemTarget->GetPackGUID());
-        else
-            data << uint8(0);
-    }
-
-    if (m_targetMask & TARGET_FLAG_SOURCE_LOCATION)
-    {
-        data.appendPackGUID(m_src._transportGUID); // relative position guid here - transport for example
-        if (m_src._transportGUID)
-            data << m_src._transportOffset.PositionXYZStream();
-        else
-            data << m_src._position.PositionXYZStream();
-    }
-
-    if (m_targetMask & TARGET_FLAG_DEST_LOCATION)
-    {
-        data.appendPackGUID(m_dst._transportGUID); // relative position guid here - transport for example
-        if (m_dst._transportGUID)
-            data << m_dst._transportOffset.PositionXYZStream();
-        else
-            data << m_dst._position.PositionXYZStream();
-    }
-
-    if (m_targetMask & TARGET_FLAG_STRING)
-        data << m_strTarget;
-}
 
 uint64 SpellCastTargets::GetUnitTargetGUID() const
 {
@@ -350,6 +238,11 @@ Position const* SpellCastTargets::GetSrcPos() const
     return &m_src._position;
 }
 
+void SpellCastTargets::SetSrc(const SpellDestination& src)
+{
+    m_src = src;
+}
+
 void SpellCastTargets::SetSrc(float x, float y, float z)
 {
     m_src = SpellDestination(x, y, z);
@@ -389,6 +282,11 @@ void SpellCastTargets::RemoveSrc()
 SpellDestination const* SpellCastTargets::GetDst() const
 {
     return &m_dst;
+}
+
+void SpellCastTargets::SetDst(const SpellDestination& dst)
+{
+    m_dst = dst;
 }
 
 WorldLocation const* SpellCastTargets::GetDstPos() const
@@ -2869,8 +2767,8 @@ bool Spell::UpdateChanneledTargetList()
     if (m_channelTargetEffectMask == 0)
         return true;
 
-    uint8 channelTargetEffectMask = m_channelTargetEffectMask;
-    uint8 channelAuraMask = 0;
+    uint32 channelTargetEffectMask = m_channelTargetEffectMask;
+    uint32 channelAuraMask = 0;
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
         if (m_spellInfo->Effects[i].Effect == SPELL_EFFECT_APPLY_AURA)
             channelAuraMask |= 1<<i;
@@ -4487,34 +4385,32 @@ void Spell::SendSpellGo()
 
 void Spell::SendLogExecute()
 {
-    ObjectGuid guid = m_caster->GetGUID();
+    ObjectGuid CastergGuid = m_caster->GetGUID();
 
     WorldPacket data(SMSG_SPELL_LOG_EXECUTE, 8 + 4 + 4 + 4 + 4 + 8);
 
-    data.WriteGuidMask(guid, 0, 6, 5, 7, 2);
-    data.WriteBits(0, 19); // Count
-    data.WriteGuidMask(guid, 4, 1, 3);
-
-    data.WriteBit(0);
-
+    data.WriteGuidMask(CastergGuid, 0, 6, 5, 7, 2);
+    data.WriteBits(0, 19); // effCount
+    data.WriteGuidMask(CastergGuid, 4, 1, 3);
+    data.WriteBit(0); // HasSpellCastLogData
     data.FlushBits();
-
     data << uint32(m_spellInfo->Id);
-
-    data.WriteGuidBytes(guid, 5, 7, 1, 6, 2, 0, 4, 3);
-
+    
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
     {
         if (!m_effectExecuteData[i])
             continue;
 
-        //data << uint32(m_spellInfo->Effects[i].Effect);             // spell effect
+        data << uint32(m_spellInfo->Effects[i].Effect); // SpellID
 
         //data.append(*m_effectExecuteData[i]);
 
-        delete m_effectExecuteData[i];
-        m_effectExecuteData[i] = NULL;
+        //delete m_effectExecuteData[i];
+        //m_effectExecuteData[i] = NULL;
     }
+
+    data.WriteGuidBytes(CastergGuid, 5, 7, 1, 6, 2, 0, 4, 3);
+
     m_caster->SendMessageToSet(&data, true);
 }
 
@@ -6620,7 +6516,7 @@ SpellCastResult Spell::CheckItems()
                             return SPELL_FAILED_ON_USE_ENCHANT;
 
                 // Not allow enchant in trade slot for some enchant type
-                if (targetItem->GetOwner() != m_caster)
+                if (targetItem->GetOwnerGUID() != m_caster->GetGUID())
                 {
                     if (!pEnchant)
                         return SPELL_FAILED_ERROR;
@@ -6635,7 +6531,7 @@ SpellCastResult Spell::CheckItems()
                 if (!item)
                     return SPELL_FAILED_ITEM_NOT_FOUND;
                 // Not allow enchant in trade slot for some enchant type
-                if (item->GetOwner() != m_caster)
+                if (item->GetOwnerGUID() != m_caster->GetGUID())
                 {
                     uint32 enchant_id = m_spellInfo->Effects[i].MiscValue;
                     SpellItemEnchantmentEntry const* pEnchant = sSpellItemEnchantmentStore.LookupEntry(enchant_id);

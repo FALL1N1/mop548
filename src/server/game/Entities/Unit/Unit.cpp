@@ -5011,138 +5011,65 @@ void Unit::ProcDamageAndSpell(Unit* victim, uint32 procAttacker, uint32 procVict
 
 void Unit::SendPeriodicAuraLog(SpellPeriodicAuraLogInfo* pInfo)
 {
-    AuraEffect const* aura = pInfo->auraEff;
-    ObjectGuid casterGuid = aura->GetCasterGUID();
+    ObjectGuid casterGuid = pInfo->auraEff->GetCasterGUID();
     ObjectGuid targetGuid = GetGUID();
+    uint8 aurasCount = 1;
+    bool hasVictimInfo = false;
+    bool hasOverDamage = pInfo->overDamage > 0;
+    bool hasResist = pInfo->resist > 0;
+    bool hasAbsorb = pInfo->absorb > 0;
+    bool hasSchool = true;
 
     WorldPacket data(SMSG_PERIODIC_AURA_LOG, 44); // maximum possible size (without unk someData)
-
-    /*
-    PeriodicHeal
-    Overdamage -> only if not 0
-    Resist, Absorb- > not found yet
-
-    PeriodicDamage
-    OverDamage -> found everytime, probabbly -1 insted of 0
-    SchoolMask -> evertime
-
-    PeriodicEnergize
-    Resist, Absorb -> not found yet
-    PowerType -> in all found cases, but not in mana case
-    */
 
     data.WriteBit(targetGuid[7]);
     data.WriteGuidMask(casterGuid, 0, 7);
     data.WriteBit(targetGuid[1]);
-
-    data.WriteBits(1, 21); // count
-
+    data.WriteBits(aurasCount, 21);
     data.WriteBit(targetGuid[0]);
 
-    auto fillBits = [&data, pInfo] (bool hasOverdamage, bool hasAbsorb, bool hasResist, bool hasSchoolMaskOrPowerType)
+    for(uint8 i = 0; i < aurasCount; ++i)
     {
-        data.WriteBit(!hasOverdamage);
+        data.WriteBit(!hasOverDamage);
         data.WriteBit(!hasAbsorb);
         data.WriteBit(pInfo->critical);
         data.WriteBit(!hasResist);
-        data.WriteBit(!hasSchoolMaskOrPowerType);
-    };
-
-    switch (aura->GetAuraType())
-    {
-        case SPELL_AURA_PERIODIC_DAMAGE: // overdamage - verified, schoolmask - verfied
-        case SPELL_AURA_PERIODIC_DAMAGE_PERCENT:
-            fillBits(true, pInfo->absorb != 0, pInfo->resist != 0, true);
-            break;
-        case SPELL_AURA_PERIODIC_HEAL: // overdamage - verified, schoolmask - verified
-        case SPELL_AURA_OBS_MOD_HEALTH: 
-            fillBits(pInfo->overDamage != 0, pInfo->absorb != 0, false, false);
-            break;
-        case SPELL_AURA_OBS_MOD_POWER:
-        case SPELL_AURA_PERIODIC_ENERGIZE: // verified
-            fillBits(false, false, false, aura->GetMiscValue() != POWER_MANA);
-            break;
-        case SPELL_AURA_PERIODIC_MANA_LEECH:
-            fillBits(false, false, false, aura->GetMiscValue() != POWER_MANA);
-            break;
-        default:
-            fillBits(false, false, false, false);
-            break;
+        data.WriteBit(!hasSchool);    
     }
 
     data.WriteGuidMask(targetGuid, 5, 3);
     data.WriteBit(casterGuid[1]);
     data.WriteBit(targetGuid[2]);
     data.WriteGuidMask(casterGuid, 6, 3, 4);
-
-    data.WriteBit(0); // hasSomeData
-
+    data.WriteBit(hasVictimInfo);
     data.WriteBit(casterGuid[2]);
     data.WriteBit(targetGuid[6]);
     data.WriteBit(casterGuid[5]);
     data.WriteBit(targetGuid[4]);
 
-    AuraType type = aura->GetAuraType();
-    switch (type)
+    for (uint8 i = 0; i < aurasCount; ++i)
     {
-        case SPELL_AURA_PERIODIC_DAMAGE:
-        case SPELL_AURA_PERIODIC_DAMAGE_PERCENT:
-        {
-            data << int32(pInfo->overDamage != 0 ? pInfo->overDamage : -1);
-            data << uint32(pInfo->damage);
-            data << uint32(type);
+        if (hasOverDamage)
+            data << uint32(pInfo->overDamage);
+       
+        data << uint32(pInfo->damage);
 
-            if (pInfo->resist != 0)
-                data << uint32(pInfo->resist);
+        data << uint32(pInfo->auraEff->GetAuraType());
 
-            if (pInfo->absorb != 0)
-                data << uint32(pInfo->absorb);
+        if (hasSchool)
+            data << uint32(pInfo->auraEff->GetSpellInfo()->GetSchoolMask());
 
-            data << uint32(aura->GetSpellInfo()->GetSchoolMask());
+        if (hasResist)
+            data << uint32(pInfo->resist);
 
-            break;
-        }
-        case SPELL_AURA_PERIODIC_HEAL:
-        case SPELL_AURA_OBS_MOD_HEALTH:
-        {
-            if (pInfo->overDamage != 0)
-                data << int32(pInfo->overDamage != 0);
-
-            data << uint32(pInfo->damage);
-            data << uint32(type);
-
-            if (pInfo->absorb != 0)
-                data << uint32(pInfo->absorb);
-
-            data << uint32(aura->GetSpellInfo()->GetSchoolMask());
-            break;
-        }
-        case SPELL_AURA_OBS_MOD_POWER:
-        case SPELL_AURA_PERIODIC_ENERGIZE:
-        case SPELL_AURA_PERIODIC_MANA_LEECH:
-        {
-            data << uint32(pInfo->damage);
-            data << uint32(type);
-
-            if (aura->GetMiscValue() != POWER_MANA)
-                data << uint32(aura->GetMiscValue()); // power type
-
-            break;
-        }
-        default:
-        {
-            data << uint32(pInfo->damage);
-            data << uint32(type);
-
-            TC_LOG_ERROR("entities.unit", "Unit::SendPeriodicAuraLog: unknown aura %u", uint32(aura->GetAuraType()));
-            break;
-        }
+        if (hasAbsorb)
+            data << uint32(pInfo->absorb);      
     }
 
     data.WriteGuidBytes(casterGuid, 5, 3);
     data.WriteByteSeq(targetGuid[4]);
 
-    data << uint32(aura->GetId()); // spell id
+    data << uint32(pInfo->auraEff->GetId());
 
     data.WriteByteSeq(targetGuid[6]);
     data.WriteGuidBytes(casterGuid, 7, 1);

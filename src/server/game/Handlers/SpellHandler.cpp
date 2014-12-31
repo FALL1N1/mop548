@@ -84,6 +84,8 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& recvPacket)
     Position srcPos;
     Position destPos;
     std::string targetString;
+    uint8 archTypes[4];
+    SpellCastTargets targets;
 
     // Movement data
     MovementInfo movementInfo;
@@ -125,7 +127,7 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& recvPacket)
     uint8 researchDataCount = recvPacket.ReadBits(2);
 
     for (uint8 i = 0; i < researchDataCount; ++i)
-        recvPacket.ReadBits(2);
+        archTypes[i] = recvPacket.ReadBits(2);
 
     if (hasMovement)
     {
@@ -176,9 +178,9 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& recvPacket)
     if (hasTargetString)
         targetStringLength = recvPacket.ReadBits(7);
 
-    recvPacket.ReadGuidMask(itemTargetGuid, 1, 0, 5, 3, 6, 4, 7, 2);
-
-    recvPacket.ReadGuidMask(targetGuid, 4, 5, 0, 1, 3, 7, 6, 2);
+    recvPacket.ReadGuidMask(targetGuid, 1, 0, 5, 3, 6, 4, 7, 2);
+    
+    recvPacket.ReadGuidMask(itemTargetGuid, 4, 5, 0, 1, 3, 7, 6, 2);
 
     if (hasCastFlags)
         castFlags = recvPacket.ReadBits(5);
@@ -187,11 +189,28 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& recvPacket)
         targetMask = recvPacket.ReadBits(20);
 
     recvPacket.ReadGuidBytes(itemGuid, 0, 5, 6, 3, 4, 2, 1);
-
-    for (uint8 i = 0; i < researchDataCount; ++i)
+       
+    if (researchDataCount > 0)
     {
-        recvPacket.read_skip<uint32>();
-        recvPacket.read_skip<uint32>();
+        uint32 entry, usedCount;
+        for (uint8 i = 0; i < researchDataCount; i++)
+        {
+            switch (archTypes[i])
+            {
+                case 0: // Fragments
+                    recvPacket >> usedCount;    // Currency count
+                    recvPacket >> entry;        // Currency id
+                    //targets.AddFragments(entry, usedCount); // @TODO
+                    break;
+                case 1: // Keystones
+                    recvPacket >> usedCount;    // Item count
+                    recvPacket >> entry;        // Item id
+                    //targets.AddKeyStone(entry, usedCount); // @TODO
+                    break;
+                default:
+                    break;
+            }
+        }
     }
 
     recvPacket.ReadByteSeq(itemGuid[7]);
@@ -287,7 +306,7 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& recvPacket)
             destPos.Relocate(caster);
     }
 
-    recvPacket.ReadGuidBytes(targetGuid, 6, 7, 2, 0, 3, 4, 1, 5);
+    recvPacket.ReadGuidBytes(itemTargetGuid, 6, 7, 2, 0, 3, 4, 1, 5);
 
     if (hasSrcLocation)
     {
@@ -314,8 +333,8 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& recvPacket)
 
     if (hasSpellId)
         recvPacket >> spellId;
-
-    recvPacket.ReadGuidBytes(itemTargetGuid, 1, 4, 3, 6, 2, 0, 7, 5);
+    
+    recvPacket.ReadGuidBytes(targetGuid, 1, 4, 3, 6, 2, 0, 7, 5);
 
     if (hasTargetString)
         targetString = recvPacket.ReadString(targetStringLength);
@@ -413,8 +432,47 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& recvPacket)
         }
     }
 
-    SpellCastTargets targets(caster, targetMask, targetGuid, itemTargetGuid, srcTransportGuid, destTransportGuid, srcPos, destPos, elevation, missileSpeed, targetString);
+    SpellDestination src;
+    SpellDestination dst;
 
+	if (hasDestLocation)
+	{
+        src._transportGUID = destTransportGuid;
+        if (src._transportGUID)
+            src._transportOffset.Relocate(srcPos);
+		else
+            src._position.Relocate(srcPos);
+	}
+	else
+	{
+        src._transportGUID = mover->GetTransGUID();
+        if (src._transportGUID)
+            src._transportOffset.Relocate(mover->GetTransOffsetX(), mover->GetTransOffsetY(), mover->GetTransOffsetZ(), mover->GetTransOffsetO());
+		else
+            src._position.Relocate(mover);
+	}
+	if (hasDestLocation)
+	{
+        dst._transportGUID = destTransportGuid;
+        if (dst._transportGUID)
+            dst._transportOffset.Relocate(destPos);
+		else
+            dst._position.Relocate(destPos);
+	}
+	else
+	{
+        dst._transportGUID = mover->GetTransGUID();
+        if (dst._transportGUID)
+            dst._transportOffset.Relocate(mover->GetTransOffsetX(), mover->GetTransOffsetY(), mover->GetTransOffsetZ(), mover->GetTransOffsetO());
+		else
+            dst._position.Relocate(mover);
+	}
+
+    targets.SetUnitTargetGUID(targetGuid);
+    targets.SetItemTargetGUID(itemTargetGuid);
+    targets.SetSrc(src);
+    targets.SetDst(dst);
+	targets.Update(mover);
     // Note: If script stop casting it must send appropriate data to client to prevent stuck item in gray state.
     if (!sScriptMgr->OnItemUse(pUser, pItem, targets))
     {
@@ -592,6 +650,7 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
     Position srcPos;
     Position destPos;
     std::string targetString;
+    SpellCastTargets targets;
 
     // Movement data
     MovementInfo movementInfo;
@@ -932,8 +991,41 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
         return;
     }
 
-    // client provided targets
-    SpellCastTargets targets(caster, targetMask, targetGuid, itemTargetGuid, srcTransportGuid, destTransportGuid, srcPos, destPos, elevation, missileSpeed, targetString);
+    SpellDestination src;
+    SpellDestination dst;
+
+	if (hasDestLocation)
+	{
+        src._transportGUID = destTransportGuid;
+        if (src._transportGUID)
+            src._transportOffset.Relocate(srcPos);
+		else
+            src._position.Relocate(srcPos);
+	}
+	else
+	{
+        src._transportGUID = mover->GetTransGUID();
+        if (src._transportGUID)
+            src._transportOffset.Relocate(mover->GetTransOffsetX(), mover->GetTransOffsetY(), mover->GetTransOffsetZ(), mover->GetTransOffsetO());
+		else
+            src._position.Relocate(mover);
+	}
+	if (hasDestLocation)
+	{
+        dst._transportGUID = destTransportGuid;
+        if (dst._transportGUID)
+            dst._transportOffset.Relocate(destPos);
+		else
+            dst._position.Relocate(destPos);
+	}
+	else
+	{
+        dst._transportGUID = mover->GetTransGUID();
+        if (dst._transportGUID)
+            dst._transportOffset.Relocate(mover->GetTransOffsetX(), mover->GetTransOffsetY(), mover->GetTransOffsetZ(), mover->GetTransOffsetO());
+		else
+            dst._position.Relocate(mover);
+	}
 
     // auto-selection buff level base at target level (in spellInfo)
     if (targets.GetUnitTarget())
@@ -962,8 +1054,12 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
             }
         }
     }
-
-    Spell* spell = new Spell(caster, spellInfo, TRIGGERED_NONE, 0, false);
+    
+    TriggerCastFlags triggerCastFlags = TRIGGERED_NONE;
+    if (spellInfo->AttributesEx4 & SPELL_ATTR4_TRIGGERED)
+        triggerCastFlags = TRIGGERED_FULL_MASK; // check if some trigger flags need to be removed
+    
+    Spell* spell = new Spell(mover, spellInfo, triggerCastFlags, 0, false);
     spell->m_cast_count = castCount;   // set count of casts
     spell->m_glyphIndex = glyphIndex;
 
