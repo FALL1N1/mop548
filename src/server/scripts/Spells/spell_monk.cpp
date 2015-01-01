@@ -48,7 +48,9 @@ enum MonkSpells
     SPELL_MONK_TOUCH_OF_DEATH_PLAYER                = 124490,
     SPELL_MONK_ROLL                                 = 109132,
     SPELL_MONK_ROLL_TRIGGER                         = 107427,
-    SPELL_MONK_ITEM_PVP_GLOVES_BONUS                = 124489
+    SPELL_MONK_ITEM_PVP_GLOVES_BONUS                = 124489,
+    SPELL_MONK_DISABLE                              = 116095,
+    SPELL_MONK_DISABLE_ROOT                         = 116706
 };
 
 // 117952 - Crackling Jade Lightning
@@ -415,6 +417,62 @@ class spell_monk_roll : public SpellScriptLoader
         }
 };
 
+// Disable - 116095
+class spell_monk_disable : public SpellScriptLoader
+{
+public:
+    spell_monk_disable() : SpellScriptLoader("spell_monk_disable") { }
+
+    class spell_monk_disable_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_monk_disable_AuraScript);
+
+        bool Validate(SpellInfo const* /*spell*/)
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_MONK_DISABLE))
+                return false;
+            return true;
+        }
+
+        void OnPeriodic(AuraEffect const* aurEff)
+        {
+            if (Unit* caster = GetCaster())
+            {
+                if (Unit* owner = GetUnitOwner())
+                {
+                    if (owner->GetDistance2d(caster) < 10.0f)
+                    {
+                        aurEff->GetBase()->RefreshDuration();
+                    }
+                }
+            }           
+        }
+
+        void AfterReapply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+        {
+            if (Unit* caster = GetCaster())
+            {
+                if (Unit* target = GetTarget())
+                {
+                    caster->CastSpell(target, SPELL_MONK_DISABLE_ROOT, true);
+                }
+            } 
+        }
+
+        void Register()
+        {
+            OnEffectPeriodic += AuraEffectPeriodicFn(spell_monk_disable_AuraScript::OnPeriodic, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
+            AfterEffectApply += AuraEffectRemoveFn(spell_monk_disable_AuraScript::AfterReapply, EFFECT_0, SPELL_AURA_MOD_DECREASE_SPEED, AURA_EFFECT_HANDLE_REAPPLY);
+        }
+    };
+
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_monk_disable_AuraScript();
+    }
+};
+
 void AddSC_monk_spell_scripts()
 {
     new spell_monk_crackling_jade_lightning();
@@ -425,4 +483,5 @@ void AddSC_monk_spell_scripts()
     new spell_monk_expel_harm();
     new spell_monk_touch_of_death();
     new spell_monk_roll();
+    new spell_monk_disable();
 }

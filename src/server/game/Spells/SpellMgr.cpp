@@ -2970,6 +2970,14 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
 
         switch (spellInfo->SpellFamilyName)
         {
+            case SPELLFAMILY_MONK:
+                // Disable
+                if (spellInfo->Id == 116095 || spellInfo->Id == 116706)
+                {
+                    spellInfo->AttributesEx5 |= SPELL_ATTR5_SINGLE_TARGET_SPELL;
+                    spellInfo->StackAmount = 1;
+                }
+                break;
             case SPELLFAMILY_WARRIOR:
                 // Shout
                 if (spellInfo->SpellFamilyFlags[0] & 0x20000 || spellInfo->SpellFamilyFlags[1] & 0x20)
