@@ -50,7 +50,8 @@ enum MonkSpells
     SPELL_MONK_ROLL_TRIGGER                         = 107427,
     SPELL_MONK_ITEM_PVP_GLOVES_BONUS                = 124489,
     SPELL_MONK_DISABLE                              = 116095,
-    SPELL_MONK_DISABLE_ROOT                         = 116706
+    SPELL_MONK_DISABLE_ROOT                         = 116706,
+    SPELL_MONK_PARALYSIS                            = 115078
 };
 
 // 117952 - Crackling Jade Lightning
@@ -420,8 +421,8 @@ class spell_monk_roll : public SpellScriptLoader
 // Disable - 116095
 class spell_monk_disable : public SpellScriptLoader
 {
-public:
-    spell_monk_disable() : SpellScriptLoader("spell_monk_disable") { }
+    public:
+        spell_monk_disable() : SpellScriptLoader("spell_monk_disable") { }
 
     class spell_monk_disable_AuraScript : public AuraScript
     {
@@ -473,6 +474,52 @@ public:
     }
 };
 
+// Paralysis - 115078
+class spell_monk_paralysis : public SpellScriptLoader
+{
+public:
+    spell_monk_paralysis() : SpellScriptLoader("spell_monk_paralysis") { }
+
+    class spell_monk_paralysis_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_monk_paralysis_AuraScript);
+
+        bool Validate(SpellInfo const* /*spell*/)
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_MONK_PARALYSIS))
+                return false;
+            return true;
+        }
+
+        void HandleOnEffectApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+        {
+            if (Unit* caster = GetCaster())
+            {
+                if (Unit* target = GetTarget())
+                {
+                    if (target->isInBackInMap(caster, 20.0f, M_PI/2))
+                    {
+                        uint16 duration = aurEff->GetBase()->GetMaxDuration();
+                        AddPct(duration, 50);
+                        aurEff->GetBase()->SetDuration(duration);
+                    }
+                }
+            }
+        }
+
+        void Register()
+        {
+            OnEffectApply += AuraEffectApplyFn(spell_monk_paralysis_AuraScript::HandleOnEffectApply, EFFECT_0, SPELL_AURA_MOD_STUN, AURA_EFFECT_HANDLE_REAL);
+        }
+    };
+
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_monk_paralysis_AuraScript();
+    }
+};
+
 void AddSC_monk_spell_scripts()
 {
     new spell_monk_crackling_jade_lightning();
@@ -484,4 +531,5 @@ void AddSC_monk_spell_scripts()
     new spell_monk_touch_of_death();
     new spell_monk_roll();
     new spell_monk_disable();
+    new spell_monk_paralysis();
 }
