@@ -2977,6 +2977,11 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
                     spellInfo->AttributesEx5 |= SPELL_ATTR5_SINGLE_TARGET_SPELL;
                     spellInfo->StackAmount = 1;
                 }
+                // Spinning Crane Kick
+                else if (spellInfo->Id == 101546)
+                {
+                    spellInfo->Effects[EFFECT_1].BasePoints = -30;
+                }
                 break;
             case SPELLFAMILY_WARRIOR:
                 // Shout

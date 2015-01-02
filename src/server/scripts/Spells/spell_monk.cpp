@@ -51,7 +51,9 @@ enum MonkSpells
     SPELL_MONK_ITEM_PVP_GLOVES_BONUS                = 124489,
     SPELL_MONK_DISABLE                              = 116095,
     SPELL_MONK_DISABLE_ROOT                         = 116706,
-    SPELL_MONK_PARALYSIS                            = 115078
+    SPELL_MONK_PARALYSIS                            = 115078,
+    SPELL_MONK_SPINNING_CRANE_KICK                  = 107270,
+    SPELL_MONK_SPINNING_CRANE_KICK_ENERGIZE         = 129881
 };
 
 // 117952 - Crackling Jade Lightning
@@ -520,6 +522,50 @@ public:
     }
 };
 
+// Spinning Crane Kick - 107270
+class spell_monk_spinning_crane_kick : public SpellScriptLoader
+{
+public:
+    spell_monk_spinning_crane_kick() : SpellScriptLoader("spell_monk_spinning_crane_kick") { }
+
+    class spell_monk_spinning_crane_kick_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_monk_spinning_crane_kick_SpellScript);
+
+        bool Validate(SpellInfo const* /*spell*/)
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_MONK_SPINNING_CRANE_KICK))
+                return false;
+            return true;
+        }
+
+        void HandleOnCast()
+        {
+            if (Unit* caster = GetCaster())
+            {
+                std::list<Unit*> targets;
+                Trinity::AnyUnfriendlyUnitInObjectRangeCheck u_check(caster, caster, 8.0f);
+                Trinity::UnitListSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck> searcher(caster, targets, u_check);
+                caster->VisitNearbyObject(8.0f, searcher);
+                if (targets.size() >= 3)
+                {
+                    caster->CastSpell(caster, SPELL_MONK_SPINNING_CRANE_KICK_ENERGIZE, true);
+                }
+            }
+        }
+
+        void Register()
+        {
+            OnCast += SpellCastFn(spell_monk_spinning_crane_kick_SpellScript::HandleOnCast);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_monk_spinning_crane_kick_SpellScript();
+    }
+};
+
 void AddSC_monk_spell_scripts()
 {
     new spell_monk_crackling_jade_lightning();
@@ -532,4 +578,5 @@ void AddSC_monk_spell_scripts()
     new spell_monk_roll();
     new spell_monk_disable();
     new spell_monk_paralysis();
+    new spell_monk_spinning_crane_kick();
 }
