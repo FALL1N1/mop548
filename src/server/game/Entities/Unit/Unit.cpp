@@ -11098,9 +11098,9 @@ int32 Unit::ModifyPower(Powers power, int32 dVal)
     {
         if (dVal < 0)
         {
-            if (Aura* tigereyeBrew = GetAura(123980))
+            if (Aura* tigereyeBrew = GetAura(123980)) // Tigereye Brew
                 tigereyeBrew->SetScriptData(0, -dVal);
-            else if (Aura* manaTea = GetAura(123766))
+            else if (Aura* manaTea = GetAura(123766)) // Mana Tea
                 manaTea->SetScriptData(0, -dVal);
         }
     }

@@ -53,7 +53,10 @@ enum MonkSpells
     SPELL_MONK_DISABLE_ROOT                         = 116706,
     SPELL_MONK_PARALYSIS                            = 115078,
     SPELL_MONK_SPINNING_CRANE_KICK                  = 107270,
-    SPELL_MONK_SPINNING_CRANE_KICK_ENERGIZE         = 129881
+    SPELL_MONK_SPINNING_CRANE_KICK_ENERGIZE         = 129881,
+    SPELL_MONK_BREWING_TIGEREYE_BREW                = 123980,
+    SPELL_MONK_TIGEREYE_BREW                        = 116740,
+    SPELL_MONK_TIGEREYE_BREW_BUFF                   = 125195
 };
 
 // 117952 - Crackling Jade Lightning
@@ -560,6 +563,140 @@ class spell_monk_spinning_crane_kick : public SpellScriptLoader
         }
 };
 
+// Brewing: Tigereye Brew - 123980
+class spell_monk_brewing_tigereye_brew : public SpellScriptLoader
+{
+    public:
+        spell_monk_brewing_tigereye_brew() : SpellScriptLoader("spell_monk_brewing_tigereye_brew") { }
+
+        class spell_monk_brewing_tigereye_brew_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_monk_brewing_tigereye_brew_AuraScript);
+
+            bool Validate(SpellInfo const* /*spell*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_MONK_BREWING_TIGEREYE_BREW))
+                    return false;
+                return true;
+            }
+
+            uint32 chiConsumed;
+
+            void HandleOnEffectApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+            {
+                chiConsumed = 0;
+            }
+
+            void SetData(uint32 type, uint32 data)
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    chiConsumed += data;
+                    if (chiConsumed >= 4)
+                    {
+                        caster->CastSpell(caster, SPELL_MONK_TIGEREYE_BREW_BUFF, true);
+                        chiConsumed -= 4;
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_monk_brewing_tigereye_brew_AuraScript::HandleOnEffectApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_monk_brewing_tigereye_brew_AuraScript();
+        }
+};
+
+#define maxStack 10
+
+// Tigereye Brew - 116740
+class spell_monk_tigereye_brew : public SpellScriptLoader
+{
+public:
+    spell_monk_tigereye_brew() : SpellScriptLoader("spell_monk_tigereye_brew") { }
+
+    class spell_monk_tigereye_brew_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_monk_tigereye_brew_AuraScript);
+
+        bool Validate(SpellInfo const* /*spell*/)
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_MONK_TIGEREYE_BREW))
+                return false;
+            return true;
+        }
+
+        void CalculateAmount(AuraEffect const* aurEff, int32& amount, bool& /*canBeRecalculated*/)
+        {
+            if (Unit* caster = GetCaster())
+            {
+                if (Aura* aur = caster->GetAura(SPELL_MONK_TIGEREYE_BREW_BUFF))
+                {
+                    uint16 stack = aur->GetStackAmount();
+
+                    // Max bonus = 60%
+                    if (stack > maxStack)
+                        amount *= maxStack;
+                    else
+                        amount *= stack;
+                }
+            }
+        }
+
+        void Register()
+        {
+            DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_monk_tigereye_brew_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE);
+            DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_monk_tigereye_brew_AuraScript::CalculateAmount, EFFECT_1, SPELL_AURA_MOD_HEALING_DONE_PERCENT);
+        }
+    };
+
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_monk_tigereye_brew_AuraScript();
+    }
+
+    class spell_monk_tigereye_brew_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_monk_tigereye_brew_SpellScript);
+
+        void HandleAfterCast()
+        {
+            if (Unit* caster = GetCaster())
+            {
+                if (Aura* aur = caster->GetAura(SPELL_MONK_TIGEREYE_BREW_BUFF))
+                {
+                    uint16 stack = aur->GetStackAmount();
+                    // Removes at most 10 stacks
+                    if (stack > maxStack)
+                    {
+                        // One of the stacks is already removed automatically
+                        aur->SetStackAmount(stack - maxStack + 1);
+                    }
+                    else
+                        caster->RemoveAura(SPELL_MONK_TIGEREYE_BREW_BUFF);
+                }
+            }
+        }
+
+        void Register()
+        {
+            AfterCast += SpellCastFn(spell_monk_tigereye_brew_SpellScript::HandleAfterCast);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_monk_tigereye_brew_SpellScript();
+    }
+};
+
 void AddSC_monk_spell_scripts()
 {
     new spell_monk_crackling_jade_lightning();
@@ -573,4 +710,6 @@ void AddSC_monk_spell_scripts()
     new spell_monk_disable();
     new spell_monk_paralysis();
     new spell_monk_spinning_crane_kick();
+    new spell_monk_brewing_tigereye_brew();
+    new spell_monk_tigereye_brew();
 }
