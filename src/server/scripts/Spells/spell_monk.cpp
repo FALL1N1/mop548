@@ -454,12 +454,8 @@ class spell_monk_disable : public SpellScriptLoader
         void AfterReapply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
         {
             if (Unit* caster = GetCaster())
-            {
                 if (Unit* target = GetTarget())
-                {
                     caster->CastSpell(target, SPELL_MONK_DISABLE_ROOT, true);
-                }
-            } 
         }
 
         void Register()
@@ -479,91 +475,89 @@ class spell_monk_disable : public SpellScriptLoader
 // Paralysis - 115078
 class spell_monk_paralysis : public SpellScriptLoader
 {
-public:
-    spell_monk_paralysis() : SpellScriptLoader("spell_monk_paralysis") { }
+    public:
+        spell_monk_paralysis() : SpellScriptLoader("spell_monk_paralysis") { }
 
-    class spell_monk_paralysis_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_monk_paralysis_AuraScript);
-
-        bool Validate(SpellInfo const* /*spell*/)
+        class spell_monk_paralysis_AuraScript : public AuraScript
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_MONK_PARALYSIS))
-                return false;
-            return true;
-        }
+            PrepareAuraScript(spell_monk_paralysis_AuraScript);
 
-        void HandleOnEffectApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
-        {
-            if (Unit* caster = GetCaster())
+            bool Validate(SpellInfo const* /*spell*/)
             {
-                if (Unit* target = GetTarget())
+                if (!sSpellMgr->GetSpellInfo(SPELL_MONK_PARALYSIS))
+                    return false;
+                return true;
+            }
+
+            void HandleOnEffectApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+            {
+                if (Unit* caster = GetCaster())
                 {
-                    if (target->isInBackInMap(caster, 20.0f, M_PI/2))
+                    if (Unit* target = GetTarget())
                     {
-                        uint16 duration = aurEff->GetBase()->GetMaxDuration();
-                        AddPct(duration, 50);
-                        aurEff->GetBase()->SetDuration(duration);
+                        if (target->isInBackInMap(caster, 20.0f, M_PI/2))
+                        {
+                            uint16 duration = aurEff->GetBase()->GetMaxDuration();
+                            AddPct(duration, 50);
+                            aurEff->GetBase()->SetDuration(duration);
+                        }
                     }
                 }
             }
-        }
 
-        void Register()
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_monk_paralysis_AuraScript::HandleOnEffectApply, EFFECT_0, SPELL_AURA_MOD_STUN, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+
+        AuraScript* GetAuraScript() const
         {
-            OnEffectApply += AuraEffectApplyFn(spell_monk_paralysis_AuraScript::HandleOnEffectApply, EFFECT_0, SPELL_AURA_MOD_STUN, AURA_EFFECT_HANDLE_REAL);
+            return new spell_monk_paralysis_AuraScript();
         }
-    };
-
-
-    AuraScript* GetAuraScript() const
-    {
-        return new spell_monk_paralysis_AuraScript();
-    }
 };
 
 // Spinning Crane Kick - 107270
 class spell_monk_spinning_crane_kick : public SpellScriptLoader
 {
-public:
-    spell_monk_spinning_crane_kick() : SpellScriptLoader("spell_monk_spinning_crane_kick") { }
+    public:
+        spell_monk_spinning_crane_kick() : SpellScriptLoader("spell_monk_spinning_crane_kick") { }
 
-    class spell_monk_spinning_crane_kick_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_monk_spinning_crane_kick_SpellScript);
-
-        bool Validate(SpellInfo const* /*spell*/)
+        class spell_monk_spinning_crane_kick_SpellScript : public SpellScript
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_MONK_SPINNING_CRANE_KICK))
-                return false;
-            return true;
-        }
+            PrepareSpellScript(spell_monk_spinning_crane_kick_SpellScript);
 
-        void HandleOnCast()
-        {
-            if (Unit* caster = GetCaster())
+            bool Validate(SpellInfo const* /*spell*/)
             {
-                std::list<Unit*> targets;
-                Trinity::AnyUnfriendlyUnitInObjectRangeCheck u_check(caster, caster, 8.0f);
-                Trinity::UnitListSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck> searcher(caster, targets, u_check);
-                caster->VisitNearbyObject(8.0f, searcher);
-                if (targets.size() >= 3)
+                if (!sSpellMgr->GetSpellInfo(SPELL_MONK_SPINNING_CRANE_KICK))
+                    return false;
+                return true;
+            }
+
+            void HandleOnCast()
+            {
+                if (Unit* caster = GetCaster())
                 {
-                    caster->CastSpell(caster, SPELL_MONK_SPINNING_CRANE_KICK_ENERGIZE, true);
+                    std::list<Unit*> targets;
+                    Trinity::AnyUnfriendlyUnitInObjectRangeCheck u_check(caster, caster, 8.0f);
+                    Trinity::UnitListSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck> searcher(caster, targets, u_check);
+                    caster->VisitNearbyObject(8.0f, searcher);
+                    if (targets.size() >= 3)
+                        caster->CastSpell(caster, SPELL_MONK_SPINNING_CRANE_KICK_ENERGIZE, true);
                 }
             }
-        }
 
-        void Register()
+            void Register()
+            {
+                OnCast += SpellCastFn(spell_monk_spinning_crane_kick_SpellScript::HandleOnCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
         {
-            OnCast += SpellCastFn(spell_monk_spinning_crane_kick_SpellScript::HandleOnCast);
+            return new spell_monk_spinning_crane_kick_SpellScript();
         }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_monk_spinning_crane_kick_SpellScript();
-    }
 };
 
 void AddSC_monk_spell_scripts()
