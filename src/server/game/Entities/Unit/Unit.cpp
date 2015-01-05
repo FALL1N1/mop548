@@ -2355,7 +2355,7 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit* victim, SpellInfo const* spellInfo
         canDodge = false;
 
         // only if in front
-        if (victim->HasInArc(M_PI, this) || victim->HasAuraType(SPELL_AURA_IGNORE_HIT_DIRECTION))
+        if ((victim->HasInArc(M_PI, this) || victim->HasAuraType(SPELL_AURA_IGNORE_HIT_DIRECTION)) && !victim->HasAuraType(SPELL_AURA_MOD_STUN))
         {
             int32 deflect_chance = victim->GetTotalAuraModifier(SPELL_AURA_DEFLECT_SPELLS) * 100;
             tmp += deflect_chance;
@@ -2366,22 +2366,15 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit* victim, SpellInfo const* spellInfo
     }
 
     // Check for attack from behind
-    if (!victim->HasInArc(M_PI, this))
+	bool IsBehind = FindCurrentSpellBySpellId(spellInfo->Id) && FindCurrentSpellBySpellId(spellInfo->Id)->GetSpellInfo()->AttributesCu & SPELL_ATTR0_CU_REQ_CASTER_BEHIND_TARGET;
+    if (!victim->HasInArc(M_PI, this) || IsBehind) // don't dodge hits that can come only from behind
     {
-        if (!victim->HasAuraType(SPELL_AURA_IGNORE_HIT_DIRECTION))
-        {
-            // Can`t dodge from behind in PvP (but its possible in PvE)
-            if (victim->GetTypeId() == TYPEID_PLAYER)
-                canDodge = false;
-            // Can`t parry or block
-            canParry = false;
-            canBlock = false;
-        }
-        else // Only deterrence as of 3.3.5
-        {
-            if (spellInfo->AttributesCu & SPELL_ATTR0_CU_REQ_CASTER_BEHIND_TARGET)
-                canParry = false;
-        }
+		// Can`t dodge from behind in PvP (but its possible in PvE)
+		if (victim->GetTypeId() == TYPEID_PLAYER)
+			canDodge = false;
+		if (!victim->HasAuraType(SPELL_AURA_IGNORE_HIT_DIRECTION) || IsBehind)
+			canParry = false; //Usable only from behind or without deterrence = can't parry
+		canBlock = false;
     }
     // Check creatures flags_extra for disable parry
     if (victim->GetTypeId() == TYPEID_UNIT)
