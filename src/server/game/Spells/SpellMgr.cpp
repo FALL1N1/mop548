@@ -2973,18 +2973,16 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
             case SPELLFAMILY_MONK:
                 switch (spellInfo->Id)
                 {
-                    // Disable
-                    case 116095:
+                    case 116095: // Disable
                     case 116706:
                         spellInfo->AttributesEx5 |= SPELL_ATTR5_SINGLE_TARGET_SPELL;
                         spellInfo->StackAmount = 1;
                         break;
-                    // Spinning Crane Kick
-                    case 101546:
+                    case 101546: // Spinning Crane Kick
                         spellInfo->Effects[EFFECT_1].BasePoints = -30;
                         break;
-                    // Flying Serpent Kick
-                    case 101545:
+                    case 101545: // Flying Serpent Kick
+                    case 107427: // Roll
                         spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_MOD_INCREASE_SPEED;
                         break;
                 }
