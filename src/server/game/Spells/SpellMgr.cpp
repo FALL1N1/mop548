@@ -2982,6 +2982,10 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
                 {
                     spellInfo->Effects[EFFECT_1].BasePoints = -30;
                 }
+                else if (spellInfo->Id == 101545)
+                {
+                    spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_MOD_INCREASE_SPEED;
+                }
                 break;
             case SPELLFAMILY_WARRIOR:
                 // Shout
