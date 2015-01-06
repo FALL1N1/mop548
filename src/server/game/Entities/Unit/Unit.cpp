@@ -6727,6 +6727,15 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
             }
             break;
         }
+        case SPELLFAMILY_MONK:
+            // Zen Meditation
+            if (dummySpell->Id == 131523)
+            {
+                // Melee attacks break channeling
+                if (procFlag & PROC_FLAG_TAKEN_MELEE_AUTO_ATTACK)
+                    RemoveAura(dummySpell->Id);
+            }
+            break;
         case SPELLFAMILY_PET:
         {
             switch (dummySpell->SpellIconID)
