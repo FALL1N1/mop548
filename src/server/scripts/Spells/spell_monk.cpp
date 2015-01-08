@@ -56,7 +56,9 @@ enum MonkSpells
     SPELL_MONK_SPINNING_CRANE_KICK_ENERGIZE         = 129881,
     SPELL_MONK_BREWING_TIGEREYE_BREW                = 123980,
     SPELL_MONK_TIGEREYE_BREW                        = 116740,
-    SPELL_MONK_TIGEREYE_BREW_BUFF                   = 125195
+    SPELL_MONK_TIGEREYE_BREW_BUFF                   = 125195,
+    SPELL_MONK_TIGER_STRIKES                        = 120273,
+    SPELL_MONK_TIGER_STRIKES_ATTACK                 = 120274
 };
 
 // 117952 - Crackling Jade Lightning
@@ -697,6 +699,43 @@ public:
     }
 };
 
+// Tiger Strikes - 120273
+class spell_monk_tiger_strikes : public SpellScriptLoader
+{
+    public:
+        spell_monk_tiger_strikes() : SpellScriptLoader("spell_monk_tiger_strikes") { }
+
+        class spell_monk_tiger_strikes_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_monk_tiger_strikes_AuraScript);
+
+            bool Validate(SpellInfo const* /*spell*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_MONK_TIGER_STRIKES))
+                    return false;
+                return true;
+            }
+
+            void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+            {
+                if (Unit* caster = GetCaster())
+                    if (Unit* target = eventInfo.GetDamageInfo()->GetVictim())
+                        caster->CastSpell(target, 120274, true);
+            }
+
+            void Register()
+            {
+                OnEffectProc += AuraEffectProcFn(spell_monk_tiger_strikes_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_MOD_MELEE_HASTE_3);
+            }
+        };
+
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_monk_tiger_strikes_AuraScript();
+        }
+};
+
 void AddSC_monk_spell_scripts()
 {
     new spell_monk_crackling_jade_lightning();
@@ -712,4 +751,5 @@ void AddSC_monk_spell_scripts()
     new spell_monk_spinning_crane_kick();
     new spell_monk_brewing_tigereye_brew();
     new spell_monk_tigereye_brew();
+    new spell_monk_tiger_strikes();
 }
