@@ -448,6 +448,23 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                 {
                     damage = unitTarget->GetHealth();
                 }
+                // Blackout Kick
+                else if (m_spellInfo->Id == 100784)
+                {
+                    // Combat Conditioning
+                    if (m_caster->HasAura(128595))
+                    {
+                        int32 bp0 = CalculatePct(damage, 20);
+
+                        if (unitTarget->isInBack(m_caster, M_PI / 2))
+                        {
+                            bp0 /= 4;
+                            m_caster->CastCustomSpell(unitTarget, 128531, &bp0, NULL, NULL, true);
+                        }
+                        else if (unitTarget->isInFront(m_caster, M_PI / 2))
+                            m_caster->CastCustomSpell(m_caster, 128591, &bp0, NULL, NULL, true);
+                    }
+                }
                 break;
             case SPELLFAMILY_WARRIOR:
             {
