@@ -2985,6 +2985,9 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
                     case 107427: // Roll
                         spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_MOD_INCREASE_SPEED;
                         break;
+                    case 115069: // Stance of th Sturdy Ox
+                        spellInfo->Effects[EFFECT_2].ApplyAuraName = SPELL_AURA_DUMMY;
+                        break;
                 }
                 break;
             case SPELLFAMILY_WARRIOR:
