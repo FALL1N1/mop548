@@ -1139,7 +1139,7 @@ void WorldSession::HandleRequestAccountData(WorldPacket& recvData)
     ByteBuffer dest;
     dest.resize(destSize);
 
-    if (size && compress(dest.contents(), &destSize, (uint8 const*)adata->Data.c_str(), size) != Z_OK)
+    if (size && compress(const_cast<uint8*>(dest.contents()), &destSize, (uint8*)adata->Data.c_str(), size) != Z_OK)
     {
         TC_LOG_DEBUG("network", "RAD: Failed to compress account data");
         return;
@@ -1147,18 +1147,18 @@ void WorldSession::HandleRequestAccountData(WorldPacket& recvData)
 
     dest.resize(destSize);
 
-    WorldPacket data(SMSG_UPDATE_ACCOUNT_DATA, 4 + 4 + 4 + 3 + 3 + 5 + 8 + destSize);
     ObjectGuid playerGuid = _player ? _player->GetGUID() : 0;
+
+    WorldPacket data(SMSG_UPDATE_ACCOUNT_DATA, 3 + 8 + 4 + 4 + destSize);
 
     data.WriteBits(type, 3);
     data.WriteGuidMask(playerGuid, 5, 1, 3, 7, 0, 4, 2, 6);
-
-    data.WriteGuidBytes(playerGuid, 3, 1, 5);
-    data << uint32(size);                                   // decompressed length
-    data << uint32(destSize);                               // compressed length
-    data.append(dest);                                      // compressed data
-    data.WriteGuidBytes(playerGuid, 7, 4, 0, 6, 2);
-    data << uint32(adata->Time);                            // unix time
+    data.WriteGuidBytes(playerGuid, 3, 1, 5, 3);
+    data << uint32(size);
+    data << uint32(destSize);
+    data.append(dest);
+    data.WriteGuidBytes(playerGuid, 7, 4, 0, 6, 2, 5);
+    data << uint32(adata->Time);
 
     SendPacket(&data);
 }
