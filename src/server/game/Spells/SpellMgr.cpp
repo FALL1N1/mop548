@@ -2970,6 +2970,26 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
 
         switch (spellInfo->SpellFamilyName)
         {
+            case SPELLFAMILY_MONK:
+                switch (spellInfo->Id)
+                {
+                    case 116095: // Disable
+                    case 116706:
+                        spellInfo->AttributesEx5 |= SPELL_ATTR5_SINGLE_TARGET_SPELL;
+                        spellInfo->StackAmount = 1;
+                        break;
+                    case 101546: // Spinning Crane Kick
+                        spellInfo->Effects[EFFECT_1].BasePoints = -30;
+                        break;
+                    case 101545: // Flying Serpent Kick
+                    case 107427: // Roll
+                        spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_MOD_INCREASE_SPEED;
+                        break;
+                    case 115069: // Stance of th Sturdy Ox
+                        spellInfo->Effects[EFFECT_2].ApplyAuraName = SPELL_AURA_DUMMY;
+                        break;
+                }
+                break;
             case SPELLFAMILY_WARRIOR:
                 // Shout
                 if (spellInfo->SpellFamilyFlags[0] & 0x20000 || spellInfo->SpellFamilyFlags[1] & 0x20)
@@ -3700,6 +3720,13 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 108839: // Mage - Ice Floes (right?)
             case 108843: // Mage - Blazing speed
                 spellInfo->AttributesEx4 &= ~SPELL_ATTR4_TRIGGERED;
+                break;
+            case 48263:
+                spellInfo->Effects[EFFECT_0].ApplyAuraName = 0;
+                spellInfo->Effects[EFFECT_1].ApplyAuraName = 0;
+                spellInfo->Effects[EFFECT_2].ApplyAuraName = 0;
+                spellInfo->Effects[EFFECT_3].ApplyAuraName = 0;
+                spellInfo->Effects[EFFECT_4].ApplyAuraName = 0;
                 break;
             default:
                 break;

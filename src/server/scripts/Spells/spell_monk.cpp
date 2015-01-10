@@ -48,7 +48,17 @@ enum MonkSpells
     SPELL_MONK_TOUCH_OF_DEATH_PLAYER                = 124490,
     SPELL_MONK_ROLL                                 = 109132,
     SPELL_MONK_ROLL_TRIGGER                         = 107427,
-    SPELL_MONK_ITEM_PVP_GLOVES_BONUS                = 124489
+    SPELL_MONK_ITEM_PVP_GLOVES_BONUS                = 124489,
+    SPELL_MONK_DISABLE                              = 116095,
+    SPELL_MONK_DISABLE_ROOT                         = 116706,
+    SPELL_MONK_PARALYSIS                            = 115078,
+    SPELL_MONK_SPINNING_CRANE_KICK                  = 107270,
+    SPELL_MONK_SPINNING_CRANE_KICK_ENERGIZE         = 129881,
+    SPELL_MONK_BREWING_TIGEREYE_BREW                = 123980,
+    SPELL_MONK_TIGEREYE_BREW                        = 116740,
+    SPELL_MONK_TIGEREYE_BREW_BUFF                   = 125195,
+    SPELL_MONK_TIGER_STRIKES                        = 120273,
+    SPELL_MONK_TIGER_STRIKES_ATTACK                 = 120274
 };
 
 // 117952 - Crackling Jade Lightning
@@ -415,6 +425,317 @@ class spell_monk_roll : public SpellScriptLoader
         }
 };
 
+// Disable - 116095
+class spell_monk_disable : public SpellScriptLoader
+{
+    public:
+        spell_monk_disable() : SpellScriptLoader("spell_monk_disable") { }
+
+    class spell_monk_disable_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_monk_disable_AuraScript);
+
+        bool Validate(SpellInfo const* /*spell*/)
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_MONK_DISABLE))
+                return false;
+            return true;
+        }
+
+        void OnPeriodic(AuraEffect const* aurEff)
+        {
+            if (Unit* caster = GetCaster())
+            {
+                if (Unit* owner = GetUnitOwner())
+                {
+                    if (owner->GetDistance2d(caster) < 10.0f)
+                    {
+                        aurEff->GetBase()->RefreshDuration();
+                    }
+                }
+            }           
+        }
+
+        void AfterReapply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+        {
+            if (Unit* caster = GetCaster())
+                if (Unit* target = GetTarget())
+                    caster->CastSpell(target, SPELL_MONK_DISABLE_ROOT, true);
+        }
+
+        void Register()
+        {
+            OnEffectPeriodic += AuraEffectPeriodicFn(spell_monk_disable_AuraScript::OnPeriodic, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
+            AfterEffectApply += AuraEffectRemoveFn(spell_monk_disable_AuraScript::AfterReapply, EFFECT_0, SPELL_AURA_MOD_DECREASE_SPEED, AURA_EFFECT_HANDLE_REAPPLY);
+        }
+    };
+
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_monk_disable_AuraScript();
+    }
+};
+
+// Paralysis - 115078
+class spell_monk_paralysis : public SpellScriptLoader
+{
+    public:
+        spell_monk_paralysis() : SpellScriptLoader("spell_monk_paralysis") { }
+
+        class spell_monk_paralysis_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_monk_paralysis_AuraScript);
+
+            bool Validate(SpellInfo const* /*spell*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_MONK_PARALYSIS))
+                    return false;
+                return true;
+            }
+
+            void HandleOnEffectApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    if (Unit* target = GetTarget())
+                    {
+                        if (target->isInBackInMap(caster, 20.0f, M_PI/2))
+                        {
+                            uint16 duration = aurEff->GetBase()->GetMaxDuration();
+                            AddPct(duration, 50);
+                            aurEff->GetBase()->SetDuration(duration);
+                        }
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_monk_paralysis_AuraScript::HandleOnEffectApply, EFFECT_0, SPELL_AURA_MOD_STUN, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_monk_paralysis_AuraScript();
+        }
+};
+
+// Spinning Crane Kick - 107270
+class spell_monk_spinning_crane_kick : public SpellScriptLoader
+{
+    public:
+        spell_monk_spinning_crane_kick() : SpellScriptLoader("spell_monk_spinning_crane_kick") { }
+
+        class spell_monk_spinning_crane_kick_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_monk_spinning_crane_kick_SpellScript);
+
+            bool Validate(SpellInfo const* /*spell*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_MONK_SPINNING_CRANE_KICK))
+                    return false;
+                return true;
+            }
+
+            void HandleOnCast()
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    std::list<Unit*> targets;
+                    Trinity::AnyUnfriendlyUnitInObjectRangeCheck u_check(caster, caster, 8.0f);
+                    Trinity::UnitListSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck> searcher(caster, targets, u_check);
+                    caster->VisitNearbyObject(8.0f, searcher);
+                    if (targets.size() >= 3)
+                        caster->CastSpell(caster, SPELL_MONK_SPINNING_CRANE_KICK_ENERGIZE, true);
+                }
+            }
+
+            void Register()
+            {
+                OnCast += SpellCastFn(spell_monk_spinning_crane_kick_SpellScript::HandleOnCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_monk_spinning_crane_kick_SpellScript();
+        }
+};
+
+// Brewing: Tigereye Brew - 123980
+class spell_monk_brewing_tigereye_brew : public SpellScriptLoader
+{
+    public:
+        spell_monk_brewing_tigereye_brew() : SpellScriptLoader("spell_monk_brewing_tigereye_brew") { }
+
+        class spell_monk_brewing_tigereye_brew_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_monk_brewing_tigereye_brew_AuraScript);
+
+            bool Validate(SpellInfo const* /*spell*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_MONK_BREWING_TIGEREYE_BREW))
+                    return false;
+                return true;
+            }
+
+            uint32 chiConsumed;
+
+            void HandleOnEffectApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+            {
+                chiConsumed = 0;
+            }
+
+            void SetData(uint32 type, uint32 data)
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    chiConsumed += data;
+                    if (chiConsumed >= 4)
+                    {
+                        caster->CastSpell(caster, SPELL_MONK_TIGEREYE_BREW_BUFF, true);
+                        chiConsumed -= 4;
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_monk_brewing_tigereye_brew_AuraScript::HandleOnEffectApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_monk_brewing_tigereye_brew_AuraScript();
+        }
+};
+
+#define maxStack 10
+
+// Tigereye Brew - 116740
+class spell_monk_tigereye_brew : public SpellScriptLoader
+{
+public:
+    spell_monk_tigereye_brew() : SpellScriptLoader("spell_monk_tigereye_brew") { }
+
+    class spell_monk_tigereye_brew_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_monk_tigereye_brew_AuraScript);
+
+        bool Validate(SpellInfo const* /*spell*/)
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_MONK_TIGEREYE_BREW))
+                return false;
+            return true;
+        }
+
+        void CalculateAmount(AuraEffect const* aurEff, int32& amount, bool& /*canBeRecalculated*/)
+        {
+            if (Unit* caster = GetCaster())
+            {
+                if (Aura* aur = caster->GetAura(SPELL_MONK_TIGEREYE_BREW_BUFF))
+                {
+                    uint16 stack = aur->GetStackAmount();
+
+                    // Max bonus = 60%
+                    if (stack > maxStack)
+                        amount *= maxStack;
+                    else
+                        amount *= stack;
+                }
+            }
+        }
+
+        void Register()
+        {
+            DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_monk_tigereye_brew_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE);
+            DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_monk_tigereye_brew_AuraScript::CalculateAmount, EFFECT_1, SPELL_AURA_MOD_HEALING_DONE_PERCENT);
+        }
+    };
+
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_monk_tigereye_brew_AuraScript();
+    }
+
+    class spell_monk_tigereye_brew_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_monk_tigereye_brew_SpellScript);
+
+        void HandleAfterCast()
+        {
+            if (Unit* caster = GetCaster())
+            {
+                if (Aura* aur = caster->GetAura(SPELL_MONK_TIGEREYE_BREW_BUFF))
+                {
+                    uint16 stack = aur->GetStackAmount();
+                    // Removes at most 10 stacks
+                    if (stack > maxStack)
+                    {
+                        // One of the stacks is already removed automatically
+                        aur->SetStackAmount(stack - maxStack + 1);
+                    }
+                    else
+                        caster->RemoveAura(SPELL_MONK_TIGEREYE_BREW_BUFF);
+                }
+            }
+        }
+
+        void Register()
+        {
+            AfterCast += SpellCastFn(spell_monk_tigereye_brew_SpellScript::HandleAfterCast);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_monk_tigereye_brew_SpellScript();
+    }
+};
+
+// Tiger Strikes - 120273
+class spell_monk_tiger_strikes : public SpellScriptLoader
+{
+    public:
+        spell_monk_tiger_strikes() : SpellScriptLoader("spell_monk_tiger_strikes") { }
+
+        class spell_monk_tiger_strikes_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_monk_tiger_strikes_AuraScript);
+
+            bool Validate(SpellInfo const* /*spell*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_MONK_TIGER_STRIKES))
+                    return false;
+                return true;
+            }
+
+            void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+            {
+                if (Unit* caster = GetCaster())
+                    if (Unit* target = eventInfo.GetDamageInfo()->GetVictim())
+                        caster->CastSpell(target, 120274, true);
+            }
+
+            void Register()
+            {
+                OnEffectProc += AuraEffectProcFn(spell_monk_tiger_strikes_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_MOD_MELEE_HASTE_3);
+            }
+        };
+
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_monk_tiger_strikes_AuraScript();
+        }
+};
+
 void AddSC_monk_spell_scripts()
 {
     new spell_monk_crackling_jade_lightning();
@@ -425,4 +746,10 @@ void AddSC_monk_spell_scripts()
     new spell_monk_expel_harm();
     new spell_monk_touch_of_death();
     new spell_monk_roll();
+    new spell_monk_disable();
+    new spell_monk_paralysis();
+    new spell_monk_spinning_crane_kick();
+    new spell_monk_brewing_tigereye_brew();
+    new spell_monk_tigereye_brew();
+    new spell_monk_tiger_strikes();
 }

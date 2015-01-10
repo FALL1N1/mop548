@@ -448,6 +448,23 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                 {
                     damage = unitTarget->GetHealth();
                 }
+                // Blackout Kick
+                else if (m_spellInfo->Id == 100784)
+                {
+                    // Combat Conditioning
+                    if (m_caster->HasAura(128595))
+                    {
+                        int32 bp0 = CalculatePct(damage, 20);
+
+                        if (unitTarget->isInBack(m_caster, M_PI / 2))
+                        {
+                            bp0 /= 4;
+                            m_caster->CastCustomSpell(unitTarget, 128531, &bp0, NULL, NULL, true);
+                        }
+                        else if (unitTarget->isInFront(m_caster, M_PI / 2))
+                            m_caster->CastCustomSpell(m_caster, 128591, &bp0, NULL, NULL, true);
+                    }
+                }
                 break;
             case SPELLFAMILY_WARRIOR:
             {
@@ -1780,6 +1797,7 @@ void Spell::EffectEnergize(SpellEffIndex effIndex)
         return;
 
     Powers power = Powers(m_spellInfo->Effects[effIndex].MiscValue);
+    int32 amount = m_spellInfo->Effects[effIndex].BasePoints;
 
     // Some level depends spells
     int level_multiplier = 0;
@@ -1801,13 +1819,13 @@ void Spell::EffectEnergize(SpellEffIndex effIndex)
         case 31930:                                         // Judgements of the Wise
         case 63375:                                         // Primal Wisdom
         case 68082:                                         // Glyph of Seal of Command
-            damage = int32(CalculatePct(unitTarget->GetCreateMana(), damage));
+            amount = int32(CalculatePct(unitTarget->GetCreateMana(), amount));
             break;
         case 67490:                                         // Runic Mana Injector (mana gain increased by 25% for engineers - 3.2.0 patch change)
         {
             if (Player* player = m_caster->ToPlayer())
                 if (player->HasSkill(SKILL_ENGINEERING))
-                    AddPct(damage, 25);
+                    AddPct(amount, 25);
             break;
         }
         default:
@@ -1815,15 +1833,15 @@ void Spell::EffectEnergize(SpellEffIndex effIndex)
     }
 
     if (level_diff > 0)
-        damage -= level_multiplier * level_diff;
+        amount -= level_multiplier * level_diff;
 
-    if (!damage)
+    if (!amount)
         return;
 
     if (unitTarget->GetMaxPower(power) == 0)
         return;
 
-    m_caster->EnergizeBySpell(unitTarget, m_spellInfo->Id, damage, power);
+    m_caster->EnergizeBySpell(unitTarget, m_spellInfo->Id, amount, power);
 
     // Mad Alchemist's Potion
     if (m_spellInfo->Id == 45051)
