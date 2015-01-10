@@ -73,7 +73,42 @@ public:
     {
         return new spell_pri_power_word_shield_SpellScript();
     }
+
+    class spell_pri_power_word_shield_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_pri_power_word_shield_AuraScript);
+
+        void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& canBeRecalculated)
+        {
+            canBeRecalculated = false;
+            if (Unit* caster = GetCaster())
+            {
+                int32 spBonus = caster->SpellBaseDamageBonusDone(GetSpellInfo()->GetSchoolMask()) * 1.871f;
+                
+                // Add Spellpower Bonus
+                amount += spBonus;
+
+                // Add Mastery
+                if (Player* plr = GetCaster()->ToPlayer())
+                {
+                    if (plr->GetSpecializationId(plr->GetActiveSpec()) == CHAR_SPECIALIZATION_PRIEST_DISCIPLINE)
+                        amount *= 1.0f + plr->GetMasterySpellCoefficient() / 100.0f;
+                }
+            }
+        }
+
+        void Register() override
+        {
+            DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pri_power_word_shield_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+        }
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_pri_power_word_shield_AuraScript();
+    }
 };
+
 
 class spell_pri_leap_of_faith : public SpellScriptLoader
 {
