@@ -1153,11 +1153,11 @@ void WorldSession::HandleRequestAccountData(WorldPacket& recvData)
 
     data.WriteBits(type, 3);
     data.WriteGuidMask(playerGuid, 5, 1, 3, 7, 0, 4, 2, 6);
-    data.WriteGuidBytes(playerGuid, 3, 1, 5, 3);
+    data.WriteGuidBytes(playerGuid, 3, 1, 5);
     data << uint32(size);
     data << uint32(destSize);
     data.append(dest);
-    data.WriteGuidBytes(playerGuid, 7, 4, 0, 6, 2, 5);
+    data.WriteGuidBytes(playerGuid, 7, 4, 0, 6, 2);
     data << uint32(adata->Time);
 
     SendPacket(&data);
