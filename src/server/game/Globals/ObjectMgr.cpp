@@ -3675,7 +3675,7 @@ void ObjectMgr::LoadQuests()
             // at auto-reward can be rewarded only RewardChoiceItemId[0]
             for (int j = 1; j < QUEST_REWARD_CHOICES_COUNT; ++j )
             {
-                if (uint32 id = qinfo->RewardChoiceItemId[j])
+                if (uint32 id = qinfo->RewardChoiceItems[j].rewardItemId)
                 {
                     TC_LOG_ERROR("sql.sql", "Quest %u has `RewardChoiceItemId%d` = %u but item from `RewardChoiceItemId%d` can't be rewarded with quest flag QUEST_FLAGS_TRACKING.",
                         qinfo->GetQuestId(), j+1, id, j+1);
@@ -3861,29 +3861,55 @@ void ObjectMgr::LoadQuests()
             }
         }
 
+        // Load Choiche rewards
+        QueryResult result2 = WorldDatabase.PQuery("SELECT * FROM quest_choice_rewards WHERE questId = %u", qinfo->Id);
+
+        if (result2)
+        {
+            // Reset
+            for (uint8 j = 0; j < QUEST_REWARD_CHOICES_COUNT; ++j)
+            {
+                qinfo->RewardChoiceItems[j].rewardItemId = 0;
+                qinfo->RewardChoiceItems[j].rewardItemCount = 0;
+                qinfo->RewardChoiceItems[j].requiredClass = -1;
+            }
+
+            uint8 i = 0;
+            do
+            {
+                Field* fields2 = result2->Fetch();
+
+                qinfo->RewardChoiceItems[i].rewardItemId = fields2[1].GetUInt32();
+                qinfo->RewardChoiceItems[i].rewardItemCount = fields2[2].GetUInt32();
+                qinfo->RewardChoiceItems[i].requiredClass = fields2[3].GetUInt32();
+
+                i++;
+            } while (result2->NextRow());
+        }        
+
         for (uint8 j = 0; j < QUEST_REWARD_CHOICES_COUNT; ++j)
         {
-            uint32 id = qinfo->RewardChoiceItemId[j];
+            uint32 id = qinfo->RewardChoiceItems[j].rewardItemId;
             if (id)
             {
                 if (!sObjectMgr->GetItemTemplate(id))
                 {
                     TC_LOG_ERROR("sql.sql", "Quest %u has `RewardChoiceItemId%d` = %u but item with entry %u does not exist, quest will not reward this item.",
                         qinfo->GetQuestId(), j+1, id, id);
-                    qinfo->RewardChoiceItemId[j] = 0;          // no changes, quest will not reward this
+                    qinfo->RewardChoiceItems[j].rewardItemId = 0;          // no changes, quest will not reward this
                 }
 
-                if (!qinfo->RewardChoiceItemCount[j])
+                if (!qinfo->RewardChoiceItems[j].rewardItemCount)
                 {
                     TC_LOG_ERROR("sql.sql", "Quest %u has `RewardChoiceItemId%d` = %u but `RewardChoiceItemCount%d` = 0, quest can't be done.",
                         qinfo->GetQuestId(), j+1, id, j+1);
                     // no changes, quest can't be done
                 }
             }
-            else if (qinfo->RewardChoiceItemCount[j]>0)
+            else if (qinfo->RewardChoiceItems[j].rewardItemCount > 0)
             {
                 TC_LOG_ERROR("sql.sql", "Quest %u has `RewardChoiceItemId%d` = 0 but `RewardChoiceItemCount%d` = %u.",
-                    qinfo->GetQuestId(), j+1, j+1, qinfo->RewardChoiceItemCount[j]);
+                    qinfo->GetQuestId(), j + 1, j + 1, qinfo->RewardChoiceItems[j].rewardItemCount);
                 // no changes, quest ignore this data
             }
         }

@@ -16247,7 +16247,6 @@ bool Player::CanRewardQuest(Quest const* quest, bool msg)
                 break;
         }
     }
-
     return true;
 }
 
@@ -16259,11 +16258,11 @@ bool Player::CanRewardQuest(Quest const* quest, uint32 reward, bool msg)
 
     if (quest->GetRewChoiceItemsCount() > 0)
     {
-        if (!quest->IsRewChoiceItemValid(reward))
+        if (!quest->IsRewChoiceItemValid(reward, getClass()))
             return false;
 
         ItemPosCountVec dest;
-        InventoryResult res = CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, reward, quest->GetRewChoiceItemCount(reward));
+        InventoryResult res = CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, reward, quest->GetRewChoiceItemCount(reward, getClass()));
         if (res != EQUIP_ERR_OK)
         {
             SendEquipError(res, NULL, NULL, reward);
@@ -16287,7 +16286,6 @@ bool Player::CanRewardQuest(Quest const* quest, uint32 reward, bool msg)
             }
         }
     }
-
     return true;
 }
 
@@ -16460,10 +16458,10 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
     if (quest->GetRewChoiceItemsCount() > 0)
     {
         ItemPosCountVec dest;
-        if (CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, reward, quest->GetRewChoiceItemCount(reward)) == EQUIP_ERR_OK)
+        if (CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, reward, quest->GetRewChoiceItemCount(reward, getClass())) == EQUIP_ERR_OK)
         {
             Item* item = StoreNewItem(dest, reward, true, Item::GenerateItemRandomPropertyId(reward));
-            SendNewItem(item, quest->GetRewChoiceItemCount(reward), true, false);
+            SendNewItem(item, quest->GetRewChoiceItemCount(reward, getClass()), true, false);
         }
     }
 
