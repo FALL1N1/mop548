@@ -5028,8 +5028,8 @@ void Spell::EffectDestroyAllTotems(SpellEffIndex /*effIndex*/)
             SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spell_id);
             if (spellInfo)
             {
-                mana += spellInfo->ManaCost;
-                mana += int32(CalculatePct(m_caster->GetCreateMana(), spellInfo->ManaCostPercentage));
+                mana += spellInfo->GetSpellPowerCost(m_caster).ManaCost;
+                mana += int32(CalculatePct(m_caster->GetCreateMana(), spellInfo->GetSpellPowerCost(m_caster).ManaCostPercentage));
             }
             totem->ToTotem()->UnSummon();
         }
@@ -6193,13 +6193,13 @@ void Spell::EffectPetBar(SpellEffIndex effIndex)
 
     if ((m_caster->GetTypeId() == TYPEID_PLAYER ||
         (m_caster->GetTypeId() == TYPEID_UNIT && m_caster->ToCreature()->IsPet()))
-        && m_spellInfo->PowerType != POWER_HEALTH)
+        && m_spellInfo->GetSpellPowerCost(m_caster).PowerType != POWER_HEALTH)
         castFlags |= CAST_FLAG_POWER_LEFT_SELF; // should only be sent to self, but the current messaging doesn't make that possible
 
     if ((m_caster->GetTypeId() == TYPEID_PLAYER)
         && (m_caster->getClass() == CLASS_DEATH_KNIGHT)
         && m_spellInfo->RuneCostID
-        && m_spellInfo->PowerType == POWER_RUNES)
+        && m_spellInfo->GetSpellPowerCost(m_caster).PowerType == POWER_RUNES)
     {
         castFlags |= CAST_FLAG_UNKNOWN_19;                   // same as in SMSG_SPELL_START
         castFlags |= CAST_FLAG_RUNE_LIST;                    // rune cooldowns list
@@ -6488,8 +6488,8 @@ void Spell::EffectPetBar(SpellEffIndex effIndex)
         //    data << uint8(powerType);
         //}
 
-        data << uint8(m_spellInfo->PowerType);
-        data << int32(m_caster->GetPower((Powers)m_spellInfo->PowerType));
+        data << uint8(m_spellInfo->GetSpellPowerCost(m_caster).PowerType);
+        data << int32(m_caster->GetPower((Powers)m_spellInfo->GetSpellPowerCost(m_caster).PowerType));
     }
 
     if (hasRunesStateAfter)

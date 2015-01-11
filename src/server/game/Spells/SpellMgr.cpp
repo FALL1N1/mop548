@@ -2632,6 +2632,19 @@ struct SpellEffectArray
     SpellEffectEntry const* effects[MAX_SPELL_EFFECTS];
 };
 
+// Temporary structure to hold spell powers entries for faster loading 
+// (In MoP Same spell can have differente power costs depend on which aura you have)
+struct SpellPowerArray
+{
+    SpellPowerArray()
+    {
+        for (int i = 0; i < MAX_SPELL_POWERS_COST; i++)
+            spellPowers[i] = NULL;
+    }
+
+    SpellPowerEntry const* spellPowers[MAX_SPELL_POWERS_COST];
+};
+
 void SpellMgr::LoadSpellInfoStore()
 {
     uint32 oldMSTime = getMSTime();
@@ -2650,9 +2663,28 @@ void SpellMgr::LoadSpellInfoStore()
         effectsBySpell[effect->EffectSpellId].effects[effect->EffectIndex] = effect;
     }
 
+    std::map<uint32, SpellPowerArray> powersBySpell;
+   
+    for (uint32 i = 0; i < sSpellPowerStore.GetNumRows(); ++i)
+    {
+        SpellPowerEntry const* power = sSpellPowerStore.LookupEntry(i);
+        if (!power)
+            continue;
+
+        uint8 spellPCount = 0;
+
+        if (powersBySpell[power->spellId].spellPowers[spellPCount])
+            spellPCount++;
+
+        if (powersBySpell[power->spellId].spellPowers[spellPCount])
+            spellPCount++;
+
+        powersBySpell[power->spellId].spellPowers[spellPCount] = power;
+    }
+
     for (uint32 i = 0; i < sSpellStore.GetNumRows(); ++i)
         if (SpellEntry const* spellEntry = sSpellStore.LookupEntry(i))
-            mSpellInfoMap[i] = new SpellInfo(spellEntry, effectsBySpell[i].effects);
+            mSpellInfoMap[i] = new SpellInfo(spellEntry, effectsBySpell[i].effects, powersBySpell[i].spellPowers);
 
     TC_LOG_INFO("server.loading", ">> Loaded SpellInfo store in %u ms", GetMSTimeDiffToNow(oldMSTime));
 }
@@ -3672,8 +3704,8 @@ void SpellMgr::LoadSpellInfoCorrections()
                 spellInfo->Attributes |= SPELL_ATTR0_NEGATIVE_1;
                 break;
             case 2378: // Minor Fortitude
-                spellInfo->ManaCost = 0;
-                spellInfo->ManaPerSecond = 0;
+                spellInfo->PowerCosts[0].ManaCost = 0;
+                spellInfo->PowerCosts[0].ManaPerSecond = 0;
                 break;
             // Halls Of Origination spells
             // Temple Guardian Anhuur

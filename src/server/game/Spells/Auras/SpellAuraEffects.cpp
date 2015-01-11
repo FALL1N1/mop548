@@ -6350,7 +6350,7 @@ void AuraEffect::HandlePeriodicHealAurasTick(Unit* target, Unit* caster) const
     // damage caster for heal amount
     if (target != caster && GetSpellInfo()->AttributesEx2 & SPELL_ATTR2_HEALTH_FUNNEL && GetSpellInfo()->Id != 755)
     {
-        uint32 funnelDamage = GetSpellInfo()->ManaPerSecond; // damage is not affected by spell power
+        uint32 funnelDamage = GetSpellInfo()->GetSpellPowerCost(caster).ManaPerSecond; // damage is not affected by spell power
         if ((int32)funnelDamage > gain)
             funnelDamage = gain;
         uint32 funnelAbsorb = 0;
@@ -6391,7 +6391,7 @@ void AuraEffect::HandlePeriodicManaLeechAuraTick(Unit* target, Unit* caster) con
 
     // Special case: draining x% of mana (up to a maximum of 2*x% of the caster's maximum mana)
     // It's mana percent cost spells, m_amount is percent drain from target
-    if (m_spellInfo->ManaCostPercentage)
+    if (m_spellInfo->GetSpellPowerCost(caster).ManaCostPercentage)
     {
         // max value
         int32 maxmana = CalculatePct(caster->GetMaxPower(powerType), drainAmount * 2.0f);

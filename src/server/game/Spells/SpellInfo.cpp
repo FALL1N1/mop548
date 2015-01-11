@@ -355,6 +355,19 @@ SpellImplicitTargetInfo::StaticData  SpellImplicitTargetInfo::_data[TOTAL_SPELL_
     {TARGET_OBJECT_TYPE_NONE, TARGET_REFERENCE_TYPE_NONE,   TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 143
 };
 
+SpellPowerCostInfo::SpellPowerCostInfo(SpellEntry const* /*spellEntry*/, SpellInfo const* spellInfo, uint8 index, SpellPowerEntry const* power)
+{
+    _spellInfo = spellInfo;
+    _index = index;
+
+    ManaCost = power ? power->manaCost : 0;
+    ManaCostPerlevel = power ? power->manaCostPerlevel : 0;
+    ManaCostPercentage = power ? power->ManaCostPercentageFloat : 0;
+    ManaPerSecond = power ? power->manaPerSecond : 0;
+    PowerType = power ? power->powerType : 0;
+    ActiveAura = power ? power->activeAura : 0;
+}
+
 SpellEffectInfo::SpellEffectInfo(SpellEntry const* /*spellEntry*/, SpellInfo const* spellInfo, uint8 effIndex, SpellEffectEntry const* _effect)
 {
     _spellInfo = spellInfo;
@@ -834,7 +847,7 @@ SpellEffectInfo::StaticData SpellEffectInfo::_data[TOTAL_SPELL_EFFECTS] =
     {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_UNIT}, // 182 SPELL_EFFECT_182
 };
 
-SpellInfo::SpellInfo(SpellEntry const* spellEntry, SpellEffectEntry const** effects)
+SpellInfo::SpellInfo(SpellEntry const* spellEntry, SpellEffectEntry const** effects, SpellPowerEntry const** powers)
 {
     Id = spellEntry->Id;
 
@@ -967,13 +980,9 @@ SpellInfo::SpellInfo(SpellEntry const* spellEntry, SpellEffectEntry const** effe
     SpellLevel = _levels ? _levels->spellLevel : 0;
 
     // SpellPowerEntry
-    SpellPowerEntry const* _power = GetSpellPower();
-    ManaCost = _power ? _power->manaCost : 0;
-    ManaCostPerlevel = _power ? _power->manaCostPerlevel : 0;
-    ManaCostPercentage = _power ? _power->ManaCostPercentageFloat : 0;
-    ManaPerSecond = _power ? _power->manaPerSecond : 0;
-    PowerType = _power ? _power->powerType : 0;
-
+    for (uint8 i = 0; i < MAX_SPELL_POWERS_COST; ++i)
+        PowerCosts[i] = SpellPowerCostInfo(spellEntry, this, i, powers[i]);
+    
     // SpellReagentsEntry
     SpellReagentsEntry const* _reagents = GetSpellReagents();
     for (uint8 i = 0; i < MAX_SPELL_REAGENTS; ++i)
@@ -1234,7 +1243,7 @@ bool SpellInfo::IsStackableWithRanks() const
 {
     if (IsPassive())
         return false;
-    if (PowerType != POWER_MANA && PowerType != POWER_HEALTH)
+    if (GetSpellPowerCost().PowerType != POWER_MANA && GetSpellPowerCost().PowerType != POWER_HEALTH)
         return false;
     if (IsProfessionOrRiding())
         return false;
@@ -2360,40 +2369,40 @@ int32 SpellInfo::CalcPowerCost(Unit const* caster, SpellSchoolMask schoolMask) c
     if (AttributesEx & SPELL_ATTR1_DRAIN_ALL_POWER)
     {
         // If power type - health drain all
-        if (PowerType == POWER_HEALTH)
+        if (GetSpellPowerCost(caster).PowerType == POWER_HEALTH)
             return caster->GetHealth();
         // Else drain all power
-        if (PowerType < MAX_POWERS)
-            return caster->GetPower(Powers(PowerType));
-        TC_LOG_ERROR("spells", "SpellInfo::CalcPowerCost: Unknown power type '%d' in spell %d", PowerType, Id);
+        if (GetSpellPowerCost(caster).PowerType < MAX_POWERS)
+            return caster->GetPower(Powers(GetSpellPowerCost(caster).PowerType));
+        TC_LOG_ERROR("spells", "SpellInfo::CalcPowerCost: Unknown power type '%d' in spell %d", GetSpellPowerCost(caster).PowerType, Id);
         return 0;
     }
 
     // Base powerCost
-    int32 powerCost = ManaCost;
+    int32 powerCost = GetSpellPowerCost(caster).ManaCost;
     // PCT cost from total amount
-    if (ManaCostPercentage)
+    if (GetSpellPowerCost(caster).ManaCostPercentage)
     {
-        switch (PowerType)
+        switch (GetSpellPowerCost(caster).PowerType)
         {
             // health as power used
             case POWER_HEALTH:
-                powerCost += int32(CalculatePct(caster->GetCreateHealth(), ManaCostPercentage));
+                powerCost += int32(CalculatePct(caster->GetCreateHealth(), GetSpellPowerCost(caster).ManaCostPercentage));
                 break;
             case POWER_MANA:
-                powerCost += int32(CalculatePct(caster->GetCreateMana(), ManaCostPercentage));
+                powerCost += int32(CalculatePct(caster->GetCreateMana(), GetSpellPowerCost(caster).ManaCostPercentage));
                 break;
             case POWER_RAGE:
             case POWER_FOCUS:
             case POWER_ENERGY:
-                powerCost += int32(CalculatePct(caster->GetMaxPower(Powers(PowerType)), ManaCostPercentage));
+                powerCost += int32(CalculatePct(caster->GetMaxPower(Powers(GetSpellPowerCost(caster).PowerType)), GetSpellPowerCost(caster).ManaCostPercentage));
                 break;
             case POWER_RUNES:
             case POWER_RUNIC_POWER:
                 TC_LOG_DEBUG("spells", "CalculateManaCost: Not implemented yet!");
                 break;
             default:
-                TC_LOG_ERROR("spells", "CalculateManaCost: Unknown power type '%d' in spell %d", PowerType, Id);
+                TC_LOG_ERROR("spells", "CalculateManaCost: Unknown power type '%d' in spell %d", GetSpellPowerCost(caster).PowerType, Id);
                 return 0;
         }
     }
@@ -2404,7 +2413,7 @@ int32 SpellInfo::CalcPowerCost(Unit const* caster, SpellSchoolMask schoolMask) c
     {
         if (!((*i)->GetMiscValue() & schoolMask))
             continue;
-        if (!((*i)->GetMiscValueB() & (1 << PowerType)))
+        if (!((*i)->GetMiscValueB() & (1 << GetSpellPowerCost(caster).PowerType)))
             continue;
         powerCost += (*i)->GetAmount();
     }
@@ -2450,7 +2459,7 @@ int32 SpellInfo::CalcPowerCost(Unit const* caster, SpellSchoolMask schoolMask) c
     {
         if (!((*i)->GetMiscValue() & schoolMask))
             continue;
-        if (!((*i)->GetMiscValueB() & (1 << PowerType)))
+        if (!((*i)->GetMiscValueB() & (1 << GetSpellPowerCost(caster).PowerType)))
             continue;
         powerCost += CalculatePct(powerCost, (*i)->GetAmount());
     }
@@ -2930,6 +2939,43 @@ SpellClassOptionsEntry const* SpellInfo::GetSpellClassOptions() const
 SpellCooldownsEntry const* SpellInfo::GetSpellCooldowns() const
 {
     return SpellCooldownsId ? sSpellCooldownsStore.LookupEntry(SpellCooldownsId) : NULL;
+}
+
+SpellPowerCostInfo const SpellInfo::GetSpellPowerCost(Unit* caster) const
+{
+    if (!caster)
+        return PowerCosts[0];
+
+    // Custom Handled Cases!
+    switch (Id)
+    {
+        case 100780: // Monk Jab!
+            for (uint8 i = 0; i < MAX_SPELL_POWERS_COST; ++i)
+                if (caster->HasAura(PowerCosts[i].ActiveAura))
+                    return PowerCosts[i];
+            break;
+    }
+
+    return PowerCosts[0];
+}
+
+
+SpellPowerCostInfo const SpellInfo::GetSpellPowerCost(Unit const* caster) const
+{
+    if (!caster)
+        return PowerCosts[0];
+
+    // Custom Handled Cases!
+    switch (Id)
+    {
+    case 100780: // Monk Jab!
+        for (uint8 i = 0; i < MAX_SPELL_POWERS_COST; ++i)
+        if (caster->HasAura(PowerCosts[i].ActiveAura))
+            return PowerCosts[i];
+        break;
+    }
+
+    return PowerCosts[0];
 }
 
 void SpellInfo::_UnloadImplicitTargetConditionLists()

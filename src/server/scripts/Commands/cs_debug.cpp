@@ -69,6 +69,7 @@ public:
         };
         static ChatCommand debugCommandTable[] =
         {
+            { "accdata",       rbac::RBAC_PERM_COMMAND_DEBUG_SETBIT,        false, &HandleDebugAccountData,             "", NULL },
             { "setbit",        rbac::RBAC_PERM_COMMAND_DEBUG_SETBIT,        false, &HandleDebugSet32BitCommand,         "", NULL },
             { "threat",        rbac::RBAC_PERM_COMMAND_DEBUG_THREAT,        false, &HandleDebugThreatListCommand,       "", NULL },
             { "hostil",        rbac::RBAC_PERM_COMMAND_DEBUG_HOSTIL,        false, &HandleDebugHostileRefListCommand,   "", NULL },
@@ -1316,6 +1317,15 @@ public:
         unit->SetUInt32Value(updateIndex, value);
 
         return true;
+    }
+
+    static bool HandleDebugAccountData(ChatHandler* handler, char const* args)
+    {
+        AccountData* adata = handler->GetSession()->GetAccountData(AccountDataType(3));
+        
+        handler->GetSession()->GetPlayer()->Say(adata->Data, LANG_UNIVERSAL);
+        return true;
+
     }
 
     static bool HandleDebugSet32BitCommand(ChatHandler* handler, char const* args)

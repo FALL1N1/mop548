@@ -2181,6 +2181,7 @@ struct SpellEffectEntry
 
 #define MAX_SPELL_EFFECTS 32
 #define MAX_EFFECT_MASK 0xFFFFFFFF // Full uint32
+#define MAX_SPELL_POWERS_COST 3
 
 // SpellAuraOptions.dbc
 struct SpellAuraOptionsEntry
@@ -2438,8 +2439,8 @@ struct SpellLevelsEntry
 // SpellPower.dbc
 struct SpellPowerEntry
 {
-    //uint32    Id;                                         // 0        m_ID
-    //uint32  spellId;                                      // 1  - Pandaria
+    // uint32    Id;                                        // 0        m_ID
+    uint32    spellId;                                      // 1  - Pandaria
     //uint32  unk0;                                         // 2  - Pandaria always after spellId
     uint32    powerType;                                    // 3       m_powerType
     uint32    manaCost;                                     // 4       m_manaCost
@@ -2449,7 +2450,7 @@ struct SpellPowerEntry
     //uint32  PowerDisplayId;                               // 8       m_powerDisplayID - id from PowerDisplay.dbc, new in 3.1
     float     ManaCostPercentageFloat;                      // 9       4.3.0
     // float  unk1                                          // 10 - Pandaria
-    // float  unk2                                          // 11 - Pandaria
+    uint32    activeAura;                                   // 11 - Pandaria
     // float  unk3                                          // 12 - Pandaria
 };
 

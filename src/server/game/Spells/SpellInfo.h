@@ -232,6 +232,22 @@ private:
     static StaticData _data[TOTAL_SPELL_TARGETS];
 };
 
+class SpellPowerCostInfo
+{
+    SpellInfo const* _spellInfo;
+    uint8 _index;
+public:
+    uint32 PowerType;
+    uint32 ManaCost;
+    uint32 ManaCostPerlevel;
+    uint32 ManaPerSecond;
+    uint32 ActiveAura;
+    float ManaCostPercentage;
+
+    SpellPowerCostInfo() { }
+    SpellPowerCostInfo(SpellEntry const* spellEntry, SpellInfo const* spellInfo, uint8 index, SpellPowerEntry const* power);
+};
+
 class SpellEffectInfo
 {
     SpellInfo const* _spellInfo;
@@ -353,11 +369,6 @@ public:
     uint32 BaseLevel;
     uint32 SpellLevel;
     SpellDurationEntry const* DurationEntry;
-    uint32 PowerType;
-    uint32 ManaCost;
-    uint32 ManaCostPerlevel;
-    uint32 ManaPerSecond;
-    float ManaCostPercentage;
     uint32 RuneCostID;
     SpellRangeEntry const* RangeEntry;
     float  Speed;
@@ -406,12 +417,16 @@ public:
     float  CoefBase;
     int32  CoefLevelBase;
     SpellEffectInfo Effects[MAX_SPELL_EFFECTS];
+    SpellPowerCostInfo PowerCosts[MAX_SPELL_POWERS_COST];
     uint32 ExplicitTargetMask;
     SpellChainNode const* ChainEntry;
 
     // SpecializationSpellsEntry
     std::list<uint32> SpecializationIdList;
     std::list<uint32> OverrideSpellList;
+
+    SpellPowerCostInfo const GetSpellPowerCost(Unit* caster = NULL) const;
+    SpellPowerCostInfo const GetSpellPowerCost(Unit const* caster) const;
 
     // struct access functions
     SpellTargetRestrictionsEntry const* GetSpellTargetRestrictions() const;
@@ -430,7 +445,7 @@ public:
     SpellShapeshiftEntry const* GetSpellShapeshift() const;
     SpellTotemsEntry const* GetSpellTotems() const;
 
-    SpellInfo(SpellEntry const* spellEntry, SpellEffectEntry const** effects);
+    SpellInfo(SpellEntry const* spellEntry, SpellEffectEntry const** effects, SpellPowerEntry const** powers);
     ~SpellInfo();
 
     uint32 GetCategory() const;

@@ -356,6 +356,7 @@ class Creature;
 class Spell;
 class SpellInfo;
 class SpellEffectInfo;
+class SpellPowerCostInfo;
 class DynamicObject;
 class GameObject;
 class Item;

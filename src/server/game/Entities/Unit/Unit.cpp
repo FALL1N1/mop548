@@ -6003,7 +6003,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 case 28719:
                 {
                     // mana back
-                    basepoints0 = int32(CalculatePct(procSpell->ManaCost, 30));
+                    basepoints0 = int32(CalculatePct(procSpell->GetSpellPowerCost(this).ManaCost, 30));
                     target = this;
                     triggered_spell_id = 28742;
                     break;
@@ -7302,7 +7302,7 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
                 return false;
 
             // ranged attack that costs Focus or Kill Command
-            if (procSpell->Id != 34026 && procSpell->PowerType != POWER_FOCUS && procSpell->DmgClass != SPELL_DAMAGE_CLASS_RANGED)
+            if (procSpell->Id != 34026 && procSpell->GetSpellPowerCost(this).PowerType != POWER_FOCUS && procSpell->DmgClass != SPELL_DAMAGE_CLASS_RANGED)
                 return false;
 
             trigger_spell_id = 34720;
@@ -7483,7 +7483,8 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
         // Enlightenment (trigger only from mana cost spells)
         case 35095:
         {
-            if (!procSpell || procSpell->PowerType != POWER_MANA || (procSpell->ManaCost == 0 && procSpell->ManaCostPercentage == 0 && procSpell->ManaCostPerlevel == 0))
+            if (!procSpell || procSpell->GetSpellPowerCost(this).PowerType != POWER_MANA || 
+                (procSpell->GetSpellPowerCost(this).ManaCost == 0 && procSpell->GetSpellPowerCost(this).ManaCostPercentage == 0 && procSpell->GetSpellPowerCost(this).ManaCostPerlevel == 0))
                 return false;
             break;
         }
@@ -13326,7 +13327,7 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
                     case SPELL_AURA_MOD_POWER_COST_SCHOOL:
                         // Skip melee hits and spells ws wrong school or zero cost
                         if (procSpell &&
-                            (procSpell->ManaCost != 0 || procSpell->ManaCostPercentage != 0) && // Cost check
+                            (procSpell->GetSpellPowerCost(this).ManaCost != 0 || procSpell->GetSpellPowerCost(this).ManaCostPercentage != 0) && // Cost check
                             (triggeredByAura->GetMiscValue() & procSpell->SchoolMask))          // School check
                             takeCharges = true;
                         break;
