@@ -1281,6 +1281,16 @@ void WorldSession::HandleSetWatchedFactionOpcode(WorldPacket& recvData)
     GetPlayer()->SetUInt32Value(PLAYER_FIELD_WATCHED_FACTION_INDEX, fact);
 }
 
+void WorldSession::HandleSetLootSpecializationOpcode(WorldPacket& recvData)
+{
+    TC_LOG_DEBUG("network", "WORLD: Received CMSG_SET_LOOT_SPECIALIZATION");
+
+    uint32 specId;
+    recvData >> specId;
+
+    GetPlayer()->SetUInt32Value(PLAYER_FIELD_LOOT_SPEC_ID, specId);
+}
+
 void WorldSession::HandleSetFactionInactiveOpcode(WorldPacket& recvData)
 {
     TC_LOG_DEBUG("network", "WORLD: Received CMSG_SET_FACTION_INACTIVE");
