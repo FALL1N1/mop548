@@ -58,7 +58,8 @@ enum MonkSpells
     SPELL_MONK_TIGEREYE_BREW                        = 116740,
     SPELL_MONK_TIGEREYE_BREW_BUFF                   = 125195,
     SPELL_MONK_TIGER_STRIKES                        = 120273,
-    SPELL_MONK_TIGER_STRIKES_ATTACK                 = 120274
+    SPELL_MONK_ZEN_PILGRIMAGE                       = 126892,
+    SPELL_MONK_ZEN_PILGRIMAGE_RETURN                = 126895
 };
 
 // 117952 - Crackling Jade Lightning
@@ -736,6 +737,78 @@ class spell_monk_tiger_strikes : public SpellScriptLoader
         }
 };
 
+// Zen Pilgrimage - 126892
+class spell_monk_zen_pilgrimage : public SpellScriptLoader
+{
+    public:
+        spell_monk_zen_pilgrimage() : SpellScriptLoader("spell_monk_zen_pilgrimage") { }
+
+        class spell_monk_zen_pilgrimage_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_monk_zen_pilgrimage_SpellScript);
+
+            bool Validate(SpellInfo const* /*spell*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_MONK_ZEN_PILGRIMAGE))
+                    return false;
+                return true;
+            }
+
+            void HandleDummy(SpellEffIndex /*effIndex*/)
+            {
+                if (Unit* caster = GetCaster())
+                    if (Player* player = caster->ToPlayer())
+                        player->SaveRecallPosition();      
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_monk_zen_pilgrimage_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_TELEPORT_UNITS);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_monk_zen_pilgrimage_SpellScript();
+        }
+};
+
+// Zen Pilgrimage: Return - 126895
+class spell_monk_zen_pilgrimage_return : public SpellScriptLoader
+{
+    public:
+        spell_monk_zen_pilgrimage_return() : SpellScriptLoader("spell_monk_zen_pilgrimage_return") { }
+
+        class spell_monk_zen_pilgrimage_return_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_monk_zen_pilgrimage_return_SpellScript);
+
+            bool Validate(SpellInfo const* /*spell*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_MONK_ZEN_PILGRIMAGE_RETURN))
+                    return false;
+                return true;
+            }
+
+            void HandleDummy(SpellEffIndex /*effIndex*/)
+            {
+                if (Unit* caster = GetCaster())
+                    if (Player* player = caster->ToPlayer())
+                        player->TeleportTo(player->m_recallMap, player->m_recallX, player->m_recallY, player->m_recallZ, player->m_recallO);
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_monk_zen_pilgrimage_return_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_monk_zen_pilgrimage_return_SpellScript();
+        }
+};
+
 void AddSC_monk_spell_scripts()
 {
     new spell_monk_crackling_jade_lightning();
@@ -752,4 +825,6 @@ void AddSC_monk_spell_scripts()
     new spell_monk_brewing_tigereye_brew();
     new spell_monk_tigereye_brew();
     new spell_monk_tiger_strikes();
+    new spell_monk_zen_pilgrimage();
+    new spell_monk_zen_pilgrimage_return();
 }
