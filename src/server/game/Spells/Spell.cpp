@@ -4395,7 +4395,7 @@ void Spell::SendLogExecute()
     data.WriteBit(0); // HasSpellCastLogData
     data.FlushBits();
     data << uint32(m_spellInfo->Id);
-    
+
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
     {
         if (!m_effectExecuteData[i])
@@ -4403,10 +4403,10 @@ void Spell::SendLogExecute()
 
         data << uint32(m_spellInfo->Effects[i].Effect); // SpellID
 
-        //data.append(*m_effectExecuteData[i]);
+        data.append(*m_effectExecuteData[i]);
 
-        //delete m_effectExecuteData[i];
-        //m_effectExecuteData[i] = NULL;
+        delete m_effectExecuteData[i];
+        m_effectExecuteData[i] = NULL;
     }
 
     data.WriteGuidBytes(CastergGuid, 5, 7, 1, 6, 2, 0, 4, 3);
@@ -4458,7 +4458,7 @@ void Spell::ExecuteLogEffectInterruptCast(uint8 /*effIndex*/, Unit* victim, uint
     data.WriteGuidBytes(targetGuid, 5, 6);
     data.WriteByteSeq(casterGuid[0]);
     data.WriteByteSeq(targetGuid[7]);
-    
+
     m_caster->SendMessageToSet(&data, true);
 }
 
@@ -4552,7 +4552,7 @@ void Spell::SendChannelUpdate(uint32 time)
     WorldPacket data(SMSG_CHANNEL_UPDATE, 8 + 4);
     ObjectGuid guid = m_caster->GetGUID();
     data.WriteGuidMask(guid, 0, 3, 4, 1, 5, 2, 6, 7);
-    
+
     data.WriteGuidBytes(guid, 4, 7, 1, 2, 6, 5);
     data << uint32(time);
     data.WriteGuidBytes(guid, 0, 3);
@@ -4569,11 +4569,11 @@ void Spell::SendChannelStart(uint32 duration)
 
     WorldPacket data(SMSG_CHANNEL_START, (8+4+4));
     ObjectGuid guid = m_caster->GetGUID();
-    
+
     data.WriteGuidMask(guid, 7, 5, 4, 1);
-    
+
     data.WriteBit(0); // healPrediction
-    
+
     /*
     if (healPrediction)
     {
@@ -4582,7 +4582,7 @@ void Spell::SendChannelStart(uint32 duration)
         hasType = !packet.ReadBit();
 
         packet.ReadGuidMask(targetGUD, 3, 7, 5, 1, 2);
-        
+
         hasHealAmount = !packet.ReadBit();
         packet.ReadBit(); // fake bit
 
@@ -4591,22 +4591,22 @@ void Spell::SendChannelStart(uint32 duration)
     */
 
     data.WriteGuidMask(guid, 3, 2, 0, 6);
-    
+
     data.WriteBit(0); // immunity
-   
+
     /*
     if (healPrediction)
     {
         packet.ParseBitStream(guid2, 4, 6, 1, 0, 7, 3, 2, 5);
-        
+
         if (hasType)
             packet.ReadByte("Type");
-            
+
         packet.ReadXORByte(targetGUD, 4);
         packet.ReadXORByte(targetGUD, 5);
         packet.ReadXORByte(targetGUD, 1);
         packet.ReadXORByte(targetGUD, 3);
-        
+
         if (hasHealAmount)
             packet.ReadInt32("Heal Amount");
 
@@ -4626,7 +4626,7 @@ void Spell::SendChannelStart(uint32 duration)
         data << uint32(); // CastImmunities
     }
     */
-    
+
     data.WriteGuidBytes(guid, 6, 7, 3, 1, 0);
     data << uint32(duration);
     data.WriteGuidBytes(guid, 5, 4, 2);
