@@ -5582,18 +5582,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                     }
                     return false;
                 }
-                // Kill command
-                case 58914:
-                {
-                    // Remove aura stack from pet
-                    RemoveAuraFromStack(58914);
-                    Unit* owner = GetOwner();
-                    if (!owner)
-                        return true;
-                    // reduce the owner's aura stack
-                    owner->RemoveAuraFromStack(34027);
-                    return true;
-                }
                 // Vampiric Touch (generic, used by some boss)
                 case 52723:
                 case 60501:
@@ -5611,18 +5599,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                         return false;
                     // Glyph of Shadowfiend (need cast as self cast for owner, no hidden cooldown)
                     owner->CastSpell(owner, 58227, true, castItem, triggeredByAura);
-                    return true;
-                }
-                // Divine purpose
-                case 31871:
-                case 31872:
-                {
-                    // Roll chane
-                    if (!victim || !victim->IsAlive() || !roll_chance_i(triggerAmount))
-                        return false;
-
-                    // Remove any stun effect on target
-                    victim->RemoveAurasWithMechanic(1<<MECHANIC_STUN, AURA_REMOVE_BY_ENEMY_SPELL);
                     return true;
                 }
                 // Purified Shard of the Scale - Onyxia 10 Caster Trinket
@@ -5955,37 +5931,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
         {
             switch (dummySpell->Id)
             {
-                // Glyph of Bloodletting
-                case 54815:
-                {
-                    if (!target)
-                        return false;
-
-                    // try to find spell Rip on the target
-                    if (AuraEffect const* AurEff = target->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_DRUID, 0x00800000, 0x0, 0x0, GetGUID()))
-                    {
-                        // Rip's max duration, note: spells which modifies Rip's duration also counted
-                        uint32 CountMin = AurEff->GetBase()->GetMaxDuration();
-
-                        // just Rip's max duration without other spells
-                        uint32 CountMax = AurEff->GetSpellInfo()->GetMaxDuration();
-
-                        // add possible auras' and Glyph of Shred's max duration
-                        CountMax += 3 * triggerAmount * IN_MILLISECONDS;      // Glyph of Bloodletting        -> +6 seconds
-                        CountMax += HasAura(60141) ? 4 * IN_MILLISECONDS : 0; // Rip Duration/Lacerate Damage -> +4 seconds
-
-                        // if min < max -> that means caster didn't cast 3 shred yet
-                        // so set Rip's duration and max duration
-                        if (CountMin < CountMax)
-                        {
-                            AurEff->GetBase()->SetDuration(AurEff->GetBase()->GetDuration() + triggerAmount * IN_MILLISECONDS);
-                            AurEff->GetBase()->SetMaxDuration(CountMin + triggerAmount * IN_MILLISECONDS);
-                            return true;
-                        }
-                    }
-                    // if not found Rip
-                    return false;
-                }
                 // Leader of the Pack
                 case 24932:
                 {
@@ -6006,13 +5951,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                     basepoints0 = int32(CalculatePct(procSpell->GetSpellPowerCost(this).ManaCost, 30));
                     target = this;
                     triggered_spell_id = 28742;
-                    break;
-                }
-                // Healing Touch Refund (Idol of Longevity trinket)
-                case 28847:
-                {
-                    target = this;
-                    triggered_spell_id = 28848;
                     break;
                 }
                 // Mana Restore (Malorne Raiment set / Malorne Regalia set)
@@ -6142,23 +6080,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
             }
             switch (dummySpell->Id)
             {
-                // Sacred Shield
-                case 53601:
-                {
-                    if (procFlag & PROC_FLAG_TAKEN_SPELL_MAGIC_DMG_CLASS_POS)
-                        return false;
-
-                    if (damage > 0)
-                        triggered_spell_id = 58597;
-
-                    // Item - Paladin T8 Holy 4P Bonus
-                    if (Unit* caster = triggeredByAura->GetCaster())
-                        if (AuraEffect const* aurEff = caster->GetAuraEffect(64895, 0))
-                            cooldown = aurEff->GetAmount();
-
-                    target = this;
-                    break;
-                }
                 // Holy Power (Redemption Armor set)
                 case 28789:
                 {
@@ -6357,13 +6278,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                         default:
                             return false;
                     }
-                    break;
-                }
-                // Lesser Healing Wave (Totem of Flowing Water Relic)
-                case 28849:
-                {
-                    target = this;
-                    triggered_spell_id = 28850;
                     break;
                 }
                 // Windfury Weapon (Passive) 1-8 Ranks
@@ -6671,24 +6585,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 else
                     return false;
             }
-            // Unholy Blight
-            if (dummySpell->Id == 49194)
-            {
-                triggered_spell_id = 50536;
-                SpellInfo const* unholyBlight = sSpellMgr->GetSpellInfo(triggered_spell_id);
-                if (!unholyBlight)
-                    return false;
-
-                basepoints0 = CalculatePct(int32(damage), triggerAmount);
-
-                //Glyph of Unholy Blight
-                if (AuraEffect* glyph=GetAuraEffect(63332, 0))
-                    AddPct(basepoints0, glyph->GetAmount());
-
-                basepoints0 = basepoints0 / (unholyBlight->GetMaxDuration() / unholyBlight->Effects[0].Amplitude);
-                basepoints0 += victim->GetRemainingPeriodicAmount(GetGUID(), triggered_spell_id, SPELL_AURA_PERIODIC_DAMAGE);
-                break;
-            }
             // Threat of Thassarian
             if (dummySpell->SpellIconID == 2023)
             {
@@ -6887,28 +6783,6 @@ bool Unit::HandleAuraProc(Unit* victim, uint32 /*damage*/, Aura* triggeredByAura
                     }
                 }
                 return true;
-            }
-            break;
-        }
-        case SPELLFAMILY_MAGE:
-        {
-            switch (dummySpell->Id)
-            {
-                // Empowered Fire
-                case 31656:
-                case 31657:
-                case 31658:
-                {
-                    *handled = true;
-
-                    SpellInfo const* spInfo = sSpellMgr->GetSpellInfo(67545);
-                    if (!spInfo)
-                        return false;
-
-                    int32 bp0 = int32(CalculatePct(GetCreateMana(), spInfo->Effects[0].CalcValue()));
-                    CastCustomSpell(this, 67545, &bp0, NULL, NULL, true, NULL, triggeredByAura->GetEffect(EFFECT_0), GetGUID());
-                    return true;
-                }
             }
             break;
         }
@@ -7344,7 +7218,7 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
         case 56420: // Glyph of Denounce
         case 126046:// Adaptation
             return false;
-            // Master Marksmann
+        // Master Marksmann
         case 34487:
         {
             if (!procSpell || procSpell->Id != 56641) // Steady Shot
@@ -7419,13 +7293,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
                 return false;
             break;
         }
-        // Decimation
-        case 63156:
-        case 63158:
-            // Can proc only if target has hp below 25%
-            if (!victim || !victim->HealthBelowPct(auraSpellInfo->Effects[EFFECT_1].CalcValue()))
-                return false;
-            break;
         // Deathbringer Saurfang - Blood Beast's Blood Link
         case 72176:
             basepoints0 = 3;
@@ -7459,14 +7326,12 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
         case 7099:  // Curse of Mending
         case 39703: // Curse of Mending
         case 29494: // Temptation
-        case 20233: // Improved Lay on Hands (cast on target)
         {
             target = victim;
             break;
         }
         // Finish movies that add combo
         case 14189: // Seal Fate (Netherblade set)
-        case 14157: // Ruthlessness
         {
             if (!victim || victim == this)
                 return false;
@@ -7527,7 +7392,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
             break;
         }
         // Body and Soul
-        case 64128:
         case 65081:
         {
             // Proc only from PW:S cast

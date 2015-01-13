@@ -1137,7 +1137,7 @@ void AuraEffect::UpdatePeriodic(Unit* caster)
                         case 59911: // Tenacity (vehicle)
                            GetBase()->RefreshDuration();
                            break;
-                        case 66823: case 67618: case 67619: case 67620: // Paralytic Toxin
+                        case 66823: // Paralytic Toxin
                             // Get 0 effect aura
                             if (AuraEffect* slow = GetBase()->GetEffect(0))
                             {
@@ -4886,11 +4886,6 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
                     if (caster)
                         target->GetMotionMaster()->MoveFall();
                     break;
-                case 52916: // Honor Among Thieves
-                    if (target->GetTypeId() == TYPEID_PLAYER)
-                        if (Unit* spellTarget = ObjectAccessor::GetUnit(*target, target->ToPlayer()->GetComboTarget()))
-                            target->CastSpell(spellTarget, 51699, true);
-                   break;
                 case 71563:
                     if (Aura* newAura = target->AddAura(71564, target))
                         newAura->SetStackAmount(newAura->GetSpellInfo()->StackAmount);
@@ -5553,7 +5548,6 @@ void AuraEffect::HandlePeriodicDummyAuraTick(Unit* target, Unit* caster) const
             switch (GetId())
             {
                 case 66149: // Bullet Controller Periodic - 10 Man
-                case 68396: // Bullet Controller Periodic - 25 Man
                 {
                     if (!caster)
                         break;
@@ -5663,32 +5657,8 @@ void AuraEffect::HandlePeriodicDummyAuraTick(Unit* target, Unit* caster) const
                     caster->CastCustomSpell(53352, SPELLVALUE_BASE_POINT0, m_amount, target, true, NULL, this);
                 break;
             }
-            switch (GetSpellInfo()->Id)
-            {
-                // Feeding Frenzy Rank 1
-                case 53511:
-                    if (target->GetVictim() && target->GetVictim()->HealthBelowPct(35))
-                        target->CastSpell(target, 60096, true, 0, this);
-                    return;
-                // Feeding Frenzy Rank 2
-                case 53512:
-                    if (target->GetVictim() && target->GetVictim()->HealthBelowPct(35))
-                        target->CastSpell(target, 60097, true, 0, this);
-                    return;
-                default:
-                    break;
-            }
             break;
         }
-        case SPELLFAMILY_SHAMAN:
-            if (GetId() == 52179) // Astral Shift
-            {
-                // Periodic need for remove visual on stun/fear/silence lost
-                if (!(target->GetUInt32Value(UNIT_FIELD_FLAGS)&(UNIT_FLAG_STUNNED|UNIT_FLAG_FLEEING|UNIT_FLAG_SILENCED)))
-                    target->RemoveAurasDueToSpell(52179);
-                break;
-            }
-            break;
         case SPELLFAMILY_DEATHKNIGHT:
             switch (GetId())
             {
@@ -5806,10 +5776,6 @@ void AuraEffect::HandlePeriodicTriggerSpellAuraTick(Unit* target, Unit* caster) 
                         }
                         return;
                     }
-                    // Quake
-                    case 30576:
-                        triggerSpellId = 30571;
-                        break;
                     // Doom
                     /// @todo effect trigger spell may be independant on spell targets, and executed in spell finish phase
                     // so instakill will be naturally done before trigger spell
@@ -6048,8 +6014,12 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
             case 172:   // Corruption
                 caster->EnergizeBySpell(caster, 172, 4, POWER_DEMONIC_FURY);
                 break;
-            case 43093: case 31956: case 38801:  // Grievous Wound
-            case 35321: case 38363: case 39215:  // Gushing Wound
+            case 43093: // Grievous Wound
+            case 31956: 
+            case 38801:  
+            case 35321: // Gushing Wound
+            case 38363:
+            case 39215:
                 if (target->IsFullHealth())
                 {
                     target->RemoveAurasDueToSpell(GetSpellInfo()->Id);

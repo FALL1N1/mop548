@@ -2842,10 +2842,6 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
                 break;
                 // list end
             case 1776: // Gouge
-            case 1777:
-            case 8629:
-            case 11285:
-            case 11286:
             case 12540:
             case 13579:
             case 24698:
@@ -2853,61 +2849,15 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
             case 29425:
             case 34940:
             case 36862:
-            case 38764:
             case 38863:
             case 52743: // Head Smack
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_REQ_TARGET_FACING_CASTER;
                 break;
             case 53: // Backstab
-            case 2589:
-            case 2590:
-            case 2591:
-            case 8721:
-            case 11279:
-            case 11280:
-            case 11281:
-            case 25300:
-            case 26863:
-            case 48656:
-            case 48657:
             case 703: // Garrote
-            case 8631:
-            case 8632:
-            case 8633:
-            case 11289:
-            case 11290:
-            case 26839:
-            case 26884:
-            case 48675:
-            case 48676:
             case 5221: // Shred
-            case 6800:
-            case 8992:
-            case 9829:
-            case 9830:
-            case 27001:
-            case 27002:
-            case 48571:
-            case 48572:
             case 8676: // Ambush
-            case 8724:
-            case 8725:
-            case 11267:
-            case 11268:
-            case 11269:
-            case 27441:
-            case 48689:
-            case 48690:
-            case 48691:
-            case 6787:
-            case 9866:
-            case 9867:
-            case 27005:
-            case 48578:
-            case 48579:
             case 21987: // Lash of Pain
-            case 23959: // Test Stab R50
-            case 24825: // Test Backstab
             case 58563: // Assassinate Restless Lookout
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_REQ_CASTER_BEHIND_TARGET;
                 break;
@@ -2917,9 +2867,6 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
             case 43215: // Flame Breath
             case 70461: // Coldflame Trap
             case 72133: // Pain and Suffering
-            case 73788: // Pain and Suffering
-            case 73789: // Pain and Suffering
-            case 73790: // Pain and Suffering
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_CONE_LINE;
                 break;
             case 24340: // Meteor
@@ -2941,9 +2888,6 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
             case 72373: // Shared Suffering
             case 71904: // Chaos Bane
             case 70492: // Ooze Eruption
-            case 72505: // Ooze Eruption
-            case 72624: // Ooze Eruption
-            case 72625: // Ooze Eruption
                 // ONLY SPELLS WITH SPELLFAMILY_GENERIC and EFFECT_SCHOOL_DAMAGE
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_SHARE_DAMAGE;
                 break;
@@ -2957,10 +2901,6 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
             case 64777: // Machine Gun
             case 65239: // Machine Gun
             case 65919: // Impale
-            case 67858: // Impale
-            case 67859: // Impale
-            case 67860: // Impale
-            case 69293: // Wing Buffet
             case 74439: // Machine Gun
             case 63278: // Mark of the Faceless (General Vezax)
             case 62544: // Thrust (Argent Tournament)
@@ -2981,9 +2921,6 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
             case 63010: // Charge (Argent Tournament, NPC)
             case 68321: // Charge (Argent Tournament, NPC)
             case 72255: // Mark of the Fallen Champion (Deathbringer Saurfang)
-            case 72444: // Mark of the Fallen Champion (Deathbringer Saurfang)
-            case 72445: // Mark of the Fallen Champion (Deathbringer Saurfang)
-            case 72446: // Mark of the Fallen Champion (Deathbringer Saurfang)
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_IGNORE_ARMOR;
                 break;
             case 64422: // Sonic Screech (Auriaya)
@@ -3154,18 +3091,12 @@ void SpellMgr::LoadSpellInfoCorrections()
                 spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_SRC_AREA_ENEMY);
                 break;
             case 63320: // Glyph of Life Tap
-            case 53228: // Rapid Killing (Rank 1)
             case 53232: // Rapid Killing (Rank 2)
                 // Entries were not updated after spell effect change, we have to do that manually :/
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_CAN_PROC_WITH_TRIGGERED;
                 break;
             case 5308: // Execute
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_CANT_TRIGGER_PROC;
-                break;
-            case 59725: // Improved Spell Reflection - aoe aura
-                // Target entry seems to be wrong for this spell :/
-                spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_CASTER_AREA_PARTY);
-                spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_10_YARDS_2);
                 break;
             case 31347: // Doom
             case 39365: // Thundering Storm
@@ -3204,8 +3135,6 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 41376: // Spite
             case 45248: // Shadow Blades
             case 46771: // Flame Sear
-            case 54171: // Divine Storm
-            case 54172: // Divine Storm (heal)
             case 66588: // Flaming Spear
                 spellInfo->MaxAffectedTargets = 3;
                 break;
@@ -3244,7 +3173,6 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 34936: // Backlash
             case 48108: // Hot Streak
             case 51124: // Killing Machine
-            case 54741: // Firestarter
             case 57761: // Fireball!
             case 64823: // Item - Druid T8 Balance 4P Bonus
             case 88819: // Daybreak
@@ -3260,28 +3188,11 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 51912: // Crafty's Ultra-Advanced Proto-Typical Shortening Blaster
                 spellInfo->Effects[EFFECT_0].Amplitude = 3000;
                 break;
-            // Master Shapeshifter: missing stance data for forms other than bear - bear version has correct data
-            // To prevent aura staying on target after talent unlearned
-            case 48420: // Master Shapeshifter
-            case 24900: // Heart of the Wild - Cat Effect
-                spellInfo->Stances = 1 << (FORM_CAT - 1);
-                break;
-            case 24899: // Heart of the Wild - Bear Effect
-                spellInfo->Stances = 1 << (FORM_BEAR - 1);
-                break;
-            case 48421: // Master Shapeshifter
-                spellInfo->Stances = 1 << (FORM_MOONKIN - 1);
-                break;
-            case 51466: // Elemental Oath (Rank 1)
             case 51470: // Elemental Oath (Rank 2)
                 spellInfo->Effects[EFFECT_1].Effect = SPELL_EFFECT_APPLY_AURA;
                 spellInfo->Effects[EFFECT_1].ApplyAuraName = SPELL_AURA_ADD_FLAT_MODIFIER;
                 spellInfo->Effects[EFFECT_1].MiscValue = SPELLMOD_EFFECT2;
                 spellInfo->Effects[EFFECT_1].SpellClassMask = flag128(0x00000000, 0x00004000, 0x00000000, 0x00000000);
-                break;
-            case 47569: // Improved Shadowform (Rank 1)
-                // with this spell atrribute aura can be stacked several times
-                spellInfo->Attributes &= ~SPELL_ATTR0_NOT_SHAPESHIFT;
                 break;
             case 64904: // Hymn of Hope
                 spellInfo->Effects[EFFECT_1].ApplyAuraName = SPELL_AURA_MOD_INCREASE_ENERGY_PERCENT;
@@ -3307,16 +3218,9 @@ void SpellMgr::LoadSpellInfoCorrections()
                 spellInfo->Effects[EFFECT_0].TargetB = SpellImplicitTargetInfo(TARGET_UNIT_SRC_AREA_ALLY);
                 spellInfo->Effects[EFFECT_1].TargetB = SpellImplicitTargetInfo(TARGET_UNIT_SRC_AREA_ALLY);
                 break;
-            case 63675: // Improved Devouring Plague
-                spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
-                break;
             case 8145: // Tremor Totem (instant pulse)
             case 6474: // Earthbind Totem (instant pulse)
                 spellInfo->AttributesEx5 |= SPELL_ATTR5_START_PERIODIC_AT_APPLY;
-                break;
-            case 53241: // Marked for Death (Rank 1)
-            case 53243: // Marked for Death (Rank 2)
-                spellInfo->Effects[EFFECT_0].SpellClassMask = flag128(0x00067801, 0x10820001, 0x00000801, 0x00000000);
                 break;
             case 5176:  // Wrath
             case 2912:  // Starfire
@@ -3332,28 +3236,6 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 70893: // Culling The Herd (needs target selection script)
                 spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_CASTER);
                 spellInfo->Effects[EFFECT_0].TargetB = SpellImplicitTargetInfo(TARGET_UNIT_MASTER);
-                break;
-            case 54800: // Sigil of the Frozen Conscience - change class mask to custom extended flags of Icy Touch
-                        // this is done because another spell also uses the same SpellFamilyFlags as Icy Touch
-                        // SpellFamilyFlags[0] & 0x00000040 in SPELLFAMILY_DEATHKNIGHT is currently unused (3.3.5a)
-                        // this needs research on modifier applying rules, does not seem to be in Attributes fields
-                spellInfo->Effects[EFFECT_0].SpellClassMask = flag128(0x00000040, 0x00000000, 0x00000000, 0x00000000);
-                break;
-            case 64949: // Idol of the Flourishing Life
-                spellInfo->Effects[EFFECT_0].SpellClassMask = flag128(0x00000000, 0x02000000, 0x00000000, 0x00000000);
-                spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_ADD_FLAT_MODIFIER;
-                break;
-            case 34231: // Libram of the Lightbringer
-            case 60792: // Libram of Tolerance
-            case 64956: // Libram of the Resolute
-                spellInfo->Effects[EFFECT_0].SpellClassMask = flag128(0x80000000, 0x00000000, 0x00000000, 0x00000000);
-                spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_ADD_FLAT_MODIFIER;
-                break;
-            case 28851: // Libram of Light
-            case 28853: // Libram of Divinity
-            case 32403: // Blessed Book of Nagrand
-                spellInfo->Effects[EFFECT_0].SpellClassMask = flag128(0x40000000, 0x00000000, 0x00000000, 0x00000000);
-                spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_ADD_FLAT_MODIFIER;
                 break;
             case 45602: // Ride Carpet
                 spellInfo->Effects[EFFECT_0].BasePoints = 0; // force seat 0, vehicle doesn't have the required seat flags for "no seat specified (-1)"

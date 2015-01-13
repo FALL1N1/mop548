@@ -997,7 +997,6 @@ bool Aura::CanBeSaved() const
     // so put here only these for which you are sure they get removed
     switch (GetId())
     {
-        case 44413: // Incanter's Absorption
         case 40075: // Fel Flak Fire
         case 55849: // Power Spark
             return false;
@@ -1239,10 +1238,6 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                         if (GetStackAmount() >= 5 && !target->HasAura(50812))
                             target->CastSpell(target, 50812, true);
                         break;
-                    case 60970: // Heroic Fury (remove Intercept cooldown)
-                        if (target->GetTypeId() == TYPEID_PLAYER)
-                            target->ToPlayer()->RemoveSpellCooldown(20252, true);
-                        break;
                 }
                 break;
             case SPELLFAMILY_DRUID:
@@ -1277,7 +1272,6 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                 }
                 switch (GetId())
                 {
-                    case 12536: // Clearcasting
                     case 12043: // Presence of Mind
                         // Arcane Potency
                         if (AuraEffect const* aurEff = caster->GetAuraEffect(SPELL_AURA_DUMMY, SPELLFAMILY_MAGE, 2120, 0))
@@ -1346,13 +1340,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
             case SPELLFAMILY_GENERIC:
                 switch (GetId())
                 {
-                    case 61987: // Avenging Wrath
-                        // Remove the immunity shield marker on Avenging Wrath removal if Forbearance is not present
-                        if (target->HasAura(61988) && !target->HasAura(25771))
-                            target->RemoveAura(61988);
-                        break;
                     case 72368: // Shared Suffering
-                    case 72369:
                         if (caster)
                         {
                             if (AuraEffect* aurEff = GetEffect(0))

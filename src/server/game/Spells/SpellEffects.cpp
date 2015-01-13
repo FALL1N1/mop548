@@ -593,14 +593,6 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                 }
                 break;
             }
-            case SPELLFAMILY_MAGE:
-            {
-                // Deep Freeze should deal damage to permanently stun-immune targets.
-                if (m_spellInfo->Id == 71757)
-                    if (unitTarget->GetTypeId() != TYPEID_UNIT || !(unitTarget->IsImmunedToSpellEffect(sSpellMgr->GetSpellInfo(44572), 0)))
-                        return;
-                break;
-            }
         }
 
         if (m_originalCaster && apply_direct_bonus)
@@ -693,12 +685,6 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                     m_caster->ToPlayer()->RemoveSpellCooldown(m_spellInfo->Id, true);
                     spell_id = 48289;
                     break;
-                // Raise dead - take reagents and trigger summon spells
-                case 48289:
-                    if (m_targets.HasDst())
-                        targets.SetDst(*m_targets.GetDstPos());
-                    spell_id = CalculateDamage(0, NULL);
-                    break;
             }
             break;
     }
@@ -775,62 +761,6 @@ void Spell::EffectTriggerSpell(SpellEffIndex effIndex)
                     unitTarget->ToPlayer()->RemoveSpellCooldown(1784, true);
 
                 unitTarget->CastSpell(unitTarget, 1784, true);
-                return;
-            }
-            // Demonic Empowerment -- succubus
-            case 54437:
-            {
-                unitTarget->RemoveMovementImpairingAuras();
-                unitTarget->RemoveAurasByType(SPELL_AURA_MOD_STALKED);
-                unitTarget->RemoveAurasByType(SPELL_AURA_MOD_STUN);
-
-                // Cast Lesser Invisibility
-                unitTarget->CastSpell(unitTarget, 7870, true);
-                return;
-            }
-            // Brittle Armor - (need add max stack of 24575 Brittle Armor)
-            case 29284:
-            {
-                // Brittle Armor
-                SpellInfo const* spell = sSpellMgr->GetSpellInfo(24575);
-                if (!spell)
-                    return;
-
-                for (uint32 j = 0; j < spell->StackAmount; ++j)
-                    m_caster->CastSpell(unitTarget, spell->Id, true);
-                return;
-            }
-            // Mercurial Shield - (need add max stack of 26464 Mercurial Shield)
-            case 29286:
-            {
-                // Mercurial Shield
-                SpellInfo const* spell = sSpellMgr->GetSpellInfo(26464);
-                if (!spell)
-                    return;
-
-                for (uint32 j = 0; j < spell->StackAmount; ++j)
-                    m_caster->CastSpell(unitTarget, spell->Id, true);
-                return;
-            }
-            // Cloak of Shadows
-            case 35729:
-            {
-                uint32 dispelMask = SpellInfo::GetDispelMask(DISPEL_ALL);
-                Unit::AuraApplicationMap& Auras = unitTarget->GetAppliedAuras();
-                for (Unit::AuraApplicationMap::iterator iter = Auras.begin(); iter != Auras.end();)
-                {
-                    // remove all harmful spells on you...
-                    SpellInfo const* spell = iter->second->GetBase()->GetSpellInfo();
-                    if ((spell->DmgClass == SPELL_DAMAGE_CLASS_MAGIC // only affect magic spells
-                        || ((spell->GetDispelMask()) & dispelMask))
-                        // ignore positive and passive auras
-                        && !iter->second->IsPositive() && !iter->second->GetBase()->IsPassive())
-                    {
-                        m_caster->RemoveAura(iter);
-                    }
-                    else
-                        ++iter;
-                }
                 return;
             }
         }
@@ -1490,10 +1420,6 @@ void Spell::EffectHeal(SpellEffIndex effIndex)
 
             addhealth += tickheal * tickcount;
 
-            // Glyph of Swiftmend
-            if (!caster->HasAura(54824))
-                unitTarget->RemoveAura(targetAura->GetId(), targetAura->GetCasterGUID());
-
             //addhealth += tickheal * tickcount;
             //addhealth = caster->SpellHealingBonus(m_spellInfo, addhealth, HEAL, unitTarget);
         }
@@ -1816,9 +1742,7 @@ void Spell::EffectEnergize(SpellEffIndex effIndex)
             level_diff = m_caster->getLevel() - 60;
             level_multiplier = 4;
             break;
-        case 31930:                                         // Judgements of the Wise
         case 63375:                                         // Primal Wisdom
-        case 68082:                                         // Glyph of Seal of Command
             amount = int32(CalculatePct(unitTarget->GetCreateMana(), amount));
             break;
         case 67490:                                         // Runic Mana Injector (mana gain increased by 25% for engineers - 3.2.0 patch change)
@@ -3555,25 +3479,6 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
         {
             switch (m_spellInfo->Id)
             {
-                // Glyph of Backstab
-                case 63975:
-                {
-                    // search our Rupture aura on target
-                    if (AuraEffect const* aurEff = unitTarget->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_ROGUE, 0x00100000, 0, 0, m_caster->GetGUID()))
-                    {
-                        uint32 countMin = aurEff->GetBase()->GetMaxDuration();
-                        uint32 countMax = 12000; // this can be wrong, duration should be based on combo-points
-                        countMax += m_caster->HasAura(56801) ? 4000 : 0;
-
-                        if (countMin < countMax)
-                        {
-                            aurEff->GetBase()->SetDuration(uint32(aurEff->GetBase()->GetDuration() + 3000));
-                            aurEff->GetBase()->SetMaxDuration(countMin + 2000);
-                        }
-
-                    }
-                    return;
-                }
                 // Glyph of Scourge Strike
                 case 69961:
                 {
@@ -3688,7 +3593,6 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                     break;
                 }
                 case 20589: // Escape artist
-                case 30918: // Improved Sprint
                 {
                     // Removes snares and roots.
                     unitTarget->RemoveMovementImpairingAuras();
