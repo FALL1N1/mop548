@@ -9652,6 +9652,23 @@ uint32 Unit::SpellHealingBonusDone(Unit* victim, SpellInfo const* spellProto, ui
             return healamount;
     }
 
+    // Custom scripted healing
+    switch (spellProto->SpellFamilyName)
+    {
+        case SPELLFAMILY_WARLOCK:
+            switch (spellProto->Id)
+            {
+                // Healthstone
+                case 6262:
+                    if (victim)
+                    {
+                        healamount += uint32(0.20f * victim->GetCreateHealth());
+                    }
+                    break;
+            }
+            break;
+    }
+
     // Default calculation
     if (DoneAdvertisedBenefit)
     {

@@ -31,27 +31,71 @@
 
 enum WarlockSpells
 {
-    SPELL_WARLOCK_IMMOLATE                        = 348,
-    SPELL_WARLOCK_IMMOLATE_FIRE_AND_BRIMSTONE     = 108686,
-    SPELL_WARLOCK_SHADOWBURN_ENERGIZE             = 125882,
-    SPELL_WARLOCK_UNSTABLE_AFFLICTION             = 30108,
-    SPELL_WARLOCK_CORRUPTION                      = 172,
-    SPELL_WARLOCK_DOOM                            = 603,
-    SPELL_WARLOCK_NIGHTFALL                       = 108558,
-    SPELL_WARLOCK_GLYPH_OF_SIPHON_LIFE            = 56218,
-    SPELL_WARLOCK_SOULBURN_AURA                   = 74434,
-    SPELL_WARLOCK_DRAIN_LIFE_HEAL                 = 89653,
-    SPELL_WARLOCK_MOLTEN_CORE                     = 122355,
-    SPELL_WARLOCK_MOLTEN_CORE_AURA                = 122351,
-    SPELL_WARLOCK_DECIMATE_AURA                   = 108869,
-    SPELL_WARLOCK_METAMORPHOSIS                   = 103958,
-    SPELL_WARLOCK_HARVEST_LIFE_HEAL               = 125314,
-    SPELL_WARLOCK_DRAIN_LIFE                      = 689,
-    SPELL_WARLOCK_SHADOW_BOLT                     = 686,
-    SPELL_WARLOCK_LIFE_TAP                        = 1454,
-    SPELL_WARLOCK_WILD_IMP_SUMMON                 = 104317,
-    SPELL_WARLOCK_DEMONIC_CALL                    = 114925,
-    SPELL_WARLOCK_DISRUPTED_NETHER                = 114736,
+    SPELL_WARLOCK_IMMOLATE							= 348,
+    SPELL_WARLOCK_IMMOLATE_FIRE_AND_BRIMSTONE		= 108686,
+    SPELL_WARLOCK_SHADOWBURN_ENERGIZE				= 125882,
+    SPELL_WARLOCK_UNSTABLE_AFFLICTION				= 30108,
+    SPELL_WARLOCK_CORRUPTION						= 172,
+    SPELL_WARLOCK_DOOM								= 603,
+    SPELL_WARLOCK_NIGHTFALL							= 108558,
+    SPELL_WARLOCK_GLYPH_OF_SIPHON_LIFE				= 56218,
+    SPELL_WARLOCK_SOULBURN_AURA						= 74434,
+    SPELL_WARLOCK_DRAIN_LIFE_HEAL					= 89653,
+    SPELL_WARLOCK_MOLTEN_CORE						= 122355,
+    SPELL_WARLOCK_MOLTEN_CORE_AURA					= 122351,
+    SPELL_WARLOCK_DECIMATE_AURA						= 108869,
+    SPELL_WARLOCK_METAMORPHOSIS						= 103958,
+    SPELL_WARLOCK_HARVEST_LIFE_HEAL					= 125314,
+    SPELL_WARLOCK_DRAIN_LIFE						= 689,
+    SPELL_WARLOCK_SHADOW_BOLT						= 686,
+    SPELL_WARLOCK_LIFE_TAP							= 1454,
+    SPELL_WARLOCK_WILD_IMP_SUMMON					= 104317,
+    SPELL_WARLOCK_DEMONIC_CALL						= 114925,
+    SPELL_WARLOCK_DISRUPTED_NETHER					= 114736,
+};
+
+// 6201 - Create Healthstone
+class spell_warl_create_healthstone : public SpellScriptLoader
+{
+public:
+	spell_warl_create_healthstone() : SpellScriptLoader("spell_warl_create_healthstone") { }
+
+	class spell_warl_create_healthstone_SpellScript : public SpellScript
+	{
+		PrepareSpellScript(spell_warl_create_healthstone_SpellScript);
+
+		void HandleOnCast()
+		{
+			if (Unit* unit = GetCaster())
+			{
+				if (Player* player = unit->ToPlayer())
+				{
+					const uint32 itemId = 5512;
+
+					ItemPosCountVec dest;
+					InventoryResult msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, itemId, 1);
+
+					if (msg != EQUIP_ERR_OK)
+					{
+						player->SendEquipError(msg, NULL, NULL, itemId);
+						return;
+					}
+
+					Item* item = player->StoreNewItem(dest, itemId, true, Item::GenerateItemRandomPropertyId(itemId));
+				}
+			}
+		}
+
+		void Register()
+		{
+			OnCast += SpellCastFn(spell_warl_create_healthstone_SpellScript::HandleOnCast);
+		}
+	};
+
+	SpellScript* GetSpellScript() const
+	{
+		return new spell_warl_create_healthstone_SpellScript();
+	}
 };
 
 class spell_warl_rain_of_fire_damage : public SpellScriptLoader
@@ -733,6 +777,7 @@ public:
 
 void AddSC_warlock_spell_scripts()
 {
+	new spell_warl_create_healthstone();
     new spell_warl_rain_of_fire_damage();
     new spell_warl_shadowburn();
     new spell_warl_burning_embers();
