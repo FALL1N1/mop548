@@ -11404,6 +11404,26 @@ Bag* Player::GetBagByPos(uint8 bag) const
     return NULL;
 }
 
+// Returns the number of free slot in the bags and backpack
+uint32 Player::GetFreeBagSlot() const
+{
+	uint32 freeBagSlots = 0;
+
+	for (uint8 i = INVENTORY_SLOT_BAG_START; i < INVENTORY_SLOT_BAG_END; i++)
+	{
+		if (Bag* bag = this->GetBagByPos(i))
+			freeBagSlots += bag->GetFreeSlots();
+	}
+
+	for (uint8 i = INVENTORY_SLOT_ITEM_START; i < INVENTORY_SLOT_ITEM_END; i++)
+	{
+		if (!GetItemByPos(INVENTORY_SLOT_BAG_0, i))
+			++freeBagSlots;
+	}
+
+	return freeBagSlots;
+}
+
 Item* Player::GetWeaponForAttack(WeaponAttackType attackType, bool useable /*= false*/) const
 {
     uint8 slot;
