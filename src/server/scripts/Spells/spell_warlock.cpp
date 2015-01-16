@@ -31,6 +31,8 @@
 
 enum WarlockSpells
 {
+	HEALTHSTONE_ITEM_ID								= 5512,
+
     SPELL_WARLOCK_IMMOLATE							= 348,
     SPELL_WARLOCK_IMMOLATE_FIRE_AND_BRIMSTONE		= 108686,
     SPELL_WARLOCK_SHADOWBURN_ENERGIZE				= 125882,
@@ -51,7 +53,7 @@ enum WarlockSpells
     SPELL_WARLOCK_LIFE_TAP							= 1454,
     SPELL_WARLOCK_WILD_IMP_SUMMON					= 104317,
     SPELL_WARLOCK_DEMONIC_CALL						= 114925,
-    SPELL_WARLOCK_DISRUPTED_NETHER					= 114736,
+	SPELL_WARLOCK_DISRUPTED_NETHER					= 114736,
 };
 
 // 6201 - Create Healthstone
@@ -70,7 +72,7 @@ public:
 			{
 				if (Player* player = unit->ToPlayer())
 				{
-					const uint32 itemId = 5512;
+					const uint32 itemId = HEALTHSTONE_ITEM_ID;
 
 					ItemPosCountVec dest;
 					InventoryResult msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, itemId, 1);

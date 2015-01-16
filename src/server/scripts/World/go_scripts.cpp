@@ -870,6 +870,13 @@ public:
 ## go_soulwell
 ######*/
 
+enum SoulWellData
+{
+	HEALTHSTONE_ITEM_ID					= 5512,
+
+	SPELL_CREATE_HEALTHSTONE			= 23517,
+};
+
 class go_soulwell : public GameObjectScript
 {
     public:
@@ -888,8 +895,25 @@ class go_soulwell : public GameObjectScript
             bool GossipHello(Player* player) override
             {
                 Unit* owner = go->GetOwner();
+
                 if (!owner || owner->GetTypeId() != TYPEID_PLAYER || !player->IsInSameRaidWith(owner->ToPlayer()))
                     return true;
+
+                // Don't try to add a stone if we already have one.
+                if (player->HasItemCount(HEALTHSTONE_ITEM_ID))
+                {
+                    // If uncommented these lines, due to the upper fact even if you correctly receive a stone, an error message is shown
+                    /*if (SpellInfo const* spell = sSpellMgr->GetSpellInfo(SPELL_CREATE_HEALTHSTONE))
+                        Spell::SendCastResult(player, spell, 0, SPELL_FAILED_TOO_MANY_OF_ITEM);*/
+                    return true;
+                }
+
+                player->CastSpell(player, SPELL_CREATE_HEALTHSTONE, true);
+
+                // Item has to actually be created to remove a charge on the well.
+                if (player->HasItemCount(HEALTHSTONE_ITEM_ID))
+                    go->AddUse();
+
                 return false;
             }
         };
