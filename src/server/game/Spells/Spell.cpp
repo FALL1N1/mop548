@@ -3186,6 +3186,9 @@ void Spell::cast(bool skipCheck)
     // we must send smsg_spell_go packet before m_castItem delete in TakeCastItem()...
     SendSpellGo();
 
+    // Buff like Maelstrom Weapon must be removed at cast, not at target hit
+    m_caster->ToPlayer()->RemoveSpellMods(this);
+
     // Okay, everything is prepared. Now we need to distinguish between immediate and evented delayed spells
     if ((m_spellInfo->Speed > 0.0f && !m_spellInfo->IsChanneled()) || m_spellInfo->AttributesEx4 & SPELL_ATTR4_UNK4)
     {
@@ -3595,7 +3598,6 @@ void Spell::finish(bool ok)
 
         // Take mods after trigger spell (needed for 14177 to affect 48664)
         // mods are taken only on succesfull cast and independantly from targets of the spell
-        m_caster->ToPlayer()->RemoveSpellMods(this);
         m_caster->ToPlayer()->SetSpellModTakingSpell(this, false);
     }
 
