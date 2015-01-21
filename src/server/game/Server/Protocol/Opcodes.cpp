@@ -362,6 +362,9 @@ void OpcodeTable::InitializeClientTable()
     DEFINE_OPCODE_HANDLER(CMSG_WORLD_STATE_UI_TIMER_UPDATE,               0x15AB, STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleWorldStateUITimerUpdate      ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(CMSG_WRAP_ITEM,                                 0x02DF, STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleWrapItemOpcode               ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(CMSG_VOID_SWAP_ITEM,                            0x0655, STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleVoidSwapItem                 ); // 5.4.8 18414
+    DEFINE_OPCODE_HANDLER(CMSG_EQUIPMENT_SET_SAVE,                        0x0669, STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleEquipmentSetSave             ); // 5.4.8 18414
+    DEFINE_OPCODE_HANDLER(CMSG_EQUIPMENT_SET_USE,                         0x036E, STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleEquipmentSetUse              ); // 5.4.8 18414
+
 
 
     DEFINE_OPCODE_HANDLER(MSG_LIST_STABLED_PETS,                          0x02CA, STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleListStabledPetsOpcode        );
@@ -411,8 +414,6 @@ void OpcodeTable::InitializeClientTable()
     DEFINE_OPCODE_HANDLER(CMSG_CHANNEL_UNMODERATOR,                       0x041E, STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleChannelUnmoderator           ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(CMSG_CHANNEL_UNMUTE,                            0x022A, STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleChannelUnmute                ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(CMSG_CHAR_FACTION_CHANGE,                       0x0329, STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleCharFactionOrRaceChange      ); // 5.4.8 18414
-    DEFINE_OPCODE_HANDLER(CMSG_EQUIPMENT_SET_SAVE,                        0x0669, STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleEquipmentSetSave             ); // 5.4.8 18414
-    DEFINE_OPCODE_HANDLER(CMSG_EQUIPMENT_SET_USE,                         0x036E, STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleEquipmentSetUse              ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(CMSG_FORCE_MOVE_ROOT_ACK,                       0x107A, STATUS_UNHANDLED, PROCESS_THREADSAFE,   &WorldSession::HandleMoveRootAck                  ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(CMSG_FORCE_MOVE_UNROOT_ACK,                     0x1051, STATUS_UNHANDLED, PROCESS_THREADSAFE,   &WorldSession::HandleMoveUnRootAck                ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(CMSG_GET_MIRRORIMAGE_DATA,                      0x02A3, STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleMirrorImageDataRequest       ); // 5.4.8 18414
@@ -911,7 +912,7 @@ void OpcodeTable::InitializeServerTable()
     DEFINE_OPCODE_HANDLER(SMSG_PET_ACTION_SOUND,                        0x15E2, STATUS_NEVER    ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(SMSG_PET_CAST_FAILED,                         0x149B, STATUS_NEVER    ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(SMSG_PET_DISMISS_SOUND,                       0x1ABB, STATUS_NEVER    ); // 5.4.8 18414
-    DEFINE_OPCODE_HANDLER(SMSG_PET_GUIDS,                               0x1227, STATUS_NEVER); // 5.4.8 18414
+    DEFINE_OPCODE_HANDLER(SMSG_PET_GUIDS,                               0x1227, STATUS_NEVER    ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(SMSG_PET_LEARNED_SPELL,                       0x0282, STATUS_NEVER    ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(SMSG_PET_MODE,                                0x163F, STATUS_NEVER    ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(SMSG_PET_NAME_QUERY_RESPONSE,                 0x0ABE, STATUS_NEVER    ); // 5.4.8 18414
@@ -1059,6 +1060,11 @@ void OpcodeTable::InitializeServerTable()
     DEFINE_OPCODE_HANDLER(SMSG_VOID_STORAGE_TRANSFER_CHANGES,           0x14BA, STATUS_NEVER    ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(SMSG_VOID_ITEM_SWAP_RESPONSE,                 0x1EBF, STATUS_NEVER    ); // 5.4.8 18414
 
+    DEFINE_OPCODE_HANDLER(SMSG_EQUIPMENT_SET_LIST,                      0x18E2, STATUS_NEVER    ); // 5.4.8 18414
+    DEFINE_OPCODE_HANDLER(SMSG_EQUIPMENT_SET_SAVED,                     0x0006, STATUS_NEVER    ); // 5.4.8 18414
+    DEFINE_OPCODE_HANDLER(SMSG_EQUIPMENT_SET_USE_RESULT,                0x0A2B, STATUS_NEVER    ); // 5.4.8 18414
+
+
     // Still not updated
 
     
@@ -1164,9 +1170,6 @@ void OpcodeTable::InitializeServerTable()
     DEFINE_OPCODE_HANDLER(SMSG_ENCHANTMENT_LOG,                         0x12A3, STATUS_UNHANDLED); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(SMSG_ENCOUNTER_END,                           0x120F, STATUS_UNHANDLED); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(SMSG_ENCOUNTER_START,                         0x1E8A, STATUS_UNHANDLED); // 5.4.8 18414
-    DEFINE_OPCODE_HANDLER(SMSG_EQUIPMENT_SET_LIST,                      0x18E2, STATUS_UNHANDLED); // 5.4.8 18414
-    DEFINE_OPCODE_HANDLER(SMSG_EQUIPMENT_SET_SAVED,                     0x0006, STATUS_UNHANDLED); // 5.4.8 18414
-    DEFINE_OPCODE_HANDLER(SMSG_EQUIPMENT_SET_USE_RESULT,                0x0A2B, STATUS_UNHANDLED); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(SMSG_EXPECTED_SPAM_RECORDS,                   0x18C0, STATUS_UNHANDLED); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(SMSG_FAILED_PLAYER_CONDITION,                 0x1223, STATUS_UNHANDLED); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(SMSG_FISH_ESCAPED,                            0x0227, STATUS_UNHANDLED); // 5.4.8 18414

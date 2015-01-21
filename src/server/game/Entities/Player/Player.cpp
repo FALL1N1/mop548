@@ -27414,31 +27414,95 @@ void Player::BuildEnchantmentsInfoData(WorldPacket* data)
 void Player::SendEquipmentSetList()
 {
     uint32 count = 0;
+
     WorldPacket data(SMSG_EQUIPMENT_SET_LIST, 4);
-    size_t count_pos = data.wpos();
-    data << uint32(count);                                  // count placeholder
+
+    size_t count_pos = data.bitwpos();
+    data.WriteBits(count, 19);
+
+    ObjectGuid* guid = new ObjectGuid[MAX_EQUIPMENT_SET_INDEX];
+    ObjectGuid** guid2 = new ObjectGuid*[MAX_EQUIPMENT_SET_INDEX];
+    for (uint32 i = 0; i < MAX_EQUIPMENT_SET_INDEX; i++)
+    {
+        guid[i] = 0;
+        guid2[i] = new ObjectGuid[EQUIPMENT_SLOT_END];
+
+        for (uint32 j = 0; j < EQUIPMENT_SLOT_END; ++j)
+            guid2[i][j] = 0;
+    }
+
+    uint32 i = 0;
+    uint8 bitOrder[8] = {3, 5, 7, 2, 6, 0, 4, 1};
+
     for (EquipmentSets::iterator itr = m_EquipmentSets.begin(); itr != m_EquipmentSets.end(); ++itr)
     {
         if (itr->second.state == EQUIPMENT_SET_DELETED)
             continue;
 
-        data.appendPackGUID(itr->second.Guid);
-        data << uint32(itr->first);
-        data << itr->second.Name;
-        data << itr->second.IconName;
+        guid[i] = itr->second.Guid;
 
-        for (uint32 i = 0; i < EQUIPMENT_SLOT_END; ++i)
+        data.WriteBit(guid[i][4]);
+
+        for (uint32 j = 0; j < EQUIPMENT_SLOT_END; ++j)
         {
             // ignored slots stored in IgnoreMask, client wants "1" as raw GUID, so no HIGHGUID_ITEM
-            if (itr->second.IgnoreMask & (1 << i))
-                data.appendPackGUID(uint64(1));
+            if (itr->second.IgnoreMask & (1 << j))
+                guid2[i][j] = uint64(1);
             else
-                data.appendPackGUID(MAKE_NEW_GUID(itr->second.Items[i], 0, HIGHGUID_ITEM));
+                guid2[i][j] = MAKE_NEW_GUID(itr->second.Items[j], 0, HIGHGUID_ITEM);
+
+            data.WriteBitInOrder(guid2[i][j], bitOrder);
         }
 
+        data.WriteBit(guid[i][5]);
+        data.WriteBits(strlen(itr->second.IconName.c_str()), 9);
+        data.WriteBit(guid[i][1]);
+        data.WriteBit(guid[i][7]);
+        data.WriteBits(strlen(itr->second.Name.c_str()), 8);
+        data.WriteBit(guid[i][3]);
+        data.WriteBit(guid[i][2]);
+        data.WriteBit(guid[i][6]);
+        data.WriteBit(guid[i][0]);
         ++count;                                            // client have limit but it checked at loading and set
+        ++i;
     }
-    data.put<uint32>(count_pos, count);
+
+    i = 0;
+    uint8 byteOrder[8] = {2, 3, 7, 1, 6, 5, 0, 4};
+
+    for (EquipmentSets::iterator itr = m_EquipmentSets.begin(); itr != m_EquipmentSets.end(); ++itr)
+    {
+        if (itr->second.state == EQUIPMENT_SET_DELETED)
+            continue;
+
+        for (uint32 j = 0; j < EQUIPMENT_SLOT_END; ++j)
+            data.WriteBytesSeq(guid2[i][j], byteOrder);
+
+        data.WriteByteSeq(guid[i][7]);
+        data << uint32(itr->first);
+        data.WriteString(itr->second.Name);
+        data.WriteByteSeq(guid[i][2]);
+        data.WriteByteSeq(guid[i][6]);
+        data.WriteByteSeq(guid[i][0]);
+        data.WriteByteSeq(guid[i][3]);
+        data.WriteByteSeq(guid[i][1]);
+        data.WriteByteSeq(guid[i][5]);
+        data.WriteByteSeq(guid[i][4]);
+        data.WriteString(itr->second.IconName);
+        ++i;
+    }
+
+    data.FlushBits();
+
+    data.PutBits(count_pos, count, 19);
+
+    delete[] guid;
+
+    for (uint32 j = 0; j < MAX_EQUIPMENT_SET_INDEX; ++j)
+        delete[] guid2[j];
+
+    delete[] guid2;
+
     GetSession()->SendPacket(&data);
 }
 
@@ -27474,9 +27538,12 @@ void Player::SetEquipmentSet(uint32 index, EquipmentSet eqset)
     {
         eqslot.Guid = sObjectMgr->GenerateEquipmentSetGuid();
 
-        WorldPacket data(SMSG_EQUIPMENT_SET_SAVED, 4 + 1);
-        data << uint32(index);
-        data.appendPackGUID(eqslot.Guid);
+        WorldPacket data(SMSG_EQUIPMENT_SET_SAVED, 4 + 8);
+
+        data.WriteGuidMask(eqslot.Guid, 4, 1, 6, 2, 7, 0, 3, 5);
+        data << index;
+        data.WriteGuidBytes(eqslot.Guid, 1, 3, 7, 4, 5, 0, 2, 6);
+
         GetSession()->SendPacket(&data);
     }
 
