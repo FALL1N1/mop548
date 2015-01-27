@@ -6015,8 +6015,8 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
                 caster->EnergizeBySpell(caster, 172, 4, POWER_DEMONIC_FURY);
                 break;
             case 43093: // Grievous Wound
-            case 31956: 
-            case 38801:  
+            case 31956:
+            case 38801:
             case 35321: // Gushing Wound
             case 38363:
             case 39215:

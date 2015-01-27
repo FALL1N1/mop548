@@ -557,7 +557,7 @@ bool Unit::HasVisionObscured(Unit const* target) const
                 return true;
         }
     }
-    
+
     if (!targetStateAuras.empty()) // target has some aura that caster not
     {
         for (Unit::AuraEffectList::const_iterator i = targetStateAuras.begin(); i != targetStateAuras.end(); ++i)
@@ -2366,15 +2366,15 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit* victim, SpellInfo const* spellInfo
     }
 
     // Check for attack from behind
-	bool IsBehind = FindCurrentSpellBySpellId(spellInfo->Id) && FindCurrentSpellBySpellId(spellInfo->Id)->GetSpellInfo()->AttributesCu & SPELL_ATTR0_CU_REQ_CASTER_BEHIND_TARGET;
+    bool IsBehind = FindCurrentSpellBySpellId(spellInfo->Id) && FindCurrentSpellBySpellId(spellInfo->Id)->GetSpellInfo()->AttributesCu & SPELL_ATTR0_CU_REQ_CASTER_BEHIND_TARGET;
     if (!victim->HasInArc(M_PI, this) || IsBehind) // don't dodge hits that can come only from behind
     {
-		// Can`t dodge from behind in PvP (but its possible in PvE)
-		if (victim->GetTypeId() == TYPEID_PLAYER)
-			canDodge = false;
-		if (!victim->HasAuraType(SPELL_AURA_IGNORE_HIT_DIRECTION) || IsBehind)
-			canParry = false; //Usable only from behind or without deterrence = can't parry
-		canBlock = false;
+        // Can`t dodge from behind in PvP (but its possible in PvE)
+        if (victim->GetTypeId() == TYPEID_PLAYER)
+            canDodge = false;
+        if (!victim->HasAuraType(SPELL_AURA_IGNORE_HIT_DIRECTION) || IsBehind)
+            canParry = false; //Usable only from behind or without deterrence = can't parry
+        canBlock = false;
     }
     // Check creatures flags_extra for disable parry
     if (victim->GetTypeId() == TYPEID_UNIT)
@@ -5027,7 +5027,7 @@ void Unit::SendPeriodicAuraLog(SpellPeriodicAuraLogInfo* pInfo)
         data.WriteBit(!hasAbsorb);
         data.WriteBit(pInfo->critical);
         data.WriteBit(!hasResist);
-        data.WriteBit(!hasSchool);    
+        data.WriteBit(!hasSchool);
     }
 
     data.WriteGuidMask(targetGuid, 5, 3);
@@ -5044,7 +5044,7 @@ void Unit::SendPeriodicAuraLog(SpellPeriodicAuraLogInfo* pInfo)
     {
         if (hasOverDamage)
             data << uint32(pInfo->overDamage);
-       
+
         data << uint32(pInfo->damage);
 
         data << uint32(pInfo->auraEff->GetAuraType());
@@ -5056,7 +5056,7 @@ void Unit::SendPeriodicAuraLog(SpellPeriodicAuraLogInfo* pInfo)
             data << uint32(pInfo->resist);
 
         if (hasAbsorb)
-            data << uint32(pInfo->absorb);      
+            data << uint32(pInfo->absorb);
     }
 
     data.WriteGuidBytes(casterGuid, 5, 3);
@@ -7348,7 +7348,7 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
         // Enlightenment (trigger only from mana cost spells)
         case 35095:
         {
-            if (!procSpell || procSpell->GetSpellPowerCost(this).PowerType != POWER_MANA || 
+            if (!procSpell || procSpell->GetSpellPowerCost(this).PowerType != POWER_MANA ||
                 (procSpell->GetSpellPowerCost(this).ManaCost == 0 && procSpell->GetSpellPowerCost(this).ManaCostPercentage == 0 && procSpell->GetSpellPowerCost(this).ManaCostPerlevel == 0))
                 return false;
             break;
@@ -9058,7 +9058,7 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uin
 
     // Check for table values
     float coeff = spellProto->Effects[effIndex].SpellPowerCoeff;
-    
+
     // Melee data is not present inside DBC! Use DB Value.
     SpellBonusEntry const* bonus = sSpellMgr->GetSpellBonusData(spellProto->Id);
     if (bonus)
@@ -9086,7 +9086,7 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uin
             }
         }
     }
-    
+
     // Default calculation
     if (DoneAdvertisedBenefit)
     {
@@ -9241,7 +9241,7 @@ int32 Unit::SpellBaseDamageBonusDone(SpellSchoolMask schoolMask) const
         for (AuraEffectList::const_iterator i = mDamageDonebyAP.begin(); i != mDamageDonebyAP.end(); ++i)
             if ((*i)->GetMiscValue() & schoolMask)
                 DoneAdvertisedBenefit += int32(CalculatePct(GetTotalAttackPowerValue(BASE_ATTACK), (*i)->GetAmount()));
-        
+
         AuraEffectList const& mOverrideSpellpower = GetAuraEffectsByType(SPELL_AURA_OVERRIDE_SPELL_POWER_BY_AP_PCT);
         for (AuraEffectList::const_iterator i = mOverrideSpellpower.begin(); i != mOverrideSpellpower.end(); ++i)
         {
@@ -9623,7 +9623,7 @@ uint32 Unit::SpellHealingBonusDone(Unit* victim, SpellInfo const* spellProto, ui
     // Check for table values
     float coeff = spellProto->Effects[effIndex].SpellPowerCoeff;
     float factorMod = 1.0f;
-    
+
     SpellBonusEntry const* bonus = sSpellMgr->GetSpellBonusData(spellProto->Id);
 
     // This field is not present in DBC check where is savede MELEE BONUS spell
@@ -9643,7 +9643,7 @@ uint32 Unit::SpellHealingBonusDone(Unit* victim, SpellInfo const* spellProto, ui
                 DoneTotal += int32(bonus->ap_bonus * stack * GetTotalAttackPowerValue(
                 (spellProto->IsRangedWeaponSpell() && spellProto->DmgClass != SPELL_DAMAGE_CLASS_MELEE) ? RANGED_ATTACK : BASE_ATTACK));
         }
-    }   
+    }
 
     if (coeff <= 0.0f)
     {
@@ -10084,11 +10084,11 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
             if (HasAura(12712))
                 if (ToPlayer() && ToPlayer()->IsTwoHandUsed())
                     AddPct(DoneTotalMod, 25);
-            
+
             // Sword of Light
             if (pdamage > 0 && HasAura(53503) && ToPlayer()->IsTwoHandUsed() && attType == BASE_ATTACK)
                 AddPct(DoneTotalMod, 30);
-        
+
             // Apply Power PvP damage bonus - works in all scenarios and only on players and their minions/pets
             if (pdamage > 0 && (victim->GetTypeId() == TYPEID_PLAYER || (victim->IsPet() && victim->GetOwner() && victim->GetOwner()->GetTypeId() == TYPEID_PLAYER)))
             {
@@ -13400,7 +13400,7 @@ void Unit::SendPetTalk(uint32 pettalk)
 
     WorldPacket data(SMSG_PET_ACTION_SOUND, 4);
     ObjectGuid guid = GetGUID();
-    
+
     uint8 bitOrder[8] = {2, 7, 6, 0, 5, 1, 3, 4};
     data.WriteBitInOrder(guid, bitOrder);
 
@@ -13421,11 +13421,11 @@ void Unit::SendPetAIReaction(ObjectGuid guid)
 
     uint8 bitOrder[8] = {5, 7, 0, 4, 6, 2, 3, 1};
     data.WriteBitInOrder(guid, bitOrder);
-    
+
     data.WriteGuidBytes(guid, 4, 6, 5);
 
     data << uint32(AI_REACTION_HOSTILE);
-    
+
     data.WriteGuidBytes(guid, 7, 1, 2, 0, 3);
 
     owner->ToPlayer()->GetSession()->SendPacket(&data);
@@ -14242,7 +14242,7 @@ void Unit::SetMovementAnimKitId(uint16 animKitId)
     _movementAnimKitId = animKitId;
 
     WorldPacket data(SMSG_SET_MOVEMENT_ANIM_KIT, 9 + 2);
-    
+
     data << uint16(animKitId);
 
     ObjectGuid guid = GetGUID();
@@ -14264,7 +14264,7 @@ void Unit::SetMeleeAnimKitId(uint16 animKitId)
 
     ObjectGuid guid = GetGUID();
     data.WriteGuidMask(guid, 3, 0, 7, 2, 6, 4, 1, 5);
-    
+
     data.WriteGuidBytes(guid, 5, 0, 3, 4, 7);
 
     data << uint16(animKitId);
@@ -14280,7 +14280,7 @@ void Unit::PlayOneShotAnimKit(uint16 animKitId)
 
     ObjectGuid guid = GetGUID();
     data.WriteGuidMask(guid, 3, 1, 7, 6, 0, 4, 5, 2);
-    
+
     data.WriteGuidBytes(guid, 3, 6, 1, 4);
 
     data << uint16(animKitId);
@@ -15291,7 +15291,7 @@ void Unit::SendPlaySpellVisualKit(uint32 id, uint32 unkParam)
     data.WriteGuidBytes(guid, 5, 7);
     data << uint32(0);
     data.WriteByteSeq(guid[1]);
-    data << uint32(unkParam); // Seems to always bee none 
+    data << uint32(unkParam); // Seems to always bee none
     data.WriteGuidBytes(guid, 0, 6);
     data << uint32(id);     // SpellVisualKit.dbc index
     data.WriteGuidBytes(guid, 4, 2, 3);
@@ -16425,7 +16425,7 @@ void Unit::WriteMovementInfo(WorldPacket& data, Movement::ExtraMovementStatusEle
             data.WriteBit(hasSpline);
             break;
         case MSEMountDisplayIdWithCheck: // Fallback here
-            if (!hasMountDisplayId) 
+            if (!hasMountDisplayId)
                 break;
         case MSEMountDisplayIdWithoutCheck:
             data << GetUInt32Value(UNIT_FIELD_MOUNT_DISPLAY_ID);
@@ -16520,10 +16520,10 @@ void Unit::WriteMovementInfo(WorldPacket& data, Movement::ExtraMovementStatusEle
             data.WriteBits(0, 22);
             break;
         case MSEForces:
-            /* 
+            /*
             for (uint8 i = 0; i < forcesCount; ++i)
-                data << uint32(0); 
-            */            
+                data << uint32(0);
+            */
             break;
         case MSECounter:
             if (!m_movementCounter)
