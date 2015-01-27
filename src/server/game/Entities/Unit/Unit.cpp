@@ -9242,6 +9242,24 @@ int32 Unit::SpellBaseDamageBonusDone(SpellSchoolMask schoolMask) const
             if ((*i)->GetMiscValue() & schoolMask)
                 DoneAdvertisedBenefit += int32(CalculatePct(GetTotalAttackPowerValue(BASE_ATTACK), (*i)->GetAmount()));
 
+        int32 spellpowerPct = 0;
+
+        // Spell power from SPELL_AURA_MOD_SPELL_POWER_PCT
+        AuraEffectList const& mSpellPowerPct = GetAuraEffectsByType(SPELL_AURA_MOD_SPELL_POWER_PCT);
+        for (AuraEffectList::const_iterator i = mSpellPowerPct.begin(); i != mSpellPowerPct.end(); ++i)
+        {
+            // Take only the highest buff
+            if (spellpowerPct < (*i)->GetAmount())
+                spellpowerPct = (*i)->GetAmount();
+
+            // Don't apply bonuses if caster isn't in party/raid
+            if (sSpellMgr->GetSpellInfo((*i)->GetId())->Effects[(*i)->GetEffIndex()].Effect == SPELL_EFFECT_APPLY_AREA_AURA_RAID && !ToPlayer()->GetGroup())
+                spellpowerPct = 0;
+
+            AddPct(DoneAdvertisedBenefit, spellpowerPct);
+        }
+
+
         AuraEffectList const& mOverrideSpellpower = GetAuraEffectsByType(SPELL_AURA_OVERRIDE_SPELL_POWER_BY_AP_PCT);
         for (AuraEffectList::const_iterator i = mOverrideSpellpower.begin(); i != mOverrideSpellpower.end(); ++i)
         {
@@ -9252,11 +9270,6 @@ int32 Unit::SpellBaseDamageBonusDone(SpellSchoolMask schoolMask) const
             }
         }
     }
-
-    AuraEffectList const& mSpellPowerPct = GetAuraEffectsByType(SPELL_AURA_MOD_SPELL_POWER_PCT);
-    for (AuraEffectList::const_iterator i = mSpellPowerPct.begin(); i != mSpellPowerPct.end(); ++i)
-        AddPct(DoneAdvertisedBenefit, (*i)->GetAmount());
-
 
     return DoneAdvertisedBenefit;
 }
@@ -9818,6 +9831,8 @@ int32 Unit::SpellBaseHealingBonusDone(SpellSchoolMask schoolMask) const
         if (GetPowerIndexByClass(POWER_MANA, getClass()) != MAX_POWERS)
             advertisedBenefit += std::max(0, int32(GetStat(STAT_INTELLECT)) - 10);  // spellpower from intellect
 
+        int32 spellpowerPct = 0;
+
         // Healing bonus from stats
         AuraEffectList const& mHealingDoneOfStatPercent = GetAuraEffectsByType(SPELL_AURA_MOD_SPELL_HEALING_OF_STAT_PERCENT);
         for (AuraEffectList::const_iterator i = mHealingDoneOfStatPercent.begin(); i != mHealingDoneOfStatPercent.end(); ++i)
@@ -9825,6 +9840,21 @@ int32 Unit::SpellBaseHealingBonusDone(SpellSchoolMask schoolMask) const
             // stat used dependent from misc value (stat index)
             Stats usedStat = Stats((*i)->GetSpellInfo()->Effects[(*i)->GetEffIndex()].MiscValue);
             advertisedBenefit += int32(CalculatePct(GetStat(usedStat), (*i)->GetAmount()));
+        }
+
+        // Spell power from SPELL_AURA_MOD_SPELL_POWER_PCT
+        AuraEffectList const& mSpellPowerPct = GetAuraEffectsByType(SPELL_AURA_MOD_SPELL_POWER_PCT);
+        for (AuraEffectList::const_iterator i = mSpellPowerPct.begin(); i != mSpellPowerPct.end(); ++i)
+        {
+            // Take only the highest buff
+            if (spellpowerPct < (*i)->GetAmount())
+                spellpowerPct = (*i)->GetAmount();
+
+            // Don't apply bonuses if caster isn't in party/raid
+            if (sSpellMgr->GetSpellInfo((*i)->GetId())->Effects[(*i)->GetEffIndex()].Effect == SPELL_EFFECT_APPLY_AREA_AURA_RAID && !ToPlayer()->GetGroup())
+                spellpowerPct = 0;
+
+            AddPct(advertisedBenefit, spellpowerPct);
         }
 
         // ... and attack power
