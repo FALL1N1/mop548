@@ -63,8 +63,9 @@ class spell_warr_mortal_strike : public SpellScriptLoader
 
                         if (_player->HasAura(WARRIOR_SPELL_OVERPOWER_DRIVER_AURA))
                         {
-                            _player->AddComboPoints(target, 1);
+                            _player->AddComboPoints(target, 2);
                             _player->StartReactiveTimer(REACTIVE_OVERPOWER);
+                            _player->CastSpell(_player, WARRIOR_SPELL_OVERPOWER_DRIVER, true);
                             _player->CastSpell(_player, WARRIOR_SPELL_OVERPOWER_DRIVER, true);
                         }
                     }
