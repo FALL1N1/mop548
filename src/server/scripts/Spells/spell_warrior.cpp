@@ -34,6 +34,54 @@ enum WarriorSpells
     WARRIOR_SPELL_SWORD_AND_BOARD                   = 50227,
     WARRIOR_SPELL_SHIELD_SLAM                       = 23922,
     WARRIOR_SPELL_SHIELD_BLOCK_TRIGGERED            = 132404,
+    WARRIOR_SPELL_GLYPH_OF_MORTAL_STRIKE_AURA       = 58368,
+    WARRIOR_SPELL_OVERPOWER_DRIVER_AURA             = 56636,
+    WARRIOR_SPELL_OVERPOWER_DRIVER                  = 60503,
+    WARRIOR_SPELL_MORTAL_STRIKE_AURA                = 12294
+};
+
+// Mortal strike - 12294
+class spell_warr_mortal_strike : public SpellScriptLoader
+{
+    public:
+        spell_warr_mortal_strike() : SpellScriptLoader("spell_warr_mortal_strike") { }
+
+        class spell_warr_mortal_strike_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warr_mortal_strike_SpellScript);
+
+            void HandleOnHit()
+            {
+                // Fix Apply Mortal strike buff on player only if he has the correct glyph
+                if (Player* _player = GetCaster()->ToPlayer())
+                {
+                    if (Unit* target = GetHitUnit())
+                    {
+                        if (_player->HasAura(WARRIOR_SPELL_MORTAL_STRIKE_AURA))
+                            if (!_player->HasAura(WARRIOR_SPELL_GLYPH_OF_MORTAL_STRIKE_AURA))
+                                _player->RemoveAura(WARRIOR_SPELL_MORTAL_STRIKE_AURA);
+
+                        if (_player->HasAura(WARRIOR_SPELL_OVERPOWER_DRIVER_AURA))
+                        {
+                            _player->AddComboPoints(target, 1);
+                            _player->StartReactiveTimer(REACTIVE_OVERPOWER);
+                            _player->CastSpell(_player, WARRIOR_SPELL_OVERPOWER_DRIVER, true);
+                        }
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_warr_mortal_strike_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_warr_mortal_strike_SpellScript();
+        }
+};
 };
 
 class spell_warr_sword_and_board : public SpellScriptLoader
