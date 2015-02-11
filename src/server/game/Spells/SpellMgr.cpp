@@ -3642,6 +3642,9 @@ void SpellMgr::LoadSpellInfoCorrections()
                 spellInfo->Effects[EFFECT_3].ApplyAuraName = 0;
                 spellInfo->Effects[EFFECT_4].ApplyAuraName = 0;
                 break;
+            case 60503: // Taste for Blood
+                spellInfo->ProcChance = 0;
+                break;
             default:
                 break;
         }

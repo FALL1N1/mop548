@@ -62,12 +62,7 @@ class spell_warr_mortal_strike : public SpellScriptLoader
                                 _player->RemoveAura(WARRIOR_SPELL_MORTAL_STRIKE_AURA);
 
                         if (_player->HasAura(WARRIOR_SPELL_OVERPOWER_DRIVER_AURA))
-                        {
-                            _player->AddComboPoints(target, 2);
-                            _player->StartReactiveTimer(REACTIVE_OVERPOWER);
                             _player->CastSpell(_player, WARRIOR_SPELL_OVERPOWER_DRIVER, true);
-                            _player->CastSpell(_player, WARRIOR_SPELL_OVERPOWER_DRIVER, true);
-                        }
                     }
                 }
             }
@@ -82,7 +77,6 @@ class spell_warr_mortal_strike : public SpellScriptLoader
         {
             return new spell_warr_mortal_strike_SpellScript();
         }
-};
 };
 
 class spell_warr_sword_and_board : public SpellScriptLoader
@@ -152,4 +146,5 @@ void AddSC_warrior_spell_scripts()
 {
     new spell_warr_sword_and_board();
     new spell_warr_shield_block();
+    new spell_warr_mortal_strike();
 }

@@ -2351,7 +2351,6 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
         }
     }
     CallScriptOnHitHandlers();
-
     // All calculated do it!
     // Do healing and triggers
     if (m_healing > 0)
@@ -3212,7 +3211,7 @@ void Spell::cast(bool skipCheck)
 
     Unit::AuraEffectList consumeProc = m_caster->GetAuraEffectsByType(SPELL_AURA_CONSUME_PROC);
     for (Unit::AuraEffectList::const_iterator i = consumeProc.begin(); i != consumeProc.end(); ++i)
-    if (sSpellMgr->GetSpellInfo((*i)->GetId())->Effects[(*i)->GetEffIndex()].TriggerSpell==this->GetSpellInfo()->Id)
+        if (sSpellMgr->GetSpellInfo((*i)->GetId())->Effects[(*i)->GetEffIndex()].TriggerSpell == GetSpellInfo()->Id)
             (*i)->GetBase()->ModStackAmount(-1);
 
     CallScriptAfterCastHandlers();
