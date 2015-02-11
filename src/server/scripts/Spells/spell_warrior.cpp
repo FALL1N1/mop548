@@ -211,7 +211,6 @@ class spell_warr_charge : public SpellScriptLoader
                 {
                     if (Unit* target = GetHitUnit())
                     {
-                        _player->Attack(target, true);
                         if (_player->HasAura(SPELL_WARBRINGER))
                         {
                             _player->CastSpell(target, SPELL_CHARGE_WARBRINGER_STUN, true);
@@ -248,6 +247,43 @@ class spell_warr_charge : public SpellScriptLoader
             return new spell_warr_charge_SpellScript();
         }
 };
+enum HinderingSrikes
+{
+    WARRIOR_SPELL_GLYPH_OF_HINDERING_STRIKES    = 58366,
+    WARRIOR_SPELL_SLUGGISH                      = 129923,
+};
+
+// Called by Heroic Strike - 78 and Cleave - 845
+// Glyph of Hindering Strikes - 58366
+class spell_warr_glyph_of_hindering_strikes : public SpellScriptLoader
+{
+    public:
+        spell_warr_glyph_of_hindering_strikes() : SpellScriptLoader("spell_warr_glyph_of_hindering_strikes") { }
+
+        class spell_warr_glyph_of_hindering_strikes_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warr_glyph_of_hindering_strikes_SpellScript);
+
+            void HandleOnHit()
+            {
+                if (Player* _player = GetCaster()->ToPlayer())
+                    if (Unit* target = GetHitUnit())
+                        if (_player->HasAura(WARRIOR_SPELL_GLYPH_OF_HINDERING_STRIKES))
+                            _player->CastSpell(target, WARRIOR_SPELL_SLUGGISH, true);
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_warr_glyph_of_hindering_strikes_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_warr_glyph_of_hindering_strikes_SpellScript();
+        }
+};
+
 enum ColossuSmash
 {
     WARRIOR_SPELL_GLYPH_OF_COLOSSUS_SMASH       = 89003,
@@ -422,6 +458,7 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_mortal_strike();
     new spell_warr_sudden_death();
     new spell_warr_charge();
+    new spell_warr_glyph_of_hindering_strikes();
     new spell_warr_colossus_smash();
     new spell_warr_heroic_leap();
     new spell_warr_heroic_leap_damage();

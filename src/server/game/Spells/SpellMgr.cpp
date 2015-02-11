@@ -3643,6 +3643,7 @@ void SpellMgr::LoadSpellInfoCorrections()
                 spellInfo->Effects[EFFECT_4].ApplyAuraName = 0;
                 break;
             case 60503: // Taste for Blood
+            case 58385: // Glyph of Hamstring
                 spellInfo->ProcChance = 0;
                 break;
             case 6544:  // Heroic Leap
