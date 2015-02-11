@@ -175,6 +175,79 @@ public:
     }
 };
 
+enum Charge
+{
+    SPELL_CHARGE                            = 100,
+    SPELL_CHARGE_STUN                       = 7922,
+    SPELL_WARBRINGER                        = 103828,
+    SPELL_CHARGE_WARBRINGER_STUN            = 105771,
+    SPELL_GLYPH_BLITZ                       = 58377,
+    SPELL_GLYPH_BULL_RUSH                   = 94372,
+    SPELL_RAGE_BONUS_15                     = 109128,
+    SPELL_RAGE_BONUS_10                     = 12696,
+    SPELL_CHARGE_WARBRINGER_SNARE           = 137637
+};
+
+// Charge - 100
+class spell_warr_charge : public SpellScriptLoader
+{
+    public:
+        spell_warr_charge() : SpellScriptLoader("spell_warr_charge") { }
+
+        class spell_warr_charge_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warr_charge_SpellScript);
+
+            bool Validate(SpellInfo const* /*SpellEntry*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_CHARGE))
+                    return false;
+                return true;
+            }
+
+            void HandleCharge(SpellEffIndex /*effIndex*/)
+            {
+                if (Player* _player = GetCaster()->ToPlayer())
+                {
+                    if (Unit* target = GetHitUnit())
+                    {
+                        _player->Attack(target, true);
+                        if (_player->HasAura(SPELL_WARBRINGER))
+                        {
+                            _player->CastSpell(target, SPELL_CHARGE_WARBRINGER_STUN, true);
+                            _player->CastSpell(target, SPELL_CHARGE_WARBRINGER_SNARE, true);
+                        }
+                        else
+                            _player->CastSpell(target, SPELL_CHARGE_STUN, true);
+
+                        if (_player->HasAura(SPELL_GLYPH_BLITZ))
+                            if (_player->HasAura(SPELL_WARBRINGER))
+                            {
+                                _player->CastSpell(target, SPELL_CHARGE_WARBRINGER_STUN, true);
+                                _player->CastSpell(target, SPELL_CHARGE_WARBRINGER_SNARE, true);
+                            }
+                        else
+                            _player->CastSpell(target, SPELL_CHARGE_STUN, true);\
+
+                        if (_player->HasAura(SPELL_GLYPH_BULL_RUSH))
+                            _player->CastSpell(_player, SPELL_RAGE_BONUS_15, true);
+
+                        _player->CastSpell(_player, SPELL_RAGE_BONUS_10, true);
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_warr_charge_SpellScript::HandleCharge, EFFECT_0, SPELL_EFFECT_CHARGE);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_warr_charge_SpellScript();
+        }
+};
 enum ColossuSmash
 {
     WARRIOR_SPELL_GLYPH_OF_COLOSSUS_SMASH       = 89003,
@@ -321,6 +394,7 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_shield_block();
     new spell_warr_mortal_strike();
     new spell_warr_sudden_death();
+    new spell_warr_charge();
     new spell_warr_colossus_smash();
     new spell_warr_heroic_leap();
     new spell_warr_heroic_leap_damage();

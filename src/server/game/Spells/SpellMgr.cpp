@@ -3646,11 +3646,14 @@ void SpellMgr::LoadSpellInfoCorrections()
                 spellInfo->ProcChance = 0;
                 break;
             case 6544:  // Heroic Leap
-                spellInfo->Effects[2].Effect = SPELL_EFFECT_APPLY_AURA;
-                spellInfo->Effects[2].ApplyAuraName = SPELL_AURA_DUMMY;
-                spellInfo->Effects[2].TargetA = TARGET_UNIT_CASTER;
-                spellInfo->Effects[2].TargetB = 0;
-                spellInfo->Effects[2].BasePoints = 0;
+                spellInfo->Effects[EFFECT_2].Effect = SPELL_EFFECT_APPLY_AURA;
+                spellInfo->Effects[EFFECT_2].ApplyAuraName = SPELL_AURA_DUMMY;
+                spellInfo->Effects[EFFECT_2].TargetA = TARGET_UNIT_CASTER;
+                spellInfo->Effects[EFFECT_2].TargetB = 0;
+                spellInfo->Effects[EFFECT_2].BasePoints = 0;
+                break;
+            case 12696: // Charge Bonus Effect Rage
+                spellInfo->Effects[EFFECT_0].BasePoints = 200;
                 break;
             default:
                 break;
