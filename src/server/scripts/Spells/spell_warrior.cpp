@@ -227,7 +227,7 @@ class spell_warr_charge : public SpellScriptLoader
                                 _player->CastSpell(target, SPELL_CHARGE_WARBRINGER_SNARE, true);
                             }
                         else
-                            _player->CastSpell(target, SPELL_CHARGE_STUN, true);\
+                            _player->CastSpell(target, SPELL_CHARGE_STUN, true);
 
                         if (_player->HasAura(SPELL_GLYPH_BULL_RUSH))
                             _player->CastSpell(_player, SPELL_RAGE_BONUS_15, true);
