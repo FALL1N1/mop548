@@ -1063,6 +1063,9 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
     spell->m_cast_count = castCount;   // set count of casts
     spell->m_glyphIndex = glyphIndex;
 
+    if ((targetMask & TARGET_FLAG_DEST_LOCATION) && hasDestLocation)
+        targets.SetDst(dst._position);
+
     if (castFlags & 0x8)   // Archaeology
     {
         SpellResearchData* researchData = new SpellResearchData();
