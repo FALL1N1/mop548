@@ -7313,6 +7313,12 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
                 return false;
             break;
         }
+        case 68164: // Glyph of Thunder Strike
+        {
+            if (procSpell->Id != 6343) // Thunder Clap
+                return false;
+            break;
+        }
         default:
             break;
     }
