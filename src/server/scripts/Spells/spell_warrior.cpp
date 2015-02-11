@@ -175,10 +175,112 @@ public:
     }
 };
 
+enum HeroicLeap
+{
+    WARRIOR_SPELL_DEATH_FROM_ABOVE_GLYPH        = 63325,
+    WARRIOR_SPELL_HEROIC_LEAP_SPEED             = 133278,
+    WARRIOR_SPELL_HEROIC_LEAP_DAMAGE            = 52174,
+    WARRIOR_SPELL_ITEM_PVP_SET_4P_BONUS         = 133277
+};
+
+// Heroic leap - 6544
+class spell_warr_heroic_leap : public SpellScriptLoader
+{
+    public:
+        spell_warr_heroic_leap() : SpellScriptLoader("spell_warr_heroic_leap") { }
+
+        class spell_warr_heroic_leap_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warr_heroic_leap_SpellScript);
+
+            std::list<Unit*> targetList;
+
+            SpellCastResult CheckElevation()
+            {
+                Unit* caster = GetCaster();
+
+                WorldLocation* dest = const_cast<WorldLocation*>(GetExplTargetDest());
+                if (!dest)
+                    return SPELL_FAILED_DONT_REPORT;
+                else if (!caster->IsWithinLOS(dest->GetPositionX(), dest->GetPositionY(), dest->GetPositionZ()))
+                    return SPELL_FAILED_LINE_OF_SIGHT;
+                else if (dest->GetPositionZ() > caster->GetPositionZ() + 5.0f)
+                    return SPELL_FAILED_NOPATH;
+                else if (caster->HasAuraType(SPELL_AURA_MOD_ROOT))
+                    return SPELL_FAILED_ROOTED;
+
+                return SPELL_CAST_OK;
+            }
+
+
+            void Register()
+            {
+                OnCheckCast += SpellCheckCastFn(spell_warr_heroic_leap_SpellScript::CheckElevation);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_warr_heroic_leap_SpellScript();
+        }
+
+        class spell_warr_heroic_leap_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_warr_heroic_leap_AuraScript);
+
+            void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+            {
+                if (Unit* caster = GetCaster())
+                    caster->CastSpell(caster, WARRIOR_SPELL_HEROIC_LEAP_DAMAGE, true);
+            }
+
+            void Register()
+            {
+                OnEffectRemove += AuraEffectRemoveFn(spell_warr_heroic_leap_AuraScript::OnRemove, EFFECT_2, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_warr_heroic_leap_AuraScript();
+        }
+};
+
+// Heroic Leap (damage) - 52174
+class spell_warr_heroic_leap_damage : public SpellScriptLoader
+{
+    public:
+        spell_warr_heroic_leap_damage() : SpellScriptLoader("spell_warr_heroic_leap_damage") { }
+
+        class spell_warr_heroic_leap_damage_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warr_heroic_leap_damage_SpellScript);
+
+            void HandleAfterCast()
+            {
+                // Item - Warrior PvP Set 4P Bonus
+                if (GetCaster()->HasAura(WARRIOR_SPELL_ITEM_PVP_SET_4P_BONUS))
+                    GetCaster()->CastSpell(GetCaster(), WARRIOR_SPELL_HEROIC_LEAP_SPEED, true);
+            }
+
+            void Register()
+            {
+                AfterCast += SpellCastFn(spell_warr_heroic_leap_damage_SpellScript::HandleAfterCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_warr_heroic_leap_damage_SpellScript();
+        }
+};
+
 void AddSC_warrior_spell_scripts()
 {
     new spell_warr_sword_and_board();
     new spell_warr_shield_block();
     new spell_warr_mortal_strike();
     new spell_warr_sudden_death();
+    new spell_warr_heroic_leap();
+    new spell_warr_heroic_leap_damage();
 }
