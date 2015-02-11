@@ -1274,6 +1274,26 @@ void Spell::SelectImplicitCasterDestTargets(SpellEffIndex effIndex, SpellImplici
 
     float dist;
     float angle = targetType.CalcDirectionAngle();
+    if (targetType.GetTarget() == TARGET_DEST_DYN_MOV_FLAGS)
+    {
+        if (m_caster->HasUnitMovementFlag(10)) // backward right
+            angle = -3*M_PI/4; 
+        else if (m_caster->HasUnitMovementFlag(9)) // forward right
+            angle = -M_PI/4;    
+        else if (m_caster->HasUnitMovementFlag(8)) // strafe right
+            angle = -M_PI/2;            
+        else if (m_caster->HasUnitMovementFlag(6)) // backward left
+            angle = 3*M_PI/4;
+        else if (m_caster->HasUnitMovementFlag(5)) // forward left
+            angle = M_PI/4;
+        else if (m_caster->HasUnitMovementFlag(4)) // strafe left
+            angle = M_PI/2;                             
+        else if (m_caster->HasUnitMovementFlag(2)) // backward
+            angle = M_PI;
+        else
+            angle = 0.0f;
+    }
+
     float objSize = m_caster->GetObjectSize();
     if (targetType.GetTarget() == TARGET_DEST_CASTER_SUMMON)
         dist = PET_FOLLOW_DIST;

@@ -1777,8 +1777,8 @@ enum Targets
     TARGET_UNK_134                     = 134,
     TARGET_UNK_135                     = 135, // 2 spells
     TARGET_UNK_136                     = 136, // 2 spells
-    TARGET_UNK_137                     = 137,
-    TARGET_UNK_138                     = 138,
+    TARGET_DEST_DYN_MOV_FLAGS          = 137,
+    TARGET_UNIT_CONE_ANY_138           = 138,
     TARGET_UNK_139                     = 139,
     TARGET_UNK_140                     = 140,
     TARGET_UNK_141                     = 141,
