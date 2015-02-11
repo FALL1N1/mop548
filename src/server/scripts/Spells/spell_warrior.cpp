@@ -388,6 +388,33 @@ class spell_warr_heroic_leap_damage : public SpellScriptLoader
         }
 };
 
+class spell_warr_glyph_of_hamstring : public SpellScriptLoader
+{
+    public:
+        spell_warr_glyph_of_hamstring() : SpellScriptLoader("spell_warr_glyph_of_hamstring") { }
+
+        class spell_warr_glyph_of_hamstring_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warr_glyph_of_hamstring_SpellScript);
+
+            void HandleOnCast()
+            {
+                if (Player* caster = GetCaster()->ToPlayer())
+                    if (caster->HasAura(58385) && !caster->HasAura(115945)) // proc only from Hamstring if has glyph and if doesnt have reduc aura
+                        caster->AddAura(115945, caster);
+            }
+
+            void Register()
+            {
+                OnCast += SpellCastFn(spell_warr_glyph_of_hamstring_SpellScript::HandleOnCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_warr_glyph_of_hamstring_SpellScript();
+        }
+};
 void AddSC_warrior_spell_scripts()
 {
     new spell_warr_sword_and_board();
@@ -398,4 +425,5 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_colossus_smash();
     new spell_warr_heroic_leap();
     new spell_warr_heroic_leap_damage();
+    new spell_warr_glyph_of_hamstring();
 }
