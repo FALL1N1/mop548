@@ -175,6 +175,46 @@ public:
     }
 };
 
+enum ColossuSmash
+{
+    WARRIOR_SPELL_GLYPH_OF_COLOSSUS_SMASH       = 89003,
+    WARRIOR_SPELL_SUNDER_ARMOR                  = 7386,
+    WARRIOR_SPELL_PHYSICAL_VULNERABILITY        = 81326
+};
+
+// Colossus Smash - 86346
+class spell_warr_colossus_smash : public SpellScriptLoader
+{
+    public:
+        spell_warr_colossus_smash() : SpellScriptLoader("spell_warr_colossus_smash") { }
+
+        class spell_warr_colossus_smash_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warr_colossus_smash_SpellScript);
+
+            void HandleOnHit()
+            {
+                if (Player* _player = GetCaster()->ToPlayer())
+                    if (Unit* target = GetHitUnit())
+                    {
+                        _player->CastSpell(target, WARRIOR_SPELL_PHYSICAL_VULNERABILITY, true);
+
+                        if (_player->HasAura(WARRIOR_SPELL_GLYPH_OF_COLOSSUS_SMASH))
+                            _player->CastSpell(target, WARRIOR_SPELL_SUNDER_ARMOR, true);
+                    }
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_warr_colossus_smash_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_warr_colossus_smash_SpellScript();
+        }
+};
 enum HeroicLeap
 {
     WARRIOR_SPELL_DEATH_FROM_ABOVE_GLYPH        = 63325,
@@ -281,6 +321,7 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_shield_block();
     new spell_warr_mortal_strike();
     new spell_warr_sudden_death();
+    new spell_warr_colossus_smash();
     new spell_warr_heroic_leap();
     new spell_warr_heroic_leap_damage();
 }
