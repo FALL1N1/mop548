@@ -5885,6 +5885,8 @@ void Spell::EffectRechargeManaGem(SpellEffIndex /*effIndex*/)
             pItem->SetSpellCharges(x, pProto->Spells[x].SpellCharges);
         pItem->SetState(ITEM_CHANGED, player);
     }
+    else
+        player->AddItem(item_id, 1); // Effect is "Create or Recharge Item"
 }
 
 void Spell::EffectBind(SpellEffIndex effIndex)

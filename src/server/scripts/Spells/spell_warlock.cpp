@@ -31,8 +31,6 @@
 
 enum WarlockSpells
 {
-	HEALTHSTONE_ITEM_ID								= 5512,
-
     SPELL_WARLOCK_IMMOLATE							= 348,
     SPELL_WARLOCK_IMMOLATE_FIRE_AND_BRIMSTONE		= 108686,
     SPELL_WARLOCK_SHADOWBURN_ENERGIZE				= 125882,
@@ -54,50 +52,6 @@ enum WarlockSpells
     SPELL_WARLOCK_WILD_IMP_SUMMON					= 104317,
     SPELL_WARLOCK_DEMONIC_CALL						= 114925,
 	SPELL_WARLOCK_DISRUPTED_NETHER					= 114736,
-};
-
-// 6201 - Create Healthstone
-class spell_warl_create_healthstone : public SpellScriptLoader
-{
-public:
-	spell_warl_create_healthstone() : SpellScriptLoader("spell_warl_create_healthstone") { }
-
-	class spell_warl_create_healthstone_SpellScript : public SpellScript
-	{
-		PrepareSpellScript(spell_warl_create_healthstone_SpellScript);
-
-		void HandleOnCast()
-		{
-			if (Unit* unit = GetCaster())
-			{
-				if (Player* player = unit->ToPlayer())
-				{
-					const uint32 itemId = HEALTHSTONE_ITEM_ID;
-
-					ItemPosCountVec dest;
-					InventoryResult msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, itemId, 1);
-
-					if (msg != EQUIP_ERR_OK)
-					{
-						player->SendEquipError(msg, NULL, NULL, itemId);
-						return;
-					}
-
-					Item* item = player->StoreNewItem(dest, itemId, true, Item::GenerateItemRandomPropertyId(itemId));
-				}
-			}
-		}
-
-		void Register()
-		{
-			OnCast += SpellCastFn(spell_warl_create_healthstone_SpellScript::HandleOnCast);
-		}
-	};
-
-	SpellScript* GetSpellScript() const
-	{
-		return new spell_warl_create_healthstone_SpellScript();
-	}
 };
 
 class spell_warl_rain_of_fire_damage : public SpellScriptLoader
@@ -779,7 +733,6 @@ public:
 
 void AddSC_warlock_spell_scripts()
 {
-	new spell_warl_create_healthstone();
     new spell_warl_rain_of_fire_damage();
     new spell_warl_shadowburn();
     new spell_warl_burning_embers();
