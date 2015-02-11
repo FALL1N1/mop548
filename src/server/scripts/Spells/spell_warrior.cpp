@@ -451,6 +451,35 @@ class spell_warr_glyph_of_hamstring : public SpellScriptLoader
             return new spell_warr_glyph_of_hamstring_SpellScript();
         }
 };
+
+// Staggering Shout - 107566
+class spell_warr_staggering_shout : public SpellScriptLoader
+{
+    public:
+        spell_warr_staggering_shout() : SpellScriptLoader("spell_warr_staggering_shout") { }
+
+        class spell_warr_staggering_shout_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warr_staggering_shout_SpellScript);
+
+            void RemoveInvalidTargets(std::list<WorldObject*>& targets)
+            {
+                targets.remove_if(Trinity::UnitAuraTypeCheck(false, SPELL_AURA_MOD_DECREASE_SPEED));
+            }
+
+            void Register()
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_warr_staggering_shout_SpellScript::RemoveInvalidTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_warr_staggering_shout_SpellScript();
+        }
+};
+
+
 void AddSC_warrior_spell_scripts()
 {
     new spell_warr_sword_and_board();
@@ -463,4 +492,5 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_heroic_leap();
     new spell_warr_heroic_leap_damage();
     new spell_warr_glyph_of_hamstring();
+    new spell_warr_staggering_shout();
 }
