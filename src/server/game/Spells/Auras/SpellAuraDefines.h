@@ -470,7 +470,7 @@ enum AuraType
     SPELL_AURA_CONSUME_PROC                                 = 408,
     SPELL_AURA_409                                          = 409,
     SPELL_AURA_410                                          = 410,
-    SPELL_AURA_411                                          = 411,
+    SPELL_AURA_MOD_CHARGES                                  = 411,  // SPELL_AURA_MOD_CHARGES
     SPELL_AURA_MOD_MANA_REGEN_BY_HASTE                      = 412,
     SPELL_AURA_413                                          = 413,
     SPELL_AURA_414                                          = 414,

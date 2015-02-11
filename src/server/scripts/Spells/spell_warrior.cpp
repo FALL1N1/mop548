@@ -37,7 +37,9 @@ enum WarriorSpells
     WARRIOR_SPELL_GLYPH_OF_MORTAL_STRIKE_AURA       = 58368,
     WARRIOR_SPELL_OVERPOWER_DRIVER_AURA             = 56636,
     WARRIOR_SPELL_OVERPOWER_DRIVER                  = 60503,
-    WARRIOR_SPELL_MORTAL_STRIKE_AURA                = 12294
+    WARRIOR_SPELL_MORTAL_STRIKE_AURA                = 12294,
+    WARRIOR_SPELL_SUDDEN_DEATH_DRIVER               = 52437,
+    WARRIOR_SPELL_COLOSSUS_SMASH                    = 86346
 };
 
 // Mortal strike - 12294
@@ -142,9 +144,41 @@ public:
     }
 };
 
+class spell_warr_sudden_death : public SpellScriptLoader
+{
+public:
+    spell_warr_sudden_death() : SpellScriptLoader("spell_warr_sudden_death") { }
+
+    class spell_warr_sudden_death_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_warr_sudden_death_AuraScript);
+
+        void Sudden(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
+        {
+            if (Player* player = GetOwner()->ToPlayer())
+            {
+                player->CastSpell(player, WARRIOR_SPELL_SUDDEN_DEATH_DRIVER);
+                if (player->HasSpellCooldown(WARRIOR_SPELL_COLOSSUS_SMASH))
+                    player->RemoveSpellCooldown(WARRIOR_SPELL_COLOSSUS_SMASH, true);
+            }
+        }
+
+        void Register()
+        {
+            OnEffectProc += AuraEffectProcFn(spell_warr_sudden_death_AuraScript::Sudden, EFFECT_0, SPELL_AURA_DUMMY);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_warr_sudden_death_AuraScript();
+    }
+};
+
 void AddSC_warrior_spell_scripts()
 {
     new spell_warr_sword_and_board();
     new spell_warr_shield_block();
     new spell_warr_mortal_strike();
+    new spell_warr_sudden_death();
 }
