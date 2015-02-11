@@ -7634,11 +7634,11 @@ void Player::SendFeatureSystemStatus()
     data << uint32(0);
 
     data.WriteBit(1);
-    data.WriteBit(1);                   // ingame shop status (0 - "The Shop is temporarily unavailable.")
+    data.WriteBit(0);                   // ingame shop status (0 - "The Shop is temporarily unavailable.")
     data.WriteBit(1);
     data.WriteBit(0);                   // Recruit a Friend button
     data.WriteBit(0);                   // server supports voice chat
-    data.WriteBit(1);                   // show ingame shop icon
+    data.WriteBit(0);                   // show ingame shop icon
     data.WriteBit(0);                   // Scroll of Resurrection button
     data.WriteBit(excessiveWarning);    // excessive play time warning
     data.WriteBit(0);                   // ingame shop parental control (1 - "Feature has been disabled by Parental Controls.")
