@@ -7321,17 +7321,20 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
         }
         case 13046: // Enrage proc
         {
-            if (!(procEx & PROC_EX_CRITICAL_HIT)
-                && (procSpell->Id != 12294 // Mortal Strike
+            if (!(procEx & PROC_EX_CRITICAL_HIT))
+                return false;
+            if (!procSpell->Id)
+                return false;
+
+            if (procSpell->Id != 12294 // Mortal Strike
                 || procSpell->Id != 86346 // Colossus Smash
                 || procSpell->Id != 20243 // Devastate
-                || procSpell->Id != 23881)) // Bloodthirst
-            {
-                // Glyph of Burning Anger
-                if (HasAura(115946))
-                    CastSpell(this, 115993);
+                || procSpell->Id != 23881) // Bloodthirst
                 return false;
-            }
+
+            // Glyph of Burning Anger
+            if (HasAura(115946))
+                CastSpell(this, 115993);
             break;
         }
         default:
