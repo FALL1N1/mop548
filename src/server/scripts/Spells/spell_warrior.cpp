@@ -569,10 +569,9 @@ class spell_warr_shockwave : public SpellScriptLoader
                     if (Unit* target = GetHitUnit())
                         _player->CastSpell(target, WARRIOR_SPELL_SHOCKWAVE_STUN, true);
 
-                    /* Crash in ModifySpellCooldown..
+                    /*
                     if (count >= 3)
-                        _player->ModifySpellCooldown(46968, -20000;*/
-                        _player->ModifySpellCooldown(WARRIOR_SPELL_SHOCKWAVE, -20);
+                        _player->ModifySpellCooldown(WARRIOR_SPELL_SHOCKWAVE, -20);*/
                 }
             }
 
@@ -646,6 +645,39 @@ public:
     }
 };
 
+class spell_warr_dragon_roar : public SpellScriptLoader
+{
+    public:
+        spell_warr_dragon_roar() : SpellScriptLoader("spell_warr_dragon_roar") { }
+
+        class spell_warr_dragon_roar_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warr_dragon_roar_SpellScript);
+
+            void Recalculate()
+            {
+                int32 dmg = GetHitDamage();
+                if (Player* caster = GetCaster()->ToPlayer())
+                    if (caster->GetSpecializationId(caster->GetActiveSpec()) == CHAR_SPECIALIZATION_WARRIOR_ARMS)
+                        dmg += CalculatePct(caster->GetTotalAttackPowerValue(BASE_ATTACK), 168);
+                    else
+                        dmg += CalculatePct(caster->GetTotalAttackPowerValue(BASE_ATTACK), 140);
+
+                SetHitDamage(dmg);
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_warr_dragon_roar_SpellScript::Recalculate);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_warr_dragon_roar_SpellScript();
+        }
+};
+
 void AddSC_warrior_spell_scripts()
 {
     new spell_warr_sword_and_board();
@@ -662,4 +694,5 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_staggering_shout();
     new spell_warr_shockwave();
     new spell_warr_bloodbath();
+    new spell_warr_dragon_roar();
 }
