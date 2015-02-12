@@ -535,6 +535,60 @@ class spell_warr_staggering_shout : public SpellScriptLoader
         }
 };
 
+enum Shockwave
+{
+    WARRIOR_SPELL_SHOCKWAVE_STUN = 132168
+};
+
+// Shockwave - 46968
+class spell_warr_shockwave : public SpellScriptLoader
+{
+    public:
+        spell_warr_shockwave() : SpellScriptLoader("spell_warr_shockwave") { }
+
+        class spell_warr_shockwave_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warr_shockwave_SpellScript);
+
+            bool Load() override
+            {
+                count = 0;
+                return true;
+            }
+
+            void Count(std::list<WorldObject*>& targets)
+            {
+                count = targets.size();
+            }
+
+            void HandleOnHit()
+            {
+                if (Player* _player = GetCaster()->ToPlayer())
+                {
+                    if (Unit* target = GetHitUnit())
+                        _player->CastSpell(target, WARRIOR_SPELL_SHOCKWAVE_STUN, true);
+
+                    /* Crash in ModifySpellCooldown..
+                    if (count >= 3)
+                        _player->ModifySpellCooldown(46968, -20000;*/
+                }
+            }
+
+            void Register()
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_warr_shockwave_SpellScript::Count, EFFECT_0, TARGET_UNIT_CONE_ENEMY_104);
+                OnHit += SpellHitFn(spell_warr_shockwave_SpellScript::HandleOnHit);
+            }
+
+            private:
+                uint8 count;
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_warr_shockwave_SpellScript();
+        }
+};
 
 void AddSC_warrior_spell_scripts()
 {
@@ -550,4 +604,5 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_heroic_leap_damage();
     new spell_warr_glyph_of_hamstring();
     new spell_warr_staggering_shout();
+    new spell_warr_shockwave();
 }
