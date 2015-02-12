@@ -42,7 +42,11 @@ enum WarriorSpells
     WARRIOR_SPELL_COLOSSUS_SMASH                    = 86346,
     WARRIOR_SPELL_OPPORUNITY_STRIKE                 = 76858,
     WARRIOR_SPELL_SWEEPING_STRIKES                  = 12328,
-    WARRIOR_SPELL_SWEEPING_STRIKES_STRIKE           = 12723
+    WARRIOR_SPELL_SWEEPING_STRIKES_STRIKE           = 12723,
+    WARRIOR_SPELL_SUDDEN_DEATH                      = 29725,
+    WARRIOR_SPELL_SHIELD_BLOCK                      = 2565,
+    WARRIOR_SPELL_DEVASTATE                         = 20243,
+    WARRIOR_SPELL_MORTAL_STRIKE                     = 12294
 };
 
 // Mortal strike - 12294
@@ -50,6 +54,17 @@ class spell_warr_mortal_strike : public SpellScriptLoader
 {
     public:
         spell_warr_mortal_strike() : SpellScriptLoader("spell_warr_mortal_strike") { }
+
+        bool Validate(SpellInfo const* /*SpellEntry*/)
+        {
+            if (!sSpellMgr->GetSpellInfo(WARRIOR_SPELL_OVERPOWER_DRIVER_AURA)
+                || !sSpellMgr->GetSpellInfo(WARRIOR_SPELL_MORTAL_STRIKE_AURA)
+                || !sSpellMgr->GetSpellInfo(WARRIOR_SPELL_GLYPH_OF_MORTAL_STRIKE_AURA)
+                || !sSpellMgr->GetSpellInfo(WARRIOR_SPELL_OVERPOWER_DRIVER)
+                || !sSpellMgr->GetSpellInfo(WARRIOR_SPELL_MORTAL_STRIKE))
+                return false;
+            return true;
+        }
 
         class spell_warr_mortal_strike_SpellScript : public SpellScript
         {
@@ -93,6 +108,15 @@ public:
     {
         PrepareSpellScript(spell_warr_sword_and_board_SpellScript);
 
+        bool Validate(SpellInfo const* /*SpellEntry*/)
+        {
+            if (!sSpellMgr->GetSpellInfo(WARRIOR_SPELL_DEVASTATE)
+                || !sSpellMgr->GetSpellInfo(WARRIOR_SPELL_SWORD_AND_BOARD)
+                || !sSpellMgr->GetSpellInfo(WARRIOR_SPELL_SHIELD_SLAM))
+                return false;
+            return true;
+        }
+
         void HandleOnHit()
         {
             if (Player* _player = GetCaster()->ToPlayer())
@@ -129,6 +153,14 @@ public:
     {
         PrepareSpellScript(spell_warr_shield_block_SpellScript);
 
+        bool Validate(SpellInfo const* /*SpellEntry*/)
+        {
+            if (!sSpellMgr->GetSpellInfo(WARRIOR_SPELL_SHIELD_BLOCK)
+                || !sSpellMgr->GetSpellInfo(WARRIOR_SPELL_SHIELD_BLOCK_TRIGGERED))
+                return false;
+            return true;
+        }
+
         void HandleOnHit()
         {
             if (Player* _player = GetCaster()->ToPlayer())
@@ -155,6 +187,16 @@ public:
     class spell_warr_sudden_death_AuraScript : public AuraScript
     {
         PrepareAuraScript(spell_warr_sudden_death_AuraScript);
+
+        bool Validate(SpellInfo const* /*SpellEntry*/)
+        {
+            if (!sSpellMgr->GetSpellInfo(WARRIOR_SPELL_SUDDEN_DEATH)
+                || !sSpellMgr->GetSpellInfo(WARRIOR_SPELL_OPPORUNITY_STRIKE)
+                || !sSpellMgr->GetSpellInfo(WARRIOR_SPELL_SUDDEN_DEATH_DRIVER)
+                || !sSpellMgr->GetSpellInfo(WARRIOR_SPELL_COLOSSUS_SMASH))
+                return false;
+            return true;
+        }
 
         void Sudden(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
         {
@@ -207,7 +249,15 @@ class spell_warr_charge : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*SpellEntry*/)
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_CHARGE))
+                if (!sSpellMgr->GetSpellInfo(SPELL_CHARGE)
+                    || !sSpellMgr->GetSpellInfo(SPELL_CHARGE_STUN)
+                    || !sSpellMgr->GetSpellInfo(SPELL_WARBRINGER)
+                    || !sSpellMgr->GetSpellInfo(SPELL_CHARGE_WARBRINGER_STUN)
+                    || !sSpellMgr->GetSpellInfo(SPELL_GLYPH_BLITZ)
+                    || !sSpellMgr->GetSpellInfo(SPELL_GLYPH_BULL_RUSH)
+                    || !sSpellMgr->GetSpellInfo(SPELL_RAGE_BONUS_15)
+                    || !sSpellMgr->GetSpellInfo(SPELL_RAGE_BONUS_10)
+                    || !sSpellMgr->GetSpellInfo(SPELL_CHARGE_WARBRINGER_SNARE))
                     return false;
                 return true;
             }
@@ -257,6 +307,7 @@ class spell_warr_charge : public SpellScriptLoader
 
 enum SecondWind
 {
+    WARRIOR_SPELL_SECOND_WIND                   = 29838,
     WARRIOR_SPELL_SECOND_WIND_REGEN             = 16491,
 };
 
@@ -269,6 +320,14 @@ class spell_warr_second_wind : public SpellScriptLoader
         class spell_warr_second_wind_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_warr_second_wind_SpellScript);
+
+            bool Validade(SpellInfo const* /*spellInfo*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(WARRIOR_SPELL_SECOND_WIND)
+                    || !sSpellMgr->GetSpellInfo(WARRIOR_SPELL_SECOND_WIND_REGEN))
+                    return false;
+                return true;
+            }
 
             void HandleOnHit()
             {
@@ -290,6 +349,14 @@ class spell_warr_second_wind : public SpellScriptLoader
         class spell_warr_second_wind_AuraScript : public AuraScript
         {
             PrepareAuraScript(spell_warr_second_wind_AuraScript);
+
+            bool Validade(SpellInfo const* /*spellInfo*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(WARRIOR_SPELL_SECOND_WIND)
+                    || !sSpellMgr->GetSpellInfo(WARRIOR_SPELL_SECOND_WIND_REGEN))
+                    return false;
+                return true;
+            }
 
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
@@ -314,6 +381,8 @@ enum HinderingSrikes
 {
     WARRIOR_SPELL_GLYPH_OF_HINDERING_STRIKES    = 58366,
     WARRIOR_SPELL_SLUGGISH                      = 129923,
+    WARRIOR_SPELL_HEROIC_STRIKE                 = 78,
+    WARRIOR_SPELL_CLEAVE                        = 845
 };
 
 // Called by Heroic Strike - 78 and Cleave - 845
@@ -326,6 +395,16 @@ class spell_warr_glyph_of_hindering_strikes : public SpellScriptLoader
         class spell_warr_glyph_of_hindering_strikes_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_warr_glyph_of_hindering_strikes_SpellScript);
+
+            bool Validade(SpellInfo const* /*spellInfo*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(WARRIOR_SPELL_HEROIC_STRIKE)
+                    || !sSpellMgr->GetSpellInfo(WARRIOR_SPELL_CLEAVE)
+                    || !sSpellMgr->GetSpellInfo(WARRIOR_SPELL_SLUGGISH)
+                    || !sSpellMgr->GetSpellInfo(WARRIOR_SPELL_GLYPH_OF_HINDERING_STRIKES))
+                    return false;
+                return true;
+            }
 
             void HandleOnHit()
             {
@@ -364,6 +443,16 @@ class spell_warr_colossus_smash : public SpellScriptLoader
         {
             PrepareSpellScript(spell_warr_colossus_smash_SpellScript);
 
+            bool Validade(SpellInfo const* /*spellInfo*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(WARRIOR_SPELL_COLOSSUS_SMASH)
+                    || !sSpellMgr->GetSpellInfo(WARRIOR_SPELL_PHYSICAL_VULNERABILITY)
+                    || !sSpellMgr->GetSpellInfo(WARRIOR_SPELL_GLYPH_OF_COLOSSUS_SMASH)
+                    || !sSpellMgr->GetSpellInfo(WARRIOR_SPELL_SUNDER_ARMOR))
+                    return false;
+                return true;
+            }
+
             void HandleOnHit()
             {
                 if (Player* _player = GetCaster()->ToPlayer())
@@ -389,6 +478,7 @@ class spell_warr_colossus_smash : public SpellScriptLoader
 };
 enum HeroicLeap
 {
+    WARRIOR_SPELL_HEROIC_LEAP                   = 6544,
     WARRIOR_SPELL_DEATH_FROM_ABOVE_GLYPH        = 63325,
     WARRIOR_SPELL_HEROIC_LEAP_SPEED             = 133278,
     WARRIOR_SPELL_HEROIC_LEAP_DAMAGE            = 52174,
@@ -405,7 +495,13 @@ class spell_warr_heroic_leap : public SpellScriptLoader
         {
             PrepareSpellScript(spell_warr_heroic_leap_SpellScript);
 
-            std::list<Unit*> targetList;
+            bool Validade(SpellInfo const* /*spellInfo*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(WARRIOR_SPELL_HEROIC_LEAP)
+                    || !sSpellMgr->GetSpellInfo(WARRIOR_SPELL_HEROIC_LEAP_DAMAGE))
+                    return false;
+                return true;
+            }
 
             SpellCastResult CheckElevation()
             {
@@ -467,6 +563,15 @@ class spell_warr_heroic_leap_damage : public SpellScriptLoader
         {
             PrepareSpellScript(spell_warr_heroic_leap_damage_SpellScript);
 
+            bool Validade(SpellInfo const* /*spellInfo*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(WARRIOR_SPELL_ITEM_PVP_SET_4P_BONUS)
+                    || !sSpellMgr->GetSpellInfo(WARRIOR_SPELL_HEROIC_LEAP_SPEED)
+                    || !sSpellMgr->GetSpellInfo(WARRIOR_SPELL_HEROIC_LEAP_DAMAGE))
+                    return false;
+                return true;
+            }
+
             void Recalc()
             {
                 int32 dmg = GetHitDamage();
@@ -499,6 +604,12 @@ class spell_warr_heroic_leap_damage : public SpellScriptLoader
         }
 };
 
+enum Hamstring
+{
+    SPELL_WARRIOR_GLYPH_OF_HAMSTRING_PASSIVE = 58385,
+    SPELL_WARRIOR_GLYPH_OF_HAMSTRING         = 115945
+};
+
 class spell_warr_glyph_of_hamstring : public SpellScriptLoader
 {
     public:
@@ -507,6 +618,14 @@ class spell_warr_glyph_of_hamstring : public SpellScriptLoader
         class spell_warr_glyph_of_hamstring_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_warr_glyph_of_hamstring_SpellScript);
+
+            bool Validade(SpellInfo const* /*spellInfo*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_WARRIOR_GLYPH_OF_HAMSTRING_PASSIVE)
+                    || sSpellMgr->GetSpellInfo(SPELL_WARRIOR_GLYPH_OF_HAMSTRING))
+                    return false;
+                return true;
+            }
 
             void HandleOnCast()
             {
@@ -527,6 +646,11 @@ class spell_warr_glyph_of_hamstring : public SpellScriptLoader
         }
 };
 
+enum Stagger
+{
+    SPELL_WARRIOR_STAGGERING_SHOUT = 107566
+};
+
 // Staggering Shout - 107566
 class spell_warr_staggering_shout : public SpellScriptLoader
 {
@@ -536,6 +660,13 @@ class spell_warr_staggering_shout : public SpellScriptLoader
         class spell_warr_staggering_shout_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_warr_staggering_shout_SpellScript);
+
+            bool Validade(SpellInfo const* /*spellInfo*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_WARRIOR_STAGGERING_SHOUT))
+                    return false;
+                return true;
+            }
 
             void RemoveInvalidTargets(std::list<WorldObject*>& targets)
             {
@@ -573,6 +704,14 @@ class spell_warr_shockwave : public SpellScriptLoader
             bool Load() override
             {
                 count = 0;
+                return true;
+            }
+
+            bool Validade(SpellInfo const* /*spellInfo*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(WARRIOR_SPELL_SHOCKWAVE)
+                    || !sSpellMgr->GetSpellInfo(WARRIOR_SPELL_SHOCKWAVE_STUN))
+                    return false;
                 return true;
             }
 
@@ -626,6 +765,14 @@ public:
     {
         PrepareAuraScript(spell_warr_bloodbath_AuraScript);
 
+        bool Validade(SpellInfo const* /*spellInfo*/)
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_WARRIOR_BLOODBATH)
+                || !sSpellMgr->GetSpellInfo(SPELL_WARRIOR_BLOODBATH_DEBUFF))
+                return false;
+            return true;
+        }
+
         void Bloodbath(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
         {
             if (!eventInfo.GetDamageInfo()->GetSpellInfo()) // if no proc spell
@@ -664,6 +811,11 @@ public:
     }
 };
 
+enum Dragon
+{
+    SPELL_WARRIOR_DRAGON_ROAR = 118000
+};
+
 class spell_warr_dragon_roar : public SpellScriptLoader
 {
     public:
@@ -672,6 +824,13 @@ class spell_warr_dragon_roar : public SpellScriptLoader
         class spell_warr_dragon_roar_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_warr_dragon_roar_SpellScript);
+
+            bool Validade(SpellInfo const* /*spellInfo*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_WARRIOR_DRAGON_ROAR))
+                    return false;
+                return true;
+            }
 
             void Recalculate()
             {
@@ -711,6 +870,15 @@ class spell_warr_slam : public SpellScriptLoader
         class spell_warr_slam_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_warr_slam_SpellScript);
+
+            bool Validade(SpellInfo const* /*spellInfo*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(WARRIOR_SPELL_SWEEPING_STRIKES)
+                    || !sSpellMgr->GetSpellInfo(WARRIOR_SPELL_COLOSSUS_SMASH)
+                    || !sSpellMgr->GetSpellInfo(WARRIOR_SPELL_SLAM_AOE))
+                    return false;
+                return true;
+            }
 
             void HandleOnHit()
             {
@@ -756,6 +924,17 @@ public:
     class spell_warr_sweeping_strikes_AuraScript : public AuraScript
     {
         PrepareAuraScript(spell_warr_sweeping_strikes_AuraScript);
+
+        bool Validade(SpellInfo const* /*spellInfo*/)
+        {
+            if (!sSpellMgr->GetSpellInfo(WARRIOR_SPELL_OPPORUNITY_STRIKE)
+                || !sSpellMgr->GetSpellInfo(WARRIOR_SPELL_SWEEPING_STRIKES_STRIKE)
+                || !sSpellMgr->GetSpellInfo(GLYPH_OF_SWEEPING_STRIKES_RAGE_BONUS)
+                || !sSpellMgr->GetSpellInfo(WARRIOR_SPELL_SWEEPING_STRIKES)
+                || !sSpellMgr->GetSpellInfo(GLYPH_OF_SWEEPING_STRIKES_PASSIVE))
+                return false;
+            return true;
+        }
 
         void Sweeping(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
         {
