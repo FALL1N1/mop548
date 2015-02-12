@@ -42,7 +42,7 @@ enum WarriorSpells
     WARRIOR_SPELL_COLOSSUS_SMASH                    = 86346,
     WARRIOR_SPELL_OPPORUNITY_STRIKE                 = 76858,
     WARRIOR_SPELL_SWEEPING_STRIKES                  = 12328,
-    WARRIOR_SPELL_SWEEPING_STRIKES_STRIKE           = 26654
+    WARRIOR_SPELL_SWEEPING_STRIKES_STRIKE           = 12723
 };
 
 // Mortal strike - 12294
@@ -740,6 +740,39 @@ class spell_warr_slam : public SpellScriptLoader
         }
 };
 
+// 12328
+class spell_warr_sweeping_strikes : public SpellScriptLoader
+{
+public:
+    spell_warr_sweeping_strikes() : SpellScriptLoader("spell_warr_sweeping_strikes") { }
+
+    class spell_warr_sweeping_strikes_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_warr_sweeping_strikes_AuraScript);
+
+        void Sweeping(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+        {
+            if (eventInfo.GetDamageInfo()->GetSpellInfo())
+                if (eventInfo.GetDamageInfo()->GetSpellInfo()->Id != WARRIOR_SPELL_OPPORUNITY_STRIKE)
+                    return;
+
+            int32 damage = eventInfo.GetDamageInfo()->GetDamage() / 2;
+            if (Unit* target = GetCaster()->SelectNearbyTarget(eventInfo.GetDamageInfo()->GetVictim()))
+                GetCaster()->CastCustomSpell(target, WARRIOR_SPELL_SWEEPING_STRIKES_STRIKE, &damage, NULL, NULL, true);
+        }
+
+        void Register()
+        {
+            OnEffectProc += AuraEffectProcFn(spell_warr_sweeping_strikes_AuraScript::Sweeping, EFFECT_0, SPELL_AURA_DUMMY);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_warr_sweeping_strikes_AuraScript();
+    }
+};
+
 void AddSC_warrior_spell_scripts()
 {
     new spell_warr_sword_and_board();
@@ -758,4 +791,5 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_bloodbath();
     new spell_warr_dragon_roar();
     new spell_warr_slam();
+    new spell_warr_sweeping_strikes();
 }
