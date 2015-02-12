@@ -39,7 +39,8 @@ enum WarriorSpells
     WARRIOR_SPELL_OVERPOWER_DRIVER                  = 60503,
     WARRIOR_SPELL_MORTAL_STRIKE_AURA                = 12294,
     WARRIOR_SPELL_SUDDEN_DEATH_DRIVER               = 52437,
-    WARRIOR_SPELL_COLOSSUS_SMASH                    = 86346
+    WARRIOR_SPELL_COLOSSUS_SMASH                    = 86346,
+    WARRIOR_SPELL_OPPORUNITY_STRIKE                 = 76858
 };
 
 // Mortal strike - 12294
@@ -153,8 +154,12 @@ public:
     {
         PrepareAuraScript(spell_warr_sudden_death_AuraScript);
 
-        void Sudden(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
+        void Sudden(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
         {
+            if (eventInfo.GetDamageInfo()->GetSpellInfo())
+                if (eventInfo.GetDamageInfo()->GetSpellInfo()->Id != WARRIOR_SPELL_OPPORUNITY_STRIKE)
+                    return;
+
             if (Player* player = GetOwner()->ToPlayer())
             {
                 player->CastSpell(player, WARRIOR_SPELL_SUDDEN_DEATH_DRIVER);
