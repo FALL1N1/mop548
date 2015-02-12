@@ -590,6 +590,60 @@ class spell_warr_shockwave : public SpellScriptLoader
         }
 };
 
+enum bloodbath
+{
+    SPELL_WARRIOR_BLOODBATH = 12292,
+    SPELL_WARRIOR_BLOODBATH_DEBUFF = 113344
+};
+
+// 12292 Bloodbath
+class spell_warr_bloodbath : public SpellScriptLoader
+{
+public:
+    spell_warr_bloodbath() : SpellScriptLoader("spell_warr_bloodbath") { }
+
+    class spell_warr_bloodbath_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_warr_bloodbath_AuraScript);
+
+        void Bloodbath(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+        {
+            if (!eventInfo.GetDamageInfo()->GetSpellInfo()) // if no proc spell
+                return;
+
+            if (!eventInfo.GetDamageInfo()->GetVictim())
+                return;
+
+            if (Player* player = GetOwner()->ToPlayer())
+            {
+                uint32 dmg = eventInfo.GetDamageInfo()->GetDamage();
+                int32 bp = int32(CalculatePct(dmg, 30) / 6); // damage / tick_number
+                if (Aura* bloodbath = eventInfo.GetDamageInfo()->GetVictim()->GetAura(SPELL_WARRIOR_BLOODBATH_DEBUFF))
+                {
+                    if (AuraEffect* bloodbath_e = bloodbath->GetEffect(EFFECT_0))
+                    {
+                        bp += bloodbath_e->GetAmount();
+                        bloodbath_e->ChangeAmount(bp);
+                        bloodbath->SetNeedClientUpdateForTargets(); // ap doesnt update on aura bar
+                    }
+                }
+                else
+                    player->CastCustomSpell(eventInfo.GetDamageInfo()->GetVictim(), 113344, &bp, NULL, NULL, true);
+            }
+        }
+
+        void Register()
+        {
+            OnEffectProc += AuraEffectProcFn(spell_warr_bloodbath_AuraScript::Bloodbath, EFFECT_0, SPELL_AURA_DUMMY);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_warr_bloodbath_AuraScript();
+    }
+};
+
 void AddSC_warrior_spell_scripts()
 {
     new spell_warr_sword_and_board();
@@ -605,4 +659,5 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_glyph_of_hamstring();
     new spell_warr_staggering_shout();
     new spell_warr_shockwave();
+    new spell_warr_bloodbath();
 }
