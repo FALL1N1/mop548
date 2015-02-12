@@ -740,6 +740,13 @@ class spell_warr_slam : public SpellScriptLoader
         }
 };
 
+enum GlyphOfSweepingStrikes
+{
+    GLYPH_OF_SWEEPING_STRIKES_PASSIVE = 58384,
+    GLYPH_OF_SWEEPING_STRIKES_RAGE_BONUS = 124333
+
+};
+
 // 12328
 class spell_warr_sweeping_strikes : public SpellScriptLoader
 {
@@ -758,7 +765,13 @@ public:
 
             int32 damage = eventInfo.GetDamageInfo()->GetDamage() / 2;
             if (Unit* target = GetCaster()->SelectNearbyTarget(eventInfo.GetDamageInfo()->GetVictim()))
+            {
                 GetCaster()->CastCustomSpell(target, WARRIOR_SPELL_SWEEPING_STRIKES_STRIKE, &damage, NULL, NULL, true);
+
+                // Glyph of Sweeping Strikes
+                if (GetCaster()->HasAura(GLYPH_OF_SWEEPING_STRIKES_PASSIVE))
+                    GetCaster()->CastSpell(GetCaster(), GLYPH_OF_SWEEPING_STRIKES_RAGE_BONUS);
+            }
         }
 
         void Register()
