@@ -46,7 +46,41 @@ enum WarriorSpells
     WARRIOR_SPELL_SUDDEN_DEATH                      = 29725,
     WARRIOR_SPELL_SHIELD_BLOCK                      = 2565,
     WARRIOR_SPELL_DEVASTATE                         = 20243,
-    WARRIOR_SPELL_MORTAL_STRIKE                     = 12294
+    WARRIOR_SPELL_MORTAL_STRIKE                     = 12294,
+    WARRIOR_SPELL_SLAM_AOE                          = 146361,
+    GLYPH_OF_SWEEPING_STRIKES_PASSIVE               = 58384,
+    GLYPH_OF_SWEEPING_STRIKES_RAGE_BONUS            = 124333,
+    SPELL_CHARGE                                    = 100,
+    SPELL_CHARGE_STUN                               = 7922,
+    SPELL_WARBRINGER                                = 103828,
+    SPELL_CHARGE_WARBRINGER_STUN                    = 105771,
+    SPELL_GLYPH_BLITZ                               = 58377,
+    SPELL_GLYPH_BULL_RUSH                           = 94372,
+    SPELL_RAGE_BONUS_15                             = 109128,
+    SPELL_RAGE_BONUS_10                             = 12696,
+    SPELL_CHARGE_WARBRINGER_SNARE                   = 137637,
+    WARRIOR_SPELL_SECOND_WIND                       = 29838,
+    WARRIOR_SPELL_SECOND_WIND_REGEN                 = 16491,
+    SPELL_WARRIOR_STAGGERING_SHOUT                  = 107566,
+    WARRIOR_SPELL_GLYPH_OF_HINDERING_STRIKES        = 58366,
+    WARRIOR_SPELL_SLUGGISH                          = 129923,
+    WARRIOR_SPELL_HEROIC_STRIKE                     = 78,
+    WARRIOR_SPELL_CLEAVE                            = 845,
+    WARRIOR_SPELL_GLYPH_OF_COLOSSUS_SMASH           = 89003,
+    WARRIOR_SPELL_SUNDER_ARMOR                      = 7386,
+    WARRIOR_SPELL_PHYSICAL_VULNERABILITY            = 81326,
+    WARRIOR_SPELL_HEROIC_LEAP                       = 6544,
+    WARRIOR_SPELL_DEATH_FROM_ABOVE_GLYPH            = 63325,
+    WARRIOR_SPELL_HEROIC_LEAP_SPEED                 = 133278,
+    WARRIOR_SPELL_HEROIC_LEAP_DAMAGE                = 52174,
+    WARRIOR_SPELL_ITEM_PVP_SET_4P_BONUS             = 133277,
+    SPELL_WARRIOR_GLYPH_OF_HAMSTRING_PASSIVE        = 58385,
+    SPELL_WARRIOR_GLYPH_OF_HAMSTRING                = 115945,
+    WARRIOR_SPELL_SHOCKWAVE_STUN                    = 132168,
+    WARRIOR_SPELL_SHOCKWAVE                         = 46968,
+    SPELL_WARRIOR_BLOODBATH                         = 12292,
+    SPELL_WARRIOR_BLOODBATH_DEBUFF                  = 113344,
+    SPELL_WARRIOR_DRAGON_ROAR                       = 118000,
 };
 
 // Mortal strike - 12294
@@ -224,19 +258,6 @@ public:
     }
 };
 
-enum Charge
-{
-    SPELL_CHARGE                            = 100,
-    SPELL_CHARGE_STUN                       = 7922,
-    SPELL_WARBRINGER                        = 103828,
-    SPELL_CHARGE_WARBRINGER_STUN            = 105771,
-    SPELL_GLYPH_BLITZ                       = 58377,
-    SPELL_GLYPH_BULL_RUSH                   = 94372,
-    SPELL_RAGE_BONUS_15                     = 109128,
-    SPELL_RAGE_BONUS_10                     = 12696,
-    SPELL_CHARGE_WARBRINGER_SNARE           = 137637
-};
-
 // Charge - 100
 class spell_warr_charge : public SpellScriptLoader
 {
@@ -305,12 +326,6 @@ class spell_warr_charge : public SpellScriptLoader
         }
 };
 
-enum SecondWind
-{
-    WARRIOR_SPELL_SECOND_WIND                   = 29838,
-    WARRIOR_SPELL_SECOND_WIND_REGEN             = 16491,
-};
-
 // Second Wind - 29838
 class spell_warr_second_wind : public SpellScriptLoader
 {
@@ -377,14 +392,6 @@ class spell_warr_second_wind : public SpellScriptLoader
         }
 };
 
-enum HinderingSrikes
-{
-    WARRIOR_SPELL_GLYPH_OF_HINDERING_STRIKES    = 58366,
-    WARRIOR_SPELL_SLUGGISH                      = 129923,
-    WARRIOR_SPELL_HEROIC_STRIKE                 = 78,
-    WARRIOR_SPELL_CLEAVE                        = 845
-};
-
 // Called by Heroic Strike - 78 and Cleave - 845
 // Glyph of Hindering Strikes - 58366
 class spell_warr_glyph_of_hindering_strikes : public SpellScriptLoader
@@ -424,13 +431,6 @@ class spell_warr_glyph_of_hindering_strikes : public SpellScriptLoader
         {
             return new spell_warr_glyph_of_hindering_strikes_SpellScript();
         }
-};
-
-enum ColossuSmash
-{
-    WARRIOR_SPELL_GLYPH_OF_COLOSSUS_SMASH       = 89003,
-    WARRIOR_SPELL_SUNDER_ARMOR                  = 7386,
-    WARRIOR_SPELL_PHYSICAL_VULNERABILITY        = 81326
 };
 
 // Colossus Smash - 86346
@@ -475,14 +475,6 @@ class spell_warr_colossus_smash : public SpellScriptLoader
         {
             return new spell_warr_colossus_smash_SpellScript();
         }
-};
-enum HeroicLeap
-{
-    WARRIOR_SPELL_HEROIC_LEAP                   = 6544,
-    WARRIOR_SPELL_DEATH_FROM_ABOVE_GLYPH        = 63325,
-    WARRIOR_SPELL_HEROIC_LEAP_SPEED             = 133278,
-    WARRIOR_SPELL_HEROIC_LEAP_DAMAGE            = 52174,
-    WARRIOR_SPELL_ITEM_PVP_SET_4P_BONUS         = 133277
 };
 
 // Heroic leap - 6544
@@ -604,12 +596,6 @@ class spell_warr_heroic_leap_damage : public SpellScriptLoader
         }
 };
 
-enum Hamstring
-{
-    SPELL_WARRIOR_GLYPH_OF_HAMSTRING_PASSIVE = 58385,
-    SPELL_WARRIOR_GLYPH_OF_HAMSTRING         = 115945
-};
-
 class spell_warr_glyph_of_hamstring : public SpellScriptLoader
 {
     public:
@@ -646,11 +632,6 @@ class spell_warr_glyph_of_hamstring : public SpellScriptLoader
         }
 };
 
-enum Stagger
-{
-    SPELL_WARRIOR_STAGGERING_SHOUT = 107566
-};
-
 // Staggering Shout - 107566
 class spell_warr_staggering_shout : public SpellScriptLoader
 {
@@ -683,12 +664,6 @@ class spell_warr_staggering_shout : public SpellScriptLoader
         {
             return new spell_warr_staggering_shout_SpellScript();
         }
-};
-
-enum Shockwave
-{
-    WARRIOR_SPELL_SHOCKWAVE_STUN = 132168,
-    WARRIOR_SPELL_SHOCKWAVE = 46968
 };
 
 // Shockwave - 46968
@@ -749,12 +724,6 @@ class spell_warr_shockwave : public SpellScriptLoader
         }
 };
 
-enum bloodbath
-{
-    SPELL_WARRIOR_BLOODBATH = 12292,
-    SPELL_WARRIOR_BLOODBATH_DEBUFF = 113344
-};
-
 // 12292 Bloodbath
 class spell_warr_bloodbath : public SpellScriptLoader
 {
@@ -811,11 +780,6 @@ public:
     }
 };
 
-enum Dragon
-{
-    SPELL_WARRIOR_DRAGON_ROAR = 118000
-};
-
 class spell_warr_dragon_roar : public SpellScriptLoader
 {
     public:
@@ -854,11 +818,6 @@ class spell_warr_dragon_roar : public SpellScriptLoader
         {
             return new spell_warr_dragon_roar_SpellScript();
         }
-};
-
-enum Slam
-{
-    WARRIOR_SPELL_SLAM_AOE = 146361
 };
 
 // 1464
@@ -906,13 +865,6 @@ class spell_warr_slam : public SpellScriptLoader
         {
             return new spell_warr_slam_SpellScript();
         }
-};
-
-enum GlyphOfSweepingStrikes
-{
-    GLYPH_OF_SWEEPING_STRIKES_PASSIVE = 58384,
-    GLYPH_OF_SWEEPING_STRIKES_RAGE_BONUS = 124333
-
 };
 
 // 12328
