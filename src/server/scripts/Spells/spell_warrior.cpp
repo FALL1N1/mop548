@@ -537,7 +537,8 @@ class spell_warr_staggering_shout : public SpellScriptLoader
 
 enum Shockwave
 {
-    WARRIOR_SPELL_SHOCKWAVE_STUN = 132168
+    WARRIOR_SPELL_SHOCKWAVE_STUN = 132168,
+    WARRIOR_SPELL_SHOCKWAVE = 46968
 };
 
 // Shockwave - 46968
@@ -571,6 +572,7 @@ class spell_warr_shockwave : public SpellScriptLoader
                     /* Crash in ModifySpellCooldown..
                     if (count >= 3)
                         _player->ModifySpellCooldown(46968, -20000;*/
+                        _player->ModifySpellCooldown(WARRIOR_SPELL_SHOCKWAVE, -20);
                 }
             }
 
@@ -628,7 +630,7 @@ public:
                     }
                 }
                 else
-                    player->CastCustomSpell(eventInfo.GetDamageInfo()->GetVictim(), 113344, &bp, NULL, NULL, true);
+                    player->CastCustomSpell(eventInfo.GetDamageInfo()->GetVictim(), SPELL_WARRIOR_BLOODBATH_DEBUFF, &bp, NULL, NULL, true);
             }
         }
 
