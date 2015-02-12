@@ -422,7 +422,6 @@ class spell_warr_heroic_leap : public SpellScriptLoader
                 return SPELL_CAST_OK;
             }
 
-
             void Register()
             {
                 OnCheckCast += SpellCheckCastFn(spell_warr_heroic_leap_SpellScript::CheckElevation);
@@ -466,6 +465,18 @@ class spell_warr_heroic_leap_damage : public SpellScriptLoader
         {
             PrepareSpellScript(spell_warr_heroic_leap_damage_SpellScript);
 
+            void Recalc()
+            {
+                int32 dmg = GetHitDamage();
+                if (Player* caster = GetCaster()->ToPlayer())
+                    if (caster->GetSpecializationId(caster->GetActiveSpec()) == CHAR_SPECIALIZATION_WARRIOR_ARMS)
+                        dmg += CalculatePct(caster->GetTotalAttackPowerValue(BASE_ATTACK), 60.0f);
+                    else
+                        dmg += CalculatePct(caster->GetTotalAttackPowerValue(BASE_ATTACK), 50.0f);
+
+                SetHitDamage(dmg);
+            }
+
             void HandleAfterCast()
             {
                 // Item - Warrior PvP Set 4P Bonus
@@ -475,6 +486,7 @@ class spell_warr_heroic_leap_damage : public SpellScriptLoader
 
             void Register()
             {
+                OnHit += SpellHitFn(spell_warr_heroic_leap_damage_SpellScript::Recalc);
                 AfterCast += SpellCastFn(spell_warr_heroic_leap_damage_SpellScript::HandleAfterCast);
             }
         };
@@ -664,9 +676,9 @@ class spell_warr_dragon_roar : public SpellScriptLoader
                 int32 dmg = GetHitDamage();
                 if (Player* caster = GetCaster()->ToPlayer())
                     if (caster->GetSpecializationId(caster->GetActiveSpec()) == CHAR_SPECIALIZATION_WARRIOR_ARMS)
-                        dmg += CalculatePct(caster->GetTotalAttackPowerValue(BASE_ATTACK), 168);
+                        dmg += CalculatePct(caster->GetTotalAttackPowerValue(BASE_ATTACK), 168.0f);
                     else
-                        dmg += CalculatePct(caster->GetTotalAttackPowerValue(BASE_ATTACK), 140);
+                        dmg += CalculatePct(caster->GetTotalAttackPowerValue(BASE_ATTACK), 140.0f);
 
                 SetHitDamage(dmg);
             }
