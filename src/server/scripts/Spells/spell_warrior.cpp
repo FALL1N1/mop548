@@ -40,7 +40,9 @@ enum WarriorSpells
     WARRIOR_SPELL_MORTAL_STRIKE_AURA                = 12294,
     WARRIOR_SPELL_SUDDEN_DEATH_DRIVER               = 52437,
     WARRIOR_SPELL_COLOSSUS_SMASH                    = 86346,
-    WARRIOR_SPELL_OPPORUNITY_STRIKE                 = 76858
+    WARRIOR_SPELL_OPPORUNITY_STRIKE                 = 76858,
+    WARRIOR_SPELL_SWEEPING_STRIKES                  = 12328,
+    WARRIOR_SPELL_SWEEPING_STRIKES_STRIKE           = 26654
 };
 
 // Mortal strike - 12294
@@ -695,6 +697,49 @@ class spell_warr_dragon_roar : public SpellScriptLoader
         }
 };
 
+enum Slam
+{
+    WARRIOR_SPELL_SLAM_AOE = 146361
+};
+
+// 1464
+class spell_warr_slam : public SpellScriptLoader
+{
+    public:
+        spell_warr_slam() : SpellScriptLoader("spell_warr_slam") { }
+
+        class spell_warr_slam_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warr_slam_SpellScript);
+
+            void HandleOnHit()
+            {
+                if (GetHitUnit()->HasAura(WARRIOR_SPELL_COLOSSUS_SMASH))
+                    SetHitDamage(GetHitDamage() * 1.10f);
+
+                if (GetCaster()->HasAura(WARRIOR_SPELL_SWEEPING_STRIKES))
+                {
+                    int32 bp = GetHitDamage() * 0.35f;
+                    std::list<Unit*> slammable;
+                    GetCaster()->GetAttackableUnitListInRange(slammable, 2.0f);
+                    slammable.remove(GetHitUnit());
+                    for (auto itr : slammable)
+                        GetCaster()->CastCustomSpell(itr, WARRIOR_SPELL_SLAM_AOE, &bp, NULL, NULL, false);
+                }
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_warr_slam_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_warr_slam_SpellScript();
+        }
+};
+
 void AddSC_warrior_spell_scripts()
 {
     new spell_warr_sword_and_board();
@@ -712,4 +757,5 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_shockwave();
     new spell_warr_bloodbath();
     new spell_warr_dragon_roar();
+    new spell_warr_slam();
 }
