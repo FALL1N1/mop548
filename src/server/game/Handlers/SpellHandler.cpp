@@ -179,7 +179,7 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& recvPacket)
         targetStringLength = recvPacket.ReadBits(7);
 
     recvPacket.ReadGuidMask(targetGuid, 1, 0, 5, 3, 6, 4, 7, 2);
-    
+
     recvPacket.ReadGuidMask(itemTargetGuid, 4, 5, 0, 1, 3, 7, 6, 2);
 
     if (hasCastFlags)
@@ -189,7 +189,7 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& recvPacket)
         targetMask = recvPacket.ReadBits(20);
 
     recvPacket.ReadGuidBytes(itemGuid, 0, 5, 6, 3, 4, 2, 1);
-       
+
     if (researchDataCount > 0)
     {
         uint32 entry, usedCount;
@@ -333,7 +333,7 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& recvPacket)
 
     if (hasSpellId)
         recvPacket >> spellId;
-    
+
     recvPacket.ReadGuidBytes(targetGuid, 1, 4, 3, 6, 2, 0, 7, 5);
 
     if (hasTargetString)
@@ -435,44 +435,44 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& recvPacket)
     SpellDestination src;
     SpellDestination dst;
 
-	if (hasDestLocation)
-	{
+    if (hasDestLocation)
+    {
         src._transportGUID = destTransportGuid;
         if (src._transportGUID)
             src._transportOffset.Relocate(srcPos);
-		else
+        else
             src._position.Relocate(srcPos);
-	}
-	else
-	{
+    }
+    else
+    {
         src._transportGUID = mover->GetTransGUID();
         if (src._transportGUID)
             src._transportOffset.Relocate(mover->GetTransOffsetX(), mover->GetTransOffsetY(), mover->GetTransOffsetZ(), mover->GetTransOffsetO());
-		else
+        else
             src._position.Relocate(mover);
-	}
-	if (hasDestLocation)
-	{
+    }
+    if (hasDestLocation)
+    {
         dst._transportGUID = destTransportGuid;
         if (dst._transportGUID)
             dst._transportOffset.Relocate(destPos);
-		else
+        else
             dst._position.Relocate(destPos);
-	}
-	else
-	{
+    }
+    else
+    {
         dst._transportGUID = mover->GetTransGUID();
         if (dst._transportGUID)
             dst._transportOffset.Relocate(mover->GetTransOffsetX(), mover->GetTransOffsetY(), mover->GetTransOffsetZ(), mover->GetTransOffsetO());
-		else
+        else
             dst._position.Relocate(mover);
-	}
+    }
 
     targets.SetUnitTargetGUID(targetGuid);
     targets.SetItemTargetGUID(itemTargetGuid);
     targets.SetSrc(src);
     targets.SetDst(dst);
-	targets.Update(mover);
+    targets.Update(mover);
     // Note: If script stop casting it must send appropriate data to client to prevent stuck item in gray state.
     if (!sScriptMgr->OnItemUse(pUser, pItem, targets))
     {
@@ -946,9 +946,9 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
                 return false;
         }
     };
-        
+
     if (caster->GetTypeId() == TYPEID_PLAYER && !caster->ToPlayer()->HasActiveSpell(spellId) && !IsExcludedSpell())
-    {       
+    {
         // not have spell in spellbook
         recvPacket.rfinish(); // prevent spam at ignore packet
         return;
@@ -994,38 +994,38 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
     SpellDestination src;
     SpellDestination dst;
 
-	if (hasDestLocation)
-	{
+    if (hasDestLocation)
+    {
         src._transportGUID = destTransportGuid;
         if (src._transportGUID)
             src._transportOffset.Relocate(srcPos);
-		else
+        else
             src._position.Relocate(srcPos);
-	}
-	else
-	{
+    }
+    else
+    {
         src._transportGUID = mover->GetTransGUID();
         if (src._transportGUID)
             src._transportOffset.Relocate(mover->GetTransOffsetX(), mover->GetTransOffsetY(), mover->GetTransOffsetZ(), mover->GetTransOffsetO());
-		else
+        else
             src._position.Relocate(mover);
-	}
-	if (hasDestLocation)
-	{
+    }
+    if (hasDestLocation)
+    {
         dst._transportGUID = destTransportGuid;
         if (dst._transportGUID)
             dst._transportOffset.Relocate(destPos);
-		else
+        else
             dst._position.Relocate(destPos);
-	}
-	else
-	{
+    }
+    else
+    {
         dst._transportGUID = mover->GetTransGUID();
         if (dst._transportGUID)
             dst._transportOffset.Relocate(mover->GetTransOffsetX(), mover->GetTransOffsetY(), mover->GetTransOffsetZ(), mover->GetTransOffsetO());
-		else
+        else
             dst._position.Relocate(mover);
-	}
+    }
 
     // auto-selection buff level base at target level (in spellInfo)
     if (targets.GetUnitTarget())
@@ -1054,11 +1054,11 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
             }
         }
     }
-    
+
     TriggerCastFlags triggerCastFlags = TRIGGERED_NONE;
     if (spellInfo->AttributesEx4 & SPELL_ATTR4_TRIGGERED)
         triggerCastFlags = TRIGGERED_FULL_MASK; // check if some trigger flags need to be removed
-    
+
     Spell* spell = new Spell(mover, spellInfo, triggerCastFlags, 0, false);
     spell->m_cast_count = castCount;   // set count of casts
     spell->m_glyphIndex = glyphIndex;
@@ -1224,7 +1224,7 @@ void WorldSession::HandleTotemDestroyed(WorldPacket& recvPacket)
     // ignore for remote control state
     if (_player->m_mover != _player)
         return;
-    
+
     uint8 slotId;
     ObjectGuid guid;
 
