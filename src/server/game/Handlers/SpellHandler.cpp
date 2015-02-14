@@ -1089,6 +1089,13 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
             }
         }
 
+        // Set m_itemTargetGUID = itemGUID taken from this packet (CMSG_CAST_SPELL)
+        // It will be used by Spell::CheckItems
+        Item* pItem = _player->GetItemByGuid(itemTargetGuid);
+
+        targets.SetItemTargetGUID(itemTargetGuid);
+        targets.SetItemTarget(pItem);
+
         spell->m_researchData = researchData;
     }
 
