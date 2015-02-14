@@ -167,10 +167,55 @@ public:
         AuraType _auraType;
 };
 
+// Frenzied Regeneration - 22842
+class spell_dru_frenzied_regeneration : public SpellScriptLoader
+{
+public:
+    spell_dru_frenzied_regeneration() : SpellScriptLoader("spell_dru_frenzied_regeneration") { }
+
+    class spell_dru_frenzied_regeneration_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_dru_frenzied_regeneration_SpellScript);
+
+        void CalculateHeal(SpellEffIndex)
+        {
+            if (Unit* caster = GetCaster())
+            {
+                const float ap = caster->GetTotalAttackPowerValue(BASE_ATTACK);
+                const float agility = caster->GetStat(STAT_AGILITY);
+                const float stamina = caster->GetStat(STAT_STAMINA);
+
+                int32 amount = std::max<uint32>((ap - agility * 2) * GetSpellInfo()->Effects[EFFECT_1].BasePoints, stamina * GetSpellInfo()->Effects[EFFECT_2].BasePoints);
+                amount /= 100;
+
+                const int32 currentRage = caster->GetPower(POWER_RAGE) / 10; // 100 rage in game = 1000 rage on server's side
+                const int32 usedRage = std::min<int32>(60, currentRage);
+
+                amount *= float(usedRage) / 60.0f;
+                caster->ModifyPower(POWER_RAGE, -usedRage * 10);
+                SetHitHeal(amount);
+            }
+            
+        }
+
+        void Register()
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_dru_frenzied_regeneration_SpellScript::CalculateHeal, EFFECT_0, SPELL_EFFECT_HEAL);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_dru_frenzied_regeneration_SpellScript();
+    }
+};
+
+
 void AddSC_druid_spell_scripts()
 {
     new spell_druid_glyph_of_the_treant();
     new spell_druid_incarnation("spell_druid_incarnation_king_of_the_jungle", SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS);
     new spell_druid_incarnation("spell_druid_incarnation_chosen_of_elune", SPELL_AURA_DUMMY);
     new spell_druid_incarnation("spell_druid_incarnation_son_of_ursoc", SPELL_AURA_ADD_PCT_MODIFIER);
+    new spell_dru_frenzied_regeneration();
 }
