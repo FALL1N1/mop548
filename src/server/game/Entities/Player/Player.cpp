@@ -2645,8 +2645,8 @@ void Player::RegenerateAll()
         }
         default:
             break;
-    }    
-   
+    }
+
     Regenerate(POWER_ENERGY);
     Regenerate(POWER_MANA);
 
@@ -2787,15 +2787,15 @@ void Player::Regenerate(Powers power)
             {
                 // 3 RunicPower by tick
                 float RunicPowerDecreaseRate = sWorld->getRate(RATE_POWER_RUNICPOWER_LOSS);
-                addvalue += -30 * RunicPowerDecreaseRate;               
+                addvalue += -30 * RunicPowerDecreaseRate;
             }
             break;
         }
-        case POWER_HOLY_POWER: // Paladin                                         
+        case POWER_HOLY_POWER: // Paladin
             if (!IsInCombat())
                 addvalue += -1.0f; // remove 1 each 10 sec
             break;
-        case POWER_CHI: // Monk 
+        case POWER_CHI: // Monk
             if (!IsInCombat())
                 addvalue += -1.0f; // remove 1 each 10 sec
             break;
@@ -2809,9 +2809,9 @@ void Player::Regenerate(Powers power)
                     addvalue += 1.0f; // give 1 each 100ms while player has less than 200 demonic fury
             }
 
-            UpdateAurasOnPowerChange(power);            
+            UpdateAurasOnPowerChange(power);
             break;
-        }        
+        }
         case POWER_BURNING_EMBERS: // Warlock
         {
             // After 15s return to one embers if no one
@@ -2823,7 +2823,7 @@ void Player::Regenerate(Powers power)
                 else if (powerValue > 10)
                     addvalue -= 1.0f;
             }
-                     
+
             UpdateAurasOnPowerChange(power);
             break;
         }
@@ -2932,7 +2932,7 @@ void Player::UpdateAurasOnPowerChange(Powers power)
             if (powerValue == 1000) // maximum value
             {
                 CastSpell(this, maximumFury, true);
-            }                
+            }
             else if (powerValue >= 500)
             {
                 CastSpell(this, masterDemonologist, true);
@@ -2955,7 +2955,7 @@ void Player::UpdateAurasOnPowerChange(Powers power)
             const int32 glyphOfVerdantSpheres = 56241;
 
             const int32 oneShardVisual = 123728;
-            const int32 twoShardsVisual = 123730;            
+            const int32 twoShardsVisual = 123730;
             const int32 threeShardsVisual = 123731;
 
             const int32 firstSearingEmger = 116854;
@@ -2967,7 +2967,7 @@ void Player::UpdateAurasOnPowerChange(Powers power)
                 if (powerValue < 20)
                 {
                     RemoveAura(oneShardVisual);
-                    RemoveAura(twoShardsVisual);                    
+                    RemoveAura(twoShardsVisual);
                     RemoveAura(threeShardsVisual);
                 }
                 else if (powerValue < 30)
@@ -3012,7 +3012,7 @@ void Player::UpdateAurasOnPowerChange(Powers power)
             const int32 glyphOfVerdantSpheres = 56241;
 
             const int32 oneShardVisual = 123728;
-            const int32 twoShardsVisual = 123730;           
+            const int32 twoShardsVisual = 123730;
             const int32 threeShardsVisual = 123731;
 
             if (HasAura(glyphOfVerdantSpheres))
@@ -4990,7 +4990,7 @@ bool Player::ResetTalents(bool no_cost)
 
     SetFreeTalentPoints(talentPointsForLevel);
     SetUsedTalentCount(0);
-    
+
     SQLTransaction charTrans = CharacterDatabase.BeginTransaction();
     SQLTransaction accountTrans = LoginDatabase.BeginTransaction();
     _SaveTalents(charTrans);
@@ -5775,7 +5775,7 @@ void Player::ResurrectPlayer(float restore_percent, bool applySickness)
     data << uint32(-1);
     data << float(0);
     data << float(0);
-    data << float(0);    
+    data << float(0);
     GetSession()->SendPacket(&data);
 
     // speed change, land walk
@@ -6198,7 +6198,7 @@ void Player::RepopAtGraveyard()
             WorldPacket data(SMSG_DEATH_RELEASE_LOC, 4 * 4);  // show spirit healer position on minimap
             data << ClosestGrave->map_id;
             data << ClosestGrave->y;
-            data << ClosestGrave->x;            
+            data << ClosestGrave->x;
             data << ClosestGrave->z;
             GetSession()->SendPacket(&data);
         }
@@ -8357,7 +8357,7 @@ void Player::ModifyCurrency(uint32 id, int32 count, bool printLog /*= true*/, bo
     int32 newTotalCount = int32(oldTotalCount) + count;
     int32 newWeekCount = 0;
     uint32 newSeasonCount = 0;
-    
+
     if (!ignoreLimit && count > 0)
     {
         newWeekCount = int32(oldWeekCount) + count;
@@ -8424,15 +8424,15 @@ void Player::ModifyCurrency(uint32 id, int32 count, bool printLog /*= true*/, bo
         }
 
         WorldPacket packet(SMSG_UPDATE_CURRENCY, 12);
-            
+
         packet << uint32(id);
         packet << uint32(0);
         packet << uint32(newTotalCount);
-            
+
         packet.WriteBit(weekCap != 0);
         packet.WriteBit(printLog ? 0 : 1);
         packet.WriteBit(sendSeason);
-           
+
         if (weekCap)
             packet << uint32(newWeekCount);
 
@@ -8474,7 +8474,7 @@ uint32 Player::GetCurrencyWeekCap(uint32 id, bool usePrecision) const
 void Player::ResetCurrencyWeekCap()
 {
     RatedInfo* rInfo = sRatedMgr->GetRatedInfo(GetGUID());
-    rInfo->FinishWeek(); 
+    rInfo->FinishWeek();
 
     for (PlayerCurrenciesMap::iterator itr = _currencyStorage.begin(); itr != _currencyStorage.end(); ++itr)
     {
@@ -8514,7 +8514,7 @@ uint32 Player::_GetCurrencyWeekCap(const CurrencyTypesEntry* currency) const
             if (bgCap < 1650)
                 bgCap = 1650;
 
-            return bgCap; 
+            return bgCap;
         }
         case CURRENCY_TYPE_HONOR_POINTS:
         {
@@ -10927,7 +10927,7 @@ void Player::SendTalentWipeConfirm(uint64 guid, bool specialization)
 
     uint8 bitOrder[8] = {5, 7, 3, 2, 1, 0, 4, 6};
     data.WriteBitInOrder(Guid, bitOrder);
-    
+
     data.WriteGuidBytes(Guid, 1, 0);
     data << uint8(specialization); // 0 : talent 1 : specialization
     data.WriteGuidBytes(Guid, 7, 3, 2, 5, 6, 4);
@@ -17743,7 +17743,7 @@ void Player::QuestObjectiveSatisfy(uint32 objectId, uint32 amount, uint8 type, u
 
                 break;
             }
-        }   
+        }
     }
 }
 
@@ -17799,7 +17799,7 @@ bool Player::HasQuestForItem(uint32 itemId) const
                     {
                         if (GetItemCount(itemId, true) < qInfo->RequiredSourceItemCount[j])
                             return true;
-                    } 
+                    }
                     else if (GetItemCount(itemId, true) < pProto->GetMaxStackSize())
                         return true;
                 }
@@ -18140,7 +18140,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
     //"totalKills, todayKills, yesterdayKills, chosenTitle, watchedFaction, drunk, "
     // 46      47      48      49      50      51      52           53         54             55               56                 57              58
     //"health, power1, power2, power3, power4, power5, instance_id, speccount, activespec, specialization1, specialization2, exploredZones, equipmentCache, "
-    // 59           60              61               62                     63             
+    // 59           60              61               62                     63
     //"knownTitles, actionBars, grantableLevels, resetspecialization_cost, resetspecialization_time  FROM characters WHERE guid = '%u'", guid);
 
     PreparedQueryResult result = holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_FROM);
@@ -21112,7 +21112,7 @@ void Player::_SaveDailyQuestStatus(SQLTransaction& trans)
     stmt->setUInt32(0, GetGUIDLow());
     trans->Append(stmt);
     //for (uint32 quest_daily_idx = 0; quest_daily_idx < PLAYER_MAX_DAILY_QUESTS; ++quest_daily_idx)
-    //{ 
+    //{
     //    if (GetDynamicUInt32Value(PLAYER_DYNAMIC_FIELD_DAILY_QUESTS, quest_daily_idx))
     //    {
     //        stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHARACTER_DAILYQUESTSTATUS);
@@ -21920,7 +21920,7 @@ void Player::PetSpellInitialize()
 
     if (!pet)
         return;
-    
+
     if (getLevel() < 10) // Protection against cheaters
         return;
 
@@ -21961,7 +21961,7 @@ void Player::PetSpellInitialize()
     data << uint8(charmInfo->GetCommandState());
     data << uint16(0); // Flags, mostly unknown
     */
-    
+
     // action bar loop
     charmInfo->BuildActionBar(&data);
 
@@ -22006,11 +22006,11 @@ void Player::PetSpellInitialize()
             data << uint32(0);
         }
     }
-    
+
     data.PutBits(v7_pos, v7, 20);
-    
+
     data.WriteByteSeq(guid[2]);
-    
+
     //if (pet->IsPermanentPetFor(this))
     //{
         // spells loop
@@ -22023,7 +22023,7 @@ void Player::PetSpellInitialize()
             ++v6;
         }
     //}
-    
+
     // data.put<uint8>(spellsCountPos, v6);
     data.PutBits(v6_pos, v6, 22);
 
@@ -22033,8 +22033,8 @@ void Player::PetSpellInitialize()
     data << uint16(12); // (Specialization pet or player ?)
 
     /*
-    
-            if (*(v4 + 68) > 0u) 
+
+            if (*(v4 + 68) > 0u)
             {
                 v13 = 0;
                 do
@@ -22055,7 +22055,7 @@ void Player::PetSpellInitialize()
                 while (v18 < *(v4 + 68));
                 v12 = a2;
             }
-    
+
     */
 
     data << uint16(pet->GetCreatureTemplate()->family);         // creature family (required for pet talents)
@@ -22073,7 +22073,7 @@ void Player::PetSpellInitialize()
 
 void Player::PossessSpellInitialize()
 {
-   
+
     Unit* charm = GetCharm();
     if (!charm)
         return;
@@ -22105,7 +22105,7 @@ void Player::SendPetMode(uint32 mode)
     Creature* vehicle = GetVehicleCreatureBase();
     if (!vehicle)
         return;
-    
+
     WorldPacket data(SMSG_PET_MODE, 12);
 
     ObjectGuid guid = vehicle->GetGUID();
@@ -22906,7 +22906,7 @@ void Player::ProhibitSpellSchool(SpellSchoolMask idSchoolMask, uint32 unTimeMs)
     }
 
     data.PutBits(countPos, count, 21);
-    data.FlushBits();   
+    data.FlushBits();
 
     data.WriteGuidBytes(guid, 5, 3, 7);
 
@@ -23448,7 +23448,7 @@ uint32 Player::GetMaxPersonalArenaRatingRequirement(uint32 minarenaslot) const
     {
         RatedType ratedType = RatedInfo::GetRatedTypeBySlot(i);
         StatsBySlot const* stats = rInfo->GetStatsBySlot(ratedType);
-        uint16 personalRating = stats->PersonalRating;        
+        uint16 personalRating = stats->PersonalRating;
         if (max_personal_rating < personalRating)
             max_personal_rating = personalRating;
     }
@@ -23710,7 +23710,7 @@ void Player::ModifySpellCooldown(uint32 spellId, int32 cooldown)
     ObjectGuid guid;
 
     WorldPacket data(SMSG_MODIFY_COOLDOWN, 4 + 4);
-    
+
     uint8 bitOrder[8] = {2, 1, 0, 4, 7, 3, 6, 5};
     data.ReadBitInOrder(guid, bitOrder);
 
@@ -23719,7 +23719,7 @@ void Player::ModifySpellCooldown(uint32 spellId, int32 cooldown)
     data.ReadGuidBytes(guid, 3, 6, 7, 5, 0);
     data << uint32(spellId);            // Spell ID
     data.ReadByteSeq(guid[2]);
-    
+
     GetSession()->SendPacket(&data);
 
     TC_LOG_DEBUG("misc", "ModifySpellCooldown:: Player: %s (GUID: %u) Spell: %u cooldown: %u", GetName().c_str(), GetGUIDLow(), spellId, GetSpellCooldownDelay(spellId));
@@ -24603,7 +24603,7 @@ void Player::InitializePetSlots(Player* owner, uint64 guid)
 
     if (!result) // You dont have any pets
         return;
-    
+
     m_free_slot = 0;
     do
     {
@@ -27138,12 +27138,12 @@ void Player::ResetAchievementCriteria(AchievementCriteriaTypes type, uint64 misc
 void Player::UpdateAchievementCriteria(AchievementCriteriaTypes type, uint64 miscValue1 /*= 0*/, uint64 miscValue2 /*= 0*/, uint64 miscValue3 /*= 0*/, Unit* unit /*= NULL*/)
 {
     m_achievementMgr->UpdateAchievementCriteria(type, miscValue1, miscValue2, miscValue3, unit, this);
-    
+
     // Update only individual achievement criteria here, otherwise we may get multiple updates
     // from a single boss kill
     if (sAchievementMgr->IsGroupCriteriaType(type))
         return;
-    
+
     if (Guild* guild = sGuildMgr->GetGuildById(GetGuildId()))
         guild->UpdateAchievementCriteria(type, miscValue1, miscValue2, miscValue3, unit, this);
 }
@@ -27308,10 +27308,10 @@ bool Player::CanSeeSpellClickOn(Creature const* c) const
 void Player::BuildPlayerTalentsInfoData(WorldPacket* data)
 {
     size_t* wpos = new size_t[GetSpecsCount()];
-    
+
     *data << uint8(GetActiveSpec());
     data->WriteBits(GetSpecsCount(), 19);
-    
+
     for (int i = 0; i < GetSpecsCount(); i++)
     {
         wpos[i] = data->bitwpos();
@@ -28761,7 +28761,7 @@ void Player::ReadMovementInfo(WorldPacket& data, MovementInfo* mi, Movement::Ext
                 data >> mountDisplayId;
                 SetUInt32Value(UNIT_FIELD_MOUNT_DISPLAY_ID, mountDisplayId);
                 break;
-            }            
+            }
             case MSEMovementFlags:
                 if (hasMovementFlags)
                     mi->flags = data.ReadBits(30);
