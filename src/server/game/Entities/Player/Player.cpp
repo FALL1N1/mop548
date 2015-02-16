@@ -23701,28 +23701,29 @@ void Player::ModifySpellCooldown(uint32 spellId, int32 cooldown)
     if (itr == m_spellCooldowns.end())
         return;
 
+    // TODO: fix the delay between cooldown update by client and by core
     time_t now = time(NULL);
     if (itr->second.end + (cooldown / IN_MILLISECONDS) > now)
         itr->second.end += (cooldown / IN_MILLISECONDS);
     else
         m_spellCooldowns.erase(itr);
 
-    ObjectGuid guid;
+    ObjectGuid guid = GetGUID();            // Player GUID
 
     WorldPacket data(SMSG_MODIFY_COOLDOWN, 4 + 4);
 
-    uint8 bitOrder[8] = {2, 1, 0, 4, 7, 3, 6, 5};
-    data.ReadBitInOrder(guid, bitOrder);
+    uint8 bitOrder[8] = { 2, 1, 0, 4, 7, 3, 6, 5 };
+    data.WriteBitInOrder(guid, bitOrder);
 
-    data.ReadGuidBytes(guid, 4, 1);
-    data << int32(cooldown);            // Cooldown mod in milliseconds
-    data.ReadGuidBytes(guid, 3, 6, 7, 5, 0);
-    data << uint32(spellId);            // Spell ID
-    data.ReadByteSeq(guid[2]);
+    data.WriteGuidBytes(guid, 4, 1);
+    data << int32(cooldown);                // Cooldown mod in milliseconds
+    data.WriteGuidBytes(guid, 3, 6, 7, 5, 0);
+    data << uint32(spellId);                // Spell ID
+    data.WriteByteSeq(guid[2]);
 
     GetSession()->SendPacket(&data);
 
-    TC_LOG_DEBUG("misc", "ModifySpellCooldown:: Player: %s (GUID: %u) Spell: %u cooldown: %u", GetName().c_str(), GetGUIDLow(), spellId, GetSpellCooldownDelay(spellId));
+    TC_LOG_DEBUG("misc", "ModifySpellCooldown::Player: %s(GUID : %u) Spell : %u cooldown : %u", GetName().c_str(), GetGUIDLow(), spellId, GetSpellCooldownDelay(spellId));
 }
 
 void Player::SendCooldownEvent(SpellInfo const* spellInfo, uint32 itemId /*= 0*/, Spell* spell /*= NULL*/, bool setCooldown /*= true*/)
