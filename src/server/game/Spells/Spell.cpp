@@ -7712,6 +7712,7 @@ bool WorldObjectSpellTargetCheck::operator()(WorldObject* target)
 {
     if (_spellInfo->CheckTarget(_caster, target, true) != SPELL_CAST_OK)
         return false;
+
     Unit* unitTarget = target->ToUnit();
     if (Corpse* corpseTarget = target->ToCorpse())
     {
