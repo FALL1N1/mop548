@@ -845,6 +845,14 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
 
     recvPacket.ReadGuidBytes(itemTargetGuid, 4, 2, 1, 5, 7, 3, 6, 0);
 
+    // Set m_itemTargetGUID = itemGUID taken from this packet (CMSG_CAST_SPELL)
+    // It will be used by Spell::CheckItems
+    if (Item* pItem = _player->GetItemByGuid(itemTargetGuid))
+    {
+        targets.SetItemTargetGUID(itemTargetGuid);
+        targets.SetItemTarget(pItem);
+    }
+
     if (hasDestLocation)
     {
         float x, y, z;
@@ -1092,13 +1100,6 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
                 break;
             }
         }
-
-        // Set m_itemTargetGUID = itemGUID taken from this packet (CMSG_CAST_SPELL)
-        // It will be used by Spell::CheckItems
-        Item* pItem = _player->GetItemByGuid(itemTargetGuid);
-
-        targets.SetItemTargetGUID(itemTargetGuid);
-        targets.SetItemTarget(pItem);
 
         spell->m_researchData = researchData;
     }
