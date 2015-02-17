@@ -1286,7 +1286,10 @@ bool Item::CanBeTransmogrified() const
         return false;
 
     if (!HasStats())
-        return false;
+        if (!(proto->Flags2 & ITEM_FLAGS_EXTRA_CANNOT_BE_TRANSMOG))
+	    	return true;
+	    else
+	    	return false;
 
     return true;
 }
@@ -1315,7 +1318,10 @@ bool Item::CanTransmogrify() const
         return true;
 
     if (!HasStats())
-        return false;
+        if (proto->Flags2 & ITEM_FLAGS_EXTRA_CAN_TRANSMOG)
+        	return true;
+        else
+        	return false;
 
     return true;
 }
