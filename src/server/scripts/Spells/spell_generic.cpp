@@ -3752,8 +3752,99 @@ public:
     }
 };
 
+enum Enchants
+{
+    ENCHANT_B_DANCING_STEEL_PASSIVE = 142531,
+    ENCHANT_JADE_SPIRIT_PASSIVE = 120033,
+    ENCHANT_WINDSONG_PASSIVE = 104561,
+    ENCHANT_DANCING_STEEL_PASSIVE = 118333,
+
+    ENCHANT_B_DANCING_STEEL = 142530,
+    ENCHANT_JADE_SPIRIT = 104993,
+    ENCHANT_DANCING_STEEL = 120032,
+    ENCHANT_WINGSONG = 104562
+};
+
+class spell_pandaria_enchants : public SpellScriptLoader
+{
+public:
+    spell_pandaria_enchants() : SpellScriptLoader("spell_pandaria_enchants") { }
+
+    class spell_pandaria_enchants_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_pandaria_enchants_AuraScript);
+
+        bool Validade(SpellInfo const* /*spellInfo*/)
+        {
+            if (!sSpellMgr->GetSpellInfo(ENCHANT_B_DANCING_STEEL_PASSIVE)
+                || !sSpellMgr->GetSpellInfo(ENCHANT_JADE_SPIRIT_PASSIVE)
+                || !sSpellMgr->GetSpellInfo(ENCHANT_WINDSONG_PASSIVE)
+                || !sSpellMgr->GetSpellInfo(ENCHANT_DANCING_STEEL_PASSIVE)
+                || !sSpellMgr->GetSpellInfo(ENCHANT_B_DANCING_STEEL)
+                || !sSpellMgr->GetSpellInfo(ENCHANT_JADE_SPIRIT)
+                || !sSpellMgr->GetSpellInfo(ENCHANT_DANCING_STEEL)
+                || !sSpellMgr->GetSpellInfo(ENCHANT_WINGSONG))
+                return false;
+            return true;
+        }
+
+        void OnProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
+        {
+            switch (GetSpellInfo()->Id)
+            {
+                case ENCHANT_B_DANCING_STEEL_PASSIVE:
+                {
+                    uint32 agi = GetCaster()->GetStat(STAT_AGILITY);
+                    uint32 str = GetCaster()->GetStat(STAT_STRENGTH);
+                    uint8 effect = std::max(agi, str) == agi ? EFFECT_1 : EFFECT_0;
+                    if (Aura* steel = GetCaster()->AddAura(ENCHANT_B_DANCING_STEEL, GetCaster()))
+                    {
+                        steel->GetEffect(effect)->ChangeAmount(0);
+                        steel->SetNeedClientUpdateForTargets();
+                    }
+                    break;
+                }
+                case ENCHANT_JADE_SPIRIT_PASSIVE:
+                {
+                    if (Aura* jade = GetCaster()->AddAura(ENCHANT_JADE_SPIRIT, GetCaster()))
+                        if (GetCaster()->GetCreateMana() * 0.25 < GetCaster()->GetPower(POWER_MANA))
+                        {
+                            jade->GetEffect(EFFECT_1)->ChangeAmount(0);
+                            jade->SetNeedClientUpdateForTargets();
+                        }
+                    break;
+                }
+                case ENCHANT_WINDSONG_PASSIVE:
+                {
+                    uint32 spells[3] = {104423, 104510, 104509};
+                    GetCaster()->CastSpell(GetCaster(), spells[rand() % 3], true);
+                    break;
+                }
+                case ENCHANT_DANCING_STEEL_PASSIVE:
+                {
+                    int32 agi = GetCaster()->GetStat(STAT_AGILITY);
+                    int32 str = GetCaster()->GetStat(STAT_STRENGTH);
+                    GetCaster()->CastSpell(GetCaster(), (std::max(agi, str) == agi ? 118334 : 118335), true);
+                    break;
+                }
+            }
+        }
+
+        void Register()
+        {
+            OnEffectProc += AuraEffectProcFn(spell_pandaria_enchants_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_pandaria_enchants_AuraScript();
+    }
+};
+
 void AddSC_generic_spell_scripts()
 {
+    new spell_pandaria_enchants();
     new spell_gen_absorb0_hitlimit1();
     new spell_gen_adaptive_warding();
     new spell_gen_alchemist_stone();

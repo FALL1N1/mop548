@@ -1548,7 +1548,6 @@ void WorldSession::HandleTransmogrifyItems(WorldPacket& recvData)
     }
 
     // Validate
-
     if (!player->GetNPCIfCanInteractWith(npcGuid, UNIT_NPC_FLAG_TRANSMOGRIFIER))
     {
         TC_LOG_DEBUG("network", "WORLD: HandleTransmogrifyItems - Unit (GUID: %u) not found or player can't interact with it.", GUID_LOPART(npcGuid));
