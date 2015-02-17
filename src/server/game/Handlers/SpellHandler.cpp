@@ -469,7 +469,11 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& recvPacket)
     }
 
     targets.SetUnitTargetGUID(targetGuid);
-    targets.SetItemTargetGUID(itemTargetGuid);
+    if (Item* pItem = _player->GetItemByGuid(itemTargetGuid))
+    {
+        targets.SetItemTargetGUID(itemTargetGuid);
+        targets.SetItemTarget(pItem);
+    }
     targets.SetSrc(src);
     targets.SetDst(dst);
     targets.Update(mover);
