@@ -3762,7 +3762,12 @@ enum Enchants
     ENCHANT_B_DANCING_STEEL = 142530,
     ENCHANT_JADE_SPIRIT = 104993,
     ENCHANT_DANCING_STEEL = 120032,
-    ENCHANT_WINGSONG = 104562
+    ENCHANT_DANCING_STEEL_AGILITY = 118334,
+    ENCHANT_DANCING_STEEL_STRENGTH = 118335,
+    ENCHANT_WINGSONG = 104562,
+    ENCHANT_WINDSONG_1 = 104423,
+    ENCHANT_WINDSONG_2 = 104510,
+    ENCHANT_WINDSONG_3 = 104509
 };
 
 class spell_pandaria_enchants : public SpellScriptLoader
@@ -3816,7 +3821,7 @@ public:
                 }
                 case ENCHANT_WINDSONG_PASSIVE:
                 {
-                    uint32 spells[3] = {104423, 104510, 104509};
+                    uint32 spells[3] = {ENCHANT_WINDSONG_1, ENCHANT_WINDSONG_2, ENCHANT_WINDSONG_3};
                     GetCaster()->CastSpell(GetCaster(), spells[rand() % 3], true);
                     break;
                 }
@@ -3824,7 +3829,7 @@ public:
                 {
                     int32 agi = GetCaster()->GetStat(STAT_AGILITY);
                     int32 str = GetCaster()->GetStat(STAT_STRENGTH);
-                    GetCaster()->CastSpell(GetCaster(), (std::max(agi, str) == agi ? 118334 : 118335), true);
+                    GetCaster()->CastSpell(GetCaster(), (std::max(agi, str) == agi ? ENCHANT_DANCING_STEEL_AGILITY : ENCHANT_DANCING_STEEL_STRENGTH), true);
                     break;
                 }
             }
