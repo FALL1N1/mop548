@@ -4395,7 +4395,7 @@ int32 Unit::GetTotalAuraModifier(AuraType auratype) const
 
     // Mastery : Critical Block - Increase critical block chance
     if (HasAura(76857) && auratype == SPELL_AURA_MOD_BLOCK_CRIT_CHANCE)
-        modifier += int32(GetFloatValue(PLAYER_FIELD_MASTERY) * 2.2f);
+        modifier += int32(ToPlayer()->GetMasterySpellCoefficient());
 
     return modifier;
 }
