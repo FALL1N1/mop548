@@ -450,7 +450,7 @@ class spell_monk_disable : public SpellScriptLoader
 
             if (Unit* caster = GetCaster())
                 if (Unit* owner = GetUnitOwner())
-                    if (owner->GetDistance2d(caster) < 10.0f)
+                    if ((owner->GetDistance2d(caster) < 10.0f) && caster->IsAlive())
                         aurEff->GetBase()->RefreshDuration();         
         }
 
