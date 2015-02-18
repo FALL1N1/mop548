@@ -445,16 +445,13 @@ class spell_monk_disable : public SpellScriptLoader
 
         void OnPeriodic(AuraEffect const* aurEff)
         {
+            if (aurEff->GetTickNumber() % aurEff->GetTotalTicks() != 0) // last tick of duration
+                return;
+
             if (Unit* caster = GetCaster())
-            {
                 if (Unit* owner = GetUnitOwner())
-                {
                     if (owner->GetDistance2d(caster) < 10.0f)
-                    {
-                        aurEff->GetBase()->RefreshDuration();
-                    }
-                }
-            }           
+                        aurEff->GetBase()->RefreshDuration();         
         }
 
         void AfterReapply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
