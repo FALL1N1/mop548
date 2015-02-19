@@ -5051,7 +5051,6 @@ bool Player::RemoveTalent(uint32 talentId)
         return false;
 
     uint32 spellId = talent->SpellId;
-
     SpellInfo const* unlearnSpellProto = sSpellMgr->GetSpellInfo(spellId);
 
     removeSpell(spellId, true);
@@ -5064,16 +5063,8 @@ bool Player::RemoveTalent(uint32 talentId)
     if (itr != GetTalentMap(GetActiveSpec())->end())
         itr->second->state = PLAYERSPELL_REMOVED;
 
-    uint32 talentPointsForLevel = CalculateTalentsPoints();
-
-    if (!GetUsedTalentCount())
-    {
-        SetFreeTalentPoints(talentPointsForLevel);
-        return false;
-    }
-
-    SetFreeTalentPoints(talentPointsForLevel);
-    SetUsedTalentCount(0);
+    SetFreeTalentPoints(GetFreeTalentPoints()+1);
+    SetUsedTalentCount(GetUsedTalentCount()-1);
 
     // Needs to be executed orthewise the talents will be screwedsx
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
