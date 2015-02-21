@@ -702,19 +702,22 @@ class spell_warr_shockwave : public SpellScriptLoader
             void HandleOnHit(SpellEffIndex /*eff*/)
             {
                 if (Player* _player = GetCaster()->ToPlayer())
-                {
                     if (Unit* target = GetHitUnit())
                         _player->CastSpell(target, WARRIOR_SPELL_SHOCKWAVE_STUN);
+            }
 
-                    if (count >= 3)
-                        _player->ModifySpellCooldown(WARRIOR_SPELL_SHOCKWAVE, -20000);
-                }
+            void HandleReduc(SpellEffIndex eff)
+            {
+                if (count >= 3)
+                    if (Player* _player = GetCaster()->ToPlayer())
+                        _player->ModifySpellCooldown(WARRIOR_SPELL_SHOCKWAVE, -int32(GetSpellInfo()->Effects[eff].BasePoints * IN_MILLISECONDS));
             }
 
             void Register()
             {
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_warr_shockwave_SpellScript::Count, EFFECT_0, TARGET_UNIT_CONE_ENEMY_104);
                 OnEffectHitTarget += SpellEffectFn(spell_warr_shockwave_SpellScript::HandleOnHit, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnEffectHit += SpellEffectFn(spell_warr_shockwave_SpellScript::HandleReduc, EFFECT_3, SPELL_EFFECT_SCRIPT_EFFECT);
             }
 
             private:
