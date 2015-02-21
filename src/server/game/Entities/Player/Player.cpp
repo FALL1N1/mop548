@@ -3397,11 +3397,12 @@ void Player::SendLogXPGain(uint32 GivenXP, Unit* victim, uint32 BonusXP, bool re
     data.WriteGuidBytes(guid, 4, 2);
     if (groupRate)
         data << float(1);                                    // 1 - none 0 - 100% group bonus output
+
     data << uint8(recruitAFriend ? 1 : 0);                  // does the GivenXP include a RaF bonus?
     data.WriteGuidBytes(guid, 7, 1, 3, 6);
     data << uint32(GivenXP + BonusXP);                      // given experience
 
-    if (baseXP)
+    if (victim)
         data << uint32(GivenXP);                            // experience without bonus
 
     data.WriteGuidBytes(guid, 0, 5);
