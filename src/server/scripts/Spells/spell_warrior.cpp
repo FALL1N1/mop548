@@ -1034,7 +1034,8 @@ class spell_warr_glyph_of_gag_order : public SpellScriptLoader
             void HandleOnHit()
             {
                 if (GetCaster()->HasAura(WARRIOR_SPELL_GAG_ORDER_PASSIVE))
-                    GetCaster()->CastSpell(GetHitUnit(), WARRIOR_SPELL_GAG_ORDER);
+                    if (GetHitUnit()->GetTypeId() != TYPEID_PLAYER)
+                        GetCaster()->CastSpell(GetHitUnit(), WARRIOR_SPELL_GAG_ORDER);
             }
 
             void Register()
