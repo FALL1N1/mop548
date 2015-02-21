@@ -81,6 +81,10 @@ enum WarriorSpells
     SPELL_WARRIOR_BLOODBATH                         = 12292,
     SPELL_WARRIOR_BLOODBATH_DEBUFF                  = 113344,
     SPELL_WARRIOR_DRAGON_ROAR                       = 118000,
+    WARRIOR_SPELL_STORM_BOLT                        = 107570,
+    WARRIOR_SPELL_STORM_BOLT_OFFHAND                = 145585,
+    WARRIOR_SPELL_STORM_BOLT_STUN                   = 132169,
+    WARRIOR_SPELL_OVERPOWER                         = 7384
 };
 
 // Mortal strike - 12294
@@ -916,6 +920,52 @@ public:
     }
 };
 
+// Storm Bolt - 107570
+class spell_warr_storm_bolt : public SpellScriptLoader
+{
+    public:
+        spell_warr_storm_bolt() : SpellScriptLoader("spell_warr_storm_bolt") { }
+
+        class spell_warr_storm_bolt_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warr_storm_bolt_SpellScript);
+
+            bool Validate(SpellInfo const* /*info*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(WARRIOR_SPELL_STORM_BOLT_STUN)
+                    || !sSpellMgr->GetSpellInfo(WARRIOR_SPELL_STORM_BOLT)
+                    || !sSpellMgr->GetSpellInfo(WARRIOR_SPELL_STORM_BOLT_OFFHAND))
+                    return false;
+                return true;
+            }
+
+            void HandleOnHit()
+            {
+                if (Player* _player = GetCaster()->ToPlayer())
+                {
+                    if (Unit* unitTarget = GetHitUnit())
+                    {
+                        if (unitTarget->GetDiminishing(DIMINISHING_STUN) == DIMINISHING_LEVEL_IMMUNE
+                            || unitTarget->GetDiminishing(DIMINISHING_CONTROLLED_STUN) == DIMINISHING_LEVEL_IMMUNE)
+                            SetHitDamage(int32(CalculatePct(GetHitDamage(), 500.0f)));
+
+                        if (GetSpellInfo()->Id == WARRIOR_SPELL_STORM_BOLT)
+                            _player->CastSpell(unitTarget, WARRIOR_SPELL_STORM_BOLT_STUN, true);
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_warr_storm_bolt_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_warr_storm_bolt_SpellScript();
+        }
+};
 
 // Overpower - 7384
 class spell_warr_overpower : public SpellScriptLoader
@@ -972,5 +1022,6 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_dragon_roar();
     new spell_warr_slam();
     new spell_warr_sweeping_strikes();
+    new spell_warr_storm_bolt();
     new spell_warr_overpower();
 }

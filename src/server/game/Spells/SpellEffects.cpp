@@ -763,6 +763,13 @@ void Spell::EffectTriggerSpell(SpellEffIndex effIndex)
                 unitTarget->CastSpell(unitTarget, 1784, true);
                 return;
             }
+            // Storm Bolt Off-hand
+            case 145585:
+            {
+                if (!m_caster->haveOffhandWeapon())
+                    return;
+                break;
+            }
         }
     }
 
