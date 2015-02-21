@@ -4761,10 +4761,9 @@ void Player::removeSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
 
 void Player::RemoveSpellCooldown(uint32 spell_id, bool update /* = false */)
 {
-    m_spellCooldowns.erase(spell_id);
-
     if (update)
         SendClearCooldown(spell_id, this);
+    m_spellCooldowns.erase(spell_id);
 }
 
 // I am not sure which one is more efficient
@@ -27645,10 +27644,11 @@ void Player::RemoveAtLoginFlag(AtLoginFlags flags, bool persist /*= false*/)
 
 void Player::SendClearCooldown(uint32 spell_id, Unit* target)
 {
-    WorldPacket data(SMSG_CLEAR_COOLDOWN, 4+8);
-    data << uint32(spell_id);
-    data << uint64(target->GetGUID());
-    SendDirectMessage(&data);
+    ModifySpellCooldown(spell_id, -int32(GetSpellCooldownDelay(spell_id, true)));
+    //WorldPacket data(SMSG_CLEAR_COOLDOWN, 4+8);
+    //data << uint32(spell_id);
+    //data << uint64(target->GetGUID());
+    //SendDirectMessage(&data);
 }
 
 void Player::SendClearAllCooldowns(Unit* target)
