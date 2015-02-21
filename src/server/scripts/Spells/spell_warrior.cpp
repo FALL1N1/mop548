@@ -91,7 +91,9 @@ enum WarriorSpells
     WARRIOR_SPELL_GAG_ORDER                         = 18498,
     WARRIOR_SPELL_SPELL_REFLECTION                  = 23920,
     WARRIOR_SPELL_MASS_REFLECT                      = 114028,
-    WARRIOR_SPELL_SHIELD_WALL                       = 871
+    WARRIOR_SPELL_SHIELD_WALL                       = 871,
+    WARRIOR_SPELL_GLYPH_OF_IMPALING_THROW_VISUAL    = 134967,
+    WARRIOR_SPELL_GLYPH_OF_IMPALING_THROW_PASSIVE   = 146970
 };
 
 // Mortal strike - 12294
@@ -1150,6 +1152,59 @@ class spell_warr_shields_visual : public SpellScriptLoader
         }
 };
 
+// Heroic Throw: 134967
+class spell_warr_impaling_throws : public SpellScriptLoader
+{
+    public:
+        spell_warr_impaling_throws() : SpellScriptLoader("spell_warr_impaling_throws") { }
+
+        class spell_warr_impaling_throws_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warr_impaling_throws_SpellScript);
+
+            void Impale(SpellEffIndex /*eff*/)
+            {
+                if (GetCaster()->HasAura(WARRIOR_SPELL_GLYPH_OF_IMPALING_THROW_PASSIVE) && GetCaster()->GetDistance2d(GetHitUnit()) > 10.0f)
+                    GetCaster()->CastSpell(GetHitUnit(), WARRIOR_SPELL_GLYPH_OF_IMPALING_THROW_VISUAL);
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_warr_impaling_throws_SpellScript::Impale, EFFECT_0, SPELL_EFFECT_WEAPON_PERCENT_DAMAGE);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_warr_impaling_throws_SpellScript();
+        }
+
+        class spell_warr_impaling_throws_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_warr_impaling_throws_AuraScript);
+
+            void CheckImpale(AuraEffect const* /*aurEff*/)
+            {
+                if (Player* player = GetCaster()->ToPlayer())
+                    if (player->GetDistance2d(GetOwner()) < 5.0f)
+                    {
+                        player->RemoveSpellCooldown(WARRIOR_SPELL_HEROIC_THROW, true);
+                        GetOwner()->ToUnit()->RemoveAurasDueToSpell(WARRIOR_SPELL_GLYPH_OF_IMPALING_THROW_VISUAL);
+                    }
+            }
+            
+            void Register()
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_warr_impaling_throws_AuraScript::CheckImpale, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_warr_impaling_throws_AuraScript();
+        }
+};
+
 void AddSC_warrior_spell_scripts()
 {
     new spell_warr_sword_and_board();
@@ -1173,4 +1228,5 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_overpower();
     new spell_warr_glyph_of_gag_order();
     new spell_warr_shields_visual();
+    new spell_warr_impaling_throws();
 }

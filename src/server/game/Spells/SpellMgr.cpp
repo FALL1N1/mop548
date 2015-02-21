@@ -3662,6 +3662,13 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 146361: // Slam AoE
                 spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_TARGET_ENEMY;
                 break;
+            case 134967: // Heroic Throw (Impaling)
+                spellInfo->Effects[EFFECT_1].Effect = SPELL_EFFECT_APPLY_AURA;
+                spellInfo->Effects[EFFECT_1].ApplyAuraName = SPELL_AURA_PERIODIC_DUMMY;
+                spellInfo->Effects[EFFECT_1].Amplitude = 250;
+                spellInfo->Effects[EFFECT_1].TargetA = TARGET_UNIT_TARGET_ANY;
+                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(9); // 30s
+                break;
             default:
                 break;
         }
