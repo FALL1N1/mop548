@@ -229,11 +229,6 @@ std::string TimeToTimestampStr(time_t t)
     return std::string(buf);
 }
 
-time_t timeInMs()
-{
-    return time(NULL) * IN_MILLISECONDS; 
-};
-
 /// Check if the string is a valid ip address representation
 bool IsIPAddress(char const* ipaddress)
 {

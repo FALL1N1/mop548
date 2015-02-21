@@ -74,7 +74,6 @@ int64 MoneyStringToMoney(const std::string& moneyString);
 std::string secsToTimeString(uint64 timeInSecs, bool shortText = false, bool hoursOnly = false);
 uint32 TimeStringToSecs(const std::string& timestring);
 std::string TimeToTimestampStr(time_t t);
-time_t timeInMs();
 
 /* Return a random number in the range min..max; (max-min) must be smaller than 32768. */
 int32 irand(int32 min, int32 max);

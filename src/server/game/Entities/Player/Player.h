@@ -270,8 +270,7 @@ struct CUFProfile
 
 struct SpellCooldown
 {
-    //time_t end;
-    time_t end_ms;
+    time_t end;
     uint16 itemid;
 };
 
@@ -1903,7 +1902,7 @@ class Player : public Unit, public GridObject<Player>
         static uint32 const infinityCooldownDelay = MONTH;  // used for set "infinity cooldowns" for spells and check
         static uint32 const infinityCooldownDelayCheck = MONTH/2;
         bool HasSpellCooldown(uint32 spell_id) const;
-        uint64 GetSpellCooldownDelay(uint32 spell_id, bool in_ms = false) const;
+        uint32 GetSpellCooldownDelay(uint32 spell_id) const;
         void AddSpellAndCategoryCooldowns(SpellInfo const* spellInfo, uint32 itemId, Spell* spell = NULL, bool infinityCooldown = false);
         void AddSpellCooldown(uint32 spell_id, uint32 itemid, time_t end_time);
         void ModifySpellCooldown(uint32 spellId, int32 cooldown);

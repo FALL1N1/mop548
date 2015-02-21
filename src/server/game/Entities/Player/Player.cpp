@@ -4875,7 +4875,7 @@ void Player::_SaveSpellCooldowns(SQLTransaction& trans)
     stmt->setUInt32(0, GetGUIDLow());
     trans->Append(stmt);
 
-    time_t curTime = timeInMs();
+    time_t curTime = time(NULL);
     time_t infTime = curTime + infinityCooldownDelayCheck;
 
     bool first_round = true;
@@ -4884,9 +4884,9 @@ void Player::_SaveSpellCooldowns(SQLTransaction& trans)
     // remove outdated and save active
     for (SpellCooldowns::iterator itr = m_spellCooldowns.begin(); itr != m_spellCooldowns.end();)
     {
-        if (itr->second.end_ms <= curTime)
+        if (itr->second.end <= curTime)
             m_spellCooldowns.erase(itr++);
-        else if (itr->second.end_ms <= infTime)                 // not save locked cooldowns, it will be reset or set at reload
+        else if (itr->second.end <= infTime)                 // not save locked cooldowns, it will be reset or set at reload
         {
             if (first_round)
             {
@@ -4896,7 +4896,7 @@ void Player::_SaveSpellCooldowns(SQLTransaction& trans)
             // next new/changed record prefix
             else
                 ss << ',';
-            ss << '(' << GetGUIDLow() << ',' << itr->first << ',' << itr->second.itemid << ',' << uint64(itr->second.end_ms) << ')';
+            ss << '(' << GetGUIDLow() << ',' << itr->first << ',' << itr->second.itemid << ',' << uint64(itr->second.end) << ')';
             ++itr;
         }
         else
@@ -23546,14 +23546,14 @@ void Player::UpdatePvP(bool state, bool override)
 bool Player::HasSpellCooldown(uint32 spell_id) const
 {
     SpellCooldowns::const_iterator itr = m_spellCooldowns.find(spell_id);
-    return itr != m_spellCooldowns.end() && itr->second.end_ms > timeInMs();
+    return itr != m_spellCooldowns.end() && itr->second.end > time(NULL);
 }
 
-uint64 Player::GetSpellCooldownDelay(uint32 spell_id, bool in_ms) const
+uint32 Player::GetSpellCooldownDelay(uint32 spell_id) const
 {
     SpellCooldowns::const_iterator itr = m_spellCooldowns.find(spell_id);
-    time_t t = in_ms ? timeInMs() : time(NULL);
-    return uint64(itr != m_spellCooldowns.end() && itr->second.end_ms > t ? itr->second.end_ms - t : 0);
+    time_t t = time(NULL);
+    return uint32(itr != m_spellCooldowns.end() && itr->second.end > t ? itr->second.end - t : 0);
 }
 
 void Player::AddSpellAndCategoryCooldowns(SpellInfo const* spellInfo, uint32 itemId, Spell* spell, bool infinityCooldown)
@@ -23681,7 +23681,7 @@ void Player::AddSpellAndCategoryCooldowns(SpellInfo const* spellInfo, uint32 ite
 void Player::AddSpellCooldown(uint32 spellid, uint32 itemid, time_t end_time)
 {
     SpellCooldown sc;
-    sc.end_ms = end_time * IN_MILLISECONDS;
+    sc.end = end_time;
     sc.itemid = itemid;
     m_spellCooldowns[spellid] = sc;
 }
@@ -23692,9 +23692,10 @@ void Player::ModifySpellCooldown(uint32 spellId, int32 cooldown)
     if (itr == m_spellCooldowns.end())
         return;
 
-    time_t now = timeInMs();
-    if (itr->second.end_ms + (cooldown) > now)
-        itr->second.end_ms += (cooldown);
+    // TODO: fix the delay between cooldown update by client and by core
+    time_t now = time(NULL);
+    if (itr->second.end + (cooldown / IN_MILLISECONDS) > now)
+        itr->second.end += (cooldown / IN_MILLISECONDS);
     else
         m_spellCooldowns.erase(itr);
 
@@ -24835,7 +24836,7 @@ void Player::ApplyEquipCooldown(Item* pItem)
 
         // Don't replace longer cooldowns by equip cooldown if we have any.
         SpellCooldowns::iterator itr = m_spellCooldowns.find(spellData.SpellId);
-        if (itr != m_spellCooldowns.end() && itr->second.itemid == pItem->GetEntry() && itr->second.end_ms > (time(NULL) + 30) * IN_MILLISECONDS)
+        if (itr != m_spellCooldowns.end() && itr->second.itemid == pItem->GetEntry() && itr->second.end > time(NULL) + 30)
             break;
 
         AddSpellCooldown(spellData.SpellId, pItem->GetEntry(), time(NULL) + 30);
