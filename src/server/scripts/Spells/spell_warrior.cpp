@@ -916,6 +916,43 @@ public:
     }
 };
 
+
+// Overpower - 7384
+class spell_warr_overpower : public SpellScriptLoader
+{
+    public:
+        spell_warr_overpower() : SpellScriptLoader("spell_warr_overpower") { }
+
+        class spell_warr_overpower_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warr_overpower_SpellScript);
+
+            bool Validate(SpellInfo const* /*info*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(WARRIOR_SPELL_OVERPOWER)
+                    || !sSpellMgr->GetSpellInfo(WARRIOR_SPELL_MORTAL_STRIKE))
+                    return false;
+                return true;
+            }
+
+            void HandleOnHit()
+            {
+                if (Player* _player = GetCaster()->ToPlayer())
+                    _player->ModifySpellCooldown(WARRIOR_SPELL_MORTAL_STRIKE, -500);
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_warr_overpower_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_warr_overpower_SpellScript();
+        }
+};
+
 void AddSC_warrior_spell_scripts()
 {
     new spell_warr_sword_and_board();
@@ -935,4 +972,5 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_dragon_roar();
     new spell_warr_slam();
     new spell_warr_sweeping_strikes();
+    new spell_warr_overpower();
 }
