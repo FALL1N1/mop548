@@ -84,7 +84,10 @@ enum WarriorSpells
     WARRIOR_SPELL_STORM_BOLT                        = 107570,
     WARRIOR_SPELL_STORM_BOLT_OFFHAND                = 145585,
     WARRIOR_SPELL_STORM_BOLT_STUN                   = 132169,
-    WARRIOR_SPELL_OVERPOWER                         = 7384
+    WARRIOR_SPELL_OVERPOWER                         = 7384,
+    WARRIOR_SPELL_HEROIC_THROW                      = 57755,
+    WARRIOR_SPELL_PUMMEL                            = 6552,
+    WARRIOR_SPELL_GAG_ORDER_PASSIVE                 = 58357,
     WARRIOR_SPELL_GAG_ORDER                         = 18498,
     WARRIOR_SPELL_SPELL_REFLECTION                  = 23920,
     WARRIOR_SPELL_MASS_REFLECT                      = 114028,
@@ -1010,6 +1013,42 @@ class spell_warr_overpower : public SpellScriptLoader
         }
 };
 
+// Glyph of Gag Order (57755, 6552)
+class spell_warr_glyph_of_gag_order : public SpellScriptLoader
+{
+    public:
+        spell_warr_glyph_of_gag_order() : SpellScriptLoader("spell_warr_glyph_of_gag_order") { }
+
+        class spell_warr_glyph_of_gag_order_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warr_glyph_of_gag_order_SpellScript);
+
+            bool Validate(SpellInfo const* /*info*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(WARRIOR_SPELL_HEROIC_THROW)
+                    || !sSpellMgr->GetSpellInfo(WARRIOR_SPELL_PUMMEL))
+                    return false;
+                return true;
+            }
+
+            void HandleOnHit()
+            {
+                if (GetCaster()->HasAura(WARRIOR_SPELL_GAG_ORDER_PASSIVE))
+                    GetCaster()->CastSpell(GetHitUnit(), WARRIOR_SPELL_GAG_ORDER);
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_warr_glyph_of_gag_order_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_warr_glyph_of_gag_order_SpellScript();
+        }
+};
+
 enum ShieldVisuals
 {
     REFLECT_VISUAL_SHIELD = 146120,
@@ -1131,5 +1170,6 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_sweeping_strikes();
     new spell_warr_storm_bolt();
     new spell_warr_overpower();
+    new spell_warr_glyph_of_gag_order();
     new spell_warr_shields_visual();
 }
