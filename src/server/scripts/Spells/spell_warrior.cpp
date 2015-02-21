@@ -1164,7 +1164,7 @@ class spell_warr_impaling_throws : public SpellScriptLoader
 
             void Impale(SpellEffIndex /*eff*/)
             {
-                if (GetCaster()->HasAura(WARRIOR_SPELL_GLYPH_OF_IMPALING_THROW_PASSIVE) && GetCaster()->GetDistance2d(GetHitUnit()) > 10.0f)
+                if (GetCaster()->HasAura(WARRIOR_SPELL_GLYPH_OF_IMPALING_THROW_PASSIVE) && !GetCaster()->IsWithinDist(GetHitUnit(), 10.0f))
                     GetCaster()->CastSpell(GetHitUnit(), WARRIOR_SPELL_GLYPH_OF_IMPALING_THROW_VISUAL);
             }
 
@@ -1186,7 +1186,7 @@ class spell_warr_impaling_throws : public SpellScriptLoader
             void CheckImpale(AuraEffect const* /*aurEff*/)
             {
                 if (Player* player = GetCaster()->ToPlayer())
-                    if (player->GetDistance2d(GetOwner()) < 5.0f)
+                    if (player->IsWithinDist(GetOwner(), 5.0f))
                     {
                         player->RemoveSpellCooldown(WARRIOR_SPELL_HEROIC_THROW, true);
                         GetOwner()->ToUnit()->RemoveAurasDueToSpell(WARRIOR_SPELL_GLYPH_OF_IMPALING_THROW_VISUAL);
