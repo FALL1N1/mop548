@@ -3669,6 +3669,10 @@ void SpellMgr::LoadSpellInfoCorrections()
                 spellInfo->Effects[EFFECT_1].TargetA = TARGET_UNIT_TARGET_ANY;
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(9); // 30s
                 break;
+            case 97463: // Rallying Cry Aura
+                spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_MOD_INCREASE_HEALTH_PERCENT;
+                spellInfo->Effects[EFFECT_0].BasePoints = 20;
+                break;
             default:
                 break;
         }

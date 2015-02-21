@@ -1205,6 +1205,38 @@ class spell_warr_impaling_throws : public SpellScriptLoader
         }
 };
 
+enum Rallying
+{
+    WARRIOR_SPELL_RALLYING_CRY_BUFF = 97463
+};
+
+// Rallying Cry - 97462
+class spell_warr_rallying_cry : public SpellScriptLoader
+{
+    public:
+        spell_warr_rallying_cry() : SpellScriptLoader("spell_warr_rallying_cry") { }
+
+        class spell_warr_rallying_cry_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warr_rallying_cry_SpellScript);
+
+            void Buff(SpellEffIndex /*eff*/)
+            {
+                GetCaster()->CastSpell(GetHitUnit(), WARRIOR_SPELL_RALLYING_CRY_BUFF, true);
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_warr_rallying_cry_SpellScript::Buff, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_warr_rallying_cry_SpellScript();
+        }
+};
+
 void AddSC_warrior_spell_scripts()
 {
     new spell_warr_sword_and_board();
@@ -1229,4 +1261,5 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_glyph_of_gag_order();
     new spell_warr_shields_visual();
     new spell_warr_impaling_throws();
+    new spell_warr_rallying_cry();
 }
