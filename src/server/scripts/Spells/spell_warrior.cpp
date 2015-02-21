@@ -85,6 +85,10 @@ enum WarriorSpells
     WARRIOR_SPELL_STORM_BOLT_OFFHAND                = 145585,
     WARRIOR_SPELL_STORM_BOLT_STUN                   = 132169,
     WARRIOR_SPELL_OVERPOWER                         = 7384
+    WARRIOR_SPELL_GAG_ORDER                         = 18498,
+    WARRIOR_SPELL_SPELL_REFLECTION                  = 23920,
+    WARRIOR_SPELL_MASS_REFLECT                      = 114028,
+    WARRIOR_SPELL_SHIELD_WALL                       = 871
 };
 
 // Mortal strike - 12294
@@ -1006,6 +1010,106 @@ class spell_warr_overpower : public SpellScriptLoader
         }
 };
 
+enum ShieldVisuals
+{
+    REFLECT_VISUAL_SHIELD = 146120,
+    REFLECT_VISUAL_NO_SHIELD_HORDE = 146122,
+    REFLECT_VISUAL_NO_SHIELD_ALLIANCE = 147925,
+    SHIELD_WALL_VISUAL_SHIELD = 146128,
+    SHIELD_WALL_VISUAL_NO_SHIELD_HORDE = 146127,
+    SHIELD_WALL_VISUAL_NO_SHIELD_ALLIANCE = 147925
+};
+
+// Shield Wall: 871; Reflects: 23920, 114028
+class spell_warr_shields_visual : public SpellScriptLoader
+{
+    public:
+        spell_warr_shields_visual() : SpellScriptLoader("spell_warr_shields_visual") { }
+
+        class spell_warr_shields_visual_Auracript : public AuraScript
+        {
+            PrepareAuraScript(spell_warr_shields_visual_Auracript);
+
+            bool Validate(SpellInfo const* /*info*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(WARRIOR_SPELL_SHIELD_WALL)
+                    || !sSpellMgr->GetSpellInfo(WARRIOR_SPELL_MASS_REFLECT)
+                    || !sSpellMgr->GetSpellInfo(WARRIOR_SPELL_SPELL_REFLECTION))
+                    return false;
+                return true;
+            }
+
+            bool HasShieldEquipped(Player* player)
+            {
+                if (player->haveOffhandWeapon())
+                    if (Item* item = player->GetItemByPos(EQUIPMENT_SLOT_OFFHAND))
+                        if (item->GetTemplate()->SubClass == ITEM_SUBCLASS_ARMOR_SHIELD)
+                            return true;
+                return false;
+            }
+
+            void Visuals(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (Player* player = GetCaster()->ToPlayer())
+                {
+                    if (Player* target = GetOwner()->ToPlayer())
+                    {
+                        switch (GetSpellInfo()->Id)
+                        {
+                            case WARRIOR_SPELL_SHIELD_WALL:
+                            {
+                                target->CastSpell(target, HasShieldEquipped(target) ? SHIELD_WALL_VISUAL_SHIELD : (target->GetTeam() == ALLIANCE ? SHIELD_WALL_VISUAL_NO_SHIELD_ALLIANCE : SHIELD_WALL_VISUAL_NO_SHIELD_HORDE));
+                                break;
+                            }
+                            case WARRIOR_SPELL_MASS_REFLECT:
+                            case WARRIOR_SPELL_SPELL_REFLECTION:
+                            {
+                                target->CastSpell(target, HasShieldEquipped(target) ? REFLECT_VISUAL_SHIELD : (target->GetTeam() == ALLIANCE ? REFLECT_VISUAL_NO_SHIELD_ALLIANCE : REFLECT_VISUAL_NO_SHIELD_HORDE));
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+
+            void VisualsRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                switch (GetSpellInfo()->Id)
+                {
+                    case WARRIOR_SPELL_SHIELD_WALL:
+                    {
+                        GetOwner()->ToPlayer()->RemoveAurasDueToSpell(SHIELD_WALL_VISUAL_SHIELD);
+                        GetOwner()->ToPlayer()->RemoveAurasDueToSpell(SHIELD_WALL_VISUAL_NO_SHIELD_ALLIANCE);
+                        GetOwner()->ToPlayer()->RemoveAurasDueToSpell(SHIELD_WALL_VISUAL_NO_SHIELD_HORDE);
+                        break;
+                    }
+                    case WARRIOR_SPELL_MASS_REFLECT:
+                    case WARRIOR_SPELL_SPELL_REFLECTION:
+                    {
+                        GetOwner()->ToPlayer()->RemoveAurasDueToSpell(REFLECT_VISUAL_SHIELD);
+                        GetOwner()->ToPlayer()->RemoveAurasDueToSpell(REFLECT_VISUAL_NO_SHIELD_ALLIANCE);
+                        GetOwner()->ToPlayer()->RemoveAurasDueToSpell(REFLECT_VISUAL_NO_SHIELD_HORDE);
+                        break;
+                    }
+                }
+                
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_warr_shields_visual_Auracript::Visuals, EFFECT_0, SPELL_AURA_REFLECT_SPELLS, AURA_EFFECT_HANDLE_REAL);
+                OnEffectApply += AuraEffectApplyFn(spell_warr_shields_visual_Auracript::Visuals, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_warr_shields_visual_Auracript::VisualsRemove, EFFECT_0, SPELL_AURA_REFLECT_SPELLS, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_warr_shields_visual_Auracript::VisualsRemove, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_warr_shields_visual_Auracript();
+        }
+};
+
 void AddSC_warrior_spell_scripts()
 {
     new spell_warr_sword_and_board();
@@ -1027,4 +1131,5 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_sweeping_strikes();
     new spell_warr_storm_bolt();
     new spell_warr_overpower();
+    new spell_warr_shields_visual();
 }
