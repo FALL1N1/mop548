@@ -868,7 +868,6 @@ bool Aura::ModCharges(int32 num, AuraRemoveMode removeMode)
             return false;
         }
 
-
         // limit charges (only on charges increase, charges may be changed manually)
         if ((num > 0) && (charges > int32(maxCharges)))
             charges = maxCharges;

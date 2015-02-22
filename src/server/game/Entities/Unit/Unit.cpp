@@ -7319,17 +7319,23 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
                 return false;
             break;
         }
-        case 13046: // Enrage proc
+        case 12950: // Meat Cleaver proc
         {
-            if (!(procEx & PROC_EX_CRITICAL_HIT))
+            if (procSpell->Id != 1680) // Whirlwind
                 return false;
-            if (!procSpell->Id)
+            break;
+        }
+        case 13046: // Enrage proc
+        {      
+            if (!procSpell)
+                return false;
+            if (!(procEx & PROC_EX_CRITICAL_HIT))
                 return false;
 
             if (procSpell->Id != 12294 // Mortal Strike
-                || procSpell->Id != 86346 // Colossus Smash
-                || procSpell->Id != 20243 // Devastate
-                || procSpell->Id != 23881) // Bloodthirst
+                && procSpell->Id != 86346 // Colossus Smash
+                && procSpell->Id != 20243 // Devastate
+                && procSpell->Id != 23881) // Bloodthirst
                 return false;
 
             // Glyph of Burning Anger

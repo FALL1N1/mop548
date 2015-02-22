@@ -3673,6 +3673,9 @@ void SpellMgr::LoadSpellInfoCorrections()
                 spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_MOD_INCREASE_HEALTH_PERCENT;
                 spellInfo->Effects[EFFECT_0].BasePoints = 20;
                 break;
+            case 100130: // Wild Strike
+                spellInfo->EquippedItemInventoryTypeMask = 0x0;
+                break;
             default:
                 break;
         }
