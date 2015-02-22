@@ -12994,9 +12994,9 @@ void HandleCustomCharged(Unit* caster, Aura* aura, SpellInfo const* procSpell)
         {
             if (procSpell->Id == 85384)
             {
-                TC_LOG_ERROR("general", "dropping charge");
+                
                 aura->DropCharge();
-            break;
+                break;
             }
         }
     }

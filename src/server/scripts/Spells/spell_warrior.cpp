@@ -1285,8 +1285,41 @@ class spell_warr_raging_blow : public SpellScriptLoader
         }
 };
 
+enum MeatCleaver
+{
+    WARRIOR_SPELL_CLEAVER = 85739
+};
+
+// Called by Raging Blow Main-Hand - 85288
+class spell_warr_meat_cleaver : public SpellScriptLoader
+{
+    public:
+        spell_warr_meat_cleaver() : SpellScriptLoader("spell_warr_meat_cleaver") { }
+
+        class spell_warr_meat_cleaver_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warr_meat_cleaver_SpellScript);
+
+            void HandleOnHit()
+            {
+                GetCaster()->RemoveAurasDueToSpell(WARRIOR_SPELL_CLEAVER);
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_warr_meat_cleaver_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_warr_meat_cleaver_SpellScript();
+        }
+};
+
 void AddSC_warrior_spell_scripts()
 {
+    new spell_warr_meat_cleaver();
     new spell_warr_sword_and_board();
     new spell_warr_shield_block();
     new spell_warr_mortal_strike();

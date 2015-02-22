@@ -1452,6 +1452,9 @@ void Spell::SelectImplicitChainTargets(SpellEffIndex effIndex, SpellImplicitTarg
 
     if (maxTargets > 1)
     {
+        if (IsTriggered())
+            return;
+
         // mark damage multipliers as used
         for (uint32 k = effIndex; k < MAX_SPELL_EFFECTS; ++k)
             if (effMask & (1 << k))
