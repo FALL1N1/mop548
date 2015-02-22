@@ -552,6 +552,7 @@ public:
     static bool _IsPositiveTarget(uint32 targetA, uint32 targetB);
     bool CanTriggerHotStreak() const;
     bool IsCustomCheckedForHolyPower() const;
+    bool IsCustomCharged() const;
 
     // unloading helpers
     void _UnloadImplicitTargetConditionLists();

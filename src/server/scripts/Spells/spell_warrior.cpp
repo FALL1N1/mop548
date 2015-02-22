@@ -1237,6 +1237,54 @@ class spell_warr_rallying_cry : public SpellScriptLoader
         }
 };
 
+enum RagingBlow
+{
+    WARRIOR_SPELL_ALLOW_RAGING_BLOW = 131116,
+    WARRIOR_SPELL_GLYPH_OF_RAGING_WIND_PASSIVE = 58370,
+    WARRIOR_SPELL_GLYPH_OF_RAGING_WIND = 115317,
+    WARRIOR_SPELL_ENRAGE = 12880
+};
+
+// Called by the proc of Enrage - 12880
+// Raging Blow (allow to use it) - 131116
+class spell_warr_raging_blow : public SpellScriptLoader
+{
+    public:
+        spell_warr_raging_blow() : SpellScriptLoader("spell_warr_raging_blow") { }
+
+        class spell_warr_raging_blow_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warr_raging_blow_SpellScript);
+
+            void HandleOnHit()
+            {
+                if (Player* _player = GetCaster()->ToPlayer())
+                {
+                    if (GetSpellInfo()->Id == WARRIOR_SPELL_ENRAGE)
+                    {
+                        if (_player->GetSpecializationId(_player->GetActiveSpec()) == CHAR_SPECIALIZATION_WARRIOR_FURY && _player->getLevel() >= 30)
+                            _player->CastSpell(_player, WARRIOR_SPELL_ALLOW_RAGING_BLOW, true);
+                    }
+                    else
+                    {
+                        if (_player->HasAura(WARRIOR_SPELL_GLYPH_OF_RAGING_WIND_PASSIVE))
+                            _player->CastSpell(_player, WARRIOR_SPELL_GLYPH_OF_RAGING_WIND, true);
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_warr_raging_blow_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_warr_raging_blow_SpellScript();
+        }
+};
+
 void AddSC_warrior_spell_scripts()
 {
     new spell_warr_sword_and_board();
@@ -1262,4 +1310,5 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_shields_visual();
     new spell_warr_impaling_throws();
     new spell_warr_rallying_cry();
+    new spell_warr_raging_blow();
 }

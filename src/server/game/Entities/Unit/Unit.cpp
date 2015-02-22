@@ -12980,6 +12980,22 @@ uint32 createProcExtendMask(SpellNonMeleeDamage* damageInfo, SpellMissInfo missC
     return procEx;
 }
 
+void HandleCustomCharged(Unit* caster, Aura* aura, SpellInfo const* procSpell)
+{
+    switch (aura->GetId())
+    {
+        case 131116: // Raging Blow
+        {
+            if (procSpell->Id == 85384)
+            {
+                TC_LOG_ERROR("general", "dropping charge");
+                aura->DropCharge();
+            break;
+            }
+        }
+    }
+}
+
 void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, uint32 procExtra, WeaponAttackType attType, SpellInfo const* procSpell, uint32 damage, SpellInfo const* procAura)
 {
     // Player is loaded now - do not allow passive spell casts to proc
@@ -13326,7 +13342,12 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
 
         // Remove charge (aura can be removed by triggers)
         if (prepare && useCharges && takeCharges)
-            i->aura->DropCharge();
+        {
+            if (i->aura->GetSpellInfo()->IsCustomCharged())
+                HandleCustomCharged(this, i->aura, procSpell);
+            else
+                i->aura->DropCharge();
+        }
 
         i->aura->CallScriptAfterProcHandlers(aurApp, eventInfo);
 

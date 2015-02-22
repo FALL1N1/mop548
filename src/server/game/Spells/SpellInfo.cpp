@@ -3068,3 +3068,16 @@ bool SpellInfo::IsCustomCheckedForHolyPower() const
     }
     return true;
 }
+
+bool SpellInfo::IsCustomCharged() const
+{
+    switch (Id)
+    {
+        case 131116: // Raging Blow
+            return true;
+        default:
+            return false;
+    }
+
+    return false;
+}

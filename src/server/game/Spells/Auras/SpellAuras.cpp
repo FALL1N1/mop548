@@ -861,6 +861,13 @@ bool Aura::ModCharges(int32 num, AuraRemoveMode removeMode)
     {
         int32 charges = m_procCharges + num;
         int32 maxCharges = CalcMaxCharges();
+        int32 stackamount = GetSpellInfo()->StackAmount;
+        if (stackamount > maxCharges && maxCharges > 0 && num < 0)
+        {
+            ModStackAmount(num, removeMode);
+            return false;
+        }
+
 
         // limit charges (only on charges increase, charges may be changed manually)
         if ((num > 0) && (charges > int32(maxCharges)))
