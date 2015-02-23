@@ -443,29 +443,123 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                 break;
             }
             case SPELLFAMILY_MONK:
-                // Touch of Death
-                if (m_spellInfo->Id == 115080)
+            {
+                switch (m_spellInfo->Id)
                 {
-                    damage = unitTarget->GetHealth();
-                }
-                // Blackout Kick
-                else if (m_spellInfo->Id == 100784)
-                {
-                    // Combat Conditioning
-                    if (m_caster->HasAura(128595))
+                    // Custom MoP script
+                    case 123408:// Spinning Fire Blossom
                     {
-                        int32 bp0 = CalculatePct(damage, 20);
-
-                        if (unitTarget->isInBack(m_caster, M_PI / 2))
+                        if (Player* player = m_caster->ToPlayer())
+                            damage = player->CalculateMonkMeleeAttacks(1.5f, 6);
+                        break;
+                    }
+                    case 117418:// Fists of Fury
+                    {
+                        if (Player* player = m_caster->ToPlayer())
                         {
-                            bp0 /= 4;
-                            m_caster->CastCustomSpell(unitTarget, 128531, &bp0, NULL, NULL, true);
+                            damage = player->CalculateMonkMeleeAttacks(7.5f, 14);
+
+                            uint32 count = 0;
+                            for (std::list<TargetInfo>::iterator ihit= m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
+                                if (ihit->effectMask & (1<<effIndex))
+                                    ++count;
+
+                            damage /= count;
                         }
-                        else if (unitTarget->isInFront(m_caster, M_PI / 2))
-                            m_caster->CastCustomSpell(m_caster, 128591, &bp0, NULL, NULL, true);
+
+                        break;
+                    }
+                    case 100780:// Jab
+                    case 108557:// Jab (Staff)
+                    case 115698:// Jab (Polearm)
+                    case 115687:// Jab (Axes)
+                    case 115693:// Jab (Maces)
+                    case 115695:// Jab (Swords)
+                    {
+                        if (Player* player = m_caster->ToPlayer())
+                            damage = player->CalculateMonkMeleeAttacks(1.5f, 14);
+                        break;
+                    }
+                    case 100787:// Tiger Palm
+                    {
+                        if (Player* player = m_caster->ToPlayer())
+                        {
+                            damage = player->CalculateMonkMeleeAttacks(3.0f, 14);
+                            player->RemoveAurasDueToSpell(118864); // Combo Breaker
+                        }
+
+                        break;
+                    }
+                    case 107270:// Spinning Crane Kick
+                    {
+                        if (Player* player = m_caster->ToPlayer())
+                            damage = player->CalculateMonkMeleeAttacks(1.59f, 14);
+                        break;
+                    }
+                    case 107428:// Rising Sun Kick
+                    {
+                        if (Player* player = m_caster->ToPlayer())
+                            damage = player->CalculateMonkMeleeAttacks(14.4f, 14);
+                        m_caster->CastSpell(unitTarget, 130320, true);
+                        break;
+                    }
+                    case 124335:// Swift Reflexes
+                    {
+                        if (Player* player = m_caster->ToPlayer())
+                        {
+                            switch (player->GetSpecializationId(player->GetActiveSpec()))
+                            {
+                                case CHAR_SPECIALIZATION_MONK_BREWMASTER:
+                                    damage = player->CalculateMonkMeleeAttacks(0.3f, 5);
+                                    break;
+                                case CHAR_SPECIALIZATION_MONK_MISTWEAVER:
+                                    damage = player->CalculateMonkMeleeAttacks(0.3f, 6);
+                                    break;
+                                case CHAR_SPECIALIZATION_MONK_WINDWALKER:
+                                    damage = player->CalculateMonkMeleeAttacks(0.3f, 6);
+                                    break;
+                                default:
+                                    break;
+                            }
+                        }
+                        break;
+                    }
+                    case 121253:// Keg Smash
+                    {
+                        if (Player* player = m_caster->ToPlayer())
+                            damage = player->CalculateMonkMeleeAttacks(10.0f, 11);
+                        break;
+                    }
+                    case 115080: // Touch of Death
+                    {
+                        damage = unitTarget->GetHealth();
+                        break;
+                    }
+                    case 100784: // Blackout Kick
+                    {
+                        if (Player* player = m_caster->ToPlayer())
+                        {
+                            damage = player->CalculateMonkMeleeAttacks(8.0f, 14);
+                            player->RemoveAurasDueToSpell(116768); // Combo Breaker
+                        }
+                        // Combat Conditioning
+                        if (m_caster->HasAura(128595))
+                        {
+                            int32 bp0 = CalculatePct(damage, 20);
+
+                            if (unitTarget->isInBack(m_caster, M_PI / 2))
+                            {
+                                bp0 /= 4;
+                                m_caster->CastCustomSpell(unitTarget, 128531, &bp0, NULL, NULL, true);
+                            }
+                            else if (unitTarget->isInFront(m_caster, M_PI / 2))
+                                m_caster->CastCustomSpell(m_caster, 128591, &bp0, NULL, NULL, true);
+                        }
+                        break;
                     }
                 }
                 break;
+            }
             case SPELLFAMILY_WARRIOR:
             {
                 // Victory Rush
@@ -1358,6 +1452,16 @@ void Spell::EffectHeal(SpellEffIndex effIndex)
                 }
 
                 addhealth = caster->SpellHealingBonusDone(unitTarget, m_spellInfo, addhealth, HEAL, effIndex);
+                break;
+            }
+            case 115072:// Expel Harm
+            {
+                if (caster && caster->getClass() == CLASS_MONK && addhealth && m_spellInfo->Id == 115072)
+                {
+                    addhealth = caster->ToPlayer()->CalculateMonkMeleeAttacks(7, 14);
+                    addhealth = caster->SpellHealingBonusDone(unitTarget, m_spellInfo, addhealth, HEAL, effIndex);
+                }
+
                 break;
             }
             default:

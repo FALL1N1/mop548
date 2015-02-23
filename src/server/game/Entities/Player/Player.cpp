@@ -29566,3 +29566,56 @@ void Player::RemovePassiveTalentSpell(uint32 spellId)
             break;
     }
 }
+
+int32 Player::CalculateMonkMeleeAttacks(float coeff, int32 APmultiplier)
+{
+    Item* mainItem = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
+    Item* offItem = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
+
+    float minDamage = 0;
+    float maxDamage = 0;
+    bool dualwield = (mainItem && offItem) ? 1 : 0;
+    int32 AP = GetTotalAttackPowerValue(BASE_ATTACK);
+
+    if (coeff < 0)
+        coeff = 0.0f;
+
+    // Main Hand
+    if (mainItem)
+    {
+        minDamage += mainItem->GetTemplate()->DamageMin;
+        maxDamage += mainItem->GetTemplate()->DamageMax;
+
+        minDamage /= float(GetAttackTime(BASE_ATTACK) / 1000.0f);
+        maxDamage /= float(GetAttackTime(BASE_ATTACK) / 1000.0f);
+    }
+
+    // Off Hand
+    if (offItem)
+    {
+        minDamage += offItem->GetTemplate()->DamageMin / 2.0f;
+        maxDamage += offItem->GetTemplate()->DamageMax / 2.0f;
+
+        minDamage /= float(GetAttackTime(BASE_ATTACK) / 1000.0f);
+        maxDamage /= float(GetAttackTime(BASE_ATTACK) / 1000.0f);
+    }
+
+    // DualWield coefficient
+    if (dualwield)
+    {
+        minDamage *= 0.898882275f;
+        maxDamage *= 0.898882275f;
+    }
+
+    minDamage += float(AP / APmultiplier);
+    maxDamage += float(AP / APmultiplier);
+
+    // Off Hand penalty reapplied if only equiped by an off hand weapon
+    if (offItem && !mainItem)
+    {
+        minDamage /= 2.0f;
+        maxDamage /= 2.0f;
+    }
+
+    return irand(int32(minDamage * coeff), int32(maxDamage * coeff));
+}

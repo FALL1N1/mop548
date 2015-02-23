@@ -1863,6 +1863,7 @@ class Player : public Unit, public GridObject<Player>
         uint32 CalculateTalentsPoints() const;
         void CastPassiveTalentSpell(uint32 spellId);
         void RemovePassiveTalentSpell(uint32 spellId);
+        int32 CalculateMonkMeleeAttacks(float coeff, int32 APmultiplier);
 
         void ResetSpec();
 
