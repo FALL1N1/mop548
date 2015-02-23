@@ -3170,6 +3170,12 @@ void AuraEffect::HandleAuraModIncreaseSpeed(AuraApplication const* aurApp, uint8
     }
 
     target->UpdateSpeed(MOVE_RUN, true);
+
+    if (GetAuraType() == SPELL_AURA_MOD_MINIMUM_SPEED)
+    {
+        target->UpdateSpeed(MOVE_RUN_BACK, true);
+        target->UpdateSpeed(MOVE_FLIGHT, true);
+    }
 }
 
 void AuraEffect::HandleAuraModIncreaseMountedSpeed(AuraApplication const* aurApp, uint8 mode, bool apply) const
