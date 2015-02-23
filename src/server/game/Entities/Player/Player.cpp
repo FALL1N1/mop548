@@ -2489,6 +2489,7 @@ bool Player::TeleportToBGEntryPoint()
     ScheduleDelayedOperation(DELAYED_BG_MOUNT_RESTORE);
     ScheduleDelayedOperation(DELAYED_BG_TAXI_RESTORE);
     ScheduleDelayedOperation(DELAYED_BG_GROUP_RESTORE);
+    
     return TeleportTo(m_bgData.joinPos);
 }
 
@@ -8403,7 +8404,7 @@ void Player::ModifyCurrency(uint32 id, int32 count, bool printLog /*= true*/, bo
             if (weekCap > _ConquestCurrencytotalWeekCap)
                 _ConquestCurrencytotalWeekCap = weekCap;
             // count was changed to week limit, now we can modify original points.
-            ModifyCurrency(CURRENCY_TYPE_CONQUEST_POINTS, count * 100, printLog);
+            ModifyCurrency(CURRENCY_TYPE_CONQUEST_POINTS, count, printLog);
             return;
         }
 

@@ -928,7 +928,6 @@ void Battleground::EndBattleground(uint32 winner)
                 if (Guild* guild = sGuildMgr->GetGuildById(player->GetGuildId()))
                 {
                     guild->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_BG, 1, 0, 0, NULL, player);
-
                     if (IsRated())
                     {
                         if (IsBattleground())
