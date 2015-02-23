@@ -11297,6 +11297,7 @@ void Unit::UpdateSpeed(UnitMoveType mtype, bool forced)
         if (speed < min_speed && mtype != MOVE_SWIM)
             speed = min_speed;
     }
+
     if (mtype == MOVE_SWIM)
     {
         if (float minSwimSpeedMod = (float)GetMaxPositiveAuraModifier(SPELL_AURA_INCREASE_MIN_SWIM_SPEED))
@@ -16888,27 +16889,25 @@ void Unit::SendRemoveFromThreatListOpcode(HostileReference* pHostileReference)
 // baseRage means damage taken when attacker = false
 void Unit::RewardRage(uint32 baseRage, bool attacker)
 {
-    float addRage;
+    float addRage = baseRage;
 
     if (attacker)
     {
-        addRage = baseRage;
+        addRage *= 1.0f + GetTotalAuraModifier(SPELL_AURA_MOD_RAGE_FROM_DAMAGE_DEALT) / 100.0f;
         // talent who gave more rage on attack
         AddPct(addRage, GetTotalAuraModifier(SPELL_AURA_MOD_RAGE_FROM_DAMAGE_DEALT));
     }
     else
     {
-        // Calculate rage from health and damage taken
-        //! ToDo: Check formula
-        addRage = floor(0.5f + (25.7f * baseRage / GetMaxHealth()));
+        // Generate rage from damage taken only in Berserker Stance
+        if (!HasAura(2458))
+            return;
         // Berserker Rage effect
         if (HasAura(18499))
             addRage *= 2.0f;
     }
 
-    addRage *= sWorld->getRate(RATE_POWER_RAGE_INCOME);
-
-    ModifyPower(POWER_RAGE, uint32(addRage * 10));
+    ModifyPower(POWER_RAGE, uint32(addRage * 3));
 }
 
 void Unit::StopAttackFaction(uint32 faction_id)
