@@ -3676,6 +3676,25 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 100130: // Wild Strike
                 spellInfo->EquippedItemInventoryTypeMask = 0x0;
                 break;
+            case 115008:// Chi Torpedo
+                spellInfo->OverrideSpellList.push_back(121828); // Override List with Chi Torpedo - Talent
+                spellInfo->Effects[EFFECT_6].Effect = 0;
+                spellInfo->Effects[EFFECT_6].ApplyAuraName = 0;
+                spellInfo->Effects[EFFECT_6].BasePoints = 0;
+                break;
+            case 121828: // Chi Torpedo
+                spellInfo->Effects[EFFECT_6].Effect = 0;
+                spellInfo->Effects[EFFECT_6].ApplyAuraName = 0;
+                spellInfo->Effects[EFFECT_6].BasePoints = 0;
+                break;
+            case 109132:// Roll
+                spellInfo->OverrideSpellList.push_back(115008); // Override List with Chi Torpedo
+                spellInfo->OverrideSpellList.push_back(121827); // Override List with Roll - Talent
+                spellInfo->OverrideSpellList.push_back(121828); // Override List with Chi Torpedo - Talent
+                break;
+            case 121827: // Roll (3)
+                spellInfo->OverrideSpellList.push_back(121828); // Override List with Chi Torpedo - Talent
+                break;
             default:
                 break;
         }
