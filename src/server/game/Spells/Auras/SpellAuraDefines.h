@@ -432,7 +432,7 @@ enum AuraType
     // Pandaria
     SPELL_AURA_371                                          = 371,
     SPELL_AURA_372                                          = 372,
-    SPELL_AURA_373                                          = 373,  // SPELL_AURA_ALLOW_ONLY_ABILITY2 ??
+    SPELL_AURA_INCREASE_MIN_SWIM_SPEED                      = 373,  // SPELL_AURA_ALLOW_ONLY_ABILITY2 ??
     SPELL_AURA_MODIFY_FALL_DAMAGE_PCT                       = 374,
     SPELL_AURA_375                                          = 375,
     SPELL_AURA_MOD_CURRENCY_GAIN2                           = 376,
