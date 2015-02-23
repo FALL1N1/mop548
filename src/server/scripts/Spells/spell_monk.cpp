@@ -302,7 +302,7 @@ public:
             return true;
         }
 
-        void DealAreaDamage()
+        void DealAreaDamage(SpellEffIndex index)
         {
             if (!GetHitUnit())
                 return;
@@ -314,7 +314,7 @@ public:
 
         void Register() override
         {
-            AfterHit += SpellHitFn(spell_monk_expel_harm_SpellScript::DealAreaDamage);
+            OnEffectHitTarget += SpellEffectFn(spell_monk_expel_harm_SpellScript::DealAreaDamage, EFFECT_0, SPELL_EFFECT_HEAL);
         }
     };
 
