@@ -2671,6 +2671,37 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleA
     return SPELL_MISS_NONE;
 }
 
+bool IsWrongPrecastSpell(SpellInfo const* spellInfo, uint32 precast_id)
+{
+    switch (spellInfo->Id)
+    {
+        case 51723: // Fan of Knives
+            if (precast_id == 51690)
+                return true;
+            break;
+        case 108507:// Kil'Jaeden's Cunning
+            if (precast_id == 119048)
+                return true;
+            break;
+        case 115072:// Expel Harm
+            if (precast_id == 101545)
+                return true;
+            break;
+        case 118858:// Incanter's Ward
+            if (precast_id == 118859)
+                return true;
+            break;
+        case 119050:// Kil'Jaeden's Cunning (Decrease speed)
+            if (precast_id == 119049)
+                return true;
+            break;
+        default:
+            break;
+    }
+
+    return false;
+}
+
 void Spell::DoTriggersOnSpellHit(Unit* unit, uint32 effMask)
 {
     // Apply additional spell effects to target
@@ -2692,8 +2723,8 @@ void Spell::DoTriggersOnSpellHit(Unit* unit, uint32 effMask)
             m_caster->CastSpell(unit, 61988, true);
 
         if (sSpellMgr->GetSpellInfo(m_preCastSpell))
-            // Blizz seems to just apply aura without bothering to cast
-            m_caster->AddAura(m_preCastSpell, unit);
+            if (!IsWrongPrecastSpell(m_spellInfo, m_preCastSpell))
+                m_caster->AddAura(m_preCastSpell, unit); // Blizz seems to just apply aura without bothering to cast
     }
 
     // handle SPELL_AURA_ADD_TARGET_TRIGGER auras
