@@ -15530,23 +15530,16 @@ void Unit::SendMoveKnockBack(Player* player, float speedXY, float speedZ, float 
 {
     ObjectGuid guid = GetGUID();
     WorldPacket data(SMSG_MOVE_KNOCK_BACK, (1+8+4+4+4+4+4));
-    data.WriteGuidMask(guid, 0, 3, 6, 7, 2, 5, 1, 4);
-
-    data.WriteByteSeq(guid[1]);
 
     data << float(vsin);
-    data << uint32(0);
-
-    data.WriteGuidBytes(guid, 6, 7);
-
-    data << float(speedXY);
-
-    data.WriteGuidBytes(guid, 4, 5, 3);
-
-    data << float(speedZ);
     data << float(vcos);
+    data << float(speedXY);
+    data << uint32(0);
+    data << float(speedZ);
 
-    data.WriteGuidBytes(guid, 2, 0);
+    data.WriteGuidMask(guid, 2, 0, 7, 1, 4, 6, 5, 3);
+
+    data.WriteGuidBytes(guid, 6, 0, 7, 5, 4, 3, 1, 2);
 
     player->GetSession()->SendPacket(&data);
 }
