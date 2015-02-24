@@ -930,15 +930,15 @@ void Group::SendLooter(Creature* creature, Player* groupLooter)
 {
     ASSERT(creature);
 
-    WorldPacket data(SMSG_LOOT_LIST, (8+8));
-    data << uint64(creature->GetGUID());
-    data << uint8(0); // unk1
+    ObjectGuid creatureGuid = creature->GetGUID();
+    WorldPacket data(SMSG_LOOT_LIST);
+    data.WriteBit(creatureGuid[5]);
+    data.WriteBit(0);
+    data.WriteBit(creatureGuid[1]);
+    data.WriteBit(0);
+    data.WriteGuidMask(creatureGuid, 4, 3, 2, 7, 0, 6);
 
-    if (groupLooter)
-        data.append(groupLooter->GetPackGUID());
-    else
-        data << uint8(0);
-
+    data.WriteGuidBytes(creatureGuid, 5, 1, 6, 2, 3, 0, 7, 4);
     BroadcastPacket(&data, false);
 }
 

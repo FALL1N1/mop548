@@ -14461,10 +14461,15 @@ void Unit::Kill(Unit* victim, bool durabilityLoss)
 
             if (creature)
             {
-                WorldPacket data2(SMSG_LOOT_LIST, 8 + 1 + 1);
-                data2 << uint64(creature->GetGUID());
-                data2 << uint8(0); // unk1
-                data2 << uint8(0); // no group looter
+                ObjectGuid creatureGuid = creature->GetGUID();
+                WorldPacket data2(SMSG_LOOT_LIST);
+                data2.WriteBit(creatureGuid[5]);
+                data2.WriteBit(0);
+                data2.WriteBit(creatureGuid[1]);
+                data2.WriteBit(0);
+                data2.WriteGuidMask(creatureGuid, 4, 3, 2, 7, 0, 6);
+
+                data2.WriteGuidBytes(creatureGuid, 5, 1, 6, 2, 3, 0, 7, 4);
                 player->SendMessageToSet(&data2, true);
             }
         }
