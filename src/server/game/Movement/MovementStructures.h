@@ -95,6 +95,7 @@ enum MovementStatusElements
     MSETransportSeat,
     MSETransportTime,
     MSETransportTime2,
+    MSETransportTime3,
     MSETransportVehicleId,
     MSEPitch,
     MSEFallTime,
