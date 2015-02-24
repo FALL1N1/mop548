@@ -1172,8 +1172,13 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player* player, WorldPacke
 void WorldSession::HandleRequestPartyMemberStatsOpcode(WorldPacket& recvData)
 {
     TC_LOG_DEBUG("network", "WORLD: Received CMSG_REQUEST_PARTY_MEMBER_STATS");
-    uint64 guid;
-    recvData >> guid;
+    ObjectGuid guid;
+
+    recvData.ReadBit(); // unk bit
+
+    recvData.ReadGuidMask(guid, 7, 4, 0, 1, 3, 6, 2, 5);
+
+    recvData.ReadGuidBytes(guid, 3, 6, 5, 2, 1, 4, 0, 7);
 
     Player* player = HashMapHolder<Player>::Find(guid);
     if (!player)
