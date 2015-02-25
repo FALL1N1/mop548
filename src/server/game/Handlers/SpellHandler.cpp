@@ -699,7 +699,6 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
         recvPacket.ReadGuidMask(destTransportGuid, 1, 3, 5, 0, 2, 6, 7, 4);
     }
 
-
     if (hasMovement)
     {
         unkMovementLoopCounter = recvPacket.ReadBits(22);
@@ -1077,6 +1076,10 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
 
     if ((targetMask & TARGET_FLAG_DEST_LOCATION) && hasDestLocation)
         targets.SetDst(dst._position);
+
+    if (targetMask & TARGET_FLAG_GAMEOBJECT)
+        if (WorldObject* const obj = ObjectAccessor::GetWorldObject(*caster, targetGuid))
+            targets.SetGOTarget(obj->ToGameObject());
 
     if (castFlags & 0x8)   // Archaeology
     {
