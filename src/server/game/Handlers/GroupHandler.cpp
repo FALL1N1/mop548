@@ -1176,7 +1176,14 @@ void WorldSession::HandleRequestPartyMemberStatsOpcode(WorldPacket& recvData)
 
     recvData.ReadBit(); // unk bit
 
-    recvData.ReadGuidMask(guid, 7, 4, 0, 1, 3, 6, 2, 5);
+    guid[7] = recvData.ReadBit();
+    guid[4] = recvData.ReadBit();
+    guid[0] = recvData.ReadBit();
+    guid[1] = recvData.ReadBit();
+    guid[3] = recvData.ReadBit();
+    guid[6] = recvData.ReadBit();
+    guid[2] = recvData.ReadBit();
+    guid[5] = recvData.ReadBit();
 
     recvData.ReadGuidBytes(guid, 3, 6, 5, 2, 1, 4, 0, 7);
 

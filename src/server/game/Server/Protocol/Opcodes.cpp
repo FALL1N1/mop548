@@ -432,7 +432,7 @@ void OpcodeTable::InitializeClientTable()
     DEFINE_OPCODE_HANDLER(CMSG_PET_CAST_SPELL,                            0x044D, STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandlePetCastSpellOpcode           ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(CMSG_QUERY_TIME,                                0x0640, STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleQueryTimeOpcode              ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(CMSG_REALM_SPLIT,                               0x18B2, STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleRealmSplitOpcode             ); // 5.4.8 18414
-    DEFINE_OPCODE_HANDLER(CMSG_REQUEST_PARTY_MEMBER_STATS,                0x178A, STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleRequestPartyMemberStatsOpcode); // 5.4.8 18414
+    DEFINE_OPCODE_HANDLER(CMSG_REQUEST_PARTY_MEMBER_STATS,                0x178A, STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleRequestPartyMemberStatsOpcode); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(CMSG_WARDEN_DATA,                               0x1816, STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleWardenDataOpcode             ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(MSG_QUERY_NEXT_MAIL_TIME,                       0x089B, STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleQueryNextMailTime            ); // 5.4.8 18414
 
