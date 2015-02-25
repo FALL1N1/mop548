@@ -4850,7 +4850,7 @@ void Player::_LoadSpellCooldowns(PreparedQueryResult result)
             Field* fields = result->Fetch();
             uint32 spell_id = fields[0].GetUInt32();
             uint32 item_id  = fields[1].GetUInt32();
-            time_t db_time  = time_t(fields[2].GetUInt32());
+            time_t db_time  = time_t(fields[2].GetUInt64()) / IN_MILLISECONDS;
 
             if (!sSpellMgr->GetSpellInfo(spell_id))
             {
@@ -24747,6 +24747,29 @@ void Player::SendInitialPacketsAfterAddToMap()
     // manual send package (have code in HandleEffect(this, AURA_EFFECT_HANDLE_SEND_FOR_CLIENT, true); that must not be re-applied.
     if (HasAuraType(SPELL_AURA_MOD_ROOT))
         SetRooted(true, true);
+
+    ObjectGuid guid = GetGUID();
+    for (SpellCooldowns::const_iterator itr = GetSpellCooldownMap().begin(); itr != GetSpellCooldownMap().end(); ++itr)
+    {
+        WorldPacket data(SMSG_SPELL_COOLDOWN, 9 + 3 + 8);
+        data.WriteGuidMask(guid, 0, 6);
+        data.WriteBit(1); // Missing flags
+        data.WriteGuidMask(guid, 7, 3, 1, 5);
+        size_t bitpos = data.bitwpos();
+        data.WriteBits(1, 21);
+        data.WriteGuidMask(guid, 2, 4);
+
+        data << uint32(itr->first);
+        data << uint32(0);
+        data.WriteGuidBytes(guid, 5, 3, 7, 4, 1, 0, 2, 6);
+        GetSession()->SendPacket(&data);
+
+        if (uint32 orig_cd = sSpellMgr->GetSpellInfo(itr->first)->GetRecoveryTime())
+        {
+            int32 cd = int32(orig_cd - (itr->second.end_ms - timeInMs()));
+            ModifySpellCooldown(itr->first, -cd);
+        }
+    }
 
     SendAurasForTarget(this);
     SendEnchantmentDurations();                             // must be after add to map
