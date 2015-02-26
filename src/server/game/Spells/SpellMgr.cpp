@@ -3644,6 +3644,7 @@ void SpellMgr::LoadSpellInfoCorrections()
                 break;
             case 60503: // Taste for Blood
             case 58385: // Glyph of Hamstring
+            case 122013: // Glyph of Incite
                 spellInfo->ProcChance = 0;
                 break;
             case 6544:  // Heroic Leap

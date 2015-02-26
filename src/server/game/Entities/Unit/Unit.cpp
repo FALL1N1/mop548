@@ -7319,6 +7319,12 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
                 return false;
             break;
         }
+        case 122509: // Ultimatum
+        {
+            if (procSpell->Id != 23922) // Shield Slam
+                return false;
+            break;
+        }
         case 12950: // Meat Cleaver proc
         {
             if (procSpell->Id != 1680) // Whirlwind

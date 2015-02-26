@@ -1317,8 +1317,106 @@ class spell_warr_meat_cleaver : public SpellScriptLoader
         }
 };
 
+enum Ultimatum
+{
+    WARRIOR_SPELL_ULTIMATUM = 122510
+};
+
+// Ultimatum
+class spell_warr_ultimatum : public SpellScriptLoader
+{
+    public:
+        spell_warr_ultimatum() : SpellScriptLoader("spell_warr_ultimatum") { }
+
+        class spell_warr_ultimatum_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warr_ultimatum_SpellScript);
+
+            void HandleOnHit()
+            {
+                if (GetCaster()->HasAura(WARRIOR_SPELL_ULTIMATUM))
+                    GetCaster()->RemoveAurasDueToSpell(WARRIOR_SPELL_ULTIMATUM);
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_warr_ultimatum_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_warr_ultimatum_SpellScript();
+        }
+};
+
+enum Incite
+{
+    WARRIOR_SPELL_GLYPH_OF_INCITE_PASSIVE = 122013,
+    WARRIOR_SPELL_INCITE = 122016
+};
+
+// Glyph of Incite - 122013 (called by Demoralizing Shout - 1160) - 
+class spell_warr_glyph_of_incite : public SpellScriptLoader
+{
+    public:
+        spell_warr_glyph_of_incite() : SpellScriptLoader("spell_warr_glyph_of_incite") { }
+
+        class spell_warr_glyph_of_incite_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warr_glyph_of_incite_SpellScript);
+
+            void HandleOnCast()
+            {
+                if (GetCaster()->HasAura(WARRIOR_SPELL_GLYPH_OF_INCITE_PASSIVE))
+                    if (Aura* aura = GetCaster()->AddAura(WARRIOR_SPELL_INCITE, GetCaster()))
+                        aura->SetStackAmount(3);
+            }
+
+            void Register()
+            {
+                OnCast += SpellCastFn(spell_warr_glyph_of_incite_SpellScript::HandleOnCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_warr_glyph_of_incite_SpellScript();
+        }
+};
+
+// Glyph of Incite - 122013 (called by Demoralizing Shout - 1160) - 
+class spell_warr_incite : public SpellScriptLoader
+{
+    public:
+        spell_warr_incite() : SpellScriptLoader("spell_warr_incite") { }
+
+        class spell_warr_incite_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warr_incite_SpellScript);
+
+            void HandleOnCast()
+            {
+                if (Aura* aura = GetCaster()->GetAura(WARRIOR_SPELL_INCITE))
+                    aura->ModStackAmount(-1);
+            }
+
+            void Register()
+            {
+                OnCast += SpellCastFn(spell_warr_incite_SpellScript::HandleOnCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_warr_incite_SpellScript();
+        }
+};
+
 void AddSC_warrior_spell_scripts()
 {
+    new spell_warr_incite();
+    new spell_warr_glyph_of_incite();
     new spell_warr_meat_cleaver();
     new spell_warr_sword_and_board();
     new spell_warr_shield_block();
@@ -1344,4 +1442,5 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_impaling_throws();
     new spell_warr_rallying_cry();
     new spell_warr_raging_blow();
+    new spell_warr_ultimatum();
 }
