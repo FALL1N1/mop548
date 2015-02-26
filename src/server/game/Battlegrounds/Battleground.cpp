@@ -811,13 +811,9 @@ void Battleground::EndBattleground(uint32 winner)
             if (IsRated())
             {
                 if (team == winner)
-                {
                     rInfo->UpdateStats(GetRatedType(), loserMatchmakerRating, personalRatingChange, matchmakerRatingChange, true, true);
-                }
                 else
-                {
                     rInfo->UpdateStats(GetRatedType(), winnerMatchmakerRating, personalRatingChange, matchmakerRatingChange, false, true);
-                }
             }
             continue;
         }
@@ -888,14 +884,17 @@ void Battleground::EndBattleground(uint32 winner)
         UpdatePlayerScore(player, SCORE_PERSONAL_RATING_CHANGE, personalRatingChange);
         UpdatePlayerScore(player, SCORE_MMR_CHANGE, matchmakerRatingChange);
 
-        auto updateAverageMMRforTeam = [this](uint32 team) -> void
+        if (IsRated() && !IsArena())
         {
-            GroupRatedStats statsByGroup = GetBgRaid(team)->GetRatedStats(GetRatedType());
-            SetTeamMatchmakerRating(team, statsByGroup.averageMMR);
-        };
+            auto updateAverageMMRforTeam = [this](uint32 team) -> void
+            {
+                GroupRatedStats statsByGroup = GetBgRaid(team)->GetRatedStats(GetRatedType());
+                SetTeamMatchmakerRating(team, statsByGroup.averageMMR);
+            };
 
-        updateAverageMMRforTeam(winner);
-        updateAverageMMRforTeam(GetOtherTeam(winner));
+            updateAverageMMRforTeam(winner);
+            updateAverageMMRforTeam(GetOtherTeam(winner));
+        }
 
         uint32 winnerKills = player->GetRandomWinner() ? sWorld->getIntConfig(CONFIG_BG_REWARD_WINNER_HONOR_LAST) : sWorld->getIntConfig(CONFIG_BG_REWARD_WINNER_HONOR_FIRST);
         uint32 loserKills = player->GetRandomWinner() ? sWorld->getIntConfig(CONFIG_BG_REWARD_LOSER_HONOR_LAST) : sWorld->getIntConfig(CONFIG_BG_REWARD_LOSER_HONOR_FIRST);

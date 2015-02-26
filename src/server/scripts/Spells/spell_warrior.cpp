@@ -1413,8 +1413,49 @@ class spell_warr_incite : public SpellScriptLoader
         }
 };
 
+// Shield Barrier - 112048
+class spell_warr_shield_barrier : public SpellScriptLoader
+{
+    public:
+        spell_warr_shield_barrier() : SpellScriptLoader("spell_warr_shield_barrier") { }
+
+        class spell_warr_shield_barrier_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_warr_shield_barrier_AuraScript);
+
+            void CalculateAmount(AuraEffect const* /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
+            {
+                if (GetCaster())
+                {
+                    int32 rage = int32(GetCaster()->GetPower(POWER_RAGE) / 10);
+                    int32 AP = int32(GetCaster()->GetTotalAttackPowerValue(BASE_ATTACK));
+                    int32 Strength = int32(GetCaster()->GetStat(STAT_STRENGTH));
+                    int32 Stamina = int32(GetCaster()->GetStat(STAT_STAMINA));
+
+                    if (rage >= 40) // 20 was consumed by spell
+                        amount += std::max(int32(2 * (AP - 2 * Strength)) * 1.80f, Stamina * 2.50f);
+                    else
+                        amount += std::max(int32(AP - 2 * Strength) * 1.80f, Stamina * 2.50f) / 3;
+
+                    GetCaster()->SetPower(POWER_RAGE, GetCaster()->GetPower(POWER_RAGE) - std::min(60, rage) * 10);
+                }
+            }
+
+            void Register()
+            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_warr_shield_barrier_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_warr_shield_barrier_AuraScript();
+        }
+};
+
 void AddSC_warrior_spell_scripts()
 {
+    new spell_warr_shield_barrier();
     new spell_warr_incite();
     new spell_warr_glyph_of_incite();
     new spell_warr_meat_cleaver();
