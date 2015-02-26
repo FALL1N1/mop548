@@ -416,7 +416,7 @@ void OpcodeTable::InitializeClientTable()
     DEFINE_OPCODE_HANDLER(CMSG_CHANNEL_UNMUTE,                            0x022A, STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleChannelUnmute                ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(CMSG_CHAR_FACTION_CHANGE,                       0x0329, STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleCharFactionOrRaceChange      ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(CMSG_FORCE_MOVE_ROOT_ACK,                       0x107A, STATUS_LOGGEDIN,  PROCESS_THREADSAFE,   &WorldSession::HandleMoveRootAck                  ); // 5.4.8 18414
-    DEFINE_OPCODE_HANDLER(CMSG_FORCE_MOVE_UNROOT_ACK,                     0x1051, STATUS_LOGGEDIN, PROCESS_THREADSAFE,   &WorldSession::HandleMoveUnRootAck                ); // 5.4.8 18414
+    DEFINE_OPCODE_HANDLER(CMSG_FORCE_MOVE_UNROOT_ACK,                     0x1051, STATUS_LOGGEDIN, PROCESS_THREADSAFE,   &WorldSession::HandleMoveUnRootAck                );  // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(CMSG_GET_MIRRORIMAGE_DATA,                      0x02A3, STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleMirrorImageDataRequest       ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(CMSG_LF_GUILD_SET_GUILD_POST,                   0x1D9F, STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleGuildFinderSetGuildPost      ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(CMSG_LFG_LOCK_INFO_REQUEST,                     0x006B, STATUS_UNHANDLED, PROCESS_THREADSAFE,   &WorldSession::HandleLfgGetLockInfoOpcode         ); // 5.4.8 18414
@@ -451,7 +451,10 @@ void OpcodeTable::InitializeClientTable()
     DEFINE_OPCODE_HANDLER(CMSG_USED_FOLLOW,                               0x0374, STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::Handle_NULL                        ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(MSG_MOVE_SET_RUN_MODE,                          0x0979, STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::Handle_NULL                        ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(MSG_MOVE_SET_WALK_MODE,                         0x08D1, STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::Handle_NULL                        ); // 5.4.8 18414
-
+    DEFINE_OPCODE_HANDLER(CMSG_DISMISS_CRITTER,                           0x12DB, STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleDismissCritter               ); // 5.4.8 18414 (petbattle critters) | structure?
+    DEFINE_OPCODE_HANDLER(CMSG_EJECT_PASSENGER,                           0x06E7, STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                        ); // 5.4.8 18414
+    DEFINE_OPCODE_HANDLER(CMSG_GMTICKET_CREATE,                           0x1A86, STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleGMTicketCreateOpcode         ); // 5.4.8 18414
+    DEFINE_OPCODE_HANDLER(CMSG_GMTICKET_GETTICKET,                        0x1F89, STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleGMTicketGetTicketOpcode      ); // 5.4.8 18414 (8073 00690BAD 00D62DD0 0)
     // Still not Exist
 
     DEFINE_OPCODE_HANDLER(CMSG_ADD_VOICE_IGNORE,                          0x0000, STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                        );
@@ -516,16 +519,12 @@ void OpcodeTable::InitializeClientTable()
     DEFINE_OPCODE_HANDLER(CMSG_DANCE_QUERY,                               0x0000, STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                        );
     DEFINE_OPCODE_HANDLER(CMSG_DEL_VOICE_IGNORE,                          0x0000, STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                        );
     DEFINE_OPCODE_HANDLER(CMSG_DISMISS_CONTROLLED_VEHICLE,                0x0000, STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleDismissControlledVehicle     );
-    DEFINE_OPCODE_HANDLER(CMSG_DISMISS_CRITTER,                           0x0000, STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleDismissCritter               );
-    DEFINE_OPCODE_HANDLER(CMSG_EJECT_PASSENGER,                           0x0000, STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                        );
     DEFINE_OPCODE_HANDLER(CMSG_ENABLE_NAGLE,                              0x0000, STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_EarlyProccess               );
     DEFINE_OPCODE_HANDLER(CMSG_FAR_SIGHT,                                 0x0000, STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleFarSightOpcode               );
     DEFINE_OPCODE_HANDLER(CMSG_GM_REPORT_LAG,                             0x0000, STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleReportLag                    );
     DEFINE_OPCODE_HANDLER(CMSG_GMRESPONSE_RESOLVE,                        0x0000, STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleGMResponseResolve            );
     DEFINE_OPCODE_HANDLER(CMSG_GMSURVEY_SUBMIT,                           0x0000, STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleGMSurveySubmit               );
-    DEFINE_OPCODE_HANDLER(CMSG_GMTICKET_CREATE,                           0x0000, STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleGMTicketCreateOpcode         );
     DEFINE_OPCODE_HANDLER(CMSG_GMTICKET_DELETETICKET,                     0x0000, STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleGMTicketDeleteOpcode         );
-    DEFINE_OPCODE_HANDLER(CMSG_GMTICKET_GETTICKET,                        0x0000, STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleGMTicketGetTicketOpcode      );
     DEFINE_OPCODE_HANDLER(CMSG_GMTICKET_SYSTEMSTATUS,                     0x0000, STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleGMTicketSystemStatusOpcode   );
     DEFINE_OPCODE_HANDLER(CMSG_GMTICKET_UPDATETEXT,                       0x0000, STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleGMTicketUpdateOpcode         );
     DEFINE_OPCODE_HANDLER(CMSG_GRANT_LEVEL,                               0x0000, STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleGrantLevel                   );
