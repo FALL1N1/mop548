@@ -1048,7 +1048,7 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
             spellInfo = actualSpellInfo;
     }
 
-    // Override spell Id, client send base spell and not the overrided id
+    // override spell Id, client send base spell and not the overrided id
     if (!spellInfo->OverrideSpellList.empty())
     {
         for (auto itr : spellInfo->OverrideSpellList)

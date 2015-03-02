@@ -216,13 +216,14 @@ class InstanceScript : public ZoneScript
         uint32 GetCompletedEncounterMask() const { return completedEncounters; }
 
         void SendEncounterUnit(uint32 type, Unit* unit = NULL, uint8 param1 = 0, uint8 param2 = 0);
-
+        virtual bool IsWipe();
         virtual void FillInitialWorldStates(WorldStateBuilder& /*builder*/) { }
 
         // ReCheck PhaseTemplate related conditions
         void UpdatePhasing();
 
     protected:
+        void SetHeaders(std::string const& dataHeaders);
         void SetBossNumber(uint32 number) { bosses.resize(number); }
         void LoadDoorData(DoorData const* data);
         void LoadMinionData(MinionData const* data);

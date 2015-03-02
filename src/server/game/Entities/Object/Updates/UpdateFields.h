@@ -142,6 +142,7 @@ enum EUnitFields
     UNIT_FIELD_WILD_BATTLE_PET_LEVEL                         = OBJECT_END + 0x95, // Size: 1, Flags: UF_FLAG_PUBLIC
     UNIT_FIELD_BATTLE_PET_COMPANION_NAME_TIMESTAMP           = OBJECT_END + 0x96, // Size: 1, Flags: UF_FLAG_PUBLIC
     UNIT_FIELD_INTERACT_SPELL_ID                             = OBJECT_END + 0x97, // Size: 1, Flags: UF_FLAG_PUBLIC
+    UNIT_VIRTUAL_ITEM_SLOT_ID                                = OBJECT_END + 0x2C,
     UNIT_END                                                 = OBJECT_END + 0x98
 };
 

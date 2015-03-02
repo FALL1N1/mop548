@@ -429,6 +429,27 @@ void InstanceScript::SendEncounterUnit(uint32 type, Unit* unit /*= NULL*/, uint8
     instance->SendToPlayers(&data);
 }
 
+bool InstanceScript::IsWipe()
+{
+    Map::PlayerList const& PlayerList = instance->GetPlayers();
+    
+    if (PlayerList.isEmpty())
+        return true;
+        
+    for (Map::PlayerList::const_iterator Itr = PlayerList.begin(); Itr != PlayerList.end(); ++Itr)
+    {
+        Player* player = Itr->GetSource();
+    
+        if (!player)
+            continue;
+        
+        if (player->IsAlive() && !player->IsGameMaster())
+            return false;
+    }
+    
+    return true;
+}
+
 void InstanceScript::UpdateEncounterState(EncounterCreditType type, uint32 creditEntry, Unit* /*source*/)
 {
     DungeonEncounterList const* encounters = sObjectMgr->GetDungeonEncounterList(instance->GetId(), instance->GetDifficulty());

@@ -443,5 +443,5 @@ GameObject* GetClosestGameObjectWithEntry(WorldObject* source, uint32 entry, flo
 void GetCreatureListWithEntryInGrid(std::list<Creature*>& list, WorldObject* source, uint32 entry, float maxSearchRange);
 void GetGameObjectListWithEntryInGrid(std::list<GameObject*>& list, WorldObject* source, uint32 entry, float maxSearchRange);
 void GetPlayerListInGrid(std::list<Player*>& list, WorldObject* source, float maxSearchRange);
-
+void GetPositionWithDistInOrientation(Unit* pUnit, float dist, float orientation, float& x, float& y);
 #endif // SCRIPTEDCREATURE_H_

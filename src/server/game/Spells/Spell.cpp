@@ -2253,7 +2253,7 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
         return;
 
 
-    // Override effectMask for spells that require certain auras to be present on caster to activete partial effects
+    // override effectMask for spells that require certain auras to be present on caster to activete partial effects
     uint32 newMask = 0;
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
     {
