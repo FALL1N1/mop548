@@ -1,3 +1,10 @@
+/*
++    © Emiliyan Kurtseliyanski (JunkyBulgaria)
++    Email: emiliyan9604bg@gmail.com
++    Site: www.kurtseliyanski.info
++
+*/
+
 #include "ScriptMgr.h"
 #include "CreatureAI.h"
 #include "Player.h"
