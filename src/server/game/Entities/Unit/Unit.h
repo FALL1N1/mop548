@@ -122,10 +122,10 @@ enum SpellModOp
     SPELLMOD_EFFECT5                    = 33,
     SPELLMOD_UNK34                      = 34,
     SPELLMOD_UNK35                      = 35,
-    SPELLMOD_JUMP_DISTANCE              = 36
+    SPELLMOD_JUMP_DISTANCE              = 36,
 };
 
-#define MAX_SPELLMOD 32
+#define MAX_SPELLMOD 37
 
 enum SpellValueMod
 {
