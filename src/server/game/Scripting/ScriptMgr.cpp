@@ -99,10 +99,9 @@ class ScriptRegistry
                     else
                     {
                         // If the script is already assigned -> delete it!
-                        TC_LOG_ERROR("scripts", "Script '%s' already assigned with the same script name, so the script can't work.",
-                            script->GetName().c_str());
+                        TC_LOG_ERROR("scripts", "[POSSIBLE CRASH] Script '%s' already assigned with the same script name, so the script can't work.", script->GetName().c_str());
 
-                        ASSERT(false); // Error that should be fixed ASAP.
+                        //ASSERT(false); // Error that should be fixed ASAP.
                     }
                 }
                 else
