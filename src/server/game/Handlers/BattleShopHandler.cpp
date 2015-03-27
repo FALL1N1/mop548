@@ -20,7 +20,8 @@
 
 void WorldSession::SetBoosting(bool boost, bool saveToDB)
 {
-    m_hasBoost = boost;
+    // m_hasBoost = boost;
+	m_hasBoost = true; // vremenno dokato e PTR
 
     if (!saveToDB)
         return;

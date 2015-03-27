@@ -501,7 +501,7 @@ class boss_generic_guardian : public CreatureScript
                         else if (me->GetPower(POWER_ENERGY) >= 85 && !warnedForOverload)
                         {
                             char buf[128];
-							sprintf(buf, "%s is about to Overload !", me->GetName());
+							// sprintf(buf, "%s is about to Overload !", me->GetName());
                             me->MonsterTextEmote(buf, 0, true);
                             warnedForOverload = true;
                         }
