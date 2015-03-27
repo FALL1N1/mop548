@@ -244,12 +244,12 @@ void WorldSession::HandleCharEnum(PreparedQueryResult result)
     uint32 charCount = 0;
     ByteBuffer bitBuffer;
     ByteBuffer dataBuffer;
-
+TC_LOG_INFO("server.worldserver", "tuk 3 ");
     // Sended before SMSG_CHAR_ENUM
     // must be procceded before BuildEnumData, because of unsetting bosted character guid
     if (m_charBooster->GetCurrentAction() == CHARACTER_BOOST_APPLIED)
         m_charBooster->HandleCharacterBoost();
-
+    TC_LOG_INFO("server.worldserver", "tuk 2 ");
     if (result)
     {
         _legitCharacters.clear();
@@ -272,7 +272,7 @@ void WorldSession::HandleCharEnum(PreparedQueryResult result)
             // Do not allow banned characters to log in
             if (!(*result)[20].GetUInt32())
                 _legitCharacters.insert(guidLow);
-
+        TC_LOG_INFO("server.worldserver", "tuk 6 ");
             if (!sWorld->HasCharacterNameData(guidLow)) // This can happen if characters are inserted into the database manually. Core hasn't loaded name data yet.
                 sWorld->AddCharacterNameData(guidLow, (*result)[1].GetString(), (*result)[4].GetUInt8(), (*result)[2].GetUInt8(), (*result)[3].GetUInt8(), (*result)[7].GetUInt8());
         }
@@ -280,6 +280,7 @@ void WorldSession::HandleCharEnum(PreparedQueryResult result)
 
         bitBuffer.WriteBit(1); // Sucess
         bitBuffer.FlushBits();
+        TC_LOG_INFO("server.worldserver", "tuk 5 ");
     }
     else
     {
@@ -287,6 +288,7 @@ void WorldSession::HandleCharEnum(PreparedQueryResult result)
         bitBuffer.WriteBits(0, 16);
         bitBuffer.WriteBit(1); // Success
         bitBuffer.FlushBits();
+        TC_LOG_INFO("server.worldserver", "tuk 4 ");
     }
 
     WorldPacket data(SMSG_CHAR_ENUM, 7 + bitBuffer.size() + dataBuffer.size());
@@ -297,10 +299,11 @@ void WorldSession::HandleCharEnum(PreparedQueryResult result)
         data.append(dataBuffer);
     
     SendPacket(&data);
-
+TC_LOG_INFO("server.worldserver", "tuk 8 ");
     // Sended after SMSG_CHAR_ENUM
     if (m_charBooster->GetCurrentAction() == CHARACTER_BOOST_ITEMS)
         m_charBooster->HandleCharacterBoost();
+        TC_LOG_INFO("server.worldserver", "tuk 7 ");
 }
 
 
@@ -318,6 +321,7 @@ void WorldSession::HandleCharEnumOpcode(WorldPacket & /*recvData*/)
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_ENUM);
 
     stmt->setUInt32(0, GetAccountId());
+    TC_LOG_INFO("server.worldserver", "tuk 1 ");
 
     _charEnumCallback = CharacterDatabase.AsyncQuery(stmt);
 }
@@ -822,7 +826,7 @@ void WorldSession::HandlePlayerLoginOpcode(WorldPacket& recvData)
         TC_LOG_ERROR("network", "Player tries to login again, AccountId = %d", GetAccountId());
         return;
     }
-
+    TC_LOG_INFO("server.worldserver", "tuk q1 ");
     m_playerLoading = true;
     ObjectGuid playerGuid;
     float unk = 0;
@@ -837,14 +841,14 @@ void WorldSession::HandlePlayerLoginOpcode(WorldPacket& recvData)
 
     //WorldObject* player = ObjectAccessor::GetWorldObject(*GetPlayer(), playerGuid);
     TC_LOG_DEBUG("network", "Character (Guid: %u) logging in", GUID_LOPART(playerGuid));
-
+TC_LOG_INFO("server.worldserver", "tuk q4 ");
     if (!IsLegitCharacterForAccount(GUID_LOPART(playerGuid)))
     {
         TC_LOG_ERROR("network", "Account (%u) can't login with that character (%u).", GetAccountId(), GUID_LOPART(playerGuid));
         KickPlayer();
         return;
     }
-
+    TC_LOG_INFO("server.worldserver", "tuk q2 ");
     LoginQueryHolder *holder = new LoginQueryHolder(GetAccountId(), playerGuid);
     if (!holder->Initialize())
     {
@@ -852,7 +856,7 @@ void WorldSession::HandlePlayerLoginOpcode(WorldPacket& recvData)
         m_playerLoading = false;
         return;
     }
-
+TC_LOG_INFO("server.worldserver", "tuk q3 ");
     _charLoginCallback = CharacterDatabase.DelayQueryHolder((SQLQueryHolder*)holder);
 }
 
@@ -863,7 +867,7 @@ void WorldSession::HandleLoadScreenOpcode(WorldPacket& recvPacket)
 
     recvPacket >> mapID;
     recvPacket.ReadBit();
-
+TC_LOG_INFO("server.worldserver", "tuk q5 ");
     // TODO: Do something with this packet
 }
 
@@ -885,10 +889,10 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
         m_playerLoading = false;
         return;
     }
-
+    TC_LOG_INFO("server.worldserver", "tuk q6 ");
     pCurrChar->GetMotionMaster()->Initialize();
     pCurrChar->SendDungeonDifficulty();
-
+TC_LOG_INFO("server.worldserver", "tuk q7 ");
     WorldPacket data(SMSG_LOGIN_VERIFY_WORLD, 4 + 4 + 4 + 4 + 4);
     data << pCurrChar->GetPositionX();
     data << pCurrChar->GetOrientation();
@@ -896,18 +900,18 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
     data << pCurrChar->GetMapId();
     data << pCurrChar->GetPositionZ();
     SendPacket(&data);
-
+TC_LOG_INFO("server.worldserver", "tuk q8 ");
     // load player specific part before send times
     LoadAccountData(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_ACCOUNT_DATA), PER_CHARACTER_CACHE_MASK);
     SendAccountDataTimes(PER_CHARACTER_CACHE_MASK);
-
+TC_LOG_INFO("server.worldserver", "tuk w1 ");
     pCurrChar->SendFeatureSystemStatus();
 
     // Send MOTD
     {
         data.Initialize(SMSG_MOTD, 50);                     // new in 2.0.1
         data.WriteBits(0, 4);
-
+TC_LOG_INFO("server.worldserver", "tuk w3 ");
         uint32 linecount=0;
         std::string str_motd = sWorld->GetMotd();
         std::string::size_type pos, nextpos;
@@ -934,26 +938,26 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
             ++linecount;
         }
 
-
+TC_LOG_INFO("server.worldserver", "tuk w4 ");
         data.PutBits(0, linecount, 4);
         data.FlushBits();
         data.append(stringBuffer);
 
         SendPacket(&data);
         TC_LOG_DEBUG("network", "WORLD: Sent motd (SMSG_MOTD)");
-
+TC_LOG_INFO("server.worldserver", "tuk w5 ");
         // send server info
         if (sWorld->getIntConfig(CONFIG_ENABLE_SINFO_LOGIN) == 1)
             chH.PSendSysMessage(_FULLVERSION);
 
         TC_LOG_DEBUG("network", "WORLD: Sent server info");
     }
-
+TC_LOG_INFO("server.worldserver", "tuk w6 ");
     data.Initialize(SMSG_PVP_SEASON, 4 + 4);
     data << uint32(sWorld->getIntConfig(CONFIG_ARENA_SEASON_ID) - 1); // Old season
     data << uint32(sWorld->getIntConfig(CONFIG_ARENA_SEASON_ID));     // Current season
     SendPacket(&data);
-
+TC_LOG_INFO("server.worldserver", "tuk w7 ");
     //QueryResult* result = CharacterDatabase.PQuery("SELECT guildid, rank FROM guild_member WHERE guid = '%u'", pCurrChar->GetGUIDLow());
     if (PreparedQueryResult resultGuild = holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_GUILD))
     {
@@ -962,7 +966,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
         pCurrChar->SetRank(fields[1].GetUInt8());
         if (Guild* guild = sGuildMgr->GetGuildById(pCurrChar->GetGuildId()))
             pCurrChar->SetGuildLevel(guild->GetLevel());
-    }
+    }TC_LOG_INFO("server.worldserver", "tuk e1 ");
     else if (pCurrChar->GetGuildId())                        // clear guild related fields in case wrong data about non existed membership
     {
         pCurrChar->SetInGuild(0);
@@ -988,7 +992,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
     SendPacket(&data);
 
     pCurrChar->SendInitialPacketsBeforeAddToMap();
-
+TC_LOG_INFO("server.worldserver", "tuk qq1 ");
     //Show cinematic at the first time that player login
     if (!pCurrChar->getCinematic())
     {
@@ -1015,7 +1019,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
         else
             pCurrChar->TeleportTo(pCurrChar->m_homebindMapId, pCurrChar->m_homebindX, pCurrChar->m_homebindY, pCurrChar->m_homebindZ, pCurrChar->GetOrientation());
     }
-
+TC_LOG_INFO("server.worldserver", "tuk qq2 ");
     sObjectAccessor->AddObject(pCurrChar);
     //TC_LOG_DEBUG("Player %s added to Map.", pCurrChar->GetName().c_str());
 
@@ -1030,7 +1034,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
             pCurrChar->SetInGuild(0);
         }
     }
-
+TC_LOG_INFO("server.worldserver", "tuk qq3 ");
     pCurrChar->SendInitialPacketsAfterAddToMap();
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_ONLINE);
@@ -1072,7 +1076,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
 
     // Load pet if any (if player not alive and in taxi flight or another then pet will remember as temporary unsummoned)
     pCurrChar->LoadPet();
-
+TC_LOG_INFO("server.worldserver", "tuk qq4 ");
     // Set FFA PvP for non GM in non-rest mode
     if (sWorld->IsFFAPvPRealm() && !pCurrChar->IsGameMaster() && !pCurrChar->HasFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_RESTING))
         pCurrChar->SetByteFlag(UNIT_FIELD_SHAPESHIFT_FORM, 1, UNIT_BYTE2_FLAG_FFA_PVP);
