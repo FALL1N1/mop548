@@ -23,13 +23,13 @@ void WorldSession::SetBoosting(bool boost, bool saveToDB)
     // m_hasBoost = boost;
 	m_hasBoost = true; // vremenno dokato e PTR
 
-    if (!saveToDB)
-        return;
+//    if (!saveToDB)
+//        return;
 
-    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_BOOST);
-    stmt->setBool(0, boost);
-    stmt->setUInt32(1, _accountId);
-    LoginDatabase.Execute(stmt);
+//    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_BOOST);
+//    stmt->setBool(0, boost);
+//    stmt->setUInt32(1, _accountId);
+//    LoginDatabase.Execute(stmt);
 }
 
 void WorldSession::SendBattlePayDistributionUpdate(uint64 playerGuid, int8 bonusId, int32 bonusFlag, int32 textId, std::string const& bonusText, std::string const& bonusText2)
