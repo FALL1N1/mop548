@@ -65,13 +65,13 @@ enum Eventi
 
 enum Taimeri // v milisekundi (1000milisekundi = 1sekunda)
 {
-	TIMER_ALPHA_MALE           = 1000, // moje da ne e blizzlike (prez 1s proverqva dali main tanka ima aurata), sluji za tank swap fazata
-	TIMER_CRUSH                = 0, // ???
-	TIMER_FRILL_BLAST          = 0, // ???
-	TIMER_GROWING_FURY         = 30000, // 30 sek
-	TIMER_PIERCING_ROAR        = 0, // ???
-	TIMER_SPIRITFIRE_BEAM      = 0, // ??? 
-}
+	TIMER_ALPHA_MALE = 1000, // moje da ne e blizzlike (prez 1s proverqva dali main tanka ima aurata), sluji za tank swap fazata
+	TIMER_CRUSH = 0, // ???
+	TIMER_FRILL_BLAST = 0, // ???
+	TIMER_GROWING_FURY = 30000, // 30 sek
+	TIMER_PIERCING_ROAR = 0, // ???
+	TIMER_SPIRITFIRE_BEAM = 0, // ??? 
+};
 
 class boss_oondasta : public CreatureScript
 {
@@ -106,7 +106,7 @@ public:
 
         void EligibleForAlphaMale()
         {
-           if(Player* tanka = me->GetVictim())
+           if(Unit* tanka = me->GetVictim())
            {
                 if(!tanka->HasAura(SPELL_ALPHA_MALE)) // tui kato swap-vat aggroto moje da izgubqt aurata (explit)
         			DoCastVictim(SPELL_ALPHA_MALE); // castni alpha male v-u main tanka
@@ -140,13 +140,13 @@ public:
                     }
                     case EVENT_FRILL_BLAST:
                     {
-                        me->CastSpell(me, SPELL_CANNON_BARRAGE, true);
+                        me->CastSpell(me, SPELL_FRILL_BLAST, true);
                         events.ScheduleEvent(EVENT_PIERCING_ROAR, TIMER_FRILL_BLAST);
                         break;
                     }
                     case EVENT_PIERCING_ROAR:
                     {
-                        me->CastSpell(me, SPELL_CANNON_BARRAGE, true);
+                        me->CastSpell(me, SPELL_PIERCING_ROAR, true);
                         events.ScheduleEvent(EVENT_PIERCING_ROAR, TIMER_PIERCING_ROAR);
                         break;
                     }

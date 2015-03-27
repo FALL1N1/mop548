@@ -22,42 +22,42 @@
 enum Bosses
 {
 	BOSS_NALAK,
-}
+};
 
 enum Yells
 {
 	// #At Pull
-	SAY_AGGRO_01  = 0, // "I am born of thunder!" 
-	SAY_AGGRO_02  = 2, // "Can you feel the chill windblow? The storm is comming."
+	SAY_AGGRO_01 = 0, // "I am born of thunder!" 
+	SAY_AGGRO_02 = 2, // "Can you feel the chill windblow? The storm is comming."
 	// #In Combat
 	SAY_COMBAT_01 = 3, // "The air crackles with anger!" -- STORMCLOUD
 	SAY_COMBAT_02 = 4, // "The clouds arc with vengeance!" -#- ARC NOVA
 	SAY_COMBAT_03 = 5, // "The sky weeps for your demise!" -#- LIGHTNING TETHER
 	// #Death
-	SAY_DEATH_01  = 6, // "I am but... The darkness... Before the storm..."
+	SAY_DEATH_01 = 6, // "I am but... The darkness... Before the storm..."
 
-}
+};
 
 enum Timers
 {
-	TIMER_ARC_NOVA         = 30000,
+	TIMER_ARC_NOVA = 30000,
 	TIMER_LIGHTNING_TETHER = 30000,
-	TIMER_STORMCLOUD       = 30000,
-}
+	TIMER_STORMCLOUD = 30000,
+};
 
 enum Spells
 {
-	SPELL_ARC_NOVA 			= 136338,
-	SPELL_LIGHTNING_TETHER  = 136339, 
-	SPELL_STORMCLOUD        = 136340,
-}
+	SPELL_ARC_NOVA = 136338,
+	SPELL_LIGHTNING_TETHER = 136339,
+	SPELL_STORMCLOUD = 136340,
+};
 
-enum Events 
+enum Events
 {
-	EVENT_ARC_NOVA 			= 1,
-	EVENT_LIGHTNING_TETHER 	= 2,
-	EVENT_STORMCLOUD 		= 3,
-}
+	EVENT_ARC_NOVA = 1,
+	EVENT_LIGHTNING_TETHER = 2,
+	EVENT_STORMCLOUD = 3,
+};
 
 class npc_boss_nalak : public CreatureScript
 {
@@ -107,7 +107,7 @@ public:
                     {
                     	Talk(SAY_COMBAT_03);
                         me->CastSpell(me, SPELL_LIGHTNING_TETHER, true);
-                        events.ScheduleEvent(EVENT_CRUSH, TIMER_LIGHTNING_TETHER);
+                        events.ScheduleEvent(EVENT_LIGHTNING_TETHER, TIMER_LIGHTNING_TETHER);
                         break;
                     }
                     case EVENT_STORMCLOUD:

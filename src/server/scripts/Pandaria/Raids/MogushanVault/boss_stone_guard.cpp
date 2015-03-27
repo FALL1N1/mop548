@@ -430,7 +430,7 @@ class boss_generic_guardian : public CreatureScript
                     case ACTION_PETRIFICATION:
                     {
                         char buf[128];
-                        sprintf(buf, "%s begins to petrify all players !", me->GetName());
+                        // sprintf(buf, "%s begins to petrify all players !", me->GetName());
                         me->MonsterTextEmote(buf, 0, true);
                         me->CastSpell(me, spellPetrificationId, true);
                         pInstance->DoCastSpellOnPlayers(spellPetrificationBarId);
