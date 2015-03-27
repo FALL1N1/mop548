@@ -991,7 +991,7 @@ int WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
         locale = LOCALE_enUS;
 
     uint32 recruiter = fields[7].GetUInt32();
-    bool hasBoost = fields[8].GetBool();
+	bool hasBoost = 1; //fields[8].GetBool();
     std::string os = fields[9].GetString();
 
     // Must be done before WorldSession is created
