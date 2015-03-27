@@ -1028,7 +1028,6 @@ void AddEasternKingdomsScripts()
     AddSC_boss_theolenkrastinov();
     AddSC_boss_illuciabarov();
     AddSC_boss_instructormalicia();
-    AddSC_boss_jandicebarov();
     AddSC_boss_kormok();
     AddSC_boss_lordalexeibarov();
     AddSC_boss_lorekeeperpolkelt();
@@ -1614,7 +1613,6 @@ void AddPandariaScripts()
     // Pandaria Dungeons:: Scholomance
     AddSC_boss_rattlegore();
     AddSC_boss_lilian_voss();
-    AddSC_boss_jandice_barov();
     AddSC_boss_instructor_chillheart();
     AddSC_boss_darkmaster_gandling();
     // Pandaria Dungeons:: Shado'pan Monastery
