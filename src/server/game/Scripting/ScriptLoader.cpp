@@ -672,7 +672,6 @@ void AddSC_boss_galion();
 void AddSC_jade_forest();
 void AddSC_krasarang_wilds();
 void AddSC_kun_lai_summit();
-void AddSC_jade_forest();
 void AddSC_the_veiled_stair();
 void AddSC_townlong_steppes();
 void AddSC_vale_of_eternal_blossoms();
@@ -756,12 +755,10 @@ void AddSC_boss_houndmaster_braun();
 void AddSC_boss_flameweaver_koegler();
 void AddSC_boss_armsmaster_harlan();
 // Pandaria Dungeons:: Scarlet Monastery
-void AddSC_instance_scarlet_monastery();
 void AddSC_boss_thalnos_the_souldrender();
 void AddSC_boss_high_inquisitor_whitemane();
 void AddSC_boss_brother_korloff();
 // Pandaria Dungeons:: Scholomance
-void AddSC_instance_scholomance();
 void AddSC_boss_rattlegore();
 void AddSC_boss_lilian_voss();
 void AddSC_boss_jandice_barov();
@@ -790,15 +787,6 @@ void AddSC_boss_liu_flameheart();
 void AddSC_boss_lorewalker_stonestep();
 void AddSC_boss_sha_of_doubt();
 void AddSC_boss_wise_mari();
-// Pandaria Zones
-void AddSC_jade_forest();
-void AddSC_krasarang_wilds();
-void AddSC_kun_lai_summit();
-void AddSC_jade_forest();
-void AddSC_the_veiled_stair();
-void AddSC_townlong_steppes();
-void AddSC_vale_of_eternal_blossoms();
-void AddSC_valley_of_the_four_winds();
 
 
 // Pets
@@ -1537,7 +1525,6 @@ void AddPandariaScripts()
     AddSC_jade_forest();
     AddSC_krasarang_wilds();
     AddSC_kun_lai_summit();
-    AddSC_jade_forest();
     AddSC_the_veiled_stair();
     AddSC_townlong_steppes();
     AddSC_vale_of_eternal_blossoms();
@@ -1621,12 +1608,10 @@ void AddPandariaScripts()
     AddSC_boss_flameweaver_koegler();
     AddSC_boss_armsmaster_harlan();
     // Pandaria Dungeons:: Scarlet Monastery
-    AddSC_instance_scarlet_monastery();
     AddSC_boss_thalnos_the_souldrender();
     AddSC_boss_high_inquisitor_whitemane();
     AddSC_boss_brother_korloff();
     // Pandaria Dungeons:: Scholomance
-    AddSC_instance_scholomance();
     AddSC_boss_rattlegore();
     AddSC_boss_lilian_voss();
     AddSC_boss_jandice_barov();
@@ -1655,15 +1640,6 @@ void AddPandariaScripts()
     AddSC_boss_lorewalker_stonestep();
     AddSC_boss_sha_of_doubt();
     AddSC_boss_wise_mari();
-    // Pandaria Zones
-    AddSC_jade_forest();
-    AddSC_krasarang_wilds();
-    AddSC_kun_lai_summit();
-    AddSC_jade_forest();
-    AddSC_the_veiled_stair();
-    AddSC_townlong_steppes();
-    AddSC_vale_of_eternal_blossoms();
-    AddSC_valley_of_the_four_winds();
 #endif
 }
 
