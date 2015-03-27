@@ -138,7 +138,7 @@ public:
                 }
             }
             else
-                TC_LOG_DEBUG("scripts", "Instance Sunwell Plateau: GetPlayerInMap, but PlayerList is empty!");
+                TC_LOG_INFO("scripts", "Instance Sunwell Plateau: GetPlayerInMap, but PlayerList is empty!");
 
             return NULL;
         }

@@ -135,7 +135,7 @@ inline bool Log::ShouldLog(std::string const& type, LogLevel level) const
 #define TC_LOG_TRACE(filterType__, ...) \
     TC_LOG_MESSAGE_BODY(LOG_LEVEL_TRACE, outTrace, filterType__, __VA_ARGS__)
 
-#define TC_LOG_DEBUG(filterType__, ...) \
+#define TC_LOG_INFO(filterType__, ...) \
     TC_LOG_MESSAGE_BODY(LOG_LEVEL_DEBUG, outDebug, filterType__, __VA_ARGS__)
 
 #define TC_LOG_INFO(filterType__, ...)  \

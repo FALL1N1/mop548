@@ -28,7 +28,7 @@
 
 void WorldSession::HandleDismissControlledVehicle(WorldPacket &recvData)
 {
-    TC_LOG_DEBUG("network", "WORLD: Recvd CMSG_DISMISS_CONTROLLED_VEHICLE");
+    TC_LOG_INFO("network", "WORLD: Recvd CMSG_DISMISS_CONTROLLED_VEHICLE");
 
     uint64 vehicleGUID = _player->GetCharmGUID();
 
@@ -48,7 +48,7 @@ void WorldSession::HandleDismissControlledVehicle(WorldPacket &recvData)
 
 void WorldSession::HandleChangeSeatsOnControlledVehicle(WorldPacket& recvData)
 {
-    TC_LOG_DEBUG("network", "WORLD: Recvd CMSG_CHANGE_SEATS_ON_CONTROLLED_VEHICLE");
+    TC_LOG_INFO("network", "WORLD: Recvd CMSG_CHANGE_SEATS_ON_CONTROLLED_VEHICLE");
 
     Unit* vehicle_base = GetPlayer()->GetVehicleBase();
     if (!vehicle_base)
@@ -141,7 +141,7 @@ void WorldSession::HandleChangeSeatsOnControlledVehicle(WorldPacket& recvData)
 
 void WorldSession::HandleEnterPlayerVehicle(WorldPacket& recvData)
 {
-    TC_LOG_DEBUG("network", "WORLD: Recvd CMSG_PLAYER_VEHICLE_ENTER");
+    TC_LOG_INFO("network", "WORLD: Recvd CMSG_PLAYER_VEHICLE_ENTER");
 
     ObjectGuid guid;
     recvData.ReadGuidMask(guid, 5, 7, 3, 0, 2, 4, 6, 1);
@@ -228,7 +228,7 @@ void WorldSession::HandleEjectPassenger(WorldPacket& data)
 
 void WorldSession::HandleRequestVehicleExit(WorldPacket& /*recvData*/)
 {
-    TC_LOG_DEBUG("network", "WORLD: Recvd CMSG_REQUEST_VEHICLE_EXIT");
+    TC_LOG_INFO("network", "WORLD: Recvd CMSG_REQUEST_VEHICLE_EXIT");
 
     if (Vehicle* vehicle = GetPlayer()->GetVehicle())
     {

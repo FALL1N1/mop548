@@ -265,7 +265,7 @@ TC_LOG_INFO("server.worldserver", "tuk 3 ");
         {
             uint32 guidLow = (*result)[0].GetUInt32();
 
-            TC_LOG_DEBUG("network", "Loading char guid %u from account %u.", guidLow, GetAccountId());
+            TC_LOG_INFO("network", "Loading char guid %u from account %u.", guidLow, GetAccountId());
 
             Player::BuildEnumData(result, &dataBuffer, &bitBuffer, m_charBooster->IsBoosting(guidLow));
 
@@ -698,7 +698,7 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, Characte
             {
                 uint8 unk;
                 createInfo->Data >> unk;
-                TC_LOG_DEBUG("network", "Character creation %s (account %u) has unhandled tail data: [%u]", createInfo->Name.c_str(), GetAccountId(), unk);
+                TC_LOG_INFO("network", "Character creation %s (account %u) has unhandled tail data: [%u]", createInfo->Name.c_str(), GetAccountId(), unk);
             }
 
             Player newChar(this);
@@ -765,7 +765,7 @@ void WorldSession::HandleCharDeleteOpcode(WorldPacket& recvData)
 
     recvData.ReadGuidBytes(guid, 7, 1, 6, 0, 3, 4, 2, 5);
 
-    TC_LOG_DEBUG("network", "Character (Guid: %u) deleted", GUID_LOPART(guid));
+    TC_LOG_INFO("network", "Character (Guid: %u) deleted", GUID_LOPART(guid));
 
     // can't delete loaded character
     if (ObjectAccessor::FindPlayer(guid))
@@ -831,7 +831,7 @@ void WorldSession::HandlePlayerLoginOpcode(WorldPacket& recvData)
     ObjectGuid playerGuid;
     float unk = 0;
 
-    TC_LOG_DEBUG("network", "WORLD: Recvd Player Logon Message");
+    TC_LOG_INFO("network", "WORLD: Recvd Player Logon Message");
 
     recvData >> unk;
 
@@ -840,7 +840,7 @@ void WorldSession::HandlePlayerLoginOpcode(WorldPacket& recvData)
     recvData.ReadGuidBytes(playerGuid, 5, 1, 0, 6, 2, 4, 7, 3);
 
     //WorldObject* player = ObjectAccessor::GetWorldObject(*GetPlayer(), playerGuid);
-    TC_LOG_DEBUG("network", "Character (Guid: %u) logging in", GUID_LOPART(playerGuid));
+    TC_LOG_INFO("network", "Character (Guid: %u) logging in", GUID_LOPART(playerGuid));
 TC_LOG_INFO("server.worldserver", "tuk q4 ");
     if (!IsLegitCharacterForAccount(GUID_LOPART(playerGuid)))
     {
@@ -862,7 +862,7 @@ TC_LOG_INFO("server.worldserver", "tuk q3 ");
 
 void WorldSession::HandleLoadScreenOpcode(WorldPacket& recvPacket)
 {
-    TC_LOG_DEBUG("general", "WORLD: Recvd CMSG_LOAD_SCREEN");
+    TC_LOG_INFO("general", "WORLD: Recvd CMSG_LOAD_SCREEN");
     uint32 mapID;
 
     recvPacket >> mapID;
@@ -944,13 +944,13 @@ TC_LOG_INFO("server.worldserver", "tuk w4 ");
         data.append(stringBuffer);
 
         SendPacket(&data);
-        TC_LOG_DEBUG("network", "WORLD: Sent motd (SMSG_MOTD)");
+        TC_LOG_INFO("network", "WORLD: Sent motd (SMSG_MOTD)");
 TC_LOG_INFO("server.worldserver", "tuk w5 ");
         // send server info
         if (sWorld->getIntConfig(CONFIG_ENABLE_SINFO_LOGIN) == 1)
             chH.PSendSysMessage(_FULLVERSION);
 
-        TC_LOG_DEBUG("network", "WORLD: Sent server info");
+        TC_LOG_INFO("network", "WORLD: Sent server info");
     }
 TC_LOG_INFO("server.worldserver", "tuk w6 ");
     data.Initialize(SMSG_PVP_SEASON, 4 + 4);
@@ -1021,7 +1021,7 @@ TC_LOG_INFO("server.worldserver", "tuk qq1 ");
     }
 TC_LOG_INFO("server.worldserver", "tuk qq2 ");
     sObjectAccessor->AddObject(pCurrChar);
-    //TC_LOG_DEBUG("Player %s added to Map.", pCurrChar->GetName().c_str());
+    //TC_LOG_INFO("Player %s added to Map.", pCurrChar->GetName().c_str());
 
     if (pCurrChar->GetGuildId() != 0)
     {
@@ -1224,7 +1224,7 @@ TC_LOG_INFO("server.worldserver", "tuk qq4 ");
 
 void WorldSession::HandleSetFactionAtWar(WorldPacket& recvData)
 {
-    TC_LOG_DEBUG("network", "WORLD: Received CMSG_SET_FACTION_ATWAR");
+    TC_LOG_INFO("network", "WORLD: Received CMSG_SET_FACTION_ATWAR");
 
     uint8 repListID;
     recvData >> repListID;
@@ -1234,7 +1234,7 @@ void WorldSession::HandleSetFactionAtWar(WorldPacket& recvData)
 
 void WorldSession::HandleSetFactionNotAtWar(WorldPacket& recvData)
 {
-    TC_LOG_DEBUG("network", "WORLD: Received CMSG_SET_FACTION_NOT_ATWAR");
+    TC_LOG_INFO("network", "WORLD: Received CMSG_SET_FACTION_NOT_ATWAR");
 
     uint8 repListID;
     recvData >> repListID;
@@ -1279,7 +1279,7 @@ void WorldSession::HandleTutorialReset(WorldPacket& /*recvData*/)
 
 void WorldSession::HandleSetWatchedFactionOpcode(WorldPacket& recvData)
 {
-    TC_LOG_DEBUG("network", "WORLD: Received CMSG_SET_WATCHED_FACTION");
+    TC_LOG_INFO("network", "WORLD: Received CMSG_SET_WATCHED_FACTION");
     uint32 fact;
     recvData >> fact;
     GetPlayer()->SetUInt32Value(PLAYER_FIELD_WATCHED_FACTION_INDEX, fact);
@@ -1287,7 +1287,7 @@ void WorldSession::HandleSetWatchedFactionOpcode(WorldPacket& recvData)
 
 void WorldSession::HandleSetLootSpecializationOpcode(WorldPacket& recvData)
 {
-    TC_LOG_DEBUG("network", "WORLD: Received CMSG_SET_LOOT_SPECIALIZATION");
+    TC_LOG_INFO("network", "WORLD: Received CMSG_SET_LOOT_SPECIALIZATION");
 
     uint32 specId;
     recvData >> specId;
@@ -1297,7 +1297,7 @@ void WorldSession::HandleSetLootSpecializationOpcode(WorldPacket& recvData)
 
 void WorldSession::HandleSetFactionInactiveOpcode(WorldPacket& recvData)
 {
-    TC_LOG_DEBUG("network", "WORLD: Received CMSG_SET_FACTION_INACTIVE");
+    TC_LOG_INFO("network", "WORLD: Received CMSG_SET_FACTION_INACTIVE");
     uint32 replistid;
     uint8 inactive;
     recvData >> replistid >> inactive;
@@ -1307,14 +1307,14 @@ void WorldSession::HandleSetFactionInactiveOpcode(WorldPacket& recvData)
 
 void WorldSession::HandleShowingHelmOpcode(WorldPacket& recvData)
 {
-    TC_LOG_DEBUG("network", "CMSG_SHOWING_HELM for %s", _player->GetName().c_str());
+    TC_LOG_INFO("network", "CMSG_SHOWING_HELM for %s", _player->GetName().c_str());
     recvData.read_skip<uint8>(); // unknown, bool?
     _player->ToggleFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_HIDE_HELM);
 }
 
 void WorldSession::HandleShowingCloakOpcode(WorldPacket& recvData)
 {
-    TC_LOG_DEBUG("network", "CMSG_SHOWING_CLOAK for %s", _player->GetName().c_str());
+    TC_LOG_INFO("network", "CMSG_SHOWING_CLOAK for %s", _player->GetName().c_str());
     recvData.read_skip<uint8>(); // unknown, bool?
     _player->ToggleFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_HIDE_CLOAK);
 }
@@ -1532,7 +1532,7 @@ void WorldSession::HandleSetPlayerDeclinedNames(WorldPacket& recvData)
 
 void WorldSession::HandleAlterAppearance(WorldPacket& recvData)
 {
-    TC_LOG_DEBUG("network", "CMSG_ALTER_APPEARANCE");
+    TC_LOG_INFO("network", "CMSG_ALTER_APPEARANCE");
 
     uint32 Hair, Color, FacialHair, SkinColor;
     recvData >> SkinColor >> Color >> Hair >> FacialHair;
@@ -1602,7 +1602,7 @@ void WorldSession::HandleRemoveGlyph(WorldPacket& recvData)
 
     if (slot >= MAX_GLYPH_SLOT_INDEX)
     {
-        TC_LOG_DEBUG("network", "Client sent wrong glyph slot number in opcode CMSG_REMOVE_GLYPH %u", slot);
+        TC_LOG_INFO("network", "Client sent wrong glyph slot number in opcode CMSG_REMOVE_GLYPH %u", slot);
         return;
     }
 
@@ -1750,7 +1750,7 @@ void WorldSession::HandleCharCustomize(WorldPacket& recvData)
 
 void WorldSession::HandleEquipmentSetSave(WorldPacket& recvData)
 {
-    TC_LOG_DEBUG("network", "CMSG_EQUIPMENT_SET_SAVE");
+    TC_LOG_INFO("network", "CMSG_EQUIPMENT_SET_SAVE");
 
     uint32 setName_length = 0;
     uint32 iconName_length = 0;
@@ -1833,7 +1833,7 @@ void WorldSession::HandleEquipmentSetSave(WorldPacket& recvData)
 
 void WorldSession::HandleEquipmentSetDelete(WorldPacket &recvData)
 {
-    TC_LOG_DEBUG("network", "CMSG_EQUIPMENT_SET_DELETE");
+    TC_LOG_INFO("network", "CMSG_EQUIPMENT_SET_DELETE");
 
     ObjectGuid setGuid;
 
@@ -1848,7 +1848,7 @@ void WorldSession::HandleEquipmentSetDelete(WorldPacket &recvData)
 
 void WorldSession::HandleEquipmentSetUse(WorldPacket& recvData)
 {
-    TC_LOG_DEBUG("network", "CMSG_EQUIPMENT_SET_USE");
+    TC_LOG_INFO("network", "CMSG_EQUIPMENT_SET_USE");
 
     EquipmentSlots startSlot = _player->IsInCombat() ? EQUIPMENT_SLOT_MAINHAND : EQUIPMENT_SLOT_START;
 
@@ -1901,7 +1901,7 @@ void WorldSession::HandleEquipmentSetUse(WorldPacket& recvData)
         if (i < uint32(startSlot))
             continue;
 
-        TC_LOG_DEBUG("entities.player.items", "Item " UI64FMTD ": srcbag %u, srcslot %u", itemGuid, srcbag, srcslot);
+        TC_LOG_INFO("entities.player.items", "Item " UI64FMTD ": srcbag %u, srcslot %u", itemGuid, srcbag, srcslot);
 
         if (itemGuid == 1)
             continue;
@@ -2482,7 +2482,7 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
     CharacterDatabase.CommitTransaction(trans);
 
     std::string IP_str = GetRemoteAddress();
-    TC_LOG_DEBUG("entities.player", "%s (IP: %s) changed race from %u to %u", GetPlayerInfo().c_str(), IP_str.c_str(), oldRace, race);
+    TC_LOG_INFO("entities.player", "%s (IP: %s) changed race from %u to %u", GetPlayerInfo().c_str(), IP_str.c_str(), oldRace, race);
 
     WorldPacket data(SMSG_CHAR_FACTION_CHANGE, 1 + 8 + (newname.size() + 1) + 1 + 1 + 1 + 1 + 1 + 1 + 1);
     data << uint8(RESPONSE_SUCCESS);
@@ -2570,7 +2570,7 @@ void WorldSession::HandleOpeningCinematic(WorldPacket& /*recvData*/)
 
 void Player::XPGainAborted()
 {
-    TC_LOG_DEBUG("network", "WORLD: sended SMSG_XP_GAIN_ABORTED");
+    TC_LOG_INFO("network", "WORLD: sended SMSG_XP_GAIN_ABORTED");
 
     // should be sended by gossip menu
     ObjectGuid guid = GetGUID();

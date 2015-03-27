@@ -133,7 +133,7 @@ extern int main(int argc, char** argv)
     ACE_Reactor::instance(new ACE_Reactor(new ACE_TP_Reactor(), true), true);
 #endif
 
-    TC_LOG_DEBUG("server.authserver", "Max allowed open files is %d", ACE::max_handles());
+    TC_LOG_INFO("server.authserver", "Max allowed open files is %d", ACE::max_handles());
 
     // authserver PID file creation
     std::string pidFile = sConfigMgr->GetStringDefault("PidFile", "");

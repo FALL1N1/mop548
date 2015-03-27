@@ -38,7 +38,7 @@
 
 void WorldSession::HandleMoveWorldportAckOpcode(WorldPacket & /*recvData*/)
 {
-    TC_LOG_DEBUG("network", "WORLD: got MSG_MOVE_WORLDPORT_ACK.");
+    TC_LOG_INFO("network", "WORLD: got MSG_MOVE_WORLDPORT_ACK.");
     HandleMoveWorldportAckOpcode();
 }
 
@@ -199,7 +199,7 @@ void WorldSession::HandleMoveWorldportAckOpcode()
 
 void WorldSession::HandleMoveTeleportAck(WorldPacket& recvPacket)
 {
-    TC_LOG_DEBUG("network", "CMSG_MOVE_TELEPORT_ACK");
+    TC_LOG_INFO("network", "CMSG_MOVE_TELEPORT_ACK");
 
     ObjectGuid guid;
     uint32 flags, time;
@@ -209,8 +209,8 @@ void WorldSession::HandleMoveTeleportAck(WorldPacket& recvPacket)
 
     recvPacket.ReadGuidBytes(guid, 4, 1, 6, 7, 0, 2, 5, 3);
 
-    TC_LOG_DEBUG("network", "Guid " UI64FMTD, uint64(guid));
-    TC_LOG_DEBUG("network", "Flags %u, time %u", flags, time/IN_MILLISECONDS);
+    TC_LOG_INFO("network", "Guid " UI64FMTD, uint64(guid));
+    TC_LOG_INFO("network", "Flags %u, time %u", flags, time/IN_MILLISECONDS);
 
     Player* plMover = _player->m_mover->ToPlayer();
 
@@ -489,7 +489,7 @@ void WorldSession::HandleForceSpeedChangeAck(WorldPacket &recvData)
         }
         else                                                // must be lesser - cheating
         {
-            TC_LOG_DEBUG("misc", "Player %s from account id %u kicked for incorrect speed (must be %f instead %f)",
+            TC_LOG_INFO("misc", "Player %s from account id %u kicked for incorrect speed (must be %f instead %f)",
                 _player->GetName().c_str(), _player->GetSession()->GetAccountId(), _player->GetSpeed(move_type), newspeed);
             _player->GetSession()->KickPlayer();
         }
@@ -498,7 +498,7 @@ void WorldSession::HandleForceSpeedChangeAck(WorldPacket &recvData)
 
 void WorldSession::HandleSetActiveMoverOpcode(WorldPacket& recvPacket)
 {
-    TC_LOG_DEBUG("network", "WORLD: Recvd CMSG_SET_ACTIVE_MOVER");
+    TC_LOG_INFO("network", "WORLD: Recvd CMSG_SET_ACTIVE_MOVER");
 
     ObjectGuid guid;   
 
@@ -517,7 +517,7 @@ void WorldSession::HandleSetActiveMoverOpcode(WorldPacket& recvPacket)
 
 void WorldSession::HandleMoveNotActiveMover(WorldPacket &recvData)
 {
-    TC_LOG_DEBUG("network", "WORLD: Recvd CMSG_MOVE_NOT_ACTIVE_MOVER");
+    TC_LOG_INFO("network", "WORLD: Recvd CMSG_MOVE_NOT_ACTIVE_MOVER");
 
     MovementInfo mi;
     GetPlayer()->ReadMovementInfo(recvData, &mi);
@@ -539,7 +539,7 @@ void WorldSession::HandleMountSpecialAnimOpcode(WorldPacket& /*recvData*/)
 
 void WorldSession::HandleMoveKnockBackAck(WorldPacket& recvData)
 {
-    TC_LOG_DEBUG("network", "CMSG_MOVE_KNOCK_BACK_ACK");
+    TC_LOG_INFO("network", "CMSG_MOVE_KNOCK_BACK_ACK");
 
     MovementInfo movementInfo;
     GetPlayer()->ReadMovementInfo(recvData, &movementInfo);
@@ -556,7 +556,7 @@ void WorldSession::HandleMoveKnockBackAck(WorldPacket& recvData)
 
 void WorldSession::HandleMoveHoverAck(WorldPacket& recvData)
 {
-    TC_LOG_DEBUG("network", "CMSG_MOVE_HOVER_ACK");
+    TC_LOG_INFO("network", "CMSG_MOVE_HOVER_ACK");
 
     uint64 guid;                                            // guid - unused
     recvData.readPackGUID(guid);
@@ -571,7 +571,7 @@ void WorldSession::HandleMoveHoverAck(WorldPacket& recvData)
 
 void WorldSession::HandleMoveWaterWalkAck(WorldPacket& recvData)
 {
-    TC_LOG_DEBUG("network", "CMSG_MOVE_WATER_WALK_ACK");
+    TC_LOG_INFO("network", "CMSG_MOVE_WATER_WALK_ACK");
 
     uint64 guid;                                            // guid - unused
     recvData.readPackGUID(guid);
@@ -587,7 +587,7 @@ void WorldSession::HandleMoveWaterWalkAck(WorldPacket& recvData)
 void WorldSession::HandleMoveSetFly(WorldPacket& recvData)
 {
     // TODO: find out what are unknown booleans and use ReadMovementInfo
-    TC_LOG_DEBUG("network", "CMSG_MOVE_SET_FLY");
+    TC_LOG_INFO("network", "CMSG_MOVE_SET_FLY");
     ObjectGuid playerGuid;
     ObjectGuid transportGuid;
 
@@ -705,7 +705,7 @@ void WorldSession::HandleSummonResponseOpcode(WorldPacket& recvData)
 
 void WorldSession::HandleSetCollisionHeightAck(WorldPacket& recvPacket)
 {
-    TC_LOG_DEBUG("network", "CMSG_MOVE_SET_COLLISION_HEIGHT_ACK");
+    TC_LOG_INFO("network", "CMSG_MOVE_SET_COLLISION_HEIGHT_ACK");
 
     static MovementStatusElements const heightElements[] = { MSEExtraFloat, MSEExtra2Bits };
     Movement::ExtraMovementStatusElement extra(heightElements);

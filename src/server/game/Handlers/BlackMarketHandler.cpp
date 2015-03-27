@@ -28,7 +28,7 @@
 
 void WorldSession::HandleBlackMarketHelloOpcode(WorldPacket& recvData)
 {
-    TC_LOG_DEBUG("network", "WORLD: Received CMSG_BLACKMARKET_HELLO");
+    TC_LOG_INFO("network", "WORLD: Received CMSG_BLACKMARKET_HELLO");
 
     ObjectGuid guid;
 
@@ -42,7 +42,7 @@ void WorldSession::HandleBlackMarketHelloOpcode(WorldPacket& recvData)
 
     if (!unit)
     {
-        TC_LOG_DEBUG("network", "WORLD: Received CMSG_BLACKMARKET_HELLO - Unit (GUID: %u) not found or you can't interact with him.", uint32(GUID_LOPART(npcGuid)));
+        TC_LOG_INFO("network", "WORLD: Received CMSG_BLACKMARKET_HELLO - Unit (GUID: %u) not found or you can't interact with him.", uint32(GUID_LOPART(npcGuid)));
         return;
     }
 
@@ -54,7 +54,7 @@ void WorldSession::HandleBlackMarketHelloOpcode(WorldPacket& recvData)
 
 void WorldSession::SendBlackMarketHello(uint64 npcGuid)
 {
-    TC_LOG_DEBUG("network", "WORLD: Received SMSG_BLACK_MARKET_HELLO");
+    TC_LOG_INFO("network", "WORLD: Received SMSG_BLACK_MARKET_HELLO");
 
     WorldPacket data(SMSG_BLACK_MARKET_HELLO, 8);
 
@@ -71,7 +71,7 @@ void WorldSession::SendBlackMarketHello(uint64 npcGuid)
 
 void WorldSession::HandleBlackMarketRequestItemOpcode(WorldPacket& recvData)
 {
-    TC_LOG_DEBUG("network", "WORLD: Received CMSG_BLACKMARKET_REQUEST_ITEMS");
+    TC_LOG_INFO("network", "WORLD: Received CMSG_BLACKMARKET_REQUEST_ITEMS");
 
     ObjectGuid guid;
     uint32 Timestamp;
@@ -87,7 +87,7 @@ void WorldSession::HandleBlackMarketRequestItemOpcode(WorldPacket& recvData)
     Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(NpcGuid, UNIT_NPC_FLAG_BLACKMARKET);
     if (!unit)
     {
-        TC_LOG_DEBUG("network", "WORLD: Received CMSG_BLACKMARKET_REQUEST_ITEMS - Unit (GUID: %u) not found or you can't interact with him.", uint32(GUID_LOPART(NpcGuid)));
+        TC_LOG_INFO("network", "WORLD: Received CMSG_BLACKMARKET_REQUEST_ITEMS - Unit (GUID: %u) not found or you can't interact with him.", uint32(GUID_LOPART(NpcGuid)));
         return;
     }
 
@@ -96,7 +96,7 @@ void WorldSession::HandleBlackMarketRequestItemOpcode(WorldPacket& recvData)
 
 void WorldSession::SendBlackMarketRequestItemsResult()
 {
-    TC_LOG_DEBUG("network", "WORLD: Received SMSG_BLACK_MARKET_REQUEST_ITEMS_RESULT");
+    TC_LOG_INFO("network", "WORLD: Received SMSG_BLACK_MARKET_REQUEST_ITEMS_RESULT");
 
     WorldPacket data(SMSG_BLACK_MARKET_REQUEST_ITEMS_RESULT, 9);
     sBlackMarketMgr->BuildBlackMarketAuctionsPacket(data, GetPlayer()->GetGUIDLow());
@@ -105,7 +105,7 @@ void WorldSession::SendBlackMarketRequestItemsResult()
 
 void WorldSession::HandleBlackMarketBidOpcode(WorldPacket& recvData)
 {
-    TC_LOG_DEBUG("network", "WORLD: Received CMSG_BLACKMARKET_BID");
+    TC_LOG_INFO("network", "WORLD: Received CMSG_BLACKMARKET_BID");
 
     ObjectGuid guid;
     uint32 itemid, id;
@@ -144,7 +144,7 @@ void WorldSession::HandleBlackMarketBidOpcode(WorldPacket& recvData)
 
 void WorldSession::SendBlackMarketBidResult()
 {
-    TC_LOG_DEBUG("network", "WORLD: Received SMSG_BLACK_MARKET_BID_RESULT");
+    TC_LOG_INFO("network", "WORLD: Received SMSG_BLACK_MARKET_BID_RESULT");
 
     WorldPacket data(SMSG_BLACK_MARKET_BID_RESULT, 5);
 

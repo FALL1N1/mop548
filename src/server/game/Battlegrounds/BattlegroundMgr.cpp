@@ -542,7 +542,7 @@ void BattlegroundMgr::BuildPvpLogDataPacket(WorldPacket* data, Battleground* bg)
         *data << int32(-1); // unk - always -1
         *data << int32(bg->GetTeamMatchmakerRating(TEAM_HORDE));  // Enemys team MMR
 
-        TC_LOG_DEBUG("bg.battleground", "rating change: %d", 0);
+        TC_LOG_INFO("bg.battleground", "rating change: %d", 0);
     }
 
     if (bg->GetStatus() == STATUS_WAIT_LEAVE)
@@ -1187,7 +1187,7 @@ void BattlegroundMgr::SendToBattleground(Player* player, uint32 instanceId, Batt
         uint32 team = player->GetBGTeam();
 
         bg->GetTeamStartLoc(team, x, y, z, O);
-        TC_LOG_DEBUG("bg.battleground", "BattlegroundMgr::SendToBattleground: Sending %s to map %u, X %f, Y %f, Z %f, O %f (bgType %u)", player->GetName().c_str(), mapid, x, y, z, O, bgTypeId);
+        TC_LOG_INFO("bg.battleground", "BattlegroundMgr::SendToBattleground: Sending %s to map %u, X %f, Y %f, Z %f, O %f (bgType %u)", player->GetName().c_str(), mapid, x, y, z, O, bgTypeId);
         player->TeleportTo(mapid, x, y, z, O);
     }
     else

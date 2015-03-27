@@ -156,7 +156,7 @@ class ReactorRunnable : protected ACE_Task_Base
 
         virtual int svc()
         {
-            TC_LOG_DEBUG("misc", "Network Thread Starting");
+            TC_LOG_INFO("misc", "Network Thread Starting");
 
             ACE_ASSERT (m_Reactor);
 
@@ -193,7 +193,7 @@ class ReactorRunnable : protected ACE_Task_Base
                 }
             }
 
-            TC_LOG_DEBUG("misc", "Network Thread exits");
+            TC_LOG_INFO("misc", "Network Thread exits");
 
             return 0;
         }
@@ -243,7 +243,7 @@ WorldSocketMgr::StartReactiveIO (ACE_UINT16 port, const char* address)
 
     m_NetThreads = new ReactorRunnable[m_NetThreadsCount];
 
-    TC_LOG_DEBUG("misc", "Max allowed socket connections %d", ACE::max_handles());
+    TC_LOG_INFO("misc", "Max allowed socket connections %d", ACE::max_handles());
 
     // -1 means use default
     m_SockOutKBuff = sConfigMgr->GetIntDefault ("Network.OutKBuff", -1);

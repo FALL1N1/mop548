@@ -216,7 +216,7 @@ public:
 
         void SetData64(uint32 type, uint64 data) override
         {
-            TC_LOG_DEBUG("scripts", "Instance Blackrock Depths: SetData64 update (Type: %u Data " UI64FMTD ")", type, data);
+            TC_LOG_INFO("scripts", "Instance Blackrock Depths: SetData64 update (Type: %u Data " UI64FMTD ")", type, data);
 
             switch (type)
             {
@@ -232,7 +232,7 @@ public:
 
         void SetData(uint32 type, uint32 data) override
         {
-            TC_LOG_DEBUG("scripts", "Instance Blackrock Depths: SetData update (Type: %u Data %u)", type, data);
+            TC_LOG_INFO("scripts", "Instance Blackrock Depths: SetData update (Type: %u Data %u)", type, data);
 
             switch (type)
             {

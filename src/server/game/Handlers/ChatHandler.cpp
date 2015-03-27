@@ -104,7 +104,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
 
     Player* sender = GetPlayer();
 
-    //TC_LOG_DEBUG("misc", "CHAT: packet received. type %u, lang %u", type, lang);
+    //TC_LOG_INFO("misc", "CHAT: packet received. type %u, lang %u", type, lang);
 
     // no language sent with emote packet.
     if (type != CHAT_MSG_EMOTE && type != CHAT_MSG_AFK && type != CHAT_MSG_DND)
@@ -799,7 +799,7 @@ void WorldSession::HandleChatIgnoredOpcode(WorldPacket& recvData)
 {
     ObjectGuid guid;
     uint8 unk;
-    //TC_LOG_DEBUG("network", "WORLD: Received CMSG_CHAT_IGNORED");
+    //TC_LOG_INFO("network", "WORLD: Received CMSG_CHAT_IGNORED");
 
     guid[5] = recvData.ReadBit();
     recvData >> unk;                                       // probably related to spam reporting
@@ -818,7 +818,7 @@ void WorldSession::HandleChatIgnoredOpcode(WorldPacket& recvData)
 
 void WorldSession::HandleChannelDeclineInvite(WorldPacket &recvPacket)
 {
-    TC_LOG_DEBUG("network", "Opcode %u", recvPacket.GetOpcode());
+    TC_LOG_INFO("network", "Opcode %u", recvPacket.GetOpcode());
 }
 
 void WorldSession::SendPlayerNotFoundNotice(std::string const& name)
