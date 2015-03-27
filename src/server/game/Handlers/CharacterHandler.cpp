@@ -966,7 +966,7 @@ TC_LOG_INFO("server.worldserver", "tuk w7 ");
         pCurrChar->SetRank(fields[1].GetUInt8());
         if (Guild* guild = sGuildMgr->GetGuildById(pCurrChar->GetGuildId()))
             pCurrChar->SetGuildLevel(guild->GetLevel());
-    }TC_LOG_INFO("server.worldserver", "tuk e1 ");
+    }
     else if (pCurrChar->GetGuildId())                        // clear guild related fields in case wrong data about non existed membership
     {
         pCurrChar->SetInGuild(0);
