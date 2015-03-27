@@ -1409,7 +1409,7 @@ public:
                     DoMeleeAttackIfReady();
                     break;
             }
-            TC_LOG_INFO("scripts", "Sinister-Timer");
+            TC_LOG_DEBUG("scripts", "Sinister-Timer");
             for (uint8 i = 0; i < 3; ++i)
                 uiTimer[i] -= diff;
         }

@@ -130,7 +130,7 @@ int RASocket::recv_line(std::string& out_line)
 
     if (recv_line(message_block) == -1)
     {
-        TC_LOG_INFO("commands.ra", "Recv error %s", ACE_OS::strerror(errno));
+        TC_LOG_DEBUG("commands.ra", "Recv error %s", ACE_OS::strerror(errno));
         return -1;
     }
 
@@ -297,7 +297,7 @@ int RASocket::subnegotiate()
 
     if (n >= 1024)
     {
-        TC_LOG_INFO("commands.ra", "RASocket::subnegotiate: allocated buffer 1024 bytes was too small for negotiation packet, size: %u", uint32(n));
+        TC_LOG_DEBUG("commands.ra", "RASocket::subnegotiate: allocated buffer 1024 bytes was too small for negotiation packet, size: %u", uint32(n));
         return -1;
     }
 
@@ -331,7 +331,7 @@ int RASocket::subnegotiate()
 
             uint8 param = buf[++i];
             ss << uint32(param);
-            TC_LOG_INFO("commands.ra", ss.str().c_str());
+            TC_LOG_DEBUG("commands.ra", ss.str().c_str());
         }
         ++i;
     }
@@ -397,7 +397,7 @@ void RASocket::zprint(void* callbackArg, const char * szText)
     ACE_Time_Value tv = ACE_Time_Value::zero;
     if (socket->putq(mb, &tv) == -1)
     {
-        TC_LOG_INFO("commands.ra", "Failed to enqueue message, queue is full or closed. Error is %s", ACE_OS::strerror(errno));
+        TC_LOG_DEBUG("commands.ra", "Failed to enqueue message, queue is full or closed. Error is %s", ACE_OS::strerror(errno));
         mb->release();
     }
 }
@@ -417,7 +417,7 @@ void RASocket::commandFinished(void* callbackArg, bool /*success*/)
     // hence we don't put timeout, because it shouldn't increase queue size and shouldn't block
     if (socket->putq(mb->duplicate()) == -1)
         // getting here is bad, command can't be marked as complete
-        TC_LOG_INFO("commands.ra", "Failed to enqueue command end message. Error is %s", ACE_OS::strerror(errno));
+        TC_LOG_DEBUG("commands.ra", "Failed to enqueue command end message. Error is %s", ACE_OS::strerror(errno));
 
     mb->release();
 

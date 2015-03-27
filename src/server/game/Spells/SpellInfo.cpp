@@ -2399,7 +2399,7 @@ int32 SpellInfo::CalcPowerCost(Unit const* caster, SpellSchoolMask schoolMask) c
                 break;
             case POWER_RUNES:
             case POWER_RUNIC_POWER:
-                TC_LOG_INFO("spells", "CalculateManaCost: Not implemented yet!");
+                TC_LOG_DEBUG("spells", "CalculateManaCost: Not implemented yet!");
                 break;
             default:
                 TC_LOG_ERROR("spells", "CalculateManaCost: Unknown power type '%d' in spell %d", GetSpellPowerCost(caster).PowerType, Id);

@@ -185,7 +185,7 @@ void RBACData::LoadFromDB()
 {
     ClearData();
 
-    TC_LOG_INFO("rbac", "RBACData::LoadFromDB [Id: %u Name: %s]: Loading permissions", GetId(), GetName().c_str());
+    TC_LOG_DEBUG("rbac", "RBACData::LoadFromDB [Id: %u Name: %s]: Loading permissions", GetId(), GetName().c_str());
     // Load account permissions (granted and denied) that affect current realm
     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_RBAC_ACCOUNT_PERMISSIONS);
     stmt->setUInt32(0, GetId());
@@ -263,7 +263,7 @@ void RBACData::ExpandPermissions(RBACPermissionContainer& permissions)
                 toCheck.insert(*itr);
     }
 
-    TC_LOG_INFO("rbac", "RBACData::ExpandPermissions: Expanded: %s", GetDebugPermissionString(permissions).c_str());
+    TC_LOG_DEBUG("rbac", "RBACData::ExpandPermissions: Expanded: %s", GetDebugPermissionString(permissions).c_str());
 }
 
 void RBACData::ClearData()

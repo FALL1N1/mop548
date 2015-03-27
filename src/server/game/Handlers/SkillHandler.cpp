@@ -86,7 +86,7 @@ void WorldSession::HandleLearnTalentOpcode(WorldPacket& recvData)
 
 void WorldSession::HandleTalentWipeConfirmOpcode(WorldPacket& recvData)
 {
-    TC_LOG_INFO("network", "CMSG_RESET_TALENTS_RESPONSE");
+    TC_LOG_DEBUG("network", "CMSG_RESET_TALENTS_RESPONSE");
    
     if (Player* player = GetPlayer())
     {
@@ -116,7 +116,7 @@ void WorldSession::HandleTalentWipeConfirmOpcode(WorldPacket& recvData)
         Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_TRAINER);
         if (!unit)
         {
-            TC_LOG_INFO("network", "WORLD: HandleTalentWipeConfirmOpcode - Unit (GUID: %u) not found or you can't interact with him.", uint32(GUID_LOPART(guid)));
+            TC_LOG_DEBUG("network", "WORLD: HandleTalentWipeConfirmOpcode - Unit (GUID: %u) not found or you can't interact with him.", uint32(GUID_LOPART(guid)));
             return;
         }
 

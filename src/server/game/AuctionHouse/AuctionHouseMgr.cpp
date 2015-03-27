@@ -74,10 +74,10 @@ uint32 AuctionHouseMgr::GetAuctionDeposit(AuctionHouseEntry const* entry, uint32
     uint32 timeHr = (((time / 60) / 60) / 12);
     uint32 deposit = uint32(((multiplier * MSV * count / 3) * timeHr * 3) * sWorld->getRate(RATE_AUCTION_DEPOSIT));
 
-    TC_LOG_INFO("auctionHouse", "MSV:        %u", MSV);
-    TC_LOG_INFO("auctionHouse", "Items:      %u", count);
-    TC_LOG_INFO("auctionHouse", "Multiplier: %f", multiplier);
-    TC_LOG_INFO("auctionHouse", "Deposit:    %u", deposit);
+    TC_LOG_DEBUG("auctionHouse", "MSV:        %u", MSV);
+    TC_LOG_DEBUG("auctionHouse", "Items:      %u", count);
+    TC_LOG_DEBUG("auctionHouse", "Multiplier: %f", multiplier);
+    TC_LOG_DEBUG("auctionHouse", "Deposit:    %u", deposit);
 
     if (deposit < AH_MINIMUM_DEPOSIT)
         return AH_MINIMUM_DEPOSIT;

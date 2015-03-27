@@ -31,7 +31,7 @@
 
 void WorldSession::HandleBattlePetDelete(WorldPacket& recvData)
 {
-    TC_LOG_INFO("network", "WORLD: Received CMSG_BATTLE_PET_DELETE");
+    TC_LOG_DEBUG("network", "WORLD: Received CMSG_BATTLE_PET_DELETE");
 
     ObjectGuid petEntry;
 
@@ -44,14 +44,14 @@ void WorldSession::HandleBattlePetDelete(WorldPacket& recvData)
     BattlePet* battlePet = battlePetMgr->GetBattlePet(petEntry);
     if (!battlePet)
     {
-        TC_LOG_INFO("network", "CMSG_BATTLE_PET_DELETE - Player %u tryed to release Battle Pet %lu which it doesn't own!",
+        TC_LOG_DEBUG("network", "CMSG_BATTLE_PET_DELETE - Player %u tryed to release Battle Pet %lu which it doesn't own!",
             GetPlayer()->GetGUIDLow(), (uint64)petEntry);
         return;
     }
 
     if (!BattlePetSpeciesHasFlag(battlePet->GetSpecies(), BATTLE_PET_FLAG_RELEASABLE))
     {
-        TC_LOG_INFO("network", "CMSG_BATTLE_PET_DELETE - Player %u tryed to release Battle Pet %lu which isn't releasable!",
+        TC_LOG_DEBUG("network", "CMSG_BATTLE_PET_DELETE - Player %u tryed to release Battle Pet %lu which isn't releasable!",
             GetPlayer()->GetGUIDLow(), (uint64)petEntry);
         return;
     }
@@ -64,7 +64,7 @@ void WorldSession::HandleBattlePetDelete(WorldPacket& recvData)
 void WorldSession::HandleBattlePetModifyName(WorldPacket& recvData)
 {
     // TODO: finish this...
-    TC_LOG_INFO("network", "WORLD: Received CMSG_BATTLE_PET_MODIFY_NAME");
+    TC_LOG_DEBUG("network", "WORLD: Received CMSG_BATTLE_PET_MODIFY_NAME");
 
     ObjectGuid petEntry;
     uint8 nicknameLen;
@@ -96,14 +96,14 @@ void WorldSession::HandleBattlePetModifyName(WorldPacket& recvData)
     BattlePet* battlePet = battlePetMgr->GetBattlePet(petEntry);
     if (!battlePet)
     {
-        TC_LOG_INFO("network", "CMSG_BATTLE_PET_MODIFY_NAME - Player %u tryed to set the name for Battle Pet %lu which it doesn't own!",
+        TC_LOG_DEBUG("network", "CMSG_BATTLE_PET_MODIFY_NAME - Player %u tryed to set the name for Battle Pet %lu which it doesn't own!",
             GetPlayer()->GetGUIDLow(), (uint64)petEntry);
         return;
     }
 
     if (nickname.size() > BATTLE_PET_MAX_NAME_LENGTH)
     {
-        TC_LOG_INFO("network", "CMSG_BATTLE_PET_MODIFY_NAME - Player %u tryed to set the name for Battle Pet %lu with an invalid length!",
+        TC_LOG_DEBUG("network", "CMSG_BATTLE_PET_MODIFY_NAME - Player %u tryed to set the name for Battle Pet %lu with an invalid length!",
             GetPlayer()->GetGUIDLow(), (uint64)petEntry);
         return;
     }
@@ -119,7 +119,7 @@ void WorldSession::HandleBattlePetModifyName(WorldPacket& recvData)
 
 void WorldSession::HandleBattlePetQueryName(WorldPacket& recvData)
 {
-    TC_LOG_INFO("network", "WORLD: Received CMSG_BATTLE_PET_QUERY_NAME");
+    TC_LOG_DEBUG("network", "WORLD: Received CMSG_BATTLE_PET_QUERY_NAME");
 
     ObjectGuid petEntry, petguid;
 
@@ -148,7 +148,7 @@ void WorldSession::HandleBattlePetQueryName(WorldPacket& recvData)
     Unit* tempUnit = sObjectAccessor->FindUnit(petguid);
     if (!tempUnit)
     {
-        TC_LOG_INFO("network", "CMSG_BATTLE_PET_QUERY_NAME - Player %u queried the name of Battle Pet %lu which doesnt't exist in world!",
+        TC_LOG_DEBUG("network", "CMSG_BATTLE_PET_QUERY_NAME - Player %u queried the name of Battle Pet %lu which doesnt't exist in world!",
             GetPlayer()->GetGUIDLow(), (uint64)petEntry);
         return;
     }
@@ -186,7 +186,7 @@ void WorldSession::HandleBattlePetQueryName(WorldPacket& recvData)
 
 void WorldSession::HandleBattlePetSetBattleSlot(WorldPacket& recvData)
 {
-    TC_LOG_INFO("network", "WORLD: Received CMSG_BATTLE_PET_SET_BATTLE_SLOT");
+    TC_LOG_DEBUG("network", "WORLD: Received CMSG_BATTLE_PET_SET_BATTLE_SLOT");
 
     uint8 slot;
     ObjectGuid petEntry;
@@ -202,14 +202,14 @@ void WorldSession::HandleBattlePetSetBattleSlot(WorldPacket& recvData)
     BattlePet* battlePet = battlePetMgr->GetBattlePet(petEntry);
     if (!battlePet)
     {
-        TC_LOG_INFO("network", "CMSG_BATTLE_PET_SET_BATTLE_SLOT - Player %u tryed to add Battle Pet %lu to loadout which it doesn't own!",
+        TC_LOG_DEBUG("network", "CMSG_BATTLE_PET_SET_BATTLE_SLOT - Player %u tryed to add Battle Pet %lu to loadout which it doesn't own!",
             GetPlayer()->GetGUIDLow(), (uint64)petEntry);
         return;
     }
 
     if (!battlePetMgr->HasLoadoutSlot(slot))
     {
-        TC_LOG_INFO("network", "CMSG_BATTLE_PET_SET_BATTLE_SLOT - Player %u tryed to add Battle Pet %lu into slot %u which is locked!",
+        TC_LOG_DEBUG("network", "CMSG_BATTLE_PET_SET_BATTLE_SLOT - Player %u tryed to add Battle Pet %lu into slot %u which is locked!",
             GetPlayer()->GetGUIDLow(), (uint64)petEntry, slot);
         return;
     }
@@ -217,7 +217,7 @@ void WorldSession::HandleBattlePetSetBattleSlot(WorldPacket& recvData)
     // this check is also done clientside
     if (BattlePetSpeciesHasFlag(battlePet->GetSpecies(), BATTLE_PET_FLAG_COMPANION))
     {
-        TC_LOG_INFO("network", "CMSG_BATTLE_PET_SET_BATTLE_SLOT - Player %u tryed to add a compainion Battle Pet %lu into slot %u!",
+        TC_LOG_DEBUG("network", "CMSG_BATTLE_PET_SET_BATTLE_SLOT - Player %u tryed to add a compainion Battle Pet %lu into slot %u!",
             GetPlayer()->GetGUIDLow(), (uint64)petEntry, slot);
         return;
     }
@@ -238,7 +238,7 @@ enum BattlePetFlagModes
 
 void WorldSession::HandleBattlePetSetFlags(WorldPacket& recvData)
 {
-    TC_LOG_INFO("network", "WORLD: Received CMSG_BATTLE_PET_SET_FLAGS");
+    TC_LOG_DEBUG("network", "WORLD: Received CMSG_BATTLE_PET_SET_FLAGS");
 
     ObjectGuid petEntry;
     uint32 flag;
@@ -254,7 +254,7 @@ void WorldSession::HandleBattlePetSetFlags(WorldPacket& recvData)
     BattlePet* battlePet = GetPlayer()->GetBattlePetMgr()->GetBattlePet(petEntry);
     if (!battlePet)
     {
-        TC_LOG_INFO("network", "CMSG_BATTLE_PET_SET_FLAGS - Player %u tryed to set the flags for Battle Pet %lu which it doesn't own!",
+        TC_LOG_DEBUG("network", "CMSG_BATTLE_PET_SET_FLAGS - Player %u tryed to set the flags for Battle Pet %lu which it doesn't own!",
             GetPlayer()->GetGUIDLow(), (uint64)petEntry);
         return;
     }
@@ -265,7 +265,7 @@ void WorldSession::HandleBattlePetSetFlags(WorldPacket& recvData)
         && flag != BATTLE_PET_JOURNAL_FLAG_ABILITY_2
         && flag != BATTLE_PET_JOURNAL_FLAG_ABILITY_3)
     {
-        TC_LOG_INFO("network", "CMSG_BATTLE_PET_SET_FLAGS - Player %u tryed to set an invalid Battle Pet flag %u!",
+        TC_LOG_DEBUG("network", "CMSG_BATTLE_PET_SET_FLAGS - Player %u tryed to set an invalid Battle Pet flag %u!",
             GetPlayer()->GetGUIDLow(), flag);
         return;
     }
@@ -285,7 +285,7 @@ void WorldSession::HandleBattlePetSetFlags(WorldPacket& recvData)
 
 void WorldSession::HandleBattlePetSummonCompanion(WorldPacket& recvData)
 {
-    TC_LOG_INFO("network", "WORLD: Received CMSG_BATTLE_PET_SUMMON_COMPANION");
+    TC_LOG_DEBUG("network", "WORLD: Received CMSG_BATTLE_PET_SUMMON_COMPANION");
 
     ObjectGuid petEntry;
 
@@ -299,14 +299,14 @@ void WorldSession::HandleBattlePetSummonCompanion(WorldPacket& recvData)
     BattlePet* battlePet = battlePetMgr->GetBattlePet(petEntry);
     if (!battlePet)
     {
-        TC_LOG_INFO("network", "CMSG_SUMMON_BATTLE_PET_COMPANION - Player %u tryed to summon battle pet companion %lu which it doesn't own!",
+        TC_LOG_DEBUG("network", "CMSG_SUMMON_BATTLE_PET_COMPANION - Player %u tryed to summon battle pet companion %lu which it doesn't own!",
             player->GetGUIDLow(), (uint64)petEntry);
         return;
     }
 
     if (!battlePet->GetCurrentHealth())
     {
-        TC_LOG_INFO("network", "CMSG_SUMMON_BATTLE_PET_COMPANION - Player %u tryed to summon battle pet companion %lu which is dead!",
+        TC_LOG_DEBUG("network", "CMSG_SUMMON_BATTLE_PET_COMPANION - Player %u tryed to summon battle pet companion %lu which is dead!",
             player->GetGUIDLow(), (uint64)petEntry);
         return;
     }

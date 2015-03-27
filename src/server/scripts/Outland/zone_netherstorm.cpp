@@ -504,7 +504,7 @@ public:
                 return true;
             }
 
-            TC_LOG_INFO("scripts", "npc_commander_dawnforge event already in progress, need to wait.");
+            TC_LOG_DEBUG("scripts", "npc_commander_dawnforge event already in progress, need to wait.");
             return false;
         }
 

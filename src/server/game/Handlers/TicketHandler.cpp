@@ -33,7 +33,7 @@
 //Todo Questlog AuraLog PhaseLog!
 void WorldSession::HandleSubmitBugOpcode(WorldPacket& recvData)
 {
-    TC_LOG_INFO("network", "WORLD: CMSG_SUBMIT_BUG");
+    TC_LOG_DEBUG("network", "WORLD: CMSG_SUBMIT_BUG");
 
     float posX, posY, posZ, posO;
     uint32 mapID;
@@ -71,7 +71,7 @@ void WorldSession::HandleSubmitBugOpcode(WorldPacket& recvData)
 }
 void WorldSession::HandleSubmitSuggestionOpcode(WorldPacket& recvData)
 {
-    TC_LOG_INFO("network", "WORLD: CMSG_SUGGESTION_SUBMIT");
+    TC_LOG_DEBUG("network", "WORLD: CMSG_SUGGESTION_SUBMIT");
 
     HandleSubmitBugOpcode(recvData);  //If you want a separate table for the suggestions. Do it !! Same opcode Structure HandleSubmitBugOpcode
 }

@@ -46,7 +46,7 @@ protected:
 
     virtual int handle_timeout(const ACE_Time_Value& /*current_time*/, const void* /*act = 0*/)
     {
-        TC_LOG_INFO("misc", "Resuming acceptor");
+        TC_LOG_DEBUG("misc", "Resuming acceptor");
         reactor()->cancel_timer(this, 1);
         return reactor()->register_handler(this, ACE_Event_Handler::ACCEPT_MASK);
     }
