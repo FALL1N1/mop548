@@ -37,11 +37,11 @@
 #include "Vehicle.h"
 #include "VMapFactory.h"
 
-u_map_magic MapMagic        = { {'M','A','P','S'} };
-u_map_magic MapVersionMagic = { {'v','1','.','3'} };
-u_map_magic MapAreaMagic    = { {'A','R','E','A'} };
-u_map_magic MapHeightMagic  = { {'M','H','G','T'} };
-u_map_magic MapLiquidMagic  = { {'M','L','I','Q'} };
+u_map_magic MapMagic = { { 'M', 'A', 'P', 'S' } };
+u_map_magic MapVersionMagic = { { 'v', '1', '.', '4' } };
+u_map_magic MapAreaMagic = { { 'A', 'R', 'E', 'A' } };
+u_map_magic MapHeightMagic = { { 'M', 'H', 'G', 'T' } };
+u_map_magic MapLiquidMagic = { { 'M', 'L', 'I', 'Q' } };
 
 #define DEFAULT_GRID_EXPIRY     300
 #define MAX_GRID_LOAD_TIME      50
