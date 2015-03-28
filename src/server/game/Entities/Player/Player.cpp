@@ -7259,167 +7259,120 @@ int16 Player::GetSkillTempBonusValue(uint32 skill) const
 
 void Player::SendActionButtons(uint32 state) const
 {
-    WorldPacket data(SMSG_ACTION_BUTTONS, 1+(MAX_ACTION_BUTTONS*8));
+	WorldPacket data(SMSG_ACTION_BUTTONS, 1 + (MAX_ACTION_BUTTONS * 4));
+	/*
+	state can be 0, 1, 2
+	0 - Sends initial action buttons, client does not validate if we have the spell or not
+	1 - Used used after spec swaps, client validates if a spell is known.
+	2 - Clears the action bars client sided. This is sent during spec swap before unlearning and before sending the new buttons
+	*/
+	if (state != 2)
+	{
+		for (uint8 button = 0; button < MAX_ACTION_BUTTONS; ++button)
+		{
+			ActionButtonList::const_iterator itr = m_actionButtons.find(button);
+			if (itr != m_actionButtons.end() && itr->second.uState != ACTIONBUTTON_DELETED)
+				data << uint32(itr->second.packedData);
+			else
+				data << uint32(0);
+		}
+	}
+	else
+		data.resize(MAX_ACTION_BUTTONS * 4);    // insert crap, client doesnt even parse this for state == 2
 
-    uint8 buttons [MAX_ACTION_BUTTONS][8];
-    ActionButtonPACKET* buttonsTab = (ActionButtonPACKET*)buttons;
-    memset(buttons, 0, MAX_ACTION_BUTTONS*8);
-
-    for (uint8 i = 0; i < MAX_ACTION_BUTTONS; ++i)
-    {
-        ActionButton const* ab = ((Player*)this)->GetActionButton(i);
-        if (!ab)
-        {
-            buttonsTab[i].id = 0;
-            buttonsTab[i].unk = 0;
-            continue;
-        }
-
-        buttonsTab[i].id = ab->GetAction();
-        buttonsTab[i].unk = uint32(ab->GetType());
-    }
-
-    // Bits
-    for (uint8 i = 0; i < MAX_ACTION_BUTTONS; ++i)
-        data.WriteBit(buttons[i][4]);
-
-    for (uint8 i = 0; i < MAX_ACTION_BUTTONS; ++i)
-        data.WriteBit(buttons[i][5]);
-
-    for (uint8 i = 0; i < MAX_ACTION_BUTTONS; ++i)
-        data.WriteBit(buttons[i][3]);
-
-    for (uint8 i = 0; i < MAX_ACTION_BUTTONS; ++i)
-        data.WriteBit(buttons[i][1]);
-
-    for (uint8 i = 0; i < MAX_ACTION_BUTTONS; ++i)
-        data.WriteBit(buttons[i][6]);
-
-    for (uint8 i = 0; i < MAX_ACTION_BUTTONS; ++i)
-        data.WriteBit(buttons[i][7]);
-
-    for (uint8 i = 0; i < MAX_ACTION_BUTTONS; ++i)
-        data.WriteBit(buttons[i][0]);
-
-    for (uint8 i = 0; i < MAX_ACTION_BUTTONS; ++i)
-        data.WriteBit(buttons[i][2]);
-
-    // Data
-    for (uint8 i = 0; i < MAX_ACTION_BUTTONS; ++i)
-        data.WriteByteSeq(buttons[i][0]);
-
-    for (uint8 i = 0; i < MAX_ACTION_BUTTONS; ++i)
-        data.WriteByteSeq(buttons[i][1]);
-
-    for (uint8 i = 0; i < MAX_ACTION_BUTTONS; ++i)
-        data.WriteByteSeq(buttons[i][4]);
-
-    for (uint8 i = 0; i < MAX_ACTION_BUTTONS; ++i)
-        data.WriteByteSeq(buttons[i][6]);
-
-    for (uint8 i = 0; i < MAX_ACTION_BUTTONS; ++i)
-        data.WriteByteSeq(buttons[i][7]);
-
-    for (uint8 i = 0; i < MAX_ACTION_BUTTONS; ++i)
-        data.WriteByteSeq(buttons[i][2]);
-
-    for (uint8 i = 0; i < MAX_ACTION_BUTTONS; ++i)
-        data.WriteByteSeq(buttons[i][5]);
-
-    for (uint8 i = 0; i < MAX_ACTION_BUTTONS; ++i)
-        data.WriteByteSeq(buttons[i][3]);
-
-    data << uint8(state);
-    GetSession()->SendPacket(&data);
-    TC_LOG_INFO("network", "Action Buttons for '%u' spec '%u' Sent", GetGUIDLow(), GetActiveSpec());
+	data << uint8(state);
+	GetSession()->SendPacket(&data);
+	TC_LOG_INFO("network", "Action Buttons for '%u' spec '%u' Sent", GetGUIDLow(), GetActiveSpec());
 }
-
 bool Player::IsActionButtonDataValid(uint8 button, uint32 action, uint8 type)
 {
-    if (button >= MAX_ACTION_BUTTONS)
-    {
-        TC_LOG_ERROR("entities.player", "Action %u not added into button %u for player %s (GUID: %u): button must be < %u", action, button, GetName().c_str(), GUID_LOPART(GetGUID()), MAX_ACTION_BUTTONS );
-        return false;
-    }
+	if (button >= MAX_ACTION_BUTTONS)
+	{
+		TC_LOG_INFO("server.loading", "Action %u not added into button %u for player %s: button must be < %u", action, button, GetName(), MAX_ACTION_BUTTONS);
+		return false;
+	}
 
-    if (action >= MAX_ACTION_BUTTON_ACTION_VALUE)
-    {
-        TC_LOG_ERROR("entities.player", "Action %u not added into button %u for player %s (GUID: %u): action must be < %u", action, button, GetName().c_str(), GUID_LOPART(GetGUID()), MAX_ACTION_BUTTON_ACTION_VALUE);
-        return false;
-    }
+	if (action >= MAX_ACTION_BUTTON_ACTION_VALUE)
+	{
+		TC_LOG_INFO("server.loading", "Action %u not added into button %u for player %s: action must be < %u", action, button, GetName(), MAX_ACTION_BUTTON_ACTION_VALUE);
+		return false;
+	}
 
-    switch (type)
-    {
-        case ACTION_BUTTON_SPELL:
-            if (!sSpellMgr->GetSpellInfo(action))
-            {
-                TC_LOG_ERROR("entities.player", "Spell action %u not added into button %u for player %s (GUID: %u): spell not exist", action, button, GetName().c_str(), GUID_LOPART(GetGUID()));
-                return false;
-            }
+	switch (type)
+	{
+	case ACTION_BUTTON_SPELL:
+		if (!sSpellMgr->GetSpellInfo(action))
+		{
+			TC_LOG_INFO("server.loading", "Spell action %u not added into button %u for player %s: spell not exist", action, button, GetName());
+			return false;
+		}
 
-            if (!HasSpell(action))
-            {
-                TC_LOG_ERROR("entities.player", "Spell action %u not added into button %u for player %s (GUID: %u): player don't known this spell", action, button, GetName().c_str(), GUID_LOPART(GetGUID()));
-                return false;
-            }
-            break;
-        case ACTION_BUTTON_ITEM:
-            if (!sObjectMgr->GetItemTemplate(action))
-            {
-                TC_LOG_ERROR("entities.player", "Item action %u not added into button %u for player %s (GUID: %u): item not exist", action, button, GetName().c_str(), GUID_LOPART(GetGUID()));
-                return false;
-            }
-            break;
-        case ACTION_BUTTON_C:
-        case ACTION_BUTTON_CMACRO:
-        case ACTION_BUTTON_MACRO:
-        case ACTION_BUTTON_EQSET:
-        case ACTION_BUTTON_DROPDOWN:
-            break;
-        default:
-            TC_LOG_ERROR("entities.player", "Unknown action type %u", type);
-            return false;                                          // other cases not checked at this moment
-    }
+		if (!HasSpell(action))
+		{
+			TC_LOG_INFO("server.loading", "Player::IsActionButtonDataValid Spell action %u not added into button %u for player %s: player don't known this spell", action, button, GetName());
+			return false;
+		}
+		break;
+	case ACTION_BUTTON_ITEM:
+		if (!sObjectMgr->GetItemTemplate(action))
+		{
+			TC_LOG_INFO("server.loading", "Item action %u not added into button %u for player %s: item not exist", action, button, GetName());
+			return false;
+		}
+		break;
+	default:
+		break;                                          // other cases not checked at this moment
+	}
 
-    return true;
+	return true;
 }
 
 ActionButton* Player::addActionButton(uint8 button, uint32 action, uint8 type)
 {
-    if (!IsActionButtonDataValid(button, action, type))
-        return NULL;
+	if (!IsActionButtonDataValid(button, action, type))
+		return NULL;
 
-    // it create new button (NEW state) if need or return existed
-    ActionButton& ab = m_actionButtons[button];
+	// it create new button (NEW state) if need or return existed
+	ActionButton& ab = m_actionButtons[button];
 
-    // set data and update to CHANGED if not NEW
-    ab.SetActionAndType(action, ActionButtonType(type));
+	// set data and update to CHANGED if not NEW
+	ab.SetActionAndType(action, ActionButtonType(type));
 
-    TC_LOG_DEBUG("entities.player", "Player '%u' Added Action '%u' (type %u) to Button '%u'", GetGUIDLow(), action, type, button);
-    return &ab;
+	TC_LOG_INFO("server.loading", "Player '%u' Added Action '%u' (type %u) to Button '%u'", GetGUIDLow(), action, type, button);
+	return &ab;
 }
 
 void Player::removeActionButton(uint8 button)
 {
-    ActionButtonList::iterator buttonItr = m_actionButtons.find(button);
-    if (buttonItr == m_actionButtons.end() || buttonItr->second.uState == ACTIONBUTTON_DELETED)
-        return;
+	ActionButtonList::iterator buttonItr = m_actionButtons.find(button);
+	if (buttonItr == m_actionButtons.end() || buttonItr->second.uState == ACTIONBUTTON_DELETED)
+		return;
 
-    if (buttonItr->second.uState == ACTIONBUTTON_NEW)
-        m_actionButtons.erase(buttonItr);                   // new and not saved
-    else
-        buttonItr->second.uState = ACTIONBUTTON_DELETED;    // saved, will deleted at next save
+	if (buttonItr->second.uState == ACTIONBUTTON_NEW)
+		m_actionButtons.erase(buttonItr);                   // new and not saved
+	else
+		buttonItr->second.uState = ACTIONBUTTON_DELETED;    // saved, will deleted at next save
 
-    TC_LOG_DEBUG("entities.player", "Action Button '%u' Removed from Player '%u'", button, GetGUIDLow());
+	TC_LOG_INFO("server.loading", "Action Button '%u' Removed from Player '%u'", button, GetGUIDLow());
 }
 
 ActionButton const* Player::GetActionButton(uint8 button)
 {
-    ActionButtonList::iterator buttonItr = m_actionButtons.find(button);
-    if (buttonItr == m_actionButtons.end() || buttonItr->second.uState == ACTIONBUTTON_DELETED)
-        return NULL;
+	ActionButtonList::iterator buttonItr = m_actionButtons.find(button);
+	if (buttonItr == m_actionButtons.end() || buttonItr->second.uState == ACTIONBUTTON_DELETED)
+		return NULL;
 
-    return &buttonItr->second;
+	return &buttonItr->second;
+}
+
+int8 Player::GetFreeActionButton()
+{
+	// 12 is max button of first action bar
+	for (uint8 i = 0; i < 12; i++)
+	if (!GetActionButton(i))
+		return i;
+
+	return -1;
 }
 
 bool Player::UpdatePosition(float x, float y, float z, float orientation, bool teleport)
