@@ -7288,13 +7288,13 @@ bool Player::IsActionButtonDataValid(uint8 button, uint32 action, uint8 type)
 {
 	if (button >= MAX_ACTION_BUTTONS)
 	{
-		TC_LOG_INFO("server.loading", "Action %u not added into button %u for player %s: button must be < %u", action, button, GetName().c_str(), MAX_ACTION_BUTTONS);
+		TC_LOG_INFO("server.loading", "Action %u not added into button %u for player %s: button must be < %u", action, button, GetName(), MAX_ACTION_BUTTONS);
 		return false;
 	}
 
 	if (action >= MAX_ACTION_BUTTON_ACTION_VALUE)
 	{
-		TC_LOG_INFO("server.loading", "Action %u not added into button %u for player %s: action must be < %u", action, button, GetName().c_str(), MAX_ACTION_BUTTON_ACTION_VALUE);
+		TC_LOG_INFO("server.loading", "Action %u not added into button %u for player %s: action must be < %u", action, button, GetName(), MAX_ACTION_BUTTON_ACTION_VALUE);
 		return false;
 	}
 
@@ -7303,20 +7303,20 @@ bool Player::IsActionButtonDataValid(uint8 button, uint32 action, uint8 type)
 	case ACTION_BUTTON_SPELL:
 		if (!sSpellMgr->GetSpellInfo(action))
 		{
-			TC_LOG_INFO("server.loading", "Spell action %u not added into button %u for player %s: spell not exist", action, button, GetName().c_str());
+			TC_LOG_INFO("server.loading", "Spell action %u not added into button %u for player %s: spell not exist", action, button, GetName());
 			return false;
 		}
 
 		if (!HasSpell(action))
 		{
-			TC_LOG_INFO("server.loading", "Player::IsActionButtonDataValid Spell action %u not added into button %u for player %s: player don't known this spell", action, button, GetName().c_str());
+			TC_LOG_INFO("server.loading", "Player::IsActionButtonDataValid Spell action %u not added into button %u for player %s: player don't known this spell", action, button, GetName());
 			return false;
 		}
 		break;
 	case ACTION_BUTTON_ITEM:
 		if (!sObjectMgr->GetItemTemplate(action))
 		{
-			TC_LOG_INFO("server.loading", "Item action %u not added into button %u for player %s: item not exist", action, button, GetName().c_str());
+			TC_LOG_INFO("server.loading", "Item action %u not added into button %u for player %s: item not exist", action, button, GetName());
 			return false;
 		}
 		break;
