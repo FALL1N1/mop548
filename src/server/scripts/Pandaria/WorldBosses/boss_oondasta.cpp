@@ -66,11 +66,11 @@ enum Eventi
 enum Taimeri // v milisekundi (1000milisekundi = 1sekunda)
 {
 	TIMER_ALPHA_MALE = 1000, // moje da ne e blizzlike (prez 1s proverqva dali main tanka ima aurata), sluji za tank swap fazata
-	TIMER_CRUSH = 0, // ???
-	TIMER_FRILL_BLAST = 0, // ???
+	TIMER_CRUSH = 15000, // ???
+	TIMER_FRILL_BLAST = 19000, // ???
 	TIMER_GROWING_FURY = 30000, // 30 sek
-	TIMER_PIERCING_ROAR = 0, // ???
-	TIMER_SPIRITFIRE_BEAM = 0, // ??? 
+	TIMER_PIERCING_ROAR = 30000, // ???
+	TIMER_SPIRITFIRE_BEAM = 45000, // ??? 
 };
 
 class boss_oondasta : public CreatureScript
