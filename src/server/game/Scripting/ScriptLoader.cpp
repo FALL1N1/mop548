@@ -1674,13 +1674,17 @@ void AddBattlegroundScripts()
 
 #ifdef SCRIPTS
 /* This is where custom scripts' loading functions should be declared. */
-
+    void AddSC_custom_emo_tele_stone();
+    void AddSC_npc_world_teleporter();
+    void AddSC_custom_emo_stone();
 #endif
 
 void AddCustomScripts()
 {
 #ifdef SCRIPTS
     /* This is where custom scripts should be added. */
-
+    AddSC_custom_emo_tele_stone();
+    AddSC_npc_world_teleporter();
+    AddSC_custom_emo_stone();
 #endif
 }
