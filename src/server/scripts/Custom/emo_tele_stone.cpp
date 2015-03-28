@@ -47,12 +47,12 @@ Lokacii pandariq [] = // key = i & Key
 	{5,	1,	7,	"Back..",	0,	0,	0,	0,	0,	0,	0,	0},
 
     // World Bosses [TELEPORT]
-	{6,	0,	2,	"Sha of Anger",	0,	0,	0,	map,	xf,	yf,	zf,	of},
-	{6,	0,	2,	"Galleon",	0,	0,	0,	map,	xf,	yf,	zf,	of},
-	{6,	0,	2,	"Nalak, The Storm Lord",	0,	0,	0,	map,	xf,	yf,	zf,	of},
-	{6,	0,	2,	"Oondasta",	0,	0,	0,	map,	xf,	yf,	zf,	of},
-	{6,	0,	2,	"Timeless Island - Celestials",	0,	0,	0,	map,	xf,	yf,	zf,	of},
-	{6,	0,	2,	"Ordos, Fire-God of the Yaungol",	0,	0,	0,	map,	xf,	yf,	zf,	of},
+	{6,	0,	2,	"Sha of Anger", 0, 0, 0, 870, 2008.109985f, 1212.219971f, 487.582001f, 0.693056f},
+	{6,	0,	2,	"Galleon",	0,	0,	0,	870, -548.515991f, -132.459000f, 156.181000f, 2.025110f},
+	{6,	0,	2,	"Nalak, The Storm Lord", 0,	0,	0,	1064, 7046.131348f, 5232.626465f, 84.229630f, 5.451058f},
+	{6,	0,	2,	"Oondasta",	0,	0,	0,	870,	5943.290039f,	1071.430054f,	59.731300f,	3.120010f},
+	{6,	0,	2,	"Timeless Island - Celestials",	0,	0,	0,	870,	-1650.054016f,	-4891.569824f,	2.056370f,	1.524070f},
+	{6,	0,	2,	"Ordos, Fire-God of the Yaungol",	0,	0,	0,	870,	-46.147598f,	-5402.759766f,	150.113998f,	2.911080f},
 	{6,	1,	7,	"Back..",	0,	0,	0,	0,	0,	0,	0,	0},
 
     // Cities [TELEPORT]
@@ -115,7 +115,7 @@ Lokacii pandariq [] = // key = i & Key
 	{13,	0,	2,	"Utgarde Pinnacle",	0,	75,	0,	571,	1267.24f,	-4857.3f,	215.764f,	3.22768f},
 	{13,	1,	7,	"Back..",	0,	0,	0,	0,	0,	0,	0,	0},
     // Cataclysm Dungeons [TELEPORT]
-	{14,	0,	2,	"Blackrock Caverns",	0,	0,	0,	map,	xf,	yf,	zf,	of},
+	/*{14,	0,	2,	"Blackrock Caverns",	0,	0,	0,	map,	xf,	yf,	zf,	of},
 	{14,	0,	2,	"Deadmines",	0,	0,	0,	map,	xf,	yf,	zf,	of},
 	{14,	0,	2,	"Grim Batol",	0,	0,	0,	map,	xf,	yf,	zf,	of},
 	{14,	0,	2,	"Halls of Origination",	0,	0,	0,	map,	xf,	yf,	zf,	of},
@@ -129,14 +129,14 @@ Lokacii pandariq [] = // key = i & Key
 	{14,	0,	2,	"Well of Eternity",	0,	0,	0,	map,	xf,	yf,	zf,	of},
 	{14,	0,	2,	"Hour of Twilight",	0,	0,	0,	map,	xf,	yf,	zf,	of},
 	{14,	0,	2,	"End Time",	0,	0,	0,	map,	xf,	yf,	zf,	of},
-	{14,	1,	7,	"Back..",	0,	0,	0,	0,	0,	0,	0,	0},
+	{14,	1,	7,	"Back..",	0,	0,	0,	0,	0,	0,	0,	0},*/
     // Pandaria Dungeons [TELEPORT]
-	{15,	0,	2,	"Gate of the Setting Sun",	0,	0,	0,	map,	xf,	yf,	zf,	of},
-	{15,	0,	2,	"Mogushan Palace",	0,	0,	0,	map,	xf,	yf,	zf,	of},
-	{15,	0,	2,	"Shado-Pan Monastery",	0,	0,	0,	map,	xf,	yf,	zf,	of},
-	{15,	0,	2,	"Siege of Niuzao Temple",	0,	0,	0,	map,	xf,	yf,	zf,	of},
-	{15,	0,	2,	"Stormstout Brewery",	0,	0,	0,	map,	xf,	yf,	zf,	of},
-	{15,	0,	2,	"Temple of the Jade Serpent",	0,	0,	0,	map,	xf,	yf,	zf,	of},
+	{15,	0,	2,	"Gate of the Setting Sun", 0, 0, 0, 870, 690.999084f, 2079.934570f, 374.781830f, 0.50658f},
+	{15,	0,	2,	"Mogushan Palace",	0, 0, 0, 870, 1390.092651f, 439.846649f, 478.981323f, 5.411988f},
+	{15,	0,	2,	"Shado-Pan Monastery", 0, 0, 0, 870, 3634.507966f, 2540.199951f, 769.950745f, 0.423151f},
+	{15,	0,	2,	"Siege of Niuzao Temple", 0, 0,	0, 870, 1438.815430f, 5087.358398f,	137.413757f, 0.525264f},
+	{15,	0,	2,	"Stormstout Brewery",	0,	0,	0,	870, -711.619202f,	1263.815918f, 136.023697f, 3.444620f},
+	{15,	0,	2,	"Temple of the Jade Serpent",	0,	0,	0,	870, 959.246765f, -2470.858154f, 180.509155f, 4.371413f},
 	{15,	1,	7,	"Back..",	0,	0,	0,	0,	0,	0,	0,	0},
 
     // Raids [Teleport]
@@ -147,8 +147,8 @@ Lokacii pandariq [] = // key = i & Key
 	{16,	0,	2,	"Temple of Ahn'Qiraj",	0,	60,	0,	1,	-8240.09f,	1991.32f,	129.072f,	0.941603f},
 	{16,	0,	2,	"Ruins of Ahn'Qiraj",	0,	60,	0,	1,	-8409.82f,	1499.06f,	27.7179f,	2.51868f},
     // tbc
-	{17,	0,	2,	"Black Temple",	0,	70,	0,	530,	-3649.92f,	317.469f,	35.2827f,	2.94285f},
-	{17,	0,	2,	"Zul'Aman",	0,	70,	1,	530,	6851.78f,	-7972.57f,	179.242f,	4.64691f},
+	{17,	0,	2,	"Black Temple",	0,	70,	0,	530,	-3649.92f, 317.469f, 35.2827f, 2.94285f},
+	{17,	0,	2,	"Zul'Aman",	0,	70,	1,	530,	6851.78f,	-7972.57f,	179.242f, 4.64691f},
 	{17,	0,	2,	"Hyjal Summit",	0,	70,	0,	1,	-8177.89f,	-4181.23f,	-167.552f,	0.913338f},
 	{17,	0,	2,	"Serpentshrine Cavern",	0,	70,	0,	530,	797.855f,	6865.77f,	-65.4165f,	0.005938f},
 	{17,	0,	2,	"Gruul's Lair",	0,	70,	0,	530,	3530.06f,	5104.08f,	3.50861f,	5.51117f},
@@ -167,19 +167,19 @@ Lokacii pandariq [] = // key = i & Key
 	{18,	0,	2,	"Icecrown Citadel",	0,	80,	0,	571,	5855.22f,	2102.03f,	635.991f,	3.57899f},
 	{18,	1,	7,	"Back..",	0,	0,	0,	0,	0,	0,	0,	0},
     // cataclysm
-	{19,	0,	2,	"Baradin Hold",	0,	0,	0,	map,	xf,	yf,	zf,	of},
+	/*{19,	0,	2,	"Baradin Hold",	0,	0,	0,	map,	xf,	yf,	zf,	of},
 	{19,	0,	2,	"Blackwing Descent",	0,	0,	0,	map,	xf,	yf,	zf,	of},
 	{19,	0,	2,	"The Bastion of Twilight",	0,	0,	0,	map,	xf,	yf,	zf,	of},
 	{19,	0,	2,	"Throne of the Four Winds",	0,	0,	0,	map,	xf,	yf,	zf,	of},
 	{19,	0,	2,	"Firelands",	0,	0,	0,	map,	xf,	yf,	zf,	of},
 	{19,	0,	2,	"Dragon Soul",	0,	0,	0,	map,	xf,	yf,	zf,	of},
-	{19,	1,	7,	"Back..",	0,	0,	0,	0,	0,	0,	0,	0},
+	{19,	1,	7,	"Back..",	0,	0,	0,	0,	0,	0,	0,	0},*/
     // pandaria
-	{20,	0,	2,	"Heart of Fear",	0,	0,	0,	map,	xf,	yf,	zf,	of},
-	{20,	0,	2,	"Mogushan Vaults",	0,	0,	0,	map,	xf,	yf,	zf,	of},
-	{20,	0,	2,	"Terrace of Endless Spring",	0,	0,	0,	map,	xf,	yf,	zf,	of},
-	{20,	0,	2,	"Throne of Thunder",	0,	0,	0,	map,	xf,	yf,	zf,	of},
-	{20,	0,	2,	"Siege of Orgrimmar",	0,	0,	0,	map,	xf,	yf,	zf,	of},
+	{20,	0,	2,	"Heart of Fear",	0,	0,	0,	870,	167.249481f,	4058.351074f,	255.908676f, 1.746353f},
+	{20,	0,	2,	"Mogushan Vaults",	0,	0,	0,	870,	3982.903564f,	1110.826294f,	497.139557f,	2.180673f},
+	{20,	0,	2,	"Terrace of Endless Spring",	0,	0,	0,	870,	956.426880f,	-54.437237f,	512.490295f,	0.917750f},
+	{20,	0,	2,	"Throne of Thunder",	0,	0,	0,	1064,	6888.330566f,	5518.514160f,	1.851241f,	5.583782f},
+	{20,	0,	2,	"Siege of Orgrimmar",	0,	0,	0,	870,	1236.162598f,	607.475769f,	318.770935f,	5.503720f},
 	{20,	1,	7,	"Back..",	0,	0,	0,	0,	0,	0,	0,	0},
 
     // Locations [Eastern Kingdooms]
@@ -251,21 +251,22 @@ Lokacii pandariq [] = // key = i & Key
 	{103,	0,	2,	"Isle of Giants",	0,	77,	0,	571,	4522.23f,	2828.01f,	389.975f,	0.215009f},
 	{103,	1,	7,	"Back..",	0,	0,	0,	0,	0,	0,	0,	0},
     // Locations [Pandaria]
-	{104,	0,	2,	"The Jade Forest",	0,	0,	0,	map,	xf,	yf,	zf,	of},
-	{104,	0,	2,	"Townlong Steppes",	0,	0,	0,	map,	xf,	yf,	zf,	of},
-	{104,	0,	2,	"Valley of Eternal Blossoms",	0,	0,	0,	map,	xf,	yf,	zf,	of},
-	{104,	0,	2,	"Dread Wastes",	0,	0,	0,	map,	xf,	yf,	zf,	of},
-	{104,	0,	2,	"Valley of the Four Winds",	0,	0,	0,	map,	xf,	yf,	zf,	of},
-	{104,	0,	2,	"Karasang Wilds",	0,	0,	0,	map,	xf,	yf,	zf,	of},
-	{104,	0,	2,	"The Jade Forest",	0,	0,	0,	map,	xf,	yf,	zf,	of},
-	{104,	0,	2,	"Isle of Thunder",	0,	0,	0,	map,	xf,	yf,	zf,	of},
-	{104,	0,	2,	"Isle of Giants",	0,	0,	0,	map,	xf,	yf,	zf,	of},
-	{104,	0,	2,	"Timeless Isle",	0,	0,	0,	map,	xf,	yf,	zf,	of},
+	{104,	0,	2,	"The Jade Forest",	0,	0,	0,	870,	1495.146729f, -1813.068115f , 246.177261f , 2.647196f},
+	{104,	0,	2,	"Kun-Lai Summit",	0,	0,	0,	870,	3085.287598f , 1216.399414f , 653.639221f , 3.633658f},
+	{104,	0,	2,	"Townlong Steppes",	0,	0,	0,	870,	1832.156616f , 4280.191895f , 149.524429f , 2.070713f},
+	{104,	0,	2,	"Valley of Eternal Blossoms",	0,	0,	0,	870,	1208.697998f , 1377.029297f , 363.664032f , 2.333821f},
+	{104,	0,	2,	"Dread Wastes",	0,	0,	0,	870,	130.026199f , 3199.298340f , 214.760498f , 0.036534f},
+	{104,	0,	2,	"Valley of the Four Winds",	0,	0,	0,	870,	-204.379898f , 495.047516f , 187.190201f , 2.644060f},
+	{104,	0,	2,	"Karasang Wilds",	0,	0,	0,	870,	-1169.963013f , 1020.275940f , 21.745750f , 3.943096f},
+	{104,	0,	2,	"Isle of Thunder",	0,	0,	0,	1064, 7224.341797f, 6282.499512f, 12.471354f, 2.368384f},
+	{104,	0,	2,	"Isle of Giants",	0,	0,	0,	870,	5802.028320f , 1085.182373f , 0.869473f , 0.268230f},
+	{104,	0,	2,	"Timeless Isle",	0,	0,	0,	870,	-649.949829f , -4877.501465f , 2.057448f , 4.724567f},
 	{104,	1,	7,	"Back..",	0,	0,	0,	0,	0,	0,	0,	0},
 
     // PVP Arenas [TELEPORT]
 	{200,	0,	2,	"Gurubashi Arena",	0,	30,	0,	0,	-13181.8f,	339.356f,	42.9805f,	1.18013f},
 	{200,	1,	7,	"Back..",	0,	0,	0,	0,	0,	0,	0,	0},
+
 };
 
 // TextIDs from npc_text
