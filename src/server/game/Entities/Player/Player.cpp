@@ -11726,9 +11726,8 @@ InventoryResult Player::CanTakeMoreSimilarItems(uint32 entry, uint32 count, Item
             uint32 curcount = GetItemCountWithLimitCategory(pProto->ItemLimitCategory, pItem);
             if (curcount + count > uint32(limitEntry->maxCount))
             {
-                if (no_space_count)
-                    *no_space_count = count + curcount - limitEntry->maxCount;
-                return EQUIP_ERR_ITEM_MAX_LIMIT_CATEGORY_COUNT_EXCEEDED_IS;
+                TC_LOG_IFNO("server.worldserver", "Item (Entry: %u) has invalid ItemLimitCategory", pProto->ItemId);
+                return EQUIP_ERR_OK;
             }
         }
     }
@@ -27043,7 +27042,10 @@ InventoryResult Player::CanEquipUniqueItem(ItemTemplate const* itemProto, uint8 
     {
         ItemLimitCategoryEntry const* limitEntry = sItemLimitCategoryStore.LookupEntry(itemProto->ItemLimitCategory);
         if (!limitEntry)
-            return EQUIP_ERR_NOT_EQUIPPABLE;
+        {
+            TC_LOG_INFO("server.worldserver", "Item (Entry: %u) has invalid ItemLimitCategory", itemProto->ItemId);
+            return EQUIP_ERR_OK;
+        }
 
         // NOTE: limitEntry->mode not checked because if item have have-limit then it applied and to equip case
 
