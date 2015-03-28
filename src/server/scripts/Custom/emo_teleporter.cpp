@@ -57,7 +57,7 @@ Lokacii pandariq [] = // key = i & Key
 
     // Cities [TELEPORT]
     {10,	0,	2,	"Shrine of Seven Stars",	0,	0,	2,	870,	865.683167f,	285.115631f,   503.678009f,	   3.702813f},
-	{10,	0,	2,	"Shrine of Two Moons",	    0,	0,	1,  870,	1624.060669f,   924.189087f    471.183533f,    0.130662f},
+	{10,	0,	2,	"Shrine of Two Moons",	    0,	0,	1,  870,	1624.060669f,   924.189087f,    471.183533f,    0.130662f},
     {10,	0,	2,	"Stormwind",	0,	0,	2,	0,	-8842.09f,	626.358f,	94.0867f,	3.61363f},
 	{10,	0,	2,	"Orgrimmar",	0,	0,	1,	1,	1601.08f,	-4378.69f,	9.9846f,	2.14362f},
 	{10,	0,	2,	"Darnassus",	0,	0,	2,	1,	9869.91f,	2493.58f,	1315.88f,	2.78897f},
@@ -368,7 +368,7 @@ class npc_world_teleporter : public CreatureScript
 		uint32 Key = pandariq[uiAction].next_menu_id;
 		if (Key == 0) // if no next_menu_id, then teleport to coords
 		{
-			if (!pPlayer->isInCombat())
+			if (!pPlayer->IsInCombat())
 			{
 				pPlayer->CLOSE_GOSSIP_MENU();
 				pPlayer->TeleportTo(pandariq[uiAction].map, pandariq[uiAction].x, pandariq[uiAction].y, pandariq[uiAction].z, pandariq[uiAction].o);

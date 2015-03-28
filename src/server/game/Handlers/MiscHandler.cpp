@@ -134,20 +134,20 @@ void WorldSession::HandleGossipSelectOptionOpcode(WorldPacket& recvData)
             return;
         }
     }
-    else if (guid.IsItem())
+    else if (IS_ITEM_GUID(guid))
     {
         item = _player->GetItemByGuid(guid);
         if (!item || _player->IsBankPos(item->GetPos()))
         {
-            TC_LOG_DEBUG("network", "WORLD: HandleGossipSelectOptionOpcode - %s not found.", guid.ToString().c_str());
+			TC_LOG_DEBUG("network", "WORLD: HandleGossipSelectOptionOpcode - %u not found.", uint32(GUID_LOPART(guid)));
             return;
         }
     }
-    else if (guid.IsPlayer())
+    else if (IS_PLAYER_GUID(guid))
     {
         if (guid != _player->GetGUID() || menuId != _player->PlayerTalkClass->GetGossipMenu().GetMenuId())
         {
-            TC_LOG_DEBUG("network", "WORLD: HandleGossipSelectOptionOpcode - %s not found.", guid.ToString().c_str());
+			TC_LOG_DEBUG("network", "WORLD: HandleGossipSelectOptionOpcode - %u not found.", uint32(GUID_LOPART(guid)));
             return;
         }
     }

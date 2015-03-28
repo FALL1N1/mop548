@@ -11726,7 +11726,7 @@ InventoryResult Player::CanTakeMoreSimilarItems(uint32 entry, uint32 count, Item
             uint32 curcount = GetItemCountWithLimitCategory(pProto->ItemLimitCategory, pItem);
             if (curcount + count > uint32(limitEntry->maxCount))
             {
-                TC_LOG_IFNO("server.worldserver", "Item (Entry: %u) has invalid ItemLimitCategory", pProto->ItemId);
+                TC_LOG_INFO("server.worldserver", "Item (Entry: %u) has invalid ItemLimitCategory", pProto->ItemId);
                 return EQUIP_ERR_OK;
             }
         }

@@ -21,7 +21,7 @@ public:
         switch (action)
         {
             case GOSSIP_ACTION_INFO_DEF + 1:
-                player->Sxsad(999);
+//                player->Sxsad(999);
                 player->CLOSE_GOSSIP_MENU();
                 break;
             case GOSSIP_ACTION_INFO_DEF + 2:
