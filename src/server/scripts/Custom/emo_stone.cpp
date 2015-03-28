@@ -21,8 +21,13 @@ public:
         switch (action)
         {
             case GOSSIP_ACTION_INFO_DEF + 1:
-//                player->Sxsad(999);
-                player->CLOSE_GOSSIP_MENU();
+				if (!player->FindNearestCreature(128, 100.0f, true))
+				{
+					player->CLOSE_GOSSIP_MENU();
+					player->SummonCreature(128, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), -1.52f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 60000);
+				}
+				else
+					player->CLOSE_GOSSIP_MENU();
                 break;
             case GOSSIP_ACTION_INFO_DEF + 2:
                 player->CLOSE_GOSSIP_MENU();
