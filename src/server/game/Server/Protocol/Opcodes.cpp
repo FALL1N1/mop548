@@ -454,7 +454,7 @@ void OpcodeTable::InitializeClientTable()
     DEFINE_OPCODE_HANDLER(MSG_MOVE_SET_WALK_MODE,                         0x08D1, STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::Handle_NULL                        ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(CMSG_DISMISS_CRITTER,                           0x12DB, STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleDismissCritter                ); // 5.4.8 18414 (petbattle critters) | structure?
     DEFINE_OPCODE_HANDLER(CMSG_EJECT_PASSENGER,                           0x06E7, STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                        ); // 5.4.8 18414
-    DEFINE_OPCODE_HANDLER(CMSG_GMTICKET_CREATE,                           0x1A86, STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleGMTicketCreateOpcode          ); // 5.4.8 18414
+    DEFINE_OPCODE_HANDLER(CMSG_GMTICKET_CREATE,                           0x03A4, STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleGMTicketCreateOpcode          ); // 5.4.8 18414 0x1A86?
     DEFINE_OPCODE_HANDLER(CMSG_GMTICKET_GETTICKET,                        0x1F89, STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleGMTicketGetTicketOpcode       ); // 5.4.8 18414 (8073 00690BAD 00D62DD0 0)
     DEFINE_OPCODE_HANDLER(CMSG_REQUEST_CATEGORY_COOLDOWNS,                0x1203, STATUS_LOGGEDIN, PROCESS_INPLACE,      &WorldSession::HandleRequestCategoryCooldowns     ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(CMSG_REQUEST_RAID_INFO,                         0x0A87, STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleRequestRaidInfoOpcode        ); // 0xA87 ili 0x0A87
