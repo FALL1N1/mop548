@@ -91,7 +91,7 @@ void WorldSession::HandleGMTicketCreateOpcode(WorldPacket& recvData)
         response = GMTICKET_RESPONSE_CREATE_SUCCESS;
     }
 
-    WorldPacket data(SMSG_GMTICKET_CREATE, 4);
+	WorldPacket data(SMSG_GM_TICKET_CREATE, 4);
     data << uint32(response);
     SendPacket(&data);
 }
