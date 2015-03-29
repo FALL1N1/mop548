@@ -78,75 +78,20 @@ void WorldSession::HandleSubmitSuggestionOpcode(WorldPacket& recvData)
 
 void WorldSession::HandleGMTicketCreateOpcode(WorldPacket& recvData)
 {
-    // Don't accept tickets if the ticket queue is disabled. (Ticket UI is greyed out but not fully dependable)
-    if (sTicketMgr->GetStatus() == GMTICKET_QUEUE_STATUS_DISABLED)
-        return;
-
-    if (GetPlayer()->getLevel() < sWorld->getIntConfig(CONFIG_TICKET_LEVEL_REQ))
-    {
-        SendNotification(GetTrinityString(LANG_TICKET_REQ), sWorld->getIntConfig(CONFIG_TICKET_LEVEL_REQ));
-        return;
-    }
-
     GMTicketResponse response = GMTICKET_RESPONSE_CREATE_ERROR;
-    GmTicket* ticket = sTicketMgr->GetTicketByPlayer(GetPlayer()->GetGUID());
-
-    if (ticket && ticket->IsCompleted())
-        sTicketMgr->CloseTicket(ticket->GetId(), GetPlayer()->GetGUID());;
-
     // Player must not have ticket
-    if (!ticket || ticket->IsClosed())
+    if (!sTicketMgr->GetTicketByPlayer(GetPlayer()->GetGUID()))
     {
-        ticket = new GmTicket(GetPlayer(), recvData);
-
-        uint32 count;
-        std::list<uint32> times;
-        uint32 decompressedSize;
-        std::string chatLog;
-
-        recvData >> count;
-
-        for (uint32 i = 0; i < count; i++)
-        {
-            uint32 time;
-            recvData >> time;
-            times.push_back(time);
-        }
-
-        recvData >> decompressedSize;
-
-        if (count && decompressedSize && decompressedSize < 0xFFFF)
-        {
-            uint32 pos = recvData.rpos();
-            ByteBuffer dest;
-            dest.resize(decompressedSize);
-
-            uLongf realSize = decompressedSize;
-            if (uncompress(dest.contents(), &realSize, recvData.contents() + pos, recvData.size() - pos) == Z_OK)
-            {
-                dest >> chatLog;
-                ticket->SetChatLog(times, chatLog);
-            }
-            else
-            {
-                TC_LOG_ERROR("network", "CMSG_GMTICKET_CREATE possibly corrupt. Uncompression failed.");
-                recvData.rfinish();
-                delete ticket;
-                return;
-            }
-
-            recvData.rfinish(); // Will still have compressed data in buffer.
-        }
-
+        GmTicket* ticket = new GmTicket(GetPlayer(), recvData);
         sTicketMgr->AddTicket(ticket);
         sTicketMgr->UpdateLastChange();
 
-        sWorld->SendGMText(LANG_COMMAND_TICKETNEW, GetPlayer()->GetName().c_str(), ticket->GetId());
+        sWorld->SendGMText(LANG_COMMAND_TICKETNEW, GetPlayer()->GetName(), ticket->GetId());
 
         response = GMTICKET_RESPONSE_CREATE_SUCCESS;
     }
 
-    WorldPacket data(SMSG_GM_TICKET_CREATE, 4);
+    WorldPacket data(SMSG_GMTICKET_CREATE, 4);
     data << uint32(response);
     SendPacket(&data);
 }
