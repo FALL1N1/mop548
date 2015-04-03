@@ -28843,7 +28843,7 @@ void Player::ReadMovementInfo(WorldPacket& data, MovementInfo* mi, Movement::Ext
                 extras->ReadNextElement(data);
                 break;
             default:
-                ASSERT(Movement::PrintInvalidSequenceElement(element, __FUNCTION__));
+                //ASSERT(Movement::PrintInvalidSequenceElement(element, __FUNCTION__));
                 break;
         }
     }
