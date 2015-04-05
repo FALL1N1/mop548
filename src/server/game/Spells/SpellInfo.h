@@ -542,6 +542,7 @@ public:
     bool IsHighRankOf(SpellInfo const* spellInfo) const;
 
     // Helpers
+    bool CanTriggerBladeFlurry() const;
     bool IsAfflictionPeriodicDamage() const;
     bool IsEmberstormGropSpells() const;
 
@@ -550,6 +551,7 @@ public:
     bool _IsPositiveEffect(uint8 effIndex, bool deep) const;
     bool _IsPositiveSpell() const;
     static bool _IsPositiveTarget(uint32 targetA, uint32 targetB);
+    bool IsLethalPoison() const;
     bool CanTriggerHotStreak() const;
     bool IsCustomCheckedForHolyPower() const;
     bool IsCustomCharged() const;
