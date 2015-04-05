@@ -10,7 +10,7 @@
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 # Set projectname (must be done AFTER setting configurationtypes)
-project(Project_Skyfire)
+project(Project_Cerber)
 
 # Fix compile
 SET(CMAKE_C_FLAGS "-std=gnu99" CACHE STRING "" FORCE)

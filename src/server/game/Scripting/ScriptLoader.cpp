@@ -1677,12 +1677,34 @@ void AddBattlegroundScripts()
 #ifdef SCRIPTS
 /* This is where custom scripts' loading functions should be declared. */
 
+void AddSC_System_Censure();
+void AddSC_DuelReset();
+void AddSC_Gossip_CheckCombat();
+void AddSC_morphs_npc();
+void AddSC_npc_changer();
+void AddSC_vipmall_security();
+void AddSC_Tele();
+void AddSC_Top5_Killers();
+void AddSC_Title_gossip_codebox();
+void AddSC_vipcommands();
+void AddSC_your_token_item();
 #endif
 
 void AddCustomScripts()
 {
 #ifdef SCRIPTS
     /* This is where custom scripts should be added. */
-
+	
+	AddSC_System_Censure();
+	AddSC_DuelReset();
+	AddSC_Gossip_CheckCombat();
+	AddSC_morphs_npc();
+	AddSC_npc_changer();
+	AddSC_vipmall_security();
+	AddSC_Tele();
+	AddSC_Top5_Killers();
+	AddSC_Title_gossip_codebox();
+	AddSC_vipcommands();
+	AddSC_your_token_item();
 #endif
 }
