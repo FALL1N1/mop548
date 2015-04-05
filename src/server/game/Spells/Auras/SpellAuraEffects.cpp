@@ -4692,7 +4692,7 @@ void AuraEffect::HandleModSpellPowerPct(AuraApplication const* aurApp, uint8 mod
         return;
 
     target->ToPlayer()->UpdateSpellDamageAndHealingBonus();
-    GetCaster()->ToPlayer()->UpdateSpellDamageAndHealingBonus();
+    //GetCaster()->ToPlayer()->UpdateSpellDamageAndHealingBonus();
 }
 
 void AuraEffect::HandleModOffhandDamagePercent(AuraApplication const* aurApp, uint8 mode, bool apply) const
