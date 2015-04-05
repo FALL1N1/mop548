@@ -2112,7 +2112,7 @@ class spell_hun_misdirection : public SpellScriptLoader
                 {
                     if (!GetDuration())
                     {
-                        _player->SetReducedThreatPercent(0, 0);
+                        //_player->SetReducedThreatPercent(0, 0);
 
                         if (_hasGlyph)
                         {
@@ -2150,8 +2150,8 @@ class spell_hun_misdirection_proc : public SpellScriptLoader
 
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                if (GetCaster())
-                    GetCaster()->SetReducedThreatPercent(0, 0);
+                //if (GetCaster())
+                    //GetCaster()->SetReducedThreatPercent(0, 0);
             }
 
             void Register()
