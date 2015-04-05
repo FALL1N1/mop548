@@ -916,6 +916,46 @@ namespace Trinity
             float i_range;
             bool i_playerOnly;
     };
+    
+    class AnyUnitHavingBuffInObjectRangeCheck
+    {
+        public:
+            AnyUnitHavingBuffInObjectRangeCheck(WorldObject const* obj, Unit const* funit, float range, uint32 spellid, bool isfriendly)
+                : i_obj(obj), i_funit(funit), i_range(range), i_spellid(spellid), i_friendly(isfriendly) {}
+            bool operator()(Unit* u)
+            {
+                if (u->IsAlive() && i_obj->IsWithinDistInMap(u, i_range) && i_funit->IsFriendlyTo(u) == i_friendly && u->HasAura(i_spellid, i_obj->GetGUID()))
+                    return true;
+                else
+                    return false;
+            }
+        private:
+            WorldObject const* i_obj;
+            Unit const* i_funit;
+            float i_range;
+            bool i_friendly;
+            uint32 i_spellid;
+    };
+    
+    class AnyUnitNotHavingTypeInRangeCheck
+    {
+        public:
+            AnyUnitNotHavingTypeInRangeCheck(Unit const* funit, uint32 type, float range)
+                : ctype(type), _refUnit(funit), _range(range) {}
+            bool operator()(Unit* u)
+            {
+                return (_refUnit->IsWithinDistInMap(u, _range) && u->GetCreatureType() != ctype);
+            }
+
+            bool operator()(WorldObject* obj)
+            {
+                return (obj->ToUnit() && _refUnit->IsWithinDistInMap(obj->ToUnit(), _range) && obj->ToUnit()->GetCreatureType() != ctype);
+            }
+        private:
+            uint32 ctype;
+            Unit const* _refUnit;
+            float _range;
+    };
 
     class AnyGroupedUnitInObjectRangeCheck
     {
