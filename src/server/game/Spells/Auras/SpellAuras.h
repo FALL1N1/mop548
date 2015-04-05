@@ -81,6 +81,7 @@ class AuraApplication
         void SetNeedClientUpdate() { _needClientUpdate = true;}
         bool IsNeedClientUpdate() const { return _needClientUpdate;}
         void ClientUpdate(bool remove = false);
+        void SendFakeAuraUpdate(uint32 auraId, bool remove);
 };
 
 class Aura

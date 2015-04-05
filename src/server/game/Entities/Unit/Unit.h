@@ -1848,6 +1848,8 @@ class Unit : public WorldObject
         bool HasNegativeAuraWithInterruptFlag(uint32 flag, uint64 guid = 0) const;
         bool HasNegativeAuraWithAttribute(uint32 flag, uint64 guid = 0) const;
         bool HasAuraWithMechanic(uint32 mechanicMask) const;
+        void RemoveSoulSwapDOT(Unit* target);
+        void ApplySoulSwapDOT(Unit* target);
 
         AuraEffect* IsScriptOverriden(SpellInfo const* spell, int32 script) const;
         uint32 GetDiseasesByCaster(uint64 casterGUID, bool remove = false);
