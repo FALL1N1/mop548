@@ -2645,6 +2645,10 @@ class Player : public Unit, public GridObject<Player>
         VoidStorageItem* GetVoidStorageItem(uint8 slot) const;
         VoidStorageItem* GetVoidStorageItem(uint64 id, uint8& slot) const;
 
+        // Monk releated..
+        Creature* GetTransSpirit() { return transcendence_spirit; }
+		void SetTransSpirit(Creature* creature) { transcendence_spirit = creature; }
+
         void ReadyCheckComplete();
 
         uint32 GetQuestObjectiveCounter(uint32 objectiveId) const;
@@ -2962,6 +2966,9 @@ class Player : public Unit, public GridObject<Player>
         InventoryResult CanStoreItem_InInventorySlots(uint8 slot_begin, uint8 slot_end, ItemPosCountVec& dest, ItemTemplate const* pProto, uint32& count, bool merge, Item* pSrcItem, uint8 skip_bag, uint8 skip_slot) const;
         Item* _StoreItem(uint16 pos, Item* pItem, uint32 count, bool clone, bool update);
         Item* _LoadItem(SQLTransaction& trans, uint32 zoneId, uint32 timeDiff, Field* fields);
+
+        // Monk releated
+        Creature* transcendence_spirit;
 
         std::set<uint32> m_refundableItems;
         void SendRefundInfo(Item* item);
