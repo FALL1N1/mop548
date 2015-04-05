@@ -2146,6 +2146,7 @@ class Unit : public WorldObject
         uint32 GetModelForTotem(PlayerTotemType totemType);
 
         // Redirect Threat
+        void SetReducedThreatPercent(uint32 pct, uint64 guid);
         void SetRedirectThreat(uint64 guid, uint32 pct) { _redirectThreadInfo.Set(guid, pct); }
         void ResetRedirectThreat() { SetRedirectThreat(0, 0); }
         void ModifyRedirectThreat(int32 amount) { _redirectThreadInfo.ModifyThreatPct(amount); }
