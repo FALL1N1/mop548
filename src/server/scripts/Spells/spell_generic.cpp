@@ -3847,6 +3847,23 @@ public:
     }
 };
 
+#define BloodPresence 48263
+class dk_unaura_at_login : public PlayerScript
+{
+  public:
+	dk_unaura_at_login() : PlayerScript("dk_unaura_at_login") {}
+
+	void OnLogin(Player * player)
+	{
+        if (Aura* aur = player->GetAura(BloodPresence, player->GetGUID()))
+            if (aur->GetStackAmount() > 1)
+            {
+                player->UnAura(BloodPresence);
+                player->AddAura(BloodPresence);
+            }
+	}
+};
+
 void AddSC_generic_spell_scripts()
 {
     new spell_pandaria_enchants();
@@ -3933,4 +3950,5 @@ void AddSC_generic_spell_scripts()
     new spell_gen_whisper_gulch_yogg_saron_whisper();
     new spell_gen_survey();
     new spell_gen_searching_for_artifacts();
+    new dk_unaura_at_login();
 }
