@@ -260,6 +260,13 @@ enum Stats
 
 #define MAX_STATS                        5
 
+enum eclipseState
+{
+    ECLIPSE_NONE,
+    ECLIPSE_LUNAR,
+    ECLIPSE_SOLAR,
+};
+
 enum Powers
 {
     POWER_MANA                          = 0,

@@ -683,6 +683,7 @@ Player::Player(WorldSession* session): Unit(true), phaseMgr(this)
 
     m_speakTime = 0;
     m_speakCount = 0;
+    m_lastEclipseState = ECLIPSE_NONE;
 
     m_objectType |= TYPEMASK_PLAYER;
     m_objectTypeId = TYPEID_PLAYER;

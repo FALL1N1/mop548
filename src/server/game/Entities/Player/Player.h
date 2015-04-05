@@ -2417,6 +2417,8 @@ class Player : public Unit, public GridObject<Player>
         float m_homebindZ;
 
         WorldLocation GetStartPosition() const;
+        
+        uint32 m_lastEclipseState;
 
         uint8 m_free_slot = 0;
         uint8 m_slot;
