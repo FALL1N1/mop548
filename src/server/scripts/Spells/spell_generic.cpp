@@ -3858,8 +3858,8 @@ class dk_unaura_at_login : public PlayerScript
         if (Aura* aur = player->GetAura(BloodPresence, player->GetGUID()))
             if (aur->GetStackAmount() > 1)
             {
-                player->UnAura(BloodPresence);
-                player->AddAura(BloodPresence);
+                player->RemoveAura(BloodPresence);
+                player->AddAura(BloodPresence, player);
             }
 	}
 };
