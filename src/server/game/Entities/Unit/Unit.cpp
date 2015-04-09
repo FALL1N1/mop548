@@ -16948,6 +16948,22 @@ void Unit::StopAttackFaction(uint32 faction_id)
             (*itr)->StopAttackFaction(faction_id);
 }
 
+void Unit::GetAttackableForCasterUnitListInRange(std::list<Unit*> &list, float fMaxSearchRange, Unit* caster) const
+{
+    CellCoord p(Trinity::ComputeCellCoord(GetPositionX(), GetPositionY()));
+    Cell cell(p);
+    cell.SetNoCreate();
+
+    Trinity::AnyUnitAttackableForCasterInObjectRangeCheck u_check(this, fMaxSearchRange, caster);
+    Trinity::UnitListSearcher<Trinity::AnyUnitAttackableForCasterInObjectRangeCheck> searcher(this, list, u_check);
+
+    TypeContainerVisitor<Trinity::UnitListSearcher<Trinity::AnyUnitAttackableForCasterInObjectRangeCheck>, WorldTypeMapContainer > world_unit_searcher(searcher);
+    TypeContainerVisitor<Trinity::UnitListSearcher<Trinity::AnyUnitAttackableForCasterInObjectRangeCheck>, GridTypeMapContainer >  grid_unit_searcher(searcher);
+
+    cell.Visit(p, world_unit_searcher, *GetMap(), *this, fMaxSearchRange);
+    cell.Visit(p, grid_unit_searcher, *GetMap(), *this, fMaxSearchRange);
+}
+
 void Unit::GetAttackableUnitListInRange(std::list<Unit*> &list, float fMaxSearchRange) const
 {
     CellCoord p(Trinity::ComputeCellCoord(GetPositionX(), GetPositionY()));
