@@ -999,6 +999,24 @@ namespace Trinity
             WorldObject const* i_obj;
             float i_range;
     };
+    
+    class AnyUnitAttackableForCasterInObjectRangeCheck
+    {
+        public:
+            AnyUnitAttackableForCasterInObjectRangeCheck(WorldObject const* obj, float range, Unit* caster) : i_obj(obj), i_range(range), i_caster(caster) {}
+            bool operator()(Unit* u)
+            {
+                if (u->IsAlive() && i_obj->IsWithinDistInMap(u, i_range)
+                    && !u->IsFriendlyTo(i_caster))
+                    return true;
+
+                return false;
+            }
+        private:
+            WorldObject const* i_obj;
+            float i_range;
+            Unit* i_caster;
+    };
 
     // Success at unit in range, range update for next check (this can be use with UnitLastSearcher to find nearest unit)
     class NearestAttackableUnitInObjectRangeCheck
