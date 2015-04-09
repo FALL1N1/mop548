@@ -37,22 +37,25 @@ GmTicket::GmTicket() { }
 
 GmTicket::GmTicket(Player* player, WorldPacket& recvData) : _createTime(time(NULL)), _lastModifiedTime(time(NULL)), _closedBy(0), _assignedTo(0), _completed(false), _escalatedStatus(TICKET_UNASSIGNED), _haveTicket(false)
 {
-    _id = sTicketMgr->GenerateTicketId();
-    _playerName = player->GetName();
-    _playerGuid = player->GetGUID();
+	_id = sTicketMgr->GenerateTicketId();
+	_playerName = player->GetName();
+	_playerGuid = player->GetGUID();
 
-    uint32 mapId;
-    recvData >> mapId;                      // Map is sent as UInt32!
-    _mapId = mapId;
+	uint32 mapId, unk2;
+	uint8 unk1, t1, t2;
+	recvData >> mapId;
+	_mapId = mapId;
 
-    recvData >> _posX;
-    recvData >> _posY;
-    recvData >> _posZ;
-    recvData >> _message;
-    uint32 needResponse;
-    recvData >> needResponse;
-    _needResponse = (needResponse == 17);   // Requires GM response. 17 = true, 1 = false (17 is default)
-    recvData >> _haveTicket;                // Requests further GM interaction on a ticket to which a GM has already responded. Basically means "has a new ticket"
+	recvData >> _posX;
+	recvData >> _posY;
+	recvData >> _posZ;
+	recvData >> unk2;
+	recvData >> unk1;
+	recvData >> t1;
+	recvData >> t2;
+	recvData >> _message;
+
+	recvData.rfinish();
 }
 
 GmTicket::~GmTicket() { }
