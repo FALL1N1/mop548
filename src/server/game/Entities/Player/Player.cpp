@@ -7260,30 +7260,173 @@ int16 Player::GetSkillTempBonusValue(uint32 skill) const
 
 void Player::SendActionButtons(uint32 state) const
 {
-	WorldPacket data(SMSG_ACTION_BUTTONS, 1 + (MAX_ACTION_BUTTONS * 4));
-	/*
-	state can be 0, 1, 2
-	0 - Sends initial action buttons, client does not validate if we have the spell or not
-	1 - Used used after spec swaps, client validates if a spell is known.
-	2 - Clears the action bars client sided. This is sent during spec swap before unlearning and before sending the new buttons
-	*/
-	if (state != 2)
-	{
-		for (uint8 button = 0; button < MAX_ACTION_BUTTONS; ++button)
-		{
-			ActionButtonList::const_iterator itr = m_actionButtons.find(button);
-			if (itr != m_actionButtons.end() && itr->second.uState != ACTIONBUTTON_DELETED)
-				data << uint32(itr->second.packedData);
-			else
-				data << uint32(0);
-		}
-	}
-	else
-		data.resize(MAX_ACTION_BUTTONS * 4);    // insert crap, client doesnt even parse this for state == 2
+    WorldPacket data(SMSG_ACTION_BUTTONS, 1+(MAX_ACTION_BUTTONS*8));
 
-	data << uint8(state);
-	GetSession()->SendPacket(&data);
-	TC_LOG_INFO("network", "Action Buttons for '%u' spec '%u' Sent", GetGUIDLow(), GetActiveSpec());
+    // Bits
+    for (uint8 button = 0; button < MAX_ACTION_BUTTONS; ++button)
+    {
+        ObjectGuid buttons = 0;
+        ActionButton const* ab = ((Player*)this)->GetActionButton(button);
+        if (ab)
+            buttons = uint64(ab->packedData);
+
+        data.WriteBit(buttons[4]);
+    }
+
+    for (uint8 button = 0; button < MAX_ACTION_BUTTONS; ++button)
+    {
+        ObjectGuid buttons = 0;
+        ActionButton const* ab = ((Player*)this)->GetActionButton(button);
+        if (ab)
+            buttons = uint64(ab->packedData);
+
+        data.WriteBit(buttons[5]);
+    }
+
+    for (uint8 button = 0; button < MAX_ACTION_BUTTONS; ++button)
+    {
+        ObjectGuid buttons = 0;
+        ActionButton const* ab = ((Player*)this)->GetActionButton(button);
+        if (ab)
+            buttons = uint64(ab->packedData);
+
+        data.WriteBit(buttons[3]);
+    }
+
+    for (uint8 button = 0; button < MAX_ACTION_BUTTONS; ++button)
+    {
+        ObjectGuid buttons = 0;
+        ActionButton const* ab = ((Player*)this)->GetActionButton(button);
+        if (ab)
+            buttons = uint64(ab->packedData);
+
+        data.WriteBit(buttons[1]);
+    }
+
+    for (uint8 button = 0; button < MAX_ACTION_BUTTONS; ++button)
+    {
+        ObjectGuid buttons = 0;
+        ActionButton const* ab = ((Player*)this)->GetActionButton(button);
+        if (ab)
+            buttons = uint64(ab->packedData);
+
+        data.WriteBit(buttons[6]);
+    }
+
+    for (uint8 button = 0; button < MAX_ACTION_BUTTONS; ++button)
+    {
+        ObjectGuid buttons = 0;
+        ActionButton const* ab = ((Player*)this)->GetActionButton(button);
+        if (ab)
+            buttons = uint64(ab->packedData);
+
+        data.WriteBit(buttons[7]);
+    }
+
+    for (uint8 button = 0; button < MAX_ACTION_BUTTONS; ++button)
+    {
+        ObjectGuid buttons = 0;
+        ActionButton const* ab = ((Player*)this)->GetActionButton(button);
+        if (ab)
+            buttons = uint64(ab->packedData);
+
+        data.WriteBit(buttons[0]);
+    }
+
+    for (uint8 button = 0; button < MAX_ACTION_BUTTONS; ++button)
+    {
+        ObjectGuid buttons = 0;
+        ActionButton const* ab = ((Player*)this)->GetActionButton(button);
+        if (ab)
+            buttons = uint64(ab->packedData);
+
+        data.WriteBit(buttons[2]);
+    }
+
+    // Data
+    for (uint8 button = 0; button < MAX_ACTION_BUTTONS; ++button)
+    {
+        ObjectGuid buttons = 0;
+        ActionButton const* ab = ((Player*)this)->GetActionButton(button);
+        if (ab)
+            buttons = uint64(ab->packedData);
+
+        data.WriteByteSeq(buttons[0]);
+    }
+
+    for (uint8 button = 0; button < MAX_ACTION_BUTTONS; ++button)
+    {
+        ObjectGuid buttons = 0;
+        ActionButton const* ab = ((Player*)this)->GetActionButton(button);
+        if (ab)
+            buttons = uint64(ab->packedData);
+
+        data.WriteByteSeq(buttons[1]);
+    }
+
+    for (uint8 button = 0; button < MAX_ACTION_BUTTONS; ++button)
+    {
+        ObjectGuid buttons = 0;
+        ActionButton const* ab = ((Player*)this)->GetActionButton(button);
+        if (ab)
+            buttons = uint64(ab->packedData);
+
+        data.WriteByteSeq(buttons[4]);
+    }
+
+    for (uint8 button = 0; button < MAX_ACTION_BUTTONS; ++button)
+    {
+        ObjectGuid buttons = 0;
+        ActionButton const* ab = ((Player*)this)->GetActionButton(button);
+        if (ab)
+            buttons = uint64(ab->packedData);
+
+        data.WriteByteSeq(buttons[6]);
+    }
+
+    for (uint8 button = 0; button < MAX_ACTION_BUTTONS; ++button)
+    {
+        ObjectGuid buttons = 0;
+        ActionButton const* ab = ((Player*)this)->GetActionButton(button);
+        if (ab)
+            buttons = uint64(ab->packedData);
+
+        data.WriteByteSeq(buttons[7]);
+    }
+
+    for (uint8 button = 0; button < MAX_ACTION_BUTTONS; ++button)
+    {
+        ObjectGuid buttons = 0;
+        ActionButton const* ab = ((Player*)this)->GetActionButton(button);
+        if (ab)
+            buttons = uint64(ab->packedData);
+
+        data.WriteByteSeq(buttons[2]);
+    }
+
+    for (uint8 button = 0; button < MAX_ACTION_BUTTONS; ++button)
+    {
+        ObjectGuid buttons = 0;
+        ActionButton const* ab = ((Player*)this)->GetActionButton(button);
+        if (ab)
+            buttons = uint64(ab->packedData);
+
+        data.WriteByteSeq(buttons[5]);
+    }
+
+    for (uint8 button = 0; button < MAX_ACTION_BUTTONS; ++button)
+    {
+        ObjectGuid buttons = 0;
+        ActionButton const* ab = ((Player*)this)->GetActionButton(button);
+        if (ab)
+            buttons = uint64(ab->packedData);
+
+        data.WriteByteSeq(buttons[3]);
+    }
+
+    data << uint8(state);
+    GetSession()->SendPacket(&data);
+    TC_LOG_INFO("network", "Action Buttons for '%u' spec '%u' Sent", GetGUIDLow(), GetActiveSpec());
 }
 
 bool Player::IsActionButtonDataValid(uint8 button, uint32 action, uint8 type)
