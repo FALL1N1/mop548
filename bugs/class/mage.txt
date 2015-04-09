@@ -1,0 +1,5 @@
+mirror image: missing opcodes
+alter time: doesnt work, changes world??
+ring of frost: not freezing
+Flamwglow: doesnt work?
+Temporal Shield: doesnt work

@@ -1,0 +1,9 @@
+ [Seal of Insight] and  [Seal of Righteousness] : the [Seal of Insight] shouldnt give u mana in each attack but it gives and the [Seal of Righteousness] should give u mana in each attack, but it dont gives. the mana amount isnt true.
+ [Guardian of Ancient Kings] : the guardian should heal the targeted healed player again after each heal in holy talent (in other talents doesnt tested its mechanism yet.)
+ [Seal of Command] and [Seal of Truth] : when u press [Seal of Command] , [Seal of Truth] activates instead of it.
+
+ Redemption missing opcode
+ binding light? seems to not work.
+ Selfless Healer completely broken (doing werid stuff)
+ (works)[Crusader Strike] : when it give u holy power, it dont increase holy power in power bar but it says it give u that holy power and u cant use that holy power
+ Divine Purpose procs on every hit
