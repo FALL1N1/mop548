@@ -481,7 +481,7 @@ public:
                 Player* player = GetCaster()->ToPlayer();
                 if (Creature* spirit = player->GetTransSpirit())
                 {
-                    float distance = player->HasAura(123023) ? 50.0f : 40.0f; // glyph of transcendece
+					float distance = 50.0f; //player->HasAura(123023) ? 50.0f : 40.0f; // glyph of transcendece (temp hackfix the crash)
 
                     if (player->GetExactDist2d(spirit->GetPositionX(), spirit->GetPositionY()) <= distance)
                         return SPELL_CAST_OK;
