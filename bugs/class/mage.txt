@@ -1,5 +1,14 @@
-mirror image: missing opcodes
-alter time: doesnt work, changes world??
-ring of frost: not freezing
-Flamwglow: doesnt work?
-Temporal Shield: doesnt work
+after time : do not have any effect on place and mana and hp
+arcane brilliance: it is fix only now u can use it on enemy player but u must not able to do it
+conjure mana gem: it will create mana gem but when use mana gem no effect on mana and do not increase your mana at all
+mirror image: now creating 3 mirror but they are white and do not use any spell only using auto melle attack
+flameglow: do not have any effect
+icebarrier: sometimes when other players use spell it cause wow crash (not server crash)
+temporal shield: it will decrease 15% damage but do not heal
+mage bomb : cant cast this spell at all
+Rune of Power : cant cast this spell at all
+Incanter's Ward : it cause wow crash (not server crash)
+frozen orb: do not have any damage and do not slow at all. movement is wrong too.
+incanters ward: when use and other player attack you wow will crash
+frozen orb: do not have any damage and do not slow at all
+water elemental (mage pet in frost talent): pet don't use freeze spell
