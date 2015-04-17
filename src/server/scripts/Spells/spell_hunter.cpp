@@ -1592,12 +1592,13 @@ class spell_hun_rapid_fire : public SpellScriptLoader
                             if (Aura* rapidFire = aura->GetBase())
                                 rapidFire->GetEffect(1)->ChangeAmount(3200);
                     }
-                    else
+					// we dont need to charge player, just return nothing.
+                    /*else
                     {
                         if (AuraApplication* aura = _player->GetAuraApplication(HUNTER_SPELL_RAPID_FIRE))
                             if (Aura* rapidFire = aura->GetBase())
                                 rapidFire->GetEffect(1)->ChangeAmount(0);
-                    }
+                    }*/
                 }
             }
 
