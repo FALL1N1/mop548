@@ -23202,7 +23202,7 @@ bool Player::BuyCurrencyFromVendorSlot(uint64 vendorGuid, uint32 vendorSlot, uin
         return false;
     }
 
-    if (count % crItem->maxcount)
+    if (count > crItem->maxcount) // % ??
     {
         SendEquipError(EQUIP_ERR_CANT_BUY_QUANTITY, NULL, NULL);
         return false;
