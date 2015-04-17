@@ -1218,14 +1218,15 @@ void WorldSession::HandleSetActionButtonOpcode(WorldPacket& recvData)
 
     recvData.ReadGuidBytes(buttonStream, 6, 7, 3, 5, 2, 1, 4, 0);
 
-    ActionButtonPACKET* button = reinterpret_cast<ActionButtonPACKET*>(&buttonStream);
-
-    TC_LOG_DEBUG("network", "CMSG_SET_ACTION_BUTTON slotId: %u actionId: %u", slotId, button->id);
-
-    if (!button->id)
+    if(!uint64(buttonStream))
         GetPlayer()->removeActionButton(slotId);
     else
-        GetPlayer()->addActionButton(slotId, button->id, button->unk);
+    {
+        uint8 type = ACTION_BUTTON_TYPE(buttonStream);
+        uint32 actionId = ACTION_BUTTON_ACTION(buttonStream);
+
+        GetPlayer()->addActionButton(slotId, actionId, type);
+    }
 }
 
 void WorldSession::HandleCompleteCinematic(WorldPacket& /*recvData*/)
