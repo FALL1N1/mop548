@@ -5122,6 +5122,9 @@ void Unit::SendAttackStateUpdate(CalcDamageInfo* damageInfo)
     size_t maxsize = 4+5+5+4+4+1+4+4+4+4+4+1+4+4+4+4+4*12;
     WorldPacket data(SMSG_ATTACKERSTATEUPDATE, maxsize);    // we guess size
 
+	damageInfo->HitInfo &= ~HITINFO_FULL_ABSORB;
+	damageInfo->HitInfo &= ~HITINFO_PARTIAL_ABSORB;
+
     bool hasUnkFlags = damageInfo->HitInfo & HITINFO_UNK26;
     uint32 unkCounter  = 0;
 

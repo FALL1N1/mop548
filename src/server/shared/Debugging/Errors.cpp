@@ -31,7 +31,7 @@ void Assert(char const* file, int line, char const* function, char const* messag
     fprintf(stderr, "\n%s:%i in %s ASSERTION FAILED:\n  %s\n%s\n",
             file, line, function, message, st.c_str());
     *((volatile int*)NULL) = 0;
-    exit(1);
+//    exit(1);
 }
 
 void Fatal(char const* file, int line, char const* function, char const* message)
