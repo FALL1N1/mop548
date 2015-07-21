@@ -233,5 +233,5 @@ class boss_xuen : public CreatureScript
 
 void AddSC_worldboss_xuen()
 {
-    new boss_chi_ji_ti();
+    new boss_xuen();
 }
