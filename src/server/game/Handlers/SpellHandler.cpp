@@ -1331,7 +1331,7 @@ void WorldSession::HandleMirrorImageDataRequest(WorldPacket& recvData)
 
     if (Player* player = creator->ToPlayer())
     {
-        WorldPacket data(SMSG_MIRRORIMAGE_DATA, 68);
+		WorldPacket recvData(SMSG_MIRRORIMAGE_DATA, 68);
         ObjectGuid guild_guid;
 
         if (player->GetGuild())
@@ -1359,19 +1359,19 @@ void WorldSession::HandleMirrorImageDataRequest(WorldPacket& recvData)
         for (EquipmentSlots const* itr = &itemSlots[0]; *itr != EQUIPMENT_SLOT_END; ++itr)
             count++;
 
-        data.WriteBit(guid[4]);
-        data.WriteGuidMask(guild_guid, 3, 6);
-        data.WriteBit(guid[0]);
-        data.WriteBit(guild_guid[7]);
-        data.WriteGuidMask(guid, 1, 5);
-        data.WriteGuidMask(guild_guid, 2, 1);
-        data.WriteBit(guid[7]);
-        data.WriteGuidMask(guild_guid, 4, 0);
-        data.WriteBit(guid[2]);
-        data.WriteBit(guild_guid[5]);
-        data.WriteBit(guid[3]);
-        data.WriteBits(count, 22); // item count
-        data.WriteBit(guid[6]);
+		recvData.WriteBit(guid[4]);
+		recvData.WriteGuidMask(guild_guid, 3, 6);
+		recvData.WriteBit(guid[0]);
+		recvData.WriteBit(guild_guid[7]);
+		recvData.WriteGuidMask(guid, 1, 5);
+		recvData.WriteGuidMask(guild_guid, 2, 1);
+		recvData.WriteBit(guid[7]);
+		recvData.WriteGuidMask(guild_guid, 4, 0);
+		recvData.WriteBit(guid[2]);
+		recvData.WriteBit(guild_guid[5]);
+		recvData.WriteBit(guid[3]);
+		recvData.WriteBits(count, 22); // item count
+		recvData.WriteBit(guid[6]);
 
         uint8 skin, face, hair, hairColor, facialHair;
         skin       = player->GetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, 0);   // skin
@@ -1380,52 +1380,52 @@ void WorldSession::HandleMirrorImageDataRequest(WorldPacket& recvData)
         hairColor  = player->GetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, 3);   // haircolor
         facialHair = player->GetByteValue(PLAYER_FIELD_REST_STATE, 0); // facialhair
 
-        data << uint8(hairColor);
-        data << uint32(creator->GetDisplayId());
-        data << uint8(facialHair);
+		recvData << uint8(hairColor);
+		recvData << uint32(creator->GetDisplayId());
+		recvData << uint8(facialHair);
 
-        data.WriteGuidBytes(guild_guid, 6, 4);
-        data.WriteByteSeq(guid[7]);
-        data.WriteByteSeq(guild_guid[1]);
-        data.WriteByteSeq(guid[3]);
+		recvData.WriteGuidBytes(guild_guid, 6, 4);
+		recvData.WriteByteSeq(guid[7]);
+		recvData.WriteByteSeq(guild_guid[1]);
+		recvData.WriteByteSeq(guid[3]);
 
-        data << uint8(hair);
+        recvData << uint8(hair);
         
-        data.WriteGuidBytes(guid, 2, 0);
+		recvData.WriteGuidBytes(guid, 2, 0);
 
-        data << uint8(creator->getRace());
-        data << uint8(skin);
+		recvData << uint8(creator->getRace());
+		recvData << uint8(skin);
 
-        data.WriteByteSeq(guild_guid[7]);
+		recvData.WriteByteSeq(guild_guid[7]);
 
         // Display items in visible slots
         for (EquipmentSlots const* itr = &itemSlots[0]; *itr != EQUIPMENT_SLOT_END; ++itr)
         {
             if (*itr == EQUIPMENT_SLOT_HEAD && player->HasFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_HIDE_HELM))
-                data << uint32(0);
+				recvData << uint32(0);
             else if (*itr == EQUIPMENT_SLOT_BACK && player->HasFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_HIDE_CLOAK))
-                data << uint32(0);
+				recvData << uint32(0);
             else if (Item const* item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, *itr))
-                data << uint32(item->GetTemplate()->DisplayInfoID);
+				recvData << uint32(item->GetTemplate()->DisplayInfoID);
             else
-                data << uint32(0);
+				recvData << uint32(0);
         }
     }
     else
     {
-        data.WriteByteSeq(guid[4]);
+		recvData.WriteByteSeq(guid[4]);
 
-        data << uint8(creator->getClass());
-        data << uint8(creator->getGender());
-        data << uint8(face);
+		recvData << uint8(creator->getClass());
+		recvData << uint8(creator->getGender());
+		recvData << uint8(1); // face
 
-        data.WriteByteSeq(guid[5]);
-        data.WriteGuidBytes(guild_guid, 3, 2);
-        data.WriteByteSeq(guid[1]);
-        data.WriteGuidBytes(guild_guid, 0, 5);
-        data.WriteByteSeq(guid[6]);
+		recvData.WriteByteSeq(guid[5]);
+		recvData.WriteGuidBytes(1, 3, 2); // 1= guild_guid
+		recvData.WriteByteSeq(guid[1]);
+		recvData.WriteGuidBytes(1, 0, 5); // 1= guild_guid
+		recvData.WriteByteSeq(guid[6]);
 
-        SendPacket(&data);
+		SendPacket(&recvData);
     }
 }
 

@@ -144,6 +144,7 @@ class AuraEffect
         void HandleFeignDeath(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleModUnattackable(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModDisarm(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+        void HandleAuraInitializeImages(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModSilence(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModPacify(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModPacifyAndSilence(AuraApplication const* aurApp, uint8 mode, bool apply) const;
