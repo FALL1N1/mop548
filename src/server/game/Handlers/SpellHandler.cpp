@@ -1310,9 +1310,11 @@ void WorldSession::HandleSpellClick(WorldPacket& recvData)
 void WorldSession::HandleMirrorImageDataRequest(WorldPacket& recvData)
 {
     TC_LOG_DEBUG("network", "WORLD: CMSG_GET_MIRRORIMAGE_DATA");
-    uint64 guid;
-    recvData >> guid;
-    recvData.read_skip<uint32>(); // DisplayId ?
+    uint32 displayId;
+    ObjectGuid guid;
+    recvData >> displayId;
+    recvData.ReadGuidMask(guid, 0, 2, 1, 6, 5, 4, 7, 3);
+    recvData.ReadGuidBytes(guid, 6, 0, 3, 5, 4, 2, 1, 7);
 
     // Get unit for which data is needed by client
     Unit* unit = ObjectAccessor::GetObjectInWorld(guid, (Unit*)NULL);
@@ -1327,27 +1329,16 @@ void WorldSession::HandleMirrorImageDataRequest(WorldPacket& recvData)
     if (!creator)
         return;
 
-    WorldPacket data(SMSG_MIRRORIMAGE_DATA, 68);
-    data << uint64(guid);
-    data << uint32(creator->GetDisplayId());
-    data << uint8(creator->getRace());
-    data << uint8(creator->getGender());
-    data << uint8(creator->getClass());
-
-    if (creator->GetTypeId() == TYPEID_PLAYER)
+    if (Player* player = creator->ToPlayer())
     {
-        Player* player = creator->ToPlayer();
-        Guild* guild = NULL;
+        WorldPacket data(SMSG_MIRRORIMAGE_DATA, 68);
+        ObjectGuid guild_guid;
 
-        if (uint32 guildId = player->GetGuildId())
-            guild = sGuildMgr->GetGuildById(guildId);
-
-        data << uint8(player->GetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, 0));   // skin
-        data << uint8(player->GetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, 1));   // face
-        data << uint8(player->GetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, 2));   // hair
-        data << uint8(player->GetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, 3));   // haircolor
-        data << uint8(player->GetByteValue(PLAYER_FIELD_REST_STATE, 0)); // facialhair
-        data << uint64(guild ? guild->GetGUID() : 0);
+        if (player->GetGuild())
+            guild_guid = player->GetGuild()->GetGUID();
+ 
+        uint32 count = 0;
+        // Display items in visible slots
 
         static EquipmentSlots const itemSlots[] =
         {
@@ -1364,6 +1355,48 @@ void WorldSession::HandleMirrorImageDataRequest(WorldPacket& recvData)
             EQUIPMENT_SLOT_TABARD,
             EQUIPMENT_SLOT_END
         };
+        
+        for (EquipmentSlots const* itr = &itemSlots[0]; *itr != EQUIPMENT_SLOT_END; ++itr)
+            count++;
+
+        data.WriteBit(guid[4]);
+        data.WriteGuidMask(guild_guid, 3, 6);
+        data.WriteBit(guid[0]);
+        data.WriteBit(guild_guid[7]);
+        data.WriteGuidMask(guid, 1, 5);
+        data.WriteGuidMask(guild_guid, 2, 1);
+        data.WriteBit(guid[7]);
+        data.WriteGuidMask(guild_guid, 4, 0);
+        data.WriteBit(guid[2]);
+        data.WriteBit(guild_guid[5]);
+        data.WriteBit(guid[3]);
+        data.WriteBits(count, 22); // item count
+        data.WriteBit(guid[6]);
+
+        uint8 skin, face, hair, hairColor, facialHair;
+        skin       = player->GetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, 0);   // skin
+        face       = player->GetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, 1);   // face
+        hair       = player->GetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, 2);   // hair
+        hairColor  = player->GetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, 3);   // haircolor
+        facialHair = player->GetByteValue(PLAYER_FIELD_REST_STATE, 0); // facialhair
+
+        data << uint8(hairColor);
+        data << uint32(creator->GetDisplayId());
+        data << uint8(facialHair);
+
+        data.WriteGuidBytes(guild_guid, 6, 4);
+        data.WriteByteSeq(guid[7]);
+        data.WriteByteSeq(guild_guid[1]);
+        data.WriteByteSeq(guid[3]);
+
+        data << uint8(hair);
+        
+        data.WriteGuidBytes(guid, 2, 0);
+
+        data << uint8(creator->getRace());
+        data << uint8(skin);
+
+        data.WriteByteSeq(guild_guid[7]);
 
         // Display items in visible slots
         for (EquipmentSlots const* itr = &itemSlots[0]; *itr != EQUIPMENT_SLOT_END; ++itr)
@@ -1380,24 +1413,20 @@ void WorldSession::HandleMirrorImageDataRequest(WorldPacket& recvData)
     }
     else
     {
-        // Skip player data for creatures
-        data << uint8(0);
-        data << uint32(0);
-        data << uint32(0);
-        data << uint32(0);
-        data << uint32(0);
-        data << uint32(0);
-        data << uint32(0);
-        data << uint32(0);
-        data << uint32(0);
-        data << uint32(0);
-        data << uint32(0);
-        data << uint32(0);
-        data << uint32(0);
-        data << uint32(0);
-    }
+        data.WriteByteSeq(guid[4]);
 
-    SendPacket(&data);
+        data << uint8(creator->getClass());
+        data << uint8(creator->getGender());
+        data << uint8(face);
+
+        data.WriteByteSeq(guid[5]);
+        data.WriteGuidBytes(guild_guid, 3, 2);
+        data.WriteByteSeq(guid[1]);
+        data.WriteGuidBytes(guild_guid, 0, 5);
+        data.WriteByteSeq(guid[6]);
+
+        SendPacket(&data);
+    }
 }
 
 void WorldSession::HandleUpdateProjectilePosition(WorldPacket& recvPacket)
