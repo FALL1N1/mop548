@@ -205,6 +205,9 @@ enum ScoreType
     SCORE_PERSONAL_RATING_CHANGE    = 21,
     SCORE_PRE_MATCH_MMR             = 22,
     SCORE_MMR_CHANGE                = 23,
+    // tk
+    SCORE_ORB_HANDLES               = 24,
+    SCORE_ORB_SCORE                 = 25,
 };
 
 enum BattlegroundType

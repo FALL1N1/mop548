@@ -1039,6 +1039,20 @@ enum TrinityStrings
     LANG_BG_AV_H_CAPTAIN_DEAD           = 1331,
     LANG_BG_AV_A_CAPTAIN_DEAD           = 1332,
     LANG_BG_AV_START_TWO_MINUTES        = 1333,
+    // kotmogu
+    LANG_BG_TOK_START_TWO_MINUTE         = 1345,
+    LANG_BG_TOK_START_ONE_MINUTE         = 1346,
+    LANG_BG_TOK_START_HALF_MINUTE        = 1347,
+    LANG_BG_TOK_HAS_BEGUN                = 1348,
+    LANG_BG_TOK_DROPPED                  = 1349,
+    LANG_BG_TOK_PICKEDUP                 = 1350,
+    LANG_BG_TOK_O_PLACED                 = 1351,
+    LANG_BG_TOK_ORB_PURPLE               = 1352,
+    LANG_BG_TOK_ORB_ORANGE               = 1353,
+    LANG_BG_TOK_ORB_GREEN                = 1354,
+    LANG_BG_TOK_ORB_BLUE                 = 1355,
+    LANG_BG_TOK_ORBS_SPAWNED             = 1356,
+    
     // FREE IDS                           1334-1999
 
     // Ticket Strings 2000-2029
